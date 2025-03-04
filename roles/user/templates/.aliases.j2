@@ -65,7 +65,7 @@ alias paruscc="paru -Scc --noconfirm"
 
 # git
 # alias gd="git diff --name-status | grep -v D | awk '{print $2}' | fzf --preview 'git diff -- {}'"
-alias gc="env GIT_EDITOR=micro git commit -a && gum confirm 'push changes' && git push"
+alias gc="env GIT_EDITOR=micro git commit && gum confirm 'push changes' && git push"
 alias gfp="git fetch && git pull"
 alias gp="git push"
 alias glog="git log --oneline --decorate --graph --all"
