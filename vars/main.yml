@@ -44,6 +44,7 @@ packages:
     - npm
     - numlockx
     - nuspell
+    - pandoc
     - playerctl
     - ranger
     - ripgrep
