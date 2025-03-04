@@ -1,0 +1,9 @@
+---
+# defaults file for docker
+
+# docker: "defaults/main.yml"
+
+docker:
+  storage: /var/lib/docker
+
+use_docker: False

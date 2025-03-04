@@ -24,3 +24,7 @@
 
     - role: user
       tags: user
+
+    - role: docker
+      become: true
+      tags: docker
