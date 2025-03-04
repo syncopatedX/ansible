@@ -4,6 +4,8 @@
   vars:
     path:
       - "{{ lookup('env','HOME') }}/.local/bin"
+  vars_files: 
+    - "../vars/main.yml"
   environment:
     PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path|join(':') }}"
 
