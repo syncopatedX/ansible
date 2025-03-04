@@ -12,6 +12,7 @@
     - name: Set profile config directory fact
       set_fact:
         profile_config_dir: "{{ '/etc/skel' if use_etc_skel | bool else ansible_env.HOME }}"
+      tags: ['always']
 
   roles:
 
