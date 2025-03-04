@@ -3,11 +3,13 @@
 
 - name: install reflector package
   pacman:
-    name: "{{ packages_base }}"
+    name: "{{ item }}"
     state: present
     force: true
     extra_args: --noconfirm
-  tags: ["packages"]
+  with_items:
+    - "{{ packages.base }}"
+  tags: ["packages", "base_pkgs"]
 
 - name: Check if mirrors have been updated within the past 24h
   shell: | 
@@ -49,9 +51,9 @@
   tags: ["makepkg"]
 
 - import_tasks:
-    file: paru.yml
-  tags: ["paru"]
-
-- import_tasks:
     file: repos.yml
   tags: ["repos"]
+
+- import_tasks:
+    file: paru.yml
+  tags: ["paru"]

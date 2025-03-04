@@ -1,7 +1,65 @@
 ---
 
 packages:
+  base:
+    - aria2
+    - audiofile
+    - chromaprint
+    - cmake
+    - cpupower
+    - dex
+    - faac
+    - faad2
+    - fd
+    - firewalld
+    - fsarchiver
+    - fuse-common
+    - fuse3
+    - git
+    - git-lfs
+    - gnome-keyring
+    - gnuplot 
+    - graphicsmagick
+    - gst-libav
+    - gstreamer
+    - imagemagick
+    - inetutils
+    - libgit2
+    - libgit2-glib
+    - libvips
+    - libvoikko
+    - links
+    - lnav
+    - lynx
+    - mako
+    - meld
+    - poppler
+    - postgresql-libs
+    - python-adblock
+    - python-chardet
+    - python-j2cli
+    - python-pillow
+    - python-pygments
+    - python-setuptools
+    - python-sphinx-intl
+    - reflector
+    - ripgrep
+    - smartmontools
+    - speech-dispatcher
+    - swappy
+    - sysstat
+    - taglib
+    - v4l-utils
+    - vorbis-tools
+    - wavpack
+    - wget
+    - x264
+    - x265
   shell:
+    - asciiquarium-git
+    - aspell
+    - aspell-en
+    - atool  
     - await
     - bandwhich
     - bash-completion
@@ -19,9 +77,7 @@ packages:
     - eza
     - fd
     - figlet
-    - git
     - git-delta
-    - git-lfs
     - github-cli
     - gitui
     - glow
