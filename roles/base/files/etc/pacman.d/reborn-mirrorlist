@@ -1,0 +1,16 @@
+# STARTED AT: 2024-07-30 15:01:52.397309173 -04:00
+# ARGS: /usr/bin/rate-mirrors --concurrency=8 --per-mirror-timeout=3000 --allow-root --save=/tmp/pacman.d/reborn-mirrorlist rebornos
+# MIRRORS LEFT AFTER FILTERING: 6
+# JUMP #1
+# EXPLORING US
+# VISITED US
+# BLANK ITERATION
+# COUNTRY JUMPING YIELDED TOO FEW MIRRORS (0), ADDING OTHERS TO UNLABELED
+#
+
+Server = https://sea-usw-lb.soulharsh007.dev/RebornOS/
+Server = https://repo.rebornos.org/RebornOS/
+Server = https://sourceforge.net/projects/rebornos/files/r/RebornOS/
+Server = https://mirror.clarkson.edu/RebornOS/RebornOS/
+Server = https://mirror.freedif.org/rebornos/RebornOS/
+Server = https://nl-mirror.rebornos.org/RebornOS/

@@ -1,0 +1,51 @@
+---
+
+- name: Check if paru installed
+  stat:
+    path: /usr/bin/paru
+  register: paru
+  tags: ['packages']
+
+- name: Install paru if not installed
+  block:
+    - name: Install paru
+      pacman:
+        name: paru
+        state: present
+        force: yes
+        extra_args: --noconfirm
+      register: paru_package
+      until: "paru_package is not failed"
+      retries: 2
+      delay: 10
+
+  rescue:
+    - name: Clone paru
+      git:
+        repo: "https://aur.archlinux.org/paru.git"
+        dest: "/tmp/paru"
+        accept_hostkey: yes
+        update: yes
+        force: no
+      become: False
+
+    - name: Make and install paru
+      shell: "makepkg -si --noconfirm --needed"
+      args:
+        chdir: "/tmp/paru"
+      become: False
+
+    - name: clean and update package cache
+      shell: "paru -Sc --noconfirm && paru -Syy"
+      become: False
+
+  when: not paru.stat.exists
+  tags: ['packages']
+
+- name: Adjust paru config
+  template:
+    src: etc/paru.conf.j2
+    dest: /etc/paru.conf
+    mode: '0644'
+    backup: True
+  # ignore_errors: "{{ ansible_check_mode }}"
