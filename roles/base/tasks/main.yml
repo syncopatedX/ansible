@@ -7,6 +7,7 @@
     state: present
     force: true
     extra_args: --noconfirm
+  tags: ["packages"]
 
 - name: Check if mirrors have been updated within the past 24h
   shell: | 
