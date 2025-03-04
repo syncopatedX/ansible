@@ -2,11 +2,12 @@
 
 - name: Install fd and ripgrep ohmyzsh plugins
   copy:
-    src: "usr/local/share/oh-my-zsh/plugins/{{ item }}"
-    dest: "/usr/local/share/oh-my-zsh/plugins/"
+    src: "usr/share/oh-my-zsh/plugins/{{ item }}"
+    dest: "/usr/share/oh-my-zsh/plugins/"
     owner: root
     group: root
     backup: yes
+  become: true
   with_items:
     - fd
     - ripgrep

@@ -14,3 +14,7 @@ user:
   workspace: ""
   email: ""
   gpg: ""
+
+use_etc_skel: false
+
+zsh_theme: strug

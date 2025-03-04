@@ -1,6 +1,5 @@
 ---
-# tasks file for user
-# 1. Ensure the user exists with the specified shell and groups.
+
 - name: Ensure user is present with proper shell and groups
   user:
     name: "{{ user.name }}"
@@ -44,6 +43,7 @@
 
 - when: user.sudoers |default(false)
   become: true
+  tags: ['sudoers']
   block:
     - name: Ensure /etc/sudoers.d exists
       file:
@@ -80,3 +80,34 @@
         dest: "/etc/polkit-1/rules.d/49-nopasswd_global.rules"
         mode: '0644'
       when: ansible_os_family == 'Archlinux'
+
+- block:
+    - name: install shell packages
+      aur:
+        use: paru
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - "{{ packages.shell }}"
+  rescue:
+    - name: install shell packages failed
+      debug:
+        msg: "Failed to install shell packages"
+
+  tags: ["packages"]
+
+- name: Push aliases template
+  template:
+    src: ".aliases.j2"
+    dest: "{{ profile_config_dir }}/.aliases"
+    mode: '0644'
+    backup: True
+  tags: ['aliases']
+
+- import_tasks:
+    file: shell/bash.yml
+  tags: ['bash']
+
+- import_tasks:
+    file: shell/zsh.yml
+  tags: ['zsh']
