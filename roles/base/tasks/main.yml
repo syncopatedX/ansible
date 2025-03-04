@@ -1,12 +1,13 @@
 ---
 # tasks file for packages
 
-- name: install reflector package
+- name: Install base package
   pacman:
     name: "{{ item }}"
     state: present
     force: true
     extra_args: --noconfirm
+  become: true
   with_items:
     - "{{ packages.base }}"
   tags: ["packages", "base_pkgs"]

@@ -56,20 +56,18 @@ packages:
     - x264
     - x265
   shell:
-    - asciiquarium-git
     - aspell
     - aspell-en
     - atool  
-    - await
     - bandwhich
     - bash-completion
     - bash-language-server
     - bat
-    - beautysh
+    # - beautysh
     - bottom
     - choose
     - curlie
-    - doggo
+    # - doggo
     - downgrade
     - duf
     - dust
@@ -118,8 +116,8 @@ packages:
     - ueberzug
     - unrar
     - unzip  
-    - wordnet-cli
-    - wordnet-common
+    # - wordnet-cli
+    # - wordnet-common
     - xterm
     - yt-dlp
     - zoxide
