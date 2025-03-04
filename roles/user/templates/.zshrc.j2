@@ -139,7 +139,7 @@ useditor() {
   export SVN_EDITOR="$@"
 }
 
-if [[ ! -n $EDITOR ]]; then useditor micro; fi
+if [[ ! -n $EDITOR || $EDITOR != "micro" ]]; then useditor micro; fi
 
 [ -n "$DISPLAY" ] && export TERM="kitty" || export TERM=xterm
 [ -n "$DISPLAY" ] && export TERMINAL="kitty" || export TERMINAL=xterm
