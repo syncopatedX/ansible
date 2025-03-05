@@ -1,3 +1,4 @@
 /.venv/**
 .vscode
 .vagrant
+ansible-workstation-arch.code-workspace
