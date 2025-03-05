@@ -1,0 +1,15 @@
+---
+
+- block:
+    - name: Install wm packages
+      aur:
+        use: paru
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - "{{ packages.wm }}"
+  rescue:
+    - name: installing packages failed
+      debug:
+        msg: "Failed to install shell packages"
+
