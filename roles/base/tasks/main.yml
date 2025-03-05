@@ -58,3 +58,8 @@
 - import_tasks:
     file: paru.yml
   tags: ["paru"]
+
+- import_tasks:
+    file: updatedb.yml
+  tags: ["updatedb"]
+
