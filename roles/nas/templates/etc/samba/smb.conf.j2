@@ -1,0 +1,122 @@
+# See smb.conf.example for a more detailed config file or
+# read the smb.conf manpage.
+# Run 'testparm' to verify the config is correct after
+# you modified it.
+#
+# Note:
+# SMB1 is disabled by default. This means clients without support for SMB2 or
+# SMB3 are no longer able to connect to smbd (by default).
+
+[global]
+  workgroup = WORKGROUP
+
+  #usershare path = /var/lib/samba/usershares
+  #usershare max shares = 100
+  #usershare allow guests = yes
+  #usershare owner only = yes
+
+  #server min protocol = NT1
+  #ntlm auth = yes
+
+#  client min protocol = NT2
+#  server min protocol = NT2
+#  ntlm auth = yes
+
+server min protocol = NT1
+ntlm auth = ntlmv1-permitted
+
+client min protocol = NT1
+  # default is 'CORE' (MS-DOS era)
+
+  client max protocol = SMB3
+ # default is 'NT1' (aka CIFS
+
+  deadtime = 30
+
+  create mask = 0664
+  directory mask = 2755
+  force create mode = 0644
+  force directory mode = 2755
+
+  local master = yes
+  preferred master = yes
+
+  hosts allow = 127. 192.168.41.
+
+  printing = bsd
+  printcap name = /dev/null
+  load printers = no
+  disable spoolss = yes
+  show add printer wizard = no
+
+[homes]
+  comment = Home Directories
+  valid users = %S, %D%w%S
+  browseable = No
+  read only = No
+  inherit acls = Yes
+
+[backups]
+  path = /home/backups
+  writeable = yes
+  browseable = yes
+  public = yes
+  valid users = b08x @home
+  write list = b08x
+  inherit permissions = yes
+[Library]
+  path = /home/b08x/Library
+  writeable = yes
+  browseable = yes
+  public = yes
+  valid users = b08x @home
+  write list = b08x
+  inherit permissions = yes
+[Studio]
+  path = /home/b08x/Studio
+  writeable = yes
+  browseable = yes
+  public = yes
+  valid users = b08x @home
+  write list = b08x
+  inherit permissions = yes
+[Media]
+  path = /storage/media
+  public = yes
+  browseable = yes
+  writeable = yes
+  valid users = b08x @home
+  write list = b08x
+  inherit permissions = yes
+[Downloads]
+  path = /storage/downloads
+  public = yes
+  browseable = yes
+  writeable = yes
+  valid users = b08x @home
+  write list = b08x
+  inherit permissions = yes
+[media_old]
+  path = /media
+  public = yes
+  browseable = yes
+  writeable = yes
+  valid users = b08x @home
+  write list = b08x
+  inherit permissions = yes
+# [repos]
+# 	path = /srv/storage02/repos
+# 	public = yes
+# 	browseable = yes
+# 	writeable = yes
+# 	valid users = b08x @home
+# 	write list = b08x
+# 	inherit permissions = yes
+# [torrents]
+# 	path = /srv/storage02/torrents
+# 	public = yes
+# 	browseable = yes
+# 	writeable = yes
+# 	valid users = b08x @home
+# 	write list = b08x
+# 	inherit permissions = yes

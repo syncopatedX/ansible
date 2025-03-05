@@ -1,0 +1,34 @@
+---
+
+- name: Ensure group storage exists
+  group:
+    name: storage
+    gid: 1036
+
+- name: Ensure user home exists
+  user:
+    name: home
+    state: present
+    shell: /sbin/nologin
+    group: storage
+
+- name: Set smb.conf
+  copy:
+    src: etc/samba/smb.conf
+    dest: /etc/samba/smb.conf
+    owner: root
+    group: root
+    mode: '0644'
+    backup: True
+
+- name: Permit traffic to samba services
+  firewalld:
+    service: samba
+    permanent: yes
+    state: enabled
+
+- name: Enable samba service
+  service:
+    name: samba
+    state: started
+    enabled: yes
