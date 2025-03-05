@@ -1,0 +1,8 @@
+---
+# defaults file for libvirt
+
+libvirt:
+  service: 'disabled'
+
+use_libvirt: False
+

@@ -27,4 +27,10 @@
 
     - role: docker
       become: true
+      when: use_docker | default(true) | bool
       tags: docker
+
+    - role: libvirt
+      become: true
+      when: use_libvirt | default(false) | bool
+      tags: libvirt
