@@ -20,25 +20,33 @@
 
     - role: base
       become: true
-      tags: base
+      tags: ["base"]
 
     - role: user
-      tags: user
-
-    - role: input-remapper
-      become: false
-      tags: ["input-remapper"]
+      tags: ["user"]
 
     - role: docker
       become: true
       when: use_docker | default(true) | bool
-      tags: docker
+      tags: ["docker"]
 
     - role: libvirt
       become: true
       when: use_libvirt | default(false) | bool
-      tags: libvirt
+      tags: ["libvirt"]
 
     - role: x11
       become: true
       tags: ["x11"]
+
+    - role: sxhkd
+      tags: ["sxhkd"]
+
+    - role: rofi
+      tags: ["rofi"]
+
+    - role: xdg
+      tags: ["xdg"]
+
+    - role: i3
+      tags: ["i3"]     

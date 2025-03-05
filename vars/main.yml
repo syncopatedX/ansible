@@ -38,11 +38,14 @@ packages:
     - postgresql-libs
     - python-adblock
     - python-chardet
+    - python-edge-tts
     - python-j2cli
     - python-pillow
+    - python-pip
     - python-pygments
     - python-setuptools
     - python-sphinx-intl
+    - python-virtualenv
     - reflector
     - ripgrep
     - smartmontools
@@ -196,7 +199,23 @@ packages:
     - xorg-xvinfo
     - xorg-xwd
     - xorg-xwininfo
-    - xorg-xwud    
+    - xorg-xwud
+  wm:
+    - arandr
+    - dex
+    - dunst
+    - i3-wm
+    - i3status-rust
+    - network-manager-applet
+    - nitrogen-git
+    - perl-anyevent-i3
+    - picom
+    - polybar
+    - rofi
+    - sxhkd
+    - wmctrl
+    - wmfocus
+    - xob
   desktop:
     - archlinux-xdg-menu
     - ascii-image-converter
@@ -230,9 +249,7 @@ packages:
     - grsync
     - gtksourceview3
     - gtkspell3
-    - guake
     - gvfs-smb
-    - hexchat
     - imv
     - iotop
     - kitti3
@@ -271,7 +288,6 @@ packages:
     - teiler-git
     - termdown
     - terminator
-    - tilda
     - tldr
     - ttf-tw
     - ueberzug
@@ -290,3 +306,47 @@ packages:
     - xzgv
     - yt-dlp
     - zenity
+  themes:
+    - gtk-engines
+    - gtk-engine-murrine
+  fonts:
+    - gnu-free-fonts
+    - ttf-devicons
+    - ttf-font-awesome
+    - ttf-icomoon-feather
+    - ttf-input
+    - ttf-jetbrains-mono
+    - ttf-liberation
+    - ttf-opensans
+    - ttf-ubuntu-font-family
+  qt:
+    - kvantum-qt5
+    - qt5-base
+    - qt5-graphicaleffects
+    - qt5-quickcontrols2
+    - qt5-tools
+    - qt5ct
+    - qt6-base
+    - qt6-declarative
+    - qt6-multimedia
+    - qt6-tools
+
+font:
+  primary:
+    name: Hack Nerd Font
+    size: 12
+    hintstyle: hintsfull
+  glyphs:
+    name: FontAwesome
+  mono:
+    name: mononoki Nerd Font Mono
+
+# theme options
+theme:
+  name: oomox-soundbot
+  icons: ArchLabs-Dark
+  cursor: xcursor-breeze
+  kvantum: KvFlat
+
+qt5ct_style: kvantum
+qt6ct_style: fusion
