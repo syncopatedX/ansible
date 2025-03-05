@@ -38,3 +38,7 @@
       become: true
       when: use_libvirt | default(false) | bool
       tags: libvirt
+
+    - role: x11
+      become: true
+      tags: ["x11"]

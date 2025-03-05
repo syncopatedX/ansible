@@ -44,7 +44,7 @@
           - --progress
           - --itemize-changes
           - --chown={{ user.name }}:{{ user.group }}
-        src: home/.config/input-remapper-2/presets/
+        src: presets/
       # when: source_dir.stat.exists
       register: sync_result
 
