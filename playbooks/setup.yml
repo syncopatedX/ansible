@@ -25,6 +25,10 @@
     - role: user
       tags: user
 
+    - role: input-remapper
+      become: false
+      tags: ["input-remapper"]
+
     - role: docker
       become: true
       when: use_docker | default(true) | bool
