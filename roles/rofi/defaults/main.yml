@@ -1,0 +1,39 @@
+---
+# defaults file for rofi
+rofi_directory_default_mode: '0750'
+
+# The default directory owner when creating directories using `rofi_directory_definitions`
+rofi_directory_default_owner: "{{ user.name }}"
+
+# The default directory group when creating directories using `rofi_directory_definitions`
+rofi_directory_default_group: "{{ user.group }}"
+
+rofi_directory_default_location: "{{ user.home }}"
+
+rofi_directory_default_recurse: False
+
+rofi_directory_definitions:
+  - dest: ".config/rofi/colors"
+  - dest: ".config/rofi/images"
+  - dest: ".config/rofi/launchers"
+  - dest: ".config/rofi/launchers/type-1/shared"
+  - dest: ".config/rofi/launchers/type-2/shared"
+  - dest: ".config/rofi/launchers/type-3/shared"
+  - dest: ".config/rofi/launchers/type-4/shared"
+  - dest: ".config/rofi/launchers/type-5/shared"
+  - dest: ".config/rofi/launchers/type-6/shared"
+  - dest: ".config/rofi/launchers/type-7/shared"
+  - dest: ".config/rofi/powermenu"
+  - dest: ".config/rofi/powermenu/type-1/shared"
+  - dest: ".config/rofi/powermenu/type-2/shared"
+  - dest: ".config/rofi/powermenu/type-3/shared"
+  - dest: ".config/rofi/powermenu/type-4/shared"
+  - dest: ".config/rofi/powermenu/type-5/shared"
+  - dest: ".config/rofi/powermenu/type-6/shared"
+  - dest: ".config/rofi/scripts"
+
+rofi_packages:
+  archlinux:
+    - rofi
+  fedora:
+    - rofi
