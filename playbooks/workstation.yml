@@ -49,4 +49,10 @@
       tags: ["xdg"]
 
     - role: i3
-      tags: ["i3"]     
+      tags: ["i3"]
+
+    - role: homepage
+      tags: ["homepage"]
+
+    - role: ruby
+      tags: ["ruby"]
