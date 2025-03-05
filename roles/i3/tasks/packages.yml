@@ -8,6 +8,7 @@
         state: present
       with_items:
         - "{{ packages.wm }}"
+        - "{{ packages.desktop }}"
   rescue:
     - name: installing packages failed
       debug:

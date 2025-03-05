@@ -315,6 +315,7 @@ packages:
     - ttf-liberation
     - ttf-opensans
     - ttf-ubuntu-font-family
+    - ttf-hack-nerd
   qt:
     - kvantum-qt5
     - qt5-base
