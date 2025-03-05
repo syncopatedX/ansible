@@ -1,0 +1,10 @@
+---
+
+packages:
+  - cmake
+  - libgit2
+  - libvips
+  - openslide
+  - openssl
+  - postgresql-libs
+  - ruby-psych
