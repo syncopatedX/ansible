@@ -38,10 +38,9 @@ packages:
     - postgresql-libs
     - python-adblock
     - python-chardet
-    - python-edge-tts
     - python-j2cli
     - python-pillow
-    - python-pip
+    # - python-pip
     - python-pygments
     - python-setuptools
     - python-sphinx-intl
@@ -106,6 +105,7 @@ packages:
     - oh-my-zsh-git
     - pandoc
     - playerctl
+    - python-edge-tts
     - ranger
     - ripgrep
     - ripgrep-all
@@ -225,8 +225,6 @@ packages:
     - barrier
     - cbonsai
     - dconf
-    - dunst
-    - epson-inkjet-printer-escpr2
     - feh
     - ffmpegthumbnailer
     - figlet
@@ -298,9 +296,7 @@ packages:
     - wmfocus
     - wordnet-common
     - xarchiver
-    - xarchiver
     - xclip
-    - xdot
     - xdot
     - xterm
     - xzgv

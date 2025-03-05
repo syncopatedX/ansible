@@ -6,4 +6,4 @@
 docker:
   storage: /var/lib/docker
 
-use_docker: False
+use_docker: true
