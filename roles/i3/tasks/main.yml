@@ -73,5 +73,6 @@
         - window_behavior
         # - window_assignments
         # - autostart
+      notify: Reload i3
 
-  tags: ['profile']
+  tags: ['i3_config']

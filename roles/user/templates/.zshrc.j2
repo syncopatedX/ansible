@@ -137,6 +137,7 @@ useditor() {
   export EDITOR="$@"
   export GIT_EDITOR="$@"
   export SVN_EDITOR="$@"
+  export VISUAL="$@"
 }
 
 if [[ ! -n $EDITOR || $EDITOR != "micro" ]]; then useditor micro; fi

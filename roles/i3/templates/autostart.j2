@@ -9,7 +9,7 @@
 
 #$exec feh --recursive --bg-fill --randomize /usr/share/backgrounds/syncopated/*
 
-$exec_always xrdb -load ~/.Xresources
+#$exec_always xrdb -load ~/.Xresources
 
 {% if inventory_hostname != 'tinybot' %}
 $exec "/usr/share/i3/scripts/i3autolayout.py"
