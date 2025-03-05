@@ -13,6 +13,3 @@ user:
   workspace: /home/b08x/Workspace
   email: rwpannick@gmail.com
   gpg: 36A6ECD355DB42B296C0CEE2157CA2FC56ECC96A
-  dots: git@github.com:b08x/dots.git
-
-keyserver: bender.syncopated.net
