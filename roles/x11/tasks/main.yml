@@ -1,8 +1,4 @@
 ---
-# tasks file for xorg
-- name: Xorg Tasks
-  debug:
-    msg: "Starting xorg tasks"
 
 - import_tasks:
     file: packages.yml
@@ -37,51 +33,43 @@
 #     - ansible_os_family == 'Archlinux'
 #   tags: ['video', 'mkinitcpio']
 
-# - block:
-#     - name: Disable vblank
-#       copy:
-#         content: |
-#           <device screen="0" driver="dri2">
-#               <application name="Default">
-#                   <option name="vblank_mode" value="0"/>
-#               </application>
-#           </device>
+- block:
+    - name: Disable vblank
+      copy:
+        content: |
+          <device screen="0" driver="dri2">
+              <application name="Default">
+                  <option name="vblank_mode" value="0"/>
+              </application>
+          </device>
 
-#         dest: "{{ user.home }}/.drirc"
-#         owner: "{{ user.name }}"
-#         group: "{{ user.group }}"
-#       when: disable_vblank is defined
+        dest: "{{ user.home }}/.drirc"
+        owner: "{{ user.name }}"
+        group: "{{ user.group }}"
+      when: disable_vblank is defined
 
-#     - name: Set xserver configs
-#       template:
-#         src: "home/{{ item }}.j2"
-#         dest: "{{ user.home }}/{{ item }}"
-#         owner: "{{ user.name }}"
-#         group: "{{ user.group }}"
-#         mode: "0644"
-#         backup: yes
-#       with_items:
-#         - .xprofile
-#         - .xserverrc
-#         - .Xresources
-#       register: xconfig
-#       changed_when: (xconfig.msg is defined and not 'All items completed' in xconfig.msg)
-#       tags: ['env', 'profile']
+    - name: Set xserver configs
+      template:
+        src: "home/{{ item }}.j2"
+        dest: "{{ user.home }}/{{ item }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.group }}"
+        mode: "0644"
+        backup: yes
+      with_items:
+        - .xprofile
+        - .xserverrc
+        - .Xresources
+      register: xconfig
+      changed_when: (xconfig.msg is defined and not 'All items completed' in xconfig.msg)
+      tags: ['env', 'profile']
 
-#     - name: Set xinitrc config
-#       template:
-#         src: home/.xinitrc.j2
-#         dest: "{{ user.home }}/.xinitrc"
-#         owner: "{{ user.name }}"
-#         group: "{{ user.group }}"
-#         mode: '0755'
-#         backup: True
+    - name: Set xinitrc config
+      template:
+        src: home/.xinitrc.j2
+        dest: "{{ user.home }}/.xinitrc"
+        owner: "{{ user.name }}"
+        group: "{{ user.group }}"
+        mode: '0755'
+        backup: True
 
-#     # - name: Ensure .xinitrc is executable
-#     #   file:
-#     #     path: "{{ user.home }}/.xinitrc"
-#     #     mode: "0755"
-#     #   ignore_errors: "{{ ansible_check_mode }}"
-#     #   tags: ['env', 'profile']
-#   when:
-#     - ansible_os_family == 'Archlinux'
