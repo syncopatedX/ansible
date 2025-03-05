@@ -9,40 +9,6 @@
     state: present
   become: true
 
-- block:
-    - name: Check if keys are present
-      stat:
-        path: "{{ user.home }}/.ssh/id_ed25519"
-      register: keys
-
-    - name: Start ssh daemon
-      service:
-        name: sshd
-        state: started
-        enabled: True
-      become: true
-
-    - name: Copy keys from remote host
-      delegate_to: 127.0.0.1
-      run_once: True
-      become_user: "{{ user.name }}"
-      shell: "scp {{ user.name }}@{{ keyserver }}:~/.ssh/{{ item }} {{ user.home }}/.ssh/{{ item }}"
-      args:
-        chdir: "{{ user.home }}"
-      with_items:
-        - id_ed25519
-        - id_ed25519.pub
-        - id_rsa
-        - id_rsa.pub
-        - config
-        - known_hosts
-        - authorized_keys
-      when:
-        - not keys.stat.exists
-        - keyserver is defined
-
-  tags: ["keys"]
-
 - when: user.sudoers |default(false)
   become: true
   tags: ['sudoers']
@@ -75,7 +41,6 @@
         owner: root
         group: root
         mode: '0700'
-        
 
     - name: Set NOPASSWD for user in polkit
       copy:
