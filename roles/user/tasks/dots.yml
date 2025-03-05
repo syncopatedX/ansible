@@ -1,0 +1,29 @@
+---
+
+- name: Sync kitty configs plugins
+  ansible.posix.synchronize:
+    src: home/.config/kitty/
+    dest: "{{ user.home }}/.config/kitty/"
+    recursive: true
+    mode: push
+    delete: false
+    checksum: true
+    perms: false
+    rsync_opts:
+      - "--update"
+      - "--omit-dir-times"
+      - --chown={{ user.name }}:{{ user.group }}
+
+- name: Sync ranger configs plugins
+  ansible.posix.synchronize:
+    src: home/.config/ranger/
+    dest: "{{ user.home }}/.config/ranger/"
+    recursive: true
+    mode: push
+    delete: false
+    checksum: true
+    perms: false
+    rsync_opts:
+      - "--update"
+      - "--omit-dir-times"
+      - --chown={{ user.name }}:{{ user.group }}

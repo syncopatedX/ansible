@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+export UU_ORDER="$UU_ORDER:~/.xprofile"
+
+#TODO: if desktop_manager is not defined.....
+export XDG_DESKTOP_SESSION="{{ window_manager }}"
+export XDG_CURRENT_DESKTOP="{{ window_manager }}"
+
+export XDG_CONFIG_HOME="$HOME/.config"
+
+export QT_QPA_PLATFORMTHEME=qt5ct
+export QT_PLATFORMTHEME=qt5ct
+export QT_PLATFORM_PLUGIN=qt5ct
+
+if [ -d /usr/share/fonts/75dpi ]; then
+	xset +fp /usr/share/fonts/75dpi
+fi
+
+if [ -d /usr/share/fonts/100dpi ]; then
+	xset +fp /usr/share/fonts/100dpi
+fi
+
+xset s off
+xset -dpms
+xset -b
+
+numlockx on
+
+{% if x.autostart != 'default' %}
+{% for program in x.autostart %}
+{{ program }}
+{% endfor %}
+{% endif %}
+
+[[ -f "$HOME/.asound.state" ]] && alsactl restore -f "$HOME/.asound.state"

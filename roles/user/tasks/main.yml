@@ -87,3 +87,7 @@
 - import_tasks:
     file: shell/zsh.yml
   tags: ['zsh']
+
+- import_tasks:
+    file: dots.yml
+  tags: ['dots']

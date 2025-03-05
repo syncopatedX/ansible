@@ -1,5 +1,0 @@
----
-# defaults file for input-remapper
-
-input_remapper__packages:
-  - input-remapper-git

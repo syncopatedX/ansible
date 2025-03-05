@@ -1,0 +1,62 @@
+---
+- hosts: workstation
+  gather_facts: true
+  become: false
+  vars:
+    path:
+      - "{{ lookup('env','HOME') }}/.local/bin"
+  vars_files: 
+    - "../vars/main.yml"
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path|join(':') }}"
+  tasks:
+    - block:
+        - name: Install input-remapper
+          aur:
+            use: paru
+            name: input-remapper-git
+            state: present
+      rescue:
+        - name: installing packages failed
+          debug:
+            msg: "Failed to install shell packages"
+      tags: ["packages"]
+
+    - name: Ensure input-remapper preset synchronization
+      block:
+        - name: Ensure destination directory exists
+          ansible.builtin.file:
+            path: '{{ user.home }}/.config/input-remapper-2/presets/'
+            state: directory
+            mode: '0755'
+            owner: "{{ user.name }}"
+            group: "{{ user.group }}"
+          # when: source_dir.stat.exists
+
+        - name: Sync input-remapper presets folder
+          ansible.posix.synchronize:
+            checksum: true
+            delete: false
+            src: input-remapper/presets/
+            dest: '{{ user.home }}/.config/input-remapper-2/presets/'
+            mode: push
+            perms: false
+            recursive: true
+            rsync_opts:
+              - --compress
+              - --update
+              - --omit-dir-times
+              - --progress
+              - --itemize-changes
+              - --chown={{ user.name }}:{{ user.group }}
+
+      rescue:
+        - name: Handle synchronization failure
+          ansible.builtin.debug:
+            msg: "Failed to sync input-remapper presets: {{ ansible_failed_result }}"
+
+    - name: Enable input-remapper service
+      systemd:
+        name: input-remapper
+        enabled: True
+      ignore_errors: "{{ ansible_check_mode }}"
