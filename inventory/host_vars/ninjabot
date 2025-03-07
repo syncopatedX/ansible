@@ -2,6 +2,9 @@
 
 zsh_theme: strug
 
+docker:
+  storage: /home/docker
+  
 use_libvirt: true
 
 x:
