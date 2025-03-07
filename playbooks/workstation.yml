@@ -15,7 +15,19 @@
       set_fact:
         profile_config_dir: "{{ '/etc/skel' if use_etc_skel | bool else ansible_env.HOME }}"
       tags: ['always']
+    
+    - name: Set distro name
+      set_fact:
+        ansible_distribution: "{{ distro }}"
+      when: distro is defined
+      tags: ["always", "testing"]
 
+    - name: Display ansible_distribution
+      debug:
+        msg: |
+          The host {{ inventory_hostname }} has {{ ansible_distribution }} installed,
+          which belongs to the {{ ansible_os_family }} OS family
+      tags: ['always']
   roles:
 
     - role: base
