@@ -4,12 +4,15 @@ packages:
   base:
     - aria2
     - audiofile
+    - base-devel
     - chromaprint
     - cmake
     - cpupower
+    - debugedit
     - dex
     - faac
     - faad2
+    - fakeroot
     - fd
     - firewalld
     - fsarchiver
@@ -40,12 +43,11 @@ packages:
     - python-chardet
     - python-j2cli
     - python-pillow
-    # - python-pip
+    - python-pip
     - python-pygments
     - python-setuptools
     - python-sphinx-intl
     - python-virtualenv
-    - reflector
     - ripgrep
     - smartmontools
     - speech-dispatcher
@@ -217,10 +219,10 @@ packages:
     - wmfocus
     - xob
   desktop:
-    - archlinux-xdg-menu
+    # - archlinux-xdg-menu
     - ascii-image-converter
     - asciiquarium
-    - asp
+    # - asp
     - aspell-en
     - barrier
     - cbonsai

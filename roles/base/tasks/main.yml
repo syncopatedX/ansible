@@ -1,15 +1,34 @@
 ---
 # tasks file for packages
 
-- name: Install base package
-  pacman:
-    name: "{{ item }}"
-    state: present
-    force: true
-    extra_args: --noconfirm
-  become: true
-  with_items:
-    - "{{ packages.base }}"
+- name: Set pacman.conf config
+  template:
+    src: etc/pacman.conf.j2
+    dest: /etc/pacman.conf
+    mode: "0644"
+    backup: true
+  tags: ["pacman"]
+
+- import_tasks:
+    file: repos.yml
+  tags: ["repos"]
+
+- import_tasks:
+    file: paru.yml
+  tags: ["paru"]
+
+- block:
+    - name: Install base packages
+      aur:
+        use: paru
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - "{{ packages.base }}"
+  rescue:
+    - name: installing packages failed
+      debug:
+        msg: "Failed to install shell packages"
   tags: ["packages", "base_pkgs"]
 
 - name: Check if mirrors have been updated within the past 24h
@@ -35,14 +54,6 @@
   changed_when: false
   tags: ["mirrors"]
 
-- name: Set pacman.conf config
-  template:
-    src: etc/pacman.conf.j2
-    dest: /etc/pacman.conf
-    mode: "0644"
-    backup: true
-  tags: ["pacman"]
-
 - name: Set makepkg to use aria2
   template:
     src: etc/makepkg.conf.j2
@@ -50,14 +61,6 @@
     mode: "0644"
     backup: true
   tags: ["makepkg"]
-
-- import_tasks:
-    file: repos.yml
-  tags: ["repos"]
-
-- import_tasks:
-    file: paru.yml
-  tags: ["paru"]
 
 - import_tasks:
     file: updatedb.yml
