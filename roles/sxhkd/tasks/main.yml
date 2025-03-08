@@ -14,15 +14,6 @@
 
   tags: ["packages"]
 
-- name: Ensure ~/.local/bin exists
-  file:
-    path: "{{ user.home }}/.local/bin"
-    state: directory
-    mode: '0755'
-    owner: "{{ user.name }}"
-    group: "{{ user.group }}"
-  tags: ["folders"]
-
 - name: Install sxhkd reload function
   copy:
     content: |

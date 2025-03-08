@@ -1,5 +1,14 @@
 ---
 
+- name: Ensure ~/.local/bin exists
+  file:
+    path: "{{ user.home }}/.local/bin"
+    state: directory
+    mode: '0755'
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+  tags: ["folders"]
+
 - name: Sync kitty configs plugins
   ansible.posix.synchronize:
     src: home/.config/kitty/

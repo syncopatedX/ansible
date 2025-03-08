@@ -1,14 +1,5 @@
 ---
 
-- name: Ensure user is present with proper shell and groups
-  user:
-    name: "{{ user.name }}"
-    shell: "{{ user.shell | default('/bin/zsh') }}"
-    groups: "{{ user.groups | default([]) }}"
-    append: yes
-    state: present
-  become: true
-
 - when: user.sudoers |default(false)
   become: true
   tags: ['sudoers']
@@ -60,7 +51,7 @@
 - block:
     - name: Install shell packages
       aur:
-        use: paru
+        use: auto
         name: "{{ item }}"
         state: present
       with_items:
@@ -79,6 +70,15 @@
     mode: '0644'
     backup: True
   tags: ['aliases']
+
+- name: Ensure user is present with proper shell and groups
+  user:
+    name: "{{ user.name }}"
+    shell: "{{ user.shell | default('/bin/zsh') }}"
+    groups: "{{ user.groups | default([]) }}"
+    append: yes
+    state: present
+  become: true
 
 - import_tasks:
     file: shell/bash.yml
