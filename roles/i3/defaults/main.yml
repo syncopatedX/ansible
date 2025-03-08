@@ -1,0 +1,62 @@
+---
+# defaults file for i3
+
+i3:
+  home: "{{ lookup('env','HOME') }}/.config/i3"
+  autostart: 'default'
+  assignments: 'default'
+  workspaces: 'default'
+  keybindings: 'default'
+  tray_output: 'primary'
+
+__i3_workspaces:
+  - workspace:
+    id: 1
+    name: " 1 "
+  - workspace:
+    id: 2
+    name: " 2 "
+  - workspace:
+    id: 3
+    name: " 3 "
+  - workspace:
+    id: 4
+    name: " 4 "
+  - workspace:
+    id: 5
+    name: " 5 "
+  - workspace:
+    id: 6
+    name: " 6 "
+  - workspace:
+    id: 7
+    name: " 7 "
+  - workspace:
+    id: 8
+    name: " 8 "
+  - workspace:
+    id: 9
+    name: " 9 "
+  - workspace:
+    id: 0
+    name: " 0 "
+
+i3_directory_default_mode: '0750'
+
+# The default directory owner when creating directories using `i3_directory_definitions`
+i3_directory_default_owner: "{{ user.name }}"
+
+# The default directory group when creating directories using `i3_directory_definitions`
+i3_directory_default_group: "{{ user.group }}"
+
+i3_directory_default_location: "{{ user.home }}"
+
+i3_directory_default_recurse: False
+
+i3_directory_definitions:
+  - dest: ".config/i3"
+  - dest: ".config/i3/modes"
+  - dest: ".config/i3status-rust/themes"
+
+
+terminal_alt: terminator

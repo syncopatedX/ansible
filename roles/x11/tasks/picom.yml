@@ -1,0 +1,12 @@
+---
+#  - dest: ".config/picom"
+
+- name: Set picom config
+  template:
+    src: "picom.conf.j2"
+    dest: "{{ user.home }}/.config/picom.conf"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+    mode: '0644'
+    backup: yes
+  tags: ["profile", "picom"]

@@ -1,0 +1,14 @@
+---
+
+- name: Install musikcube systemd
+  template:
+    src: etc/systemd/system/musikcube.service
+    dest: /etc/systemd/system/musikcube.service
+    mode: '0644'
+
+- name: Enable musikcube services
+  systemd:
+    name: musikcubed
+    enabled: yes
+    state: started
+    daemon_reload: yes

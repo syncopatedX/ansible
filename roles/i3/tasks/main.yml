@@ -1,0 +1,61 @@
+---
+
+- import_tasks:
+    file: packages.yml
+  tags: ['packages']
+
+- name: Ensure i3 directories exist
+  file:
+    dest: "{{ i3_directory_default_location }}/{{ item.dest }}"
+    state: directory
+    owner: "{{ item.owner | default(omit) }}"
+    group: "{{ item.group | default(omit) }}"
+    mode: "{{ item.mode | default(omit) }}"
+    recurse: "{{ item.recurse | default(false) }}"
+  loop: "{{ i3_directory_definitions }}"
+  check_mode: no
+  tags: ['profile']
+
+# if this file does not exist, lightdm will fail to start
+- name: Set dmrc to selected window manager
+  copy:
+    content: |
+      [Desktop]
+      Session=i3
+    dest: "{{ user.home }}/.dmrc"
+    owner: "{{ user.name }}"
+    mode: '0644'
+- block:
+    - name: Set i3status-rs configuration
+      template:
+        src: "{{ item }}.j2"
+        dest: "{{ user.home }}/.config/{{ item }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.group }}"
+        mode: '0644'
+        backup: yes
+      register: wmconfig
+      with_items:
+        - i3status-rust/config.toml
+        - i3status-rust/themes/syncopated.toml
+
+    - name: Set i3 configuration
+      template:
+        src: "{{ item }}.j2"
+        dest: "{{ user.home }}/.config/i3/{{ item }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.group }}"
+        mode: '0644'
+        backup: yes
+      register: wmconfig
+      with_items:
+        - config
+        - modes/resize
+        - keybindings
+        - appearance
+        - window_behavior
+        # - window_assignments
+        # - autostart
+      notify: Reload i3
+
+  tags: ['i3_config']

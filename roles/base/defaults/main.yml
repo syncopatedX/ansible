@@ -1,9 +1,4 @@
 ---
-# defaults file for packages
 
-packages_base:
-  - aria2
-  - fd
-  - reflector
-  - ripgrep
+
   

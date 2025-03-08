@@ -1,0 +1,20 @@
+---
+
+zsh_theme: strug
+
+docker:
+  storage: /home/docker
+  
+use_libvirt: true
+
+x:
+  autostart:
+    - bash ~/.screenlayout/ninjabot.sh
+
+# i3:
+#   autostart:
+#     - "barrierc -f --debug INFO --name ninjabot --disable-crypto [soundbot]:24800"
+#   tray_output: 'primary'
+#   assignments: 'default'
+#   workspaces: 'default'
+#   keybindings: 'default'

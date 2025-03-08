@@ -1,0 +1,75 @@
+---
+
+- import_tasks:
+    file: packages.yml
+  tags: ['packages']
+
+# - block:
+#     - name: Set xorg.conf
+#       template:
+#         src: etc/X11/xorg.conf.j2
+#         dest: /etc/X11/xorg.conf
+#         owner: root
+#         group: root
+#         mode: '0644'
+#         backup: yes
+      
+#     - name: Set video modules in mkinitcpio
+#       template:
+#         src: etc/mkinitcpio.conf.j2
+#         dest: /etc/mkinitcpio.conf
+#         owner: root
+#         group: root
+#         mode: '0644'
+#         backup: yes
+#       register: mkinitcpio_conf
+
+#     - name: Re-create ramdisk if config changed
+#       shell: mkinitcpio -P
+#       when: mkinitcpio_conf.changed
+
+#   when:
+#     - (ansible_distribution != 'EndeavourOS' or ansible_facts["lsb"]["id"] != 'EndeavourOS')
+#     - ansible_os_family == 'Archlinux'
+#   tags: ['video', 'mkinitcpio']
+
+- block:
+    - name: Disable vblank
+      copy:
+        content: |
+          <device screen="0" driver="dri2">
+              <application name="Default">
+                  <option name="vblank_mode" value="0"/>
+              </application>
+          </device>
+
+        dest: "{{ user.home }}/.drirc"
+        owner: "{{ user.name }}"
+        group: "{{ user.group }}"
+      when: disable_vblank is defined
+
+    - name: Set xserver configs
+      template:
+        src: "home/{{ item }}.j2"
+        dest: "{{ user.home }}/{{ item }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.group }}"
+        mode: "0644"
+        backup: yes
+      with_items:
+        - .xprofile
+        - .xserverrc
+        - .Xresources
+      register: xconfig
+      changed_when: (xconfig.msg is defined and not 'All items completed' in xconfig.msg)
+      tags: ['env', 'profile']
+
+    - name: Set xinitrc config
+      template:
+        src: home/.xinitrc.j2
+        dest: "{{ user.home }}/.xinitrc"
+        owner: "{{ user.name }}"
+        group: "{{ user.group }}"
+        mode: '0755'
+        backup: True
+

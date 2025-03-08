@@ -1,0 +1,14 @@
+---
+
+packages:
+  - cmake
+  - libgit2-dev
+  - libopenslide-dev
+  - libreadline-dev
+  - libssl-dev
+  - libvips-dev
+  - libyaml-dev
+  - openssl
+  - postgresql-server-dev-all
+  - ruby-dev
+  - gnupg2

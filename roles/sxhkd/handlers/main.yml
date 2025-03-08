@@ -1,0 +1,6 @@
+---
+# handlers file for sxhkd
+- name: Reload sxhkd
+  command: bash -lc "reload-sxhkd.sh"
+  become: False
+  tags: ["profile", "keybindings"]

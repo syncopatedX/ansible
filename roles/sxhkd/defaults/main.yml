@@ -1,0 +1,5 @@
+---
+# defaults file for sxhkd
+
+terminal: kitty
+browser: google-chrome-stable

@@ -1,0 +1,4 @@
+# {{ ansible_managed }}
+{% for item in network_interfaces %}
+SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="{{ item.mac | lower }}", NAME="{{ item.ifname }}"
+{% endfor %}

@@ -1,0 +1,75 @@
+---
+
+- block:
+    - name: Create docker config directory
+      file:
+        path: /etc/docker
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Ensure docker data directory exists
+      file:
+        path: "{{ docker.storage }}"
+        state: directory
+        owner: root
+        group: root
+
+    - name: Set docker storage location
+      copy:
+        content: |
+          {
+            "data-root": "{{ docker.storage }}"
+          }
+
+        dest: "/etc/docker/daemon.json"
+        owner: root
+      notify: reload systemd daemon
+
+    # - name: Set docker storage location
+    #   lineinfile:
+    #     path: "/usr/lib/systemd/system/docker.service"
+    #     regexp: "^ExecStart=/usr/bin/dockerd"
+    #     line: "ExecStart=/usr/bin/dockerd --data-root {{ docker.storage }} -H fd:// --containerd=/run/containerd/containerd.sock"
+    #     insertafter: "[Service]"
+    #     firstmatch: True
+    #     backup: True
+    #   # register: dockerstorage
+    #   # failed_when: "not 'Destination /usr/lib/systemd/system/docker.service does not exist' in dockerstorage.msg"
+    #   ignore_errors: "{{ ansible_check_mode }}"
+    #   notify: reload systemd daemon
+
+# - name: Create docker config directory
+#   file:
+#     path: /etc/docker
+#     state: directory
+#     owner: root
+#     group: root
+#     mode: '0755'
+
+# - name: Set docker daemon options
+#   template:
+#     src: etc/docker/daemon.json.j2
+#     dest: /etc/docker/daemon.json
+#     owner: root
+#     mode: '0644'
+#     backup: True
+
+
+
+- name: Disable overlay redirect
+  copy:
+    content: |
+      options overlay metacopy=off redirect_dir=off
+
+    dest: "/etc/modprobe.d/disable-overlay-redirect-dir.conf"
+    owner: root
+
+- name: Set docker service preset
+  systemd:
+    name: docker
+    enabled: True
+  ignore_errors: "{{ ansible_check_mode }}"
+  # register: dockerservice
+  # failed_when: "not 'Could not find the requested service' in dockerservice.msg"

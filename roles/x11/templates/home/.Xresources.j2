@@ -1,0 +1,69 @@
+! Base colors
+*.foreground:  {{ colors.primary.foreground }}
+*.background:  {{ colors.primary.background }}
+*.cursorColor: {{ colors.primary.cursor }}
+
+*.color0: {{ colors.normal.black }}
+*.color1: {{ colors.normal.red }}
+*.color2: {{ colors.normal.green }}
+*.color3: {{ colors.normal.yellow }}
+*.color4: {{ colors.normal.blue }}
+*.color5: {{ colors.normal.magenta }}
+*.color6: {{ colors.normal.cyan }}
+*.color7: {{ colors.normal.white }}
+*.color8: {{ colors.bright.black }}
+*.color9: {{ colors.bright.red }}
+*.color10: {{ colors.bright.green }}
+*.color11: {{ colors.bright.yellow }}
+*.color12: {{ colors.bright.blue }}
+*.color13: {{ colors.bright.magenta }}
+*.color14: {{ colors.bright.cyan }}
+*.color15: {{ colors.bright.white }}
+
+! xterm
+xterm*termName: xterm-256color
+xterm*font: {{ font.primary.name }}
+{% if inventory_hostname == 'ninjabot' %}
+xterm*faceName: {{ font.primary.name }}:size=10
+{% else %}
+xterm*faceName: {{ font.primary.name }}:size=12
+{% endif %}
+
+xterm*loginShell: true
+xterm*vt100*geometry: 90x34
+xterm*saveLines: 8000
+xterm*charClass: 33:48,35:48,37:48,43:48,45-47:48,64:48,95:48,126:48
+xterm*eightBitInput: false
+
+! copy-paste
+XTerm.vt100.translations: #override \n\
+	Ctrl Shift <KeyPress> C: copy-selection(CLIPBOARD) \n\
+	Ctrl Shift <KeyPress> V: insert-selection(CLIPBOARD)
+
+! URxvt
+URxvt*saveline: 15000
+URxvt*termName: rxvt-256color
+URxvt*iso14755: false
+URxvt*depth: 32
+URxvt*background: [95]#1C2023
+URxvt*scrollBar: false
+URxvt*scrollBar_right: false
+URxvt*internalBorder: 0
+URxvt*externalBorder: 0
+URxvt*letterSpace: -1
+{% if inventory_hostname == 'ninjabot' %}
+URxvt.font: xft:{{ font.primary.name }}:size=12
+{% else %}
+URxvt.font: xft:{{ font.primary.name }}:size=10
+{% endif %}
+URxvt.copyCommand: xclip -i -selection clipboard
+URxvt.pasteCommand: xclip -o -selection clipboard
+URxvt.urlLauncher: exo-open
+URxvt.underlineURLs: true
+URxvt.urlButton: 1
+URxvt.geometry: 90x34
+URxvt.tabbed.tabbar-fg: 4
+URxvt.tabbed.tabbar-bg: 16
+URxvt.tabbed.tab-fg: 15
+URxvt.tabbed.tab-bg: 4
+URxvt*buffered: false

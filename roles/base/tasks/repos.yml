@@ -45,4 +45,8 @@
   when: "'[chaotic-aur]' not in pacman_conf_output.stdout"
   changed_when: false
   failed_when: false
-  notify: Update cache
+
+- name: Update cache
+  pacman:
+    update_cache: True
+    upgrade: False

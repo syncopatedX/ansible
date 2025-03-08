@@ -1,0 +1,41 @@
+---
+
+- block:
+    - name: Install mlocate
+      aur:
+        use: paru
+        name: mlocate
+        state: present
+
+  rescue:
+    - name: installing packages failed
+      debug:
+        msg: "Failed to install packages"
+  tags: ["packages"]
+
+- name: Check if locate command is available
+  command: locate --version
+  register: locate_check
+  ignore_errors: true
+
+- name: Set locate_available variable
+  set_fact:
+    locate_available: "{{ not locate_check.failed }}"
+
+- block:
+    - name: Set directories to not be indexed
+      template:
+        src: etc/updatedb.conf.j2
+        dest: /etc/updatedb.conf
+        owner: root
+        group: root
+        mode: '0644'
+        backup: yes
+      register: updatedb_conf
+
+    - name: Run updatedb
+      command: "updatedb"
+      when: updatedb_conf.changed
+      ignore_errors: True
+
+  when: locate_available|bool

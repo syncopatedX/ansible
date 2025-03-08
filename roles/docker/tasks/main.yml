@@ -1,0 +1,58 @@
+---
+# tasks file for docker
+
+- name: Check if Docker is installed
+  command: docker --version
+  register: docker_check
+  changed_when: false
+  ignore_errors: true
+
+- name: Print Docker version if installed
+  debug:
+    msg: "Docker version: {{ docker_check.msg }}"
+  when: docker_check.rc == 0
+
+- name: Install docker package
+  aur:
+    use: paru
+    name: "{{ item }}"
+    state: present
+    extra_args: "--overwrite '*'"
+  with_items:
+    - "{{ packages.docker }}"
+  become: False
+  tags: ["packages", "docker_pkgs"]
+
+- name: Install docker nvidia packages
+  aur:
+    use: paru
+    name: "{{ item }}"
+    state: present
+    extra_args: "--overwrite '*'"
+  loop:
+    - nvidia-container-toolkit
+    - nvidia-docker-compose
+  become: False
+  when: nvidia is defined
+  tags: ["packages", "docker_pkgs"]
+
+- name: Ensure group "docker" exists
+  group:
+    name: docker
+    state: present
+  tags: ["groups"]    
+
+- name: Add user to docker group
+  user:
+    name: "{{ user.name }}"
+    groups: docker
+    append: yes
+  # check_mode: yes
+  ignore_errors: "{{ ansible_check_mode }}"
+  # register: dockergroup
+  # failed_when: "not 'Group docker does not exist' in dockergroup.msg"
+  tags: ["groups"]
+
+- import_tasks:
+    file: setup.yml
+  tags: ["setup"]

@@ -1,0 +1,23 @@
+---
+
+# - name: Set xdg autostart applications
+#   synchronize:
+#     src: etc/xdg/autostart/
+#     dest: /etc/xdg/autostart/
+#     recursive: yes
+#     mode: push
+#     delete: yes
+#     checksum: yes
+#     perms: no
+#     rsync_opts:
+#       - "--delete"
+#       - "--update"
+#       - "--progress"
+#       - "--itemize-changes"
+#       - "--exclude='*.*~'"
+#       - "--omit-dir-times"
+#       - "--chown=root:root"
+
+- name: Update desktop database
+  command: bash -lc "update-desktop-database"
+  become: true
