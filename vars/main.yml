@@ -49,6 +49,7 @@ packages:
     - python-sphinx-intl
     - python-virtualenv
     - ripgrep
+    - rsync
     - smartmontools
     - speech-dispatcher
     - swappy
@@ -81,9 +82,10 @@ packages:
     - eza
     - fd
     - figlet
+    - libgit2
     - git-delta
     - github-cli
-    - gitui
+    # - gitui
     - glow
     - gping
     - gum
@@ -129,6 +131,7 @@ packages:
     - xterm
     - yt-dlp
     - zoxide
+    - zsh
   docker:
     - docker
     - docker-compose
@@ -213,6 +216,7 @@ packages:
     - perl-anyevent-i3
     - picom
     - polybar
+    - python-i3ipc
     - rofi
     - sxhkd
     - wmctrl

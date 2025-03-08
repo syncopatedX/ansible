@@ -25,23 +25,6 @@
     dest: "{{ user.home }}/.dmrc"
     owner: "{{ user.name }}"
     mode: '0644'
-
-- name: Install i3ipc module
-  pip:
-    name: i3ipc
-    executable: pip
-    state: present
-    extra_args: --break-system-packages
-  tags: ['packages', 'python']
-
-- name: Create i3 scripts folder
-  file:
-    path: /usr/share/i3/scripts
-    state: directory
-    owner: root
-    group: root
-  become: true
-
 - block:
     - name: Set i3status-rs configuration
       template:
