@@ -1,5 +1,5 @@
 ---
-- hosts: workstation
+- hosts: all
   gather_facts: true
   vars:
     path:
@@ -12,7 +12,7 @@
     - block:
         - name: Install dependencies
           aur:
-            use: paru
+            use: auto
             name: "{{ item }}"
             state: present
           with_items:
