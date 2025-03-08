@@ -80,6 +80,24 @@
     state: present
   become: true
 
+- name: Ensure ~/.local/bin exists
+  file:
+    path: "{{ user.home }}/.local/bin"
+    state: directory
+    mode: '0755'
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+  tags: ["folders"]
+
+- name: Ensure ~/.local/share exists
+  file:
+    path: "{{ user.home }}/.local/share"
+    state: directory
+    mode: '0755'
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+  tags: ["folders"]
+
 - import_tasks:
     file: shell/bash.yml
   tags: ['bash']

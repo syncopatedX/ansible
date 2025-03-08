@@ -132,6 +132,9 @@ packages:
     - yt-dlp
     - zoxide
     - zsh
+    - zsh-autocomplete
+    - zsh-completions
+    - zsh-syntax-highlighting
   docker:
     - docker
     - docker-compose
