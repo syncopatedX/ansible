@@ -19,12 +19,18 @@ HoldPkg      = pacman glibc manjaro-system
 {% elif ansible_distribution == "Archlinux" %}
 HoldPkg     = pacman glibc
 {% endif %}
-
+{% if ansible_architecture == "aarch64" %}
+SyncFirst    = manjaro-system manjaro-keyring manjaro-arm-keyring archlinux-keyring archlinuxarm-keyring
+{% endif %}
 #XferCommand = /usr/bin/curl -C - -f %u > %o
 #XferCommand = /usr/bin/wget --passive-ftp -c -O %o %u
 #CleanMethod = KeepInstalled
 #UseDelta    = 0.7
+{% if ansible_architecture == "aarch64" %}
+Architecture = aarch64
+{% else %}
 Architecture = auto
+{% endif %}
 
 # Pacman won't upgrade packages listed in IgnorePkg and members of IgnoreGroup
 {% if IgnorePkg is defined %}
@@ -89,10 +95,14 @@ Include = /etc/pacman.d/mirrorlist
 
 # If you want to run 32 bit applications on your x86_64 system,
 # enable the multilib repositories as required here.
-
+{% if ansible_architecture == "aarch64" %}
+[community]
+Include = /etc/pacman.d/mirrorlist
+{% else %}
 [multilib]
 SigLevel = PackageRequired
 Include = /etc/pacman.d/mirrorlist
+{% endif %}
 
 # An example of a custom package repository.  See the pacman manpage for
 # tips on creating your own repositories.

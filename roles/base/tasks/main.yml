@@ -11,16 +11,18 @@
 
 - import_tasks:
     file: repos.yml
+  when: ansible_architecture != "aarch64"
   tags: ["repos"]
 
 - import_tasks:
     file: paru.yml
+  when: ansible_architecture != "aarch64"
   tags: ["paru"]
 
 - block:
     - name: Install base packages
       aur:
-        use: paru
+        use: auto
         name: "{{ item }}"
         state: present
       with_items:

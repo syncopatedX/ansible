@@ -33,10 +33,32 @@ VCSCLIENTS=('bzr::breezy'
 # ARCHITECTURE, COMPILE FLAGS
 #########################################################################
 #
+{% if ansible_architecture == "aarch64" %}
+CARCH="aarch64"
+CHOST="aarch64-unknown-linux-gnu"
+{% else %}
 CARCH="x86_64"
 CHOST="x86_64-pc-linux-gnu"
+{% endif %}
 
 #-- Compiler and Linker Flags
+# -march (or -mcpu) builds exclusively for an architecture
+# -mtune optimizes for an architecture, but builds for whole processor family
+{% if ansible_architecture == "aarch64" %}
+#CPPFLAGS=""
+CFLAGS="-march=armv8-a -O2 -pipe -fstack-protector-strong -fno-plt -fexceptions \
+        -Wp,-D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security \
+        -fstack-clash-protection"
+CXXFLAGS="$CFLAGS -Wp,-D_GLIBCXX_ASSERTIONS"
+LDFLAGS="-Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now"
+#RUSTFLAGS="-C opt-level=2"
+#-- Make Flags: change this for DistCC/SMP systems
+MAKEFLAGS="-j$(($(nproc)+1))"
+#-- Debugging flags
+DEBUG_CFLAGS="-g -fvar-tracking-assignments"
+DEBUG_CXXFLAGS="-g -fvar-tracking-assignments"
+#DEBUG_RUSTFLAGS="-C debuginfo=2"
+{% else %}
 #CPPFLAGS=""
 CFLAGS="-march=x86-64 -mtune=generic -O2 -pipe -fno-plt -fexceptions \
         -Wp,-D_FORTIFY_SOURCE=3 -Wformat -Werror=format-security \
@@ -53,6 +75,8 @@ MAKEFLAGS="-j3"
 DEBUG_CFLAGS="-g"
 DEBUG_CXXFLAGS="$DEBUG_CFLAGS"
 DEBUG_RUSTFLAGS="-C debuginfo=2"
+{% endif %}
+
 
 #########################################################################
 # BUILD ENVIRONMENT
@@ -95,7 +119,11 @@ BUILDENV=(!distcc color !ccache check !sign)
 #-- lto:        Add compile flags for building with link time optimization
 #-- autodeps:   Automatically add depends/provides
 #
+{% if ansible_architecture == "aarch64" %}
+OPTIONS=(strip docs !libtool !staticlibs emptydirs zipman purge !debug !lto)
+{% else %}
 OPTIONS=(strip docs !libtool !staticlibs emptydirs zipman purge debug lto)
+{% endif %}
 
 #-- File integrity checks to use. Valid: md5, sha1, sha224, sha256, sha384, sha512, b2
 INTEGRITY_CHECK=(sha256)
