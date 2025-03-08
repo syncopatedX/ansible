@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=GNOME Keyring Daemon
+Comment=GNOME Keyring Daemon
+Exec=/usr/bin/gnome-keyring-daemon --replace --daemonize --components=pkcs11,secrets,ssh,gpg
+NoDisplay=true

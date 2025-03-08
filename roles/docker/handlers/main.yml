@@ -1,0 +1,6 @@
+---
+# handlers file for docker
+- name: reload systemd daemon
+  systemd:
+    daemon_reload: yes
+  ignore_errors: "{{ ansible_check_mode }}"

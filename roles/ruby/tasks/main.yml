@@ -1,0 +1,102 @@
+---
+# tasks file for ruby
+
+- name: Load a variable file based on the OS type, or a default if not found.
+  include_vars: "{{ lookup('ansible.builtin.first_found', params) }}"
+  vars:
+    params:
+      files:
+        # - '{{ansible_distribution}}.yml'
+        - '{{ansible_os_family}}.yml'
+        # - Archlinux.yml
+      paths:
+        - 'vars'
+  tags: ['packages']
+
+- name: Load the main vars
+  include_vars: main.yml
+  vars:
+    params:
+      paths:
+        - 'vars'
+
+- setup:
+- debug:
+    msg: "{{ packages }}"
+
+# by default /etc/gemrc is set to --user-install
+# set --no-user-install in /root/.gemrc
+# to install gems system wide using sudo
+- block:
+
+    - name: Set --no-user-install in /root/.gemrc
+      copy:
+        content: |
+          gem: --no-user-install --no-document
+        dest: "/root/.gemrc"
+        owner: root
+
+    - name: Set --user-install in /home/user/.gemrc
+      copy:
+        content: |
+          gem: --user-install
+        dest: "{{ user.home }}/.gemrc"
+        owner: "{{ user.name }}"
+
+    - name: Set --no-user-install in /etc/gemrc
+      copy:
+        content: |
+          gem: --user-install
+        dest: "/etc/gemrc"
+        owner: root
+
+  become: true
+
+- name: Install Ruby dev packages
+  package:
+    name: "{{ packages }}"
+    state: present
+  become: true
+  tags: ['packages']
+
+# - name: Install ruby profile.d script
+#   template:
+#     src: etc/profile.d/ruby.sh.j2
+#     dest: /etc/profile.d/ruby.sh
+#     owner: root
+#     group: root
+#     mode: '0755'
+#     backup: True
+
+- block:
+    - name: Update system bundler
+      shell: gem update --system
+
+    - name: Gather list of installed gems
+      shell: "gem list | awk '{ print $1 }'"
+      register: gemlist
+      changed_when: gemlist.rc != 0
+      ignore_errors: "{{ ansible_check_mode }}"
+
+    - name: Set list of gems to install
+      set_fact:
+        ruby__gems: "{{ gems|difference(gemlist.stdout) }}"
+
+    - name: Install system Ruby gems
+      shell: "gem install {{ item }}"
+      with_items:
+        - "{{ ruby__gems }}"
+      when: ruby__gems | length > 0
+
+  become: true
+
+- block:
+
+    - name: Install RVM
+      import_tasks: 'rvm.yml'
+
+    - name: Install Ruby and Gems
+      import_tasks: 'rubies.yml'
+
+  when: rvm_install|default(false)|bool == True
+  tags: ['rvm']

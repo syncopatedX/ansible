@@ -1,0 +1,56 @@
+#assign [class="Bipscript\ IDE"] $ws1
+assign [class="(?i)Sonic\ Pi"] $ws2
+assign [class="(?i)Zita-mu1"] $ws10
+assign [class="Carla2-Rack"] $ws10
+assign [class="Jack_mixer"] $ws10
+
+assign [class="Jalv.gtk" title="Fast Lookahead limiter"] $ws10
+assign [class="Jalv.select"] $ws10
+assign [class="Mixxx"] $ws6
+assign [class="Non-Mixer"] $ws10
+
+# assign [class="(?i)obsidian"] $ws6
+
+assign [class="REAPER" title="^Mixer"] $ws7
+
+# assign [class="^obs"] $ws9
+
+assign [class="^FMIT$"] $ws10
+
+assign [class="^Jnoisemeter$"] $ws10
+
+assign [class="^Patchage"] $ws10
+
+
+assign [class="^RaySession$"] $ws10
+
+assign [class="^Timemachine$"] $ws10
+assign [class="^calfjackhost"] $ws10
+
+assign [title="(?i)EBU R128 Meter"] $ws10
+assign [title="(?i)x42-eq - Parametric Equalizer Stereo"] $ws10
+assign [title="VU\ Meter\ \(Stereo\)"] $ws10
+
+assign [title="^EBU R128 Meter$"] $ws10
+assign [title="^jmeters"] $ws10
+
+assign [title="^x42-dpl"] $ws10
+assign [title="jkmeter"] $ws10
+assign [title="zita-rev1"] $ws10
+
+
+# assign [class="Guitarix"] $ws5
+# assign [class="Non-Sequencer"] $w5
+# assign [class="^Hydrogen"] $ws5
+# assign [class="^Seq192"] $ws5
+# assign [class="Jalv.gtk" title="Helm"] $ws6
+# assign [class="qmidiarp"] $ws6
+# assign [class="Qsampler"] $ws1
+
+{% if i3.assignments != 'default' %}
+{% for app in i3.assignments %}
+assign {{ app }}
+{% endfor %}
+{% else %}
+
+{% endif %}

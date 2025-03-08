@@ -1,0 +1,83 @@
+---
+
+#  - dest: ".config/autostart"
+- block:
+    - name: Install xdg packages
+      aur:
+        use: paru
+        name: xdg-utils
+        state: present
+  rescue:
+    - name: installing packages failed
+      debug:
+        msg: "Failed to install shell packages"
+
+- block:
+    - name: Ensure /etc/xdg exists
+      file:
+        path: /etc/xdg
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Set XDG env vars
+      copy:
+        content: |
+          # -*- mode: shell-script -*-
+          # ref: https://wiki.archlinux.org/title/XDG_Base_Directory
+          ## XDG_RUNTIME_DIR defined by pam
+          XDG_CONFIG_DIRS="/etc/xdg"
+          XDG_DATA_DIRS="/usr/local/share/:/usr/share"
+          XDG_CONFIG_HOME="$HOME/.config"
+          XDG_CACHE_HOME="$HOME/.cache"
+          XDG_DATA_HOME="$HOME/.local/share"
+          XDG_STATE_HOME="$HOME/.local/state"
+        dest: /usr/lib/environment.d/50-xdg-environment.conf
+      tags: ['env']
+
+    - name: Create /etc/xdg/menus and /usr/share/desktop-entries
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      with_items:
+        - /etc/xdg/menus
+        - /etc/xdg/menus/applications-merged
+        - /etc/xdg/Thunar
+        - /usr/share/desktop-directories
+
+    - name: Set xdg user-dirs defaults
+      copy:
+        src: etc/xdg/user-dirs.defaults
+        dest: /etc/xdg/user-dirs.defaults
+        owner: root
+        group: root
+        mode: '0644'
+        backup: yes
+      register: xdg_defaults
+
+  become: true
+
+- name: Enable xdg-user-dirs-update service
+  systemd:
+    name: xdg-user-dirs-update.service
+    enabled: yes
+    scope: user
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ user.uid }}"
+
+- name: Remove existing user-dirs.dirs
+  file:
+    path: "{{ user.home }}/.config/user-dirs.dirs"
+    state: absent
+  register: xdg_userdirs
+  become: true
+
+- name: Run xdg-user-dirs-update
+  shell: xdg-user-dirs-update
+  when: xdg_defaults.changed or xdg_userdirs.changed
+
+- import_tasks:
+    file: autostart.yml
+  tags: ['autostart']

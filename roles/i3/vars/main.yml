@@ -1,0 +1,9 @@
+---
+# vars file for i3
+i3:
+  home: "{{ lookup('env','HOME') }}/.config/i3"
+  autostart: 'default'
+  assignments: 'default'
+  workspaces: 'default'
+  keybindings: 'default'
+  tray_output: 'primary'

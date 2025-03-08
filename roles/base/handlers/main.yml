@@ -1,2 +1,7 @@
 ---
 # handlers file for packages
+
+- name: Update cache
+  pacman:
+    update_cache: True
+    upgrade: False

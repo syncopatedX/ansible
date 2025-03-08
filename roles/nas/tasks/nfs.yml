@@ -1,0 +1,189 @@
+---
+
+# - name: mount_names
+#   set_fact:
+#     mount_names: "{{ ansible_mounts | map(attribute='mount') | list}}"
+#   tags: ['nfstest']
+#
+# - debug:
+#     var: mount_names
+#   loop: "{{ share.nfs.exports }}"
+#   failed_when: item not in mount_names
+#   tags: ['nfstest']
+
+# - name: Create exports folder
+#   file:
+#     path: /srv/exports
+#     state: directory
+#     owner: "{{ user.name }}"
+#     group: "{{ user.group }}"
+#     mode: "2775"
+#   when: bind_share_exports|bool
+
+- block:
+    - name: Ensure group nobody exists
+      group:
+        name: nobody
+        gid: 65534
+        non_unique: True
+        system: True
+
+    - name: Ensure user nobody exists
+      user:
+        name: nobody
+        system: True
+        state: present
+        shell: /sbin/nologin
+        uid: 65534
+        group: nobody
+
+    - name: Install nfs configs
+      template:
+        src: "etc/{{ item }}.j2"
+        dest: "/etc/{{ item }}"
+        mode: "0644"
+        backup: yes
+      with_items:
+        - idmapd.conf
+        - nfs.conf
+
+    - name: Ensure nfs/rpc services are enabled and started
+      service:
+        name: "{{ item }}"
+        state: restarted
+        enabled: yes
+      with_items:
+        - nfs-server
+        - nfs-mountd
+        - nfs-idmapd
+        - rpcbind
+
+    - block:
+        - name: Permit traffic to rpcbind
+          firewalld:
+            port: "{{ item }}"
+            permanent: yes
+            state: enabled
+          with_items:
+            - 111/tcp
+            - 111/udp
+            - 20048/tcp
+            - 20048/udp
+            - 2049/tcp
+            - 32769/udp
+            - 32803/tcp
+            - 40418/udp
+            - 40937/tcp
+            - 50343/udp
+            - 56627/tcp
+            - 58244/udp
+            - 60631/udp
+            - 659/udp
+            - 662/tcp
+            - 662/udp
+            - 892/tcp
+            - 892/udp
+
+        - name: reload firewalld
+          shell: "firewall-cmd --reload"
+          ignore_errors: "{{ ansible_check_mode }}"
+
+      when: ansible_os_family == 'Archlinux' or ansible_os_family == 'RedHat'
+
+    - block:
+        - name: Permit tcp traffic to rpcbind
+          community.general.ufw:
+            rule: allow
+            port: "{{ item }}"
+            proto: tcp
+          with_items:
+            - "111"
+            - "662"
+            - "892"
+            - "2049"
+            - "32803"
+
+        - name: Permit udp traffic to rpcbind
+          community.general.ufw:
+            rule: allow
+            port: "{{ item }}"
+            proto: udp
+          with_items:
+            - "111"
+            - "662"
+            - "892"
+            - "32769"
+            - "32803"
+
+      when: ansible_distribution == 'MX' or ansible_distribution == 'Debian'
+
+  ignore_errors: "{{ ansible_check_mode }}"
+
+# - block:
+#     - name: Ensure the exported folder already exists
+#       file:
+#         path: "{{ share.nfs.parent }}/{{ item }}"
+#         state: directory
+#         owner: "{{ user.name }}"
+#         group: "{{ user.group }}"
+#         mode: '2775'
+#       with_items:
+#         - "{{ share.nfs.exports }}"
+
+#     - name: Create exports folder
+#       file:
+#         path: /srv/exports/{{ item }}
+#         state: directory
+#         owner: "{{ user.name }}"
+#         group: "{{ user.group }}"
+#       with_items:
+#         - "{{ share.nfs.exports }}"
+#       when: bind_share_exports|bool
+
+#     - name: Ensure required entries are made to fstab file
+#       lineinfile:
+#         path: /etc/fstab
+#         state: present
+#         line: "{{ share.nfs.parent }}/{{ item }} /srv/exports/{{ item }} none bind 0 0"
+#       with_items:
+#         - "{{ share.nfs.exports }}"
+#       register: fstab
+#       when: bind_share_exports|bool
+
+#     - name: Reload systemd
+#       systemd:
+#         daemon_reload: yes
+#       when: (fstab.changed or bind_share_exports|bool)
+
+#     # https://docs.ansible.com/ansible/latest/collections/ansible/posix/mount_module.html#parameter-state
+#     - name: Mount and bind the exports
+#       ansible.posix.mount:
+#         path: "/srv/exports/{{ item }}"
+#         src: "{{ user.home }}/{{ item }}"
+#         opts: bind
+#         state: ephemeral
+#         fstype: none
+#       with_items: "{{ share.nfs.exports }}"
+#       ignore_errors: True
+
+#     - name: Mounted the binded folders
+#       shell: |
+#         mount /srv/exports/{{ item }}
+#       with_items:
+#         - "{{ share.nfs.exports }}"
+
+#   when: bind_share_exports|bool
+
+- name: Set the exports
+  template:
+    src: etc/exports.j2
+    dest: /etc/exports
+    owner: root
+    group: root
+    mode: "0644"
+    backup: yes
+  register: exportsra
+
+- name: Reload exports
+  shell: exportfs -rv
+  when: exportsra.changed

@@ -1,49 +1,8 @@
 ---
-# tasks file for user
-# 1. Ensure the user exists with the specified shell and groups.
-- name: Ensure user is present with proper shell and groups
-  user:
-    name: "{{ user.name }}"
-    shell: "{{ user.shell | default('/bin/zsh') }}"
-    groups: "{{ user.groups | default([]) }}"
-    append: yes
-    state: present
-
-- block:
-    - name: Check if keys are present
-      stat:
-        path: "{{ user.home }}/.ssh/id_ed25519"
-      register: keys
-
-    - name: Start ssh daemon
-      service:
-        name: sshd
-        state: started
-        enabled: True
-
-    - name: Copy keys from remote host
-      delegate_to: 127.0.0.1
-      run_once: True
-      become_user: "{{ user.name }}"
-      shell: "scp {{ user.name }}@{{ keyserver }}:~/.ssh/{{ item }} {{ user.home }}/.ssh/{{ item }}"
-      args:
-        chdir: "{{ user.home }}"
-      with_items:
-        - id_ed25519
-        - id_ed25519.pub
-        - id_rsa
-        - id_rsa.pub
-        - config
-        - known_hosts
-        - authorized_keys
-      when:
-        - not keys.stat.exists
-        - keyserver is defined
-
-  tags: ["keys"]
 
 - when: user.sudoers |default(false)
   become: true
+  tags: ['sudoers']
   block:
     - name: Ensure /etc/sudoers.d exists
       file:
@@ -66,6 +25,14 @@
         backup: true
       when: user.name != 'root'
 
+    - name: Ensure rules.d directory exists
+      file:
+        path: /etc/polkit-1/rules.d/
+        state: directory
+        owner: root
+        group: root
+        mode: '0700'
+
     - name: Set NOPASSWD for user in polkit
       copy:
         content: |
@@ -80,3 +47,47 @@
         dest: "/etc/polkit-1/rules.d/49-nopasswd_global.rules"
         mode: '0644'
       when: ansible_os_family == 'Archlinux'
+
+- block:
+    - name: Install shell packages
+      aur:
+        use: auto
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - "{{ packages.shell }}"
+  rescue:
+    - name: install shell packages failed
+      debug:
+        msg: "Failed to install shell packages"
+
+  tags: ["packages", "shell_pkgs"]
+
+- name: Push aliases template
+  template:
+    src: ".aliases.j2"
+    dest: "{{ profile_config_dir }}/.aliases"
+    mode: '0644'
+    backup: True
+  tags: ['aliases']
+
+- name: Ensure user is present with proper shell and groups
+  user:
+    name: "{{ user.name }}"
+    shell: "{{ user.shell | default('/bin/zsh') }}"
+    groups: "{{ user.groups | default([]) }}"
+    append: yes
+    state: present
+  become: true
+
+- import_tasks:
+    file: shell/bash.yml
+  tags: ['bash']
+
+- import_tasks:
+    file: shell/zsh.yml
+  tags: ['zsh']
+
+- import_tasks:
+    file: dots.yml
+  tags: ['dots']

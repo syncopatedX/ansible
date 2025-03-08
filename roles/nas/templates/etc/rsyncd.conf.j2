@@ -1,0 +1,51 @@
+uid = {{ user.uid }}
+gid = {{ user.gid }}
+use chroot = no
+max connections = 4
+syslog facility = local5
+pid file = /run/rsyncd.pid
+
+[Documents]
+  path = /export/Documents
+  comment = Documents
+  read only = false
+
+[Images]
+  path = /export/Images
+  comment = Images
+  read only = false
+
+[Music]
+  path = /export/Music
+  comment = Music
+  read only = false
+
+[Notebook]
+  path = /export/Notebooks
+  comment = Notebooks
+  read only = false
+
+[Recordings]
+  path = /export/Recordings
+  comment = Recordings
+  read only = false
+
+[Sessions]
+  path = /export/Sessions
+  comment = Sessions
+  read only = false
+
+[Videos]
+  path = /export/Videos
+  comment = Videos
+  read only = false
+
+[Workspace]
+  path = /export/Workspace
+  comment = Workspace
+  read only = false
+
+[Library]
+  path = /export/Library
+  comment = Library
+  read only = false

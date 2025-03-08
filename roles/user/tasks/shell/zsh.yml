@@ -1,0 +1,44 @@
+---
+
+- name: Install fd and ripgrep ohmyzsh plugins
+  copy:
+    src: "usr/share/oh-my-zsh/plugins/{{ item }}"
+    dest: "/usr/share/oh-my-zsh/plugins/"
+    owner: root
+    group: root
+    backup: yes
+  become: true
+  with_items:
+    - fd
+    - ripgrep
+
+- name: Install zsh custom functions configs
+  synchronize:
+    src: home/.local/share/zsh/
+    dest: "{{ user.home }}/.local/share/zsh/"
+    recursive: yes
+    mode: push
+    delete: yes
+    checksum: yes
+    perms: no
+    rsync_opts:
+      - "--update"
+      - "--omit-dir-times"
+      - "--progress"
+      - "--itemize-changes"
+      - "--chown={{ user.name }}:{{ user.group }}"
+  ignore_errors: "{{ ansible_check_mode }}"
+  tags: ['zsh_functions']
+
+- name: Set zsh profile configs
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ profile_config_dir }}/{{ item }}"
+    mode: '0644'
+    backup: True
+  with_items:
+    - .zprofile
+    - .zshenv
+    - .zshrc
+    - .zlogin
+  tags: ['env', 'profile']

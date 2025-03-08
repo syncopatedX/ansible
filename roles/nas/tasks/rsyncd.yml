@@ -1,0 +1,15 @@
+---
+
+- name: Install rsyncd config
+  template:
+    src: etc/rsyncd.conf.j2
+    dest: /etc/rsyncd.conf
+    mode: '0644'
+  register: rsyncd_config
+
+- name: Ensure rsyncd service is running
+  service:
+    name: rsyncd
+    state: restarted
+    enabled: yes
+  when: rsyncd_config.changed

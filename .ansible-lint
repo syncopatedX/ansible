@@ -1,0 +1,50 @@
+# .ansible-lint
+exclude_paths:
+  - .cache/
+  - .github/
+  - molecule/
+  - .gitlab-ci.yml
+  - .travis.yml
+  - .tox
+  - .git/
+  - collections/*/tests/
+
+parseable: true
+quiet: false
+verbosity: 1
+
+# Enable checking of loop variable prefixes in roles
+loop_var_prefix: ^(__|{role}_)
+
+# List of additional kinds of markup files to examine
+kinds:
+  - playbook: "**/playbook.yml"
+  - tasks: "**/tasks/*.yml"
+  - handlers: "**/handlers/*.yml"
+  - vars: "**/vars/*.yml"
+  - defaults: "**/defaults/*.yml"
+  - meta: "**/meta/main.yml"
+  - yaml: "**/*.{yml,yaml}"
+
+# Enforce best practices
+use_default_rules: true
+strict: true
+
+# Skip specific rules
+skip_list:
+  - '204'  # Lines should be no longer than 160 chars
+  - '301'  # Commands should not change things if nothing needs doing
+  - '303'  # Using command rather than module
+  - '306'  # Shells that use pipes should set the pipeline's return status
+  - '502'  # All tasks should be named
+  - yaml
+
+# Enable specific rules
+enable_list:
+  - empty-string-compare  # Don't compare to empty string
+  - no-log-password      # Password should use no_log
+  - no-same-owner       # Don't use same owner
+  # - yaml                # Yaml syntax check
+
+# Configure rule specific configuration
+task_name_prefix: "true"  # Enforce task names to be prefixed with role names
