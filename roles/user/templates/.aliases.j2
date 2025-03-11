@@ -157,3 +157,5 @@ alias mountchroot="sudo mount --mkdir -t tmpfs -o defaults,size=8G tmpfs /mnt/ch
 alias unmountchroot="sudo umount /mnt/chroots/arch"
 
 alias m="micro"
+
+alias fdiff="git diff --staged | fabric --pattern create_git_diff_commit"
