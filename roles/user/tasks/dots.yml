@@ -1,13 +1,19 @@
 ---
 
-- name: Ensure ~/.local/bin exists
-  file:
-    path: "{{ user.home }}/.local/bin"
-    state: directory
-    mode: '0755'
-    owner: "{{ user.name }}"
-    group: "{{ user.group }}"
-  tags: ["folders"]
+- name: Sync utility scripts
+  ansible.posix.synchronize:
+    src: home/.local/bin/
+    dest: "{{ user.home }}/.local/bin/"
+    recursive: true
+    mode: push
+    delete: false
+    checksum: true
+    perms: false
+    rsync_opts:
+      - "--update"
+      - "--omit-dir-times"
+      - --chown={{ user.name }}:{{ user.group }}
+  tags: ["scripts"]
 
 - name: Sync kitty configs plugins
   ansible.posix.synchronize:
@@ -22,6 +28,7 @@
       - "--update"
       - "--omit-dir-times"
       - --chown={{ user.name }}:{{ user.group }}
+  tags: ["kitty"]
 
 - name: Sync ranger configs plugins
   ansible.posix.synchronize:
@@ -36,3 +43,4 @@
       - "--update"
       - "--omit-dir-times"
       - --chown={{ user.name }}:{{ user.group }}
+  tags: ["ranger"]
