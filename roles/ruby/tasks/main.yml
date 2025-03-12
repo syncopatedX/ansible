@@ -23,6 +23,14 @@
 - setup:
 - debug:
     msg: "{{ packages }}"
+  when: debug_vars is defined
+
+- name: Install Ruby dev packages
+  package:
+    name: "{{ packages }}"
+    state: present
+  become: true
+  tags: ['packages']
 
 # by default /etc/gemrc is set to --user-install
 # set --no-user-install in /root/.gemrc
@@ -50,14 +58,28 @@
         dest: "/etc/gemrc"
         owner: root
 
-  become: true
+    - name: gather list of installed gems
+      shell: "gem list | awk '{ print $1 }'"
+      register: gemlist
+      changed_when: gemlist.rc != 0
+      ignore_errors: "{{ ansible_check_mode }}"
 
-- name: Install Ruby dev packages
-  package:
-    name: "{{ packages }}"
-    state: present
+    - name: set list of gems to install
+      set_fact:
+        _gems: "{{ gems|difference(gemlist.stdout) }}"
+
+    - name: Display gems to be installed
+      debug:
+        msg: "{{ _gems }}"
+      when: debug_vars is defined
+
+    - name: install ruby gems
+      shell: "gem install {{ item }}"
+      with_items:
+        - "{{ _gems }}"
+      when: _gems | length > 0
+
   become: true
-  tags: ['packages']
 
 # - name: Install ruby profile.d script
 #   template:
@@ -68,27 +90,33 @@
 #     mode: '0755'
 #     backup: True
 
-- block:
-    - name: Update system bundler
-      shell: gem update --system
+# - block:
+#     - name: Update system bundler
+#       shell: gem update --system
 
-    - name: Gather list of installed gems
-      shell: "gem list | awk '{ print $1 }'"
-      register: gemlist
-      changed_when: gemlist.rc != 0
-      ignore_errors: "{{ ansible_check_mode }}"
+#     - name: Gather list of installed gems
+#       shell: "gem list | awk '{ print $1 }'"
+#       register: gemlist
+#       changed_when: gemlist.rc != 0
+#       ignore_errors: "{{ ansible_check_mode }}"
 
-    - name: Set list of gems to install
-      set_fact:
-        ruby__gems: "{{ gems|difference(gemlist.stdout) }}"
+#     - name: Set list of gems to install
+#       set_fact:
+#         ruby__gems: "{{ gems|difference(gemlist.stdout) }}"
 
-    - name: Install system Ruby gems
-      shell: "gem install {{ item }}"
-      with_items:
-        - "{{ ruby__gems }}"
-      when: ruby__gems | length > 0
+#     - name: Display ruby__gems vars
+#       debug:
+#         msg: "{{ ruby__gems }}"
+#       when: debug_vars is defined
 
-  become: true
+#     - name: Install system Ruby gems
+#       shell: "gem install {{ item }}"
+#       with_items:
+#         - "{{ ruby__gems }}"
+#       when: ruby__gems | length > 0
+
+#   become: true
+#   tags: ["ruby__gems"]
 
 - block:
 

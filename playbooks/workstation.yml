@@ -48,7 +48,6 @@
       tags: ["libvirt"]
 
     - role: x11
-      become: true
       tags: ["x11"]
 
     - role: sxhkd

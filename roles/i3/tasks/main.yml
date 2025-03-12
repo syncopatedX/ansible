@@ -26,6 +26,11 @@
     owner: "{{ user.name }}"
     mode: '0644'
 - block:
+    - name: Display i3 vars
+      debug:
+        msg: "{{ i3 }}"
+      when: debug_vars is defined
+
     - name: Set i3status-rs configuration
       template:
         src: "{{ item }}.j2"
