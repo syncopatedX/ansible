@@ -45,3 +45,7 @@ export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS' --color='bg:#141414,bg+:#3F3F3F,info:
 export {{ item.key|upper }}={{ item.value }}
 {% endfor %}
 {% endif %}
+
+{% if rvm_install == 'true' %}
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+{% endif %}

@@ -69,7 +69,15 @@
     dest: "{{ profile_config_dir }}/.aliases"
     mode: '0644'
     backup: True
-  tags: ['aliases']
+  tags: ["aliases","profile"]
+
+- name: Push .profile template
+  template:
+    src: ".profile.j2"
+    dest: "{{ profile_config_dir }}/.profile"
+    mode: '0644'
+    backup: True
+  tags: ["profile"]
 
 - name: Ensure user is present with proper shell and groups
   user:
