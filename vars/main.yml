@@ -5,6 +5,7 @@ packages:
     - aria2
     - audiofile
     - base-devel
+    - bind
     - chromaprint
     - cmake
     - cpupower
@@ -161,7 +162,7 @@ packages:
     - xf86-input-libinput
     - xf86-input-wacom
     - xf86-video-fbdev
-    - xf86-video-intel
+    # - xf86-video-intel
     - xf86-video-vesa
     - xkill-shortcut
     - xob

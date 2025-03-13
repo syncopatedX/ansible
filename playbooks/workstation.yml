@@ -68,6 +68,10 @@
     - role: ruby
       tags: ["ruby"]
 
+- name: Install input-remapper
+  import_playbook: input-remapper.yml
+  tags: ["input-remapper"]
+
 - name: Install code-packager
   import_playbook: code-packager.yml
   tags: ["code-packager"]
@@ -76,6 +80,6 @@
   import_playbook: whisper-stream.yml
   tags: ["whisper-stream"]
 
-- name: Install input-remapper
-  import_playbook: input-remapper.yml
-  tags: ["input-remapper"]
+- name: Install fabric
+  import_playbook: fabric.yml
+  tags: ["fabric"]

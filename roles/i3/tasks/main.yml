@@ -14,7 +14,7 @@
     recurse: "{{ item.recurse | default(false) }}"
   loop: "{{ i3_directory_definitions }}"
   check_mode: no
-  tags: ['profile']
+  tags: ["folders"]
 
 # if this file does not exist, lightdm will fail to start
 - name: Set dmrc to selected window manager
@@ -25,6 +25,7 @@
     dest: "{{ user.home }}/.dmrc"
     owner: "{{ user.name }}"
     mode: '0644'
+    
 - block:
     - name: Display i3 vars
       debug:

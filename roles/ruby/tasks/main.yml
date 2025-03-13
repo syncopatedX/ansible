@@ -36,6 +36,10 @@
 # set --no-user-install in /root/.gemrc
 # to install gems system wide using sudo
 - block:
+    - debug:
+        msg: "{{ ansible_env | to_nice_json }}"
+      become: true
+      become_flags: '-s /bin/sh'
 
     - name: Set --no-user-install in /root/.gemrc
       copy:
@@ -59,7 +63,7 @@
         owner: root
 
     - name: gather list of installed gems
-      shell: "gem list | awk '{ print $1 }'"
+      shell: "/usr/bin/gem list | awk '{ print $1 }'"
       register: gemlist
       changed_when: gemlist.rc != 0
       ignore_errors: "{{ ansible_check_mode }}"
@@ -74,12 +78,15 @@
       when: debug_vars is defined
 
     - name: install ruby gems
-      shell: "gem install {{ item }}"
+      command: "/use/bin/gem install {{ item }}"
       with_items:
         - "{{ _gems }}"
       when: _gems | length > 0
 
   become: true
+  become_flags: '-s /bin/sh'
+  environment:
+    PATH: "/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl"
 
 # - name: Install ruby profile.d script
 #   template:

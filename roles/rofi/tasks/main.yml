@@ -13,6 +13,7 @@
     - name: installing packages failed
       debug:
         msg: "Failed to install shell packages"
+  tags: ["packages"]
 
 - name: Ensure rofi directories exist
   file:
@@ -24,7 +25,6 @@
     recurse: "{{ item.recurse | default(false) }}"
   loop: "{{ rofi_directory_definitions }}"
   check_mode: no
-  tags: ['profile']
 
 - name: Synchronize templates - rofi
   template:
@@ -49,4 +49,4 @@
     - launchers/type-4/shared/colors.rasi
     - launchers/type-4/shared/fonts.rasi
     - launchers/type-4/style-6.rasi
-  tags: ['profile', 'rofi', 'menus']
+  tags: ["menus"]

@@ -1,13 +1,13 @@
 ---
 # tasks file for packages
 
-- name: Set pacman.conf config
-  template:
-    src: etc/pacman.conf.j2
-    dest: /etc/pacman.conf
-    mode: "0644"
-    backup: true
-  tags: ["pacman"]
+# - name: Set pacman.conf config
+#   template:
+#     src: etc/pacman.conf.j2
+#     dest: /etc/pacman.conf
+#     mode: "0644"
+#     backup: true
+#   tags: ["pacman"]
 
 - import_tasks:
     file: repos.yml
