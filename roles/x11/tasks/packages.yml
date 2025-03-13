@@ -5,5 +5,4 @@
     use: paru
     name: "{{ packages.x11 }}"
     state: present
-  become: False
   tags: ['packages']

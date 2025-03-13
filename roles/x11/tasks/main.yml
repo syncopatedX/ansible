@@ -33,20 +33,26 @@
 #     - ansible_os_family == 'Archlinux'
 #   tags: ['video', 'mkinitcpio']
 
-- block:
-    - name: Disable vblank
-      copy:
-        content: |
-          <device screen="0" driver="dri2">
-              <application name="Default">
-                  <option name="vblank_mode" value="0"/>
-              </application>
-          </device>
+- name: Disable vblank
+  copy:
+    content: |
+      <device screen="0" driver="dri2">
+          <application name="Default">
+              <option name="vblank_mode" value="0"/>
+          </application>
+      </device>
 
-        dest: "{{ user.home }}/.drirc"
-        owner: "{{ user.name }}"
-        group: "{{ user.group }}"
-      when: disable_vblank is defined
+    dest: "{{ user.home }}/.drirc"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+  when: disable_vblank is defined
+
+
+- block:
+    - name: Display x vars
+      debug:
+        msg: "{{ x }}"
+      when: debug_vars is defined
 
     - name: Set xserver configs
       template:
@@ -60,9 +66,8 @@
         - .xprofile
         - .xserverrc
         - .Xresources
-      register: xconfig
-      changed_when: (xconfig.msg is defined and not 'All items completed' in xconfig.msg)
-      tags: ['env', 'profile']
+      # register: xconfig
+      # changed_when: (xconfig.msg is defined and not 'All items completed' in xconfig.msg)
 
     - name: Set xinitrc config
       template:
@@ -72,4 +77,6 @@
         group: "{{ user.group }}"
         mode: '0755'
         backup: True
+  
+  tags: ["env", "profile", "xprofile"]
 
