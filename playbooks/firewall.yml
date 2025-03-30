@@ -1,0 +1,145 @@
+---
+- name: Configure Firewall with Firewalld
+  hosts: all
+  become: true
+  vars:
+    rules:
+      allowed:
+        - 1900/udp
+        - 1935/tcp
+        - 4000/tcp
+        - 5000/tcp
+        - 8008/tcp
+        - 4464/udp
+        - 4560/udp
+        - 5432/tcp
+        - 6379/tcp
+        - 6666/tcp
+        - 7777/udp
+        - 7905/tcp
+        - 7906/tcp
+        - 8000/udp
+        - 8324/tcp
+        - 8384/tcp
+        - 12101/udp
+        - 21027/udp
+        - 21928/udp
+        - 21929/udp
+        - 22000/tcp
+        - 22000/udp
+        - 24800/tcp
+        - 24801/tcp
+        - 32400/tcp
+        - 32410/udp
+        - 32412/udp
+        - 32413/udp
+        - 32414/udp
+        - 32469/tcp
+        - 50924/udp
+        - 55311/udp
+  tasks:
+    - block:
+        - name: Enable and start firewalld
+          systemd:
+            name: firewalld
+            state: started
+            enabled: yes
+
+        - name: Permit traffic to common services
+          firewalld:
+            service: "{{ item }}"
+            state: enabled
+            permanent: yes
+          with_items:
+            - ntp
+            - rsyncd
+            - ssh
+          notify: reload firewalld
+          tags: ['nfs', 'ntp', 'rsyncd', 'ssh']
+
+        - name: Permit traffic to jacktrip, barrier and qmidinet
+          firewalld:
+            port: "{{ item }}"
+            state: enabled
+            permanent: yes
+          with_items: "{{ rules.allowed }}"
+
+        - name: reload firewalld
+          shell: "firewall-cmd --reload"
+
+      ignore_errors: "{{ ansible_check_mode }}"
+      when: ansible_os_family == 'Archlinux' or ansible_distribution == 'Fedora'  
+
+- name: Configure Firewall with UFW
+  hosts: all
+  become: true
+  vars:
+    rules:
+      allowed:
+        - { proto: 'udp', port: '1900' }
+        - { proto: 'tcp', port: '1935' }
+        - { proto: 'tcp', port: '4000' }
+        - { proto: 'tcp', port: '5000' }
+        - { proto: 'tcp', port: '8008' }
+        - { proto: 'udp', port: '4464' }
+        - { proto: 'udp', port: '4560' }
+        - { proto: 'tcp', port: '5432' }
+        - { proto: 'tcp', port: '6379' }
+        - { proto: 'tcp', port: '6666' }
+        - { proto: 'udp', port: '7777' }
+        - { proto: 'tcp', port: '7905' }
+        - { proto: 'tcp', port: '7906' }
+        - { proto: 'udp', port: '8000' }
+        - { proto: 'tcp', port: '8324' }
+        - { proto: 'tcp', port: '8384' }
+        - { proto: 'udp', port: '12101' }
+        - { proto: 'udp', port: '21027' }
+        - { proto: 'udp', port: '21928' }
+        - { proto: 'udp', port: '21929' }
+        - { proto: 'tcp', port: '22000' }
+        - { proto: 'udp', port: '22000' }
+        - { proto: 'tcp', port: '24800' }
+        - { proto: 'tcp', port: '24801' }
+        - { proto: 'tcp', port: '32400' }
+        - { proto: 'udp', port: '32410' }
+        - { proto: 'udp', port: '32412' }
+        - { proto: 'udp', port: '32413' }
+        - { proto: 'udp', port: '32414' }
+        - { proto: 'tcp', port: '32469' }
+        - { proto: 'udp', port: '50924' }
+        - { proto: 'udp', port: '55311' }  
+  tasks:
+    - block:
+        - name: Enable and start ufw
+          systemd:
+            name: ufw
+            state: started
+            enabled: yes
+
+        - name: Permit traffic to common services
+          community.general.ufw:
+            rule: allow
+            name: "{{ item }}"
+            #port: "{{ item }}" # Removed port, using name instead
+            proto: "any"
+          with_items:
+            - ntp
+            - rsync
+            - ssh
+          notify: reload ufw
+          tags: ['nfs', 'ntp', 'rsyncd', 'ssh']
+
+        - name: Permit udp traffic to jacktrip, barrier and qmidinet
+          community.general.ufw:
+            rule: allow
+            port: "{{ rules.allowed }}"
+            proto: udp
+          with_items: "{{ rules.allowed }}"
+
+        - name: reload ufw
+          community.general.ufw:
+            state: reloaded
+
+      when: ansible_distribution == 'MX' or ansible_distribution == 'Debian'
+      ignore_errors: "{{ ansible_check_mode }}"
+
