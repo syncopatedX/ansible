@@ -1,5 +1,5 @@
 ---
-- hosts: server
+- hosts: all
   gather_facts: true
   vars:
     path:
@@ -24,6 +24,11 @@
 
     - role: user
       tags: ["user"]
+
+    - role: nas
+      become: true
+      when: share.nfs is defined
+      tags: ["nas"]
 
     - role: docker
       become: true

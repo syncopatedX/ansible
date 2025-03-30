@@ -1,20 +1,27 @@
 ---
-
-zsh_theme: strug
+share:
+  nfs:
+    parent: /
+    exports:
+      - usb_storage
+      - storage
 
 docker:
   storage: /home/docker
-  
+
 use_libvirt: true
+
+zsh_theme: strug
 
 x:
   autostart:
     - bash ~/.screenlayout/ninjabot.sh
 
-# i3:
-#   autostart:
-#     - "barrierc -f --debug INFO --name ninjabot --disable-crypto [soundbot]:24800"
-#   tray_output: 'primary'
-#   assignments: 'default'
-#   workspaces: 'default'
-#   keybindings: 'default'
+i3:
+  autostart:
+    - "sleep 1;barrierc -f --debug INFO --name ninjabot --disable-crypto [soundbot]:24800"
+    - "sleep 1;barrierc -f --debug INFO --name ninjabot --disable-crypto [lapbot]:24801"
+  tray_output: "primary"
+  assignments: "default"
+  workspaces: "default"
+  keybindings: "default"

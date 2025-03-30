@@ -9,7 +9,7 @@
 
 - import_tasks:
     file: samba.yml
-  when: samba_host|bool
+  when: samba_host is defined
   tags: ['samba']
 
 # - import_tasks:

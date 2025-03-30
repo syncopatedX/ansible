@@ -13,4 +13,4 @@ firewall:
 
 samba_host: False
 
-bind_share_exports: False
+bind_share_exports: True
