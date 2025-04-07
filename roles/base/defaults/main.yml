@@ -1,4 +1,20 @@
 ---
 
 
-  
+user:
+  name: "{{ lookup('env','USER') }}"
+  group: "{{ lookup('env','USER') }}"
+  uid: 1000
+  gid: 1000
+  home: "{{ lookup('env','HOME') }}"
+  shell: "{{ lookup('env','SHELL') }}"
+  secondary_groups: "video,audio,input"
+  realname: ""
+  sudoers: true
+  workspace: ""
+  email: ""
+  gpg: ""
+
+use_etc_skel: false
+
+zsh_theme: strug

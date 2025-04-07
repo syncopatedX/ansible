@@ -19,19 +19,18 @@
   when: ansible_architecture != "aarch64"
   tags: ["paru"]
 
-- block:
+- tags: ["packages", "base_pkgs"]
+  block:
     - name: Install base packages
       aur:
         use: auto
         name: "{{ item }}"
         state: present
-      with_items:
-        - "{{ packages.base }}"
+      with_items: "{{ packages.base }}"
   rescue:
-    - name: installing packages failed
+    - name: Installing packages failed
       debug:
         msg: "Failed to install shell packages"
-  tags: ["packages", "base_pkgs"]
 
 - name: Check if mirrors have been updated within the past 24h
   shell: | 
