@@ -4,3 +4,4 @@
 ansible-workstation-arch.code-workspace
 __pycache__
 .lock
+.qodo
