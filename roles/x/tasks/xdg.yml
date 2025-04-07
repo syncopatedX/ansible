@@ -1,5 +1,4 @@
 ---
-
 #  - dest: ".config/autostart"
 - block:
     - name: Install xdg packages
@@ -19,7 +18,7 @@
         state: directory
         owner: root
         group: root
-        mode: '0755'
+        mode: "0755"
 
     - name: Set XDG env vars
       copy:
@@ -34,13 +33,13 @@
           XDG_DATA_HOME="$HOME/.local/share"
           XDG_STATE_HOME="$HOME/.local/state"
         dest: /usr/lib/environment.d/50-xdg-environment.conf
-      tags: ['env']
+      tags: ["env"]
 
     - name: Create /etc/xdg/menus and /usr/share/desktop-entries
       file:
         path: "{{ item }}"
         state: directory
-        mode: '0755'
+        mode: "0755"
       with_items:
         - /etc/xdg/menus
         - /etc/xdg/menus/applications-merged
@@ -53,7 +52,7 @@
         dest: /etc/xdg/user-dirs.defaults
         owner: root
         group: root
-        mode: '0644'
+        mode: "0644"
         backup: yes
       register: xdg_defaults
 
@@ -78,6 +77,24 @@
   shell: xdg-user-dirs-update
   when: xdg_defaults.changed or xdg_userdirs.changed
 
-- import_tasks:
-    file: autostart.yml
-  tags: ['autostart']
+# - name: Set xdg autostart applications
+#   synchronize:
+#     src: etc/xdg/autostart/
+#     dest: /etc/xdg/autostart/
+#     recursive: yes
+#     mode: push
+#     delete: yes
+#     checksum: yes
+#     perms: no
+#     rsync_opts:
+#       - "--delete"
+#       - "--update"
+#       - "--progress"
+#       - "--itemize-changes"
+#       - "--exclude='*.*~'"
+#       - "--omit-dir-times"
+#       - "--chown=root:root"
+
+- name: Update desktop database
+  command: bash -lc "update-desktop-database"
+  become: true

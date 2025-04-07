@@ -1,5 +1,4 @@
 ---
-
 - block:
     - name: Install SXHKD on Arch Linux
       aur:
@@ -36,14 +35,14 @@
       sleep 0.5
     dest: "{{ user.home }}/.local/bin/reload-sxhkd.sh"
     owner: "{{ user.name }}"
-    mode: '0755'
+    mode: "0755"
   tags: ["Utils"]
 
 - name: Ensure SXHKD configuration directory exists
   file:
     path: "{{ user.home }}/.config/sxhkd"
     state: directory
-    mode: '0755'
+    mode: "0755"
     owner: "{{ user.name }}"
     group: "{{ user.group }}"
 
@@ -51,7 +50,7 @@
   template:
     src: sxhkdrc.j2
     dest: "{{ user.home }}/.config/sxhkd/sxhkdrc"
-    mode: '0644'
+    mode: "0644"
     owner: "{{ user.name }}"
     group: "{{ user.group }}"
   tags: ["keybindings"]
