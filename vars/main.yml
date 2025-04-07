@@ -1,5 +1,4 @@
 ---
-
 packages:
   base:
     - aria2
@@ -22,7 +21,7 @@ packages:
     - git
     - git-lfs
     - gnome-keyring
-    - gnuplot 
+    - gnuplot
     - graphicsmagick
     - gst-libav
     - gstreamer
@@ -66,7 +65,7 @@ packages:
   shell:
     - aspell
     - aspell-en
-    - atool  
+    - atool
     - bandwhich
     - bash-completion
     - bash-language-server
@@ -126,7 +125,7 @@ packages:
     - tree
     - ueberzug
     - unrar
-    - unzip  
+    - unzip
     # - wordnet-cli
     # - wordnet-common
     - xterm
@@ -243,7 +242,6 @@ packages:
     - gconf
     - gedit
     - gedit-dark-variant
-    - gedit-markdownpreview-git
     - gedit-plugins
     - gedit-smart-home
     - geoclue
