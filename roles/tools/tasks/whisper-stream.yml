@@ -1,0 +1,38 @@
+---
+# Tasks for whisper-stream
+- block:
+    - name: Install dependencies
+      aur:
+        use: auto
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - alsa-utils
+        - curl
+        - jq
+        - sox
+        - xclip
+        - xsel
+  rescue:
+    - name: installing packages failed
+      debug:
+        msg: "Failed to install packages"
+
+  tags: ["packages"]
+
+- name: Clone whisper-stream repository
+  git:
+    repo: https://github.com/b08x/whisper-stream.git
+    dest: /tmp/whisper-stream
+    version: development
+
+- name: Move whisper-stream file to ~/.local/bin
+  shell: |
+    mkdir -pv {{ user.home }}/.local/bin
+    chmod +x whisper-stream && \
+    mv whisper-stream {{ user.home }}/.local/bin/whisper-stream
+  args:
+    chdir: /tmp/whisper-stream
+
+- name: Remove temp folder
+  shell: rm -rf /tmp/whisper-stream
