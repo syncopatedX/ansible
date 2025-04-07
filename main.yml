@@ -1,0 +1,58 @@
+---
+- name: Syncopated Post-Install
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  become: true
+  vars:
+    path:
+      - "{{ lookup('env','HOME') }}/.local/bin"
+  vars_files:
+    - "vars/main.yml"
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path|join(':') }}"
+  pre_tasks:
+    - name: Set profile config directory fact
+      set_fact:
+        profile_config_dir: "{{ '/etc/skel' if use_etc_skel | bool else ansible_env.HOME }}"
+      tags: ["always"]
+
+    - name: Display ansible_distribution
+      debug:
+        msg: |
+          The host {{ inventory_hostname }} has {{ ansible_distribution }} installed,
+          which belongs to the {{ ansible_os_family }} OS family
+      tags: ["always"]
+
+    - name: Ensure user variables are set
+      set_fact:
+        user:
+          name: "{{ user_name | default(lookup('env', 'USER')) }}"
+          home: "{{ user_home | default(lookup('env', 'HOME')) }}"
+          shell: "{{ user_shell | default('/bin/bash') }}"
+          group: "{{ user_name | default(lookup('env', 'USER')) }}"
+          uid: 1000
+          gid: 1000
+          secondary_groups: "input,video,audio"
+          sudoers: true
+      tags: ["always"]
+  roles:
+    - { role: base, tags: ["base"] }
+    - { role: grub, tags: ["grub"], when: "bootloader == 'grub'" }
+    - { role: ssh, tags: ["ssh"] }
+    - { role: firewalld, tags: ["firewalld"] }
+    - { role: networking, tags: ["networking"] }
+    - { role: ntp, tags: ["ntp"] }
+    - { role: docker, tags: ["docker"], when: "use_docker is defined" }
+    - { role: libvirt, tags: ["libvirt"], when: "use_libvirt is defined" }
+    - { role: nas, tags: ["nas"], when: "nas_host == 'true'" }
+    - { role: fonts, tags: ["fonts"] }
+    - { role: ruby, tags: ["ruby"] }
+    - { role: fabric, tags: ["fabric"] }
+    - { role: x, tags: ["x"] }
+    - { role: input-remapper, tags: ["input-remapper"] }
+    - { role: lightdm, tags: ["lightdm"], when: "display_manager == 'lightdm'" }
+    - { role: i3, tags: ["i3"], when: "desktop_environment == 'i3'" }
+    - { role: tools, tags: ["tools"] }
+    - { role: media, tags: ["media"] }
+    - { role: homepage, tags: ["homepage"] }
