@@ -3,9 +3,7 @@
   debug:
     msg: "Starting networking tasks"
 
-- import_tasks:
-    file: firewall.yml
-  tags: ['firewall']
+
 
 # https://gitlab.com/klaasjan/vagrant-ansible/-/blob/master/ansible/roles/configure_network/tasks/main.yml?ref_type=heads
 
@@ -23,9 +21,6 @@
 #     file: networkmanager.yml
 #   tags: ['networkmanager']
 
-- import_tasks:
-    file: ntp.yml
-  tags: ['ntp']
 
 # TODO: set interface config for .36 network cards betweeen soundbot|ninjabot
 # - include_tasks: interfaces.yml

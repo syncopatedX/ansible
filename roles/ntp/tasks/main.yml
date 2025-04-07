@@ -1,4 +1,6 @@
 ---
+# tasks file for ntp
+
 
 - name: Check if systemd-timesyncd service exists
   stat:
