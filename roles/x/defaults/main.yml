@@ -1,7 +1,6 @@
 ---
 # defaults file for x
----
-# defaults file for x11
+
 x:
   autostart: 'default'
 

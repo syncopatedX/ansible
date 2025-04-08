@@ -21,9 +21,8 @@
     - rebuild grub
 
 - name: Install Grub Pacman hook
-  kewlfft.aur.aur:
+  aur:
+    use: auto
     name: grub-hook
-  become: yes
-  become_user: "{{ aur.user }}"
   tags:
     - aur
