@@ -7,6 +7,7 @@
   vars:
     path:
       - "{{ lookup('env','HOME') }}/.local/bin"
+    bootloader: "grub"
   vars_files:
     - "vars/main.yml"
   environment:
