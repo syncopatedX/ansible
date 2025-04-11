@@ -38,7 +38,7 @@
       tags: ["always"]
   roles:
     - { role: base, tags: ["base"] }
-    - { role: grub, tags: ["grub"], when: "bootloader == 'grub'" }
+    - { role: grub, tags: ["grub"], when: "bootloader == 'grub' | default('grub')" }
     - { role: ssh, tags: ["ssh"] }
     - { role: firewalld, tags: ["firewalld"] }
     - { role: networking, tags: ["networking"] }
