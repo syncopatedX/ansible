@@ -84,7 +84,7 @@
       when: debug_vars is defined
 
     - name: install ruby gems
-      command: "/use/bin/gem install {{ item }}"
+      command: "/usr/bin/gem install {{ item }}"
       with_items:
         - "{{ _gems }}"
       when: _gems | length > 0
