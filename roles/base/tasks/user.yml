@@ -16,7 +16,7 @@
 
 - name: Push aliases template
   template:
-    src: ".aliases.j2"
+    src: home/.aliases.j2
     dest: "{{ profile_config_dir }}/.aliases"
     mode: "0644"
     backup: True
@@ -24,7 +24,7 @@
 
 - name: Push .profile template
   template:
-    src: ".profile.j2"
+    src: home/.profile.j2
     dest: "{{ profile_config_dir }}/.profile"
     mode: "0644"
     backup: True

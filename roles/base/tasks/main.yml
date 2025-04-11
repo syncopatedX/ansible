@@ -72,5 +72,9 @@
   tags: ["sudo"]
 
 - import_tasks:
+    file: shell.yml
+  tags: ["shell"]
+
+- import_tasks:
     file: user.yml
   tags: ["user"]
