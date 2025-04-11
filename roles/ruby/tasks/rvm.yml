@@ -2,14 +2,16 @@
 
 - name: Detect rvm binary
   stat: path='{{ rvm1_rvm }}'
+  become: false
   register: rvm_binary
 
 - name: Detect rvm installer
   stat: path='{{ rvm1_temp_download_path }}/rvm-installer.sh'
+  become: false
   register: rvm_installer
 
 - name: Detect current rvm version
-  command: '{{ rvm1_rvm}} version'
+  command: '{{ rvm1_rvm }} version'
   changed_when: False
   register: rvm_current_version
   when: rvm_binary.stat.exists
@@ -19,6 +21,7 @@
     url: '{{ rvm1_rvm_latest_installer }}'
     dest: '{{ rvm1_temp_download_path }}/rvm-installer.sh'
     mode: 0755
+  become: false
   when: not rvm_installer.stat.exists
 
 - block:
@@ -36,7 +39,7 @@
         gpg2 --keyserver keyserver.ubuntu.com --recv-keys \
         409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
 
-  when: not rvm_binary.stat.exists
+  when: not rvm_binary.stat.exists and ansible_check_mode == false
 
 - name: Install rvm
   shell: >
@@ -56,6 +59,7 @@
 - name: Detect rvm openssl
   stat: path='{{ rvm1_install_path }}/usr/ssl'
   register: rvm_openssl
+  become: false
 
 - name: Install openssl
   command: '{{ rvm1_rvm }} pkg install openssl'
