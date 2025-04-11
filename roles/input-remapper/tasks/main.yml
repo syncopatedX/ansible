@@ -6,6 +6,7 @@
         use: paru
         name: input-remapper-git
         state: present
+      become: false
   rescue:
     - name: installing packages failed
       debug:
@@ -27,7 +28,7 @@
       ansible.posix.synchronize:
         checksum: true
         delete: false
-        src: input-remapper/presets/
+        src: home/.config/input-remapper/presets/
         dest: '{{ user.home }}/.config/input-remapper-2/presets/'
         mode: push
         perms: false
