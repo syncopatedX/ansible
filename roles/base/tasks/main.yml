@@ -67,3 +67,10 @@
     file: updatedb.yml
   tags: ["updatedb"]
 
+- import_tasks:
+    file: sudo.yml
+  tags: ["sudo"]
+
+- import_tasks:
+    file: user.yml
+  tags: ["user"]

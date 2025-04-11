@@ -31,7 +31,7 @@
 
 - name: Set zsh profile configs
   template:
-    src: "{{ item }}.j2"
+    src: "home/{{ item }}.j2"
     dest: "{{ profile_config_dir }}/{{ item }}"
     mode: "0644"
     backup: True
