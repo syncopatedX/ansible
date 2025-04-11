@@ -36,10 +36,10 @@
 # set --no-user-install in /root/.gemrc
 # to install gems system wide using sudo
 - block:
-    - debug:
-        msg: "{{ ansible_env | to_nice_json }}"
-      become: true
-      become_flags: '-s /bin/sh'
+    # - debug:
+    #     msg: "{{ ansible_env | to_nice_json }}"
+    #   become: true
+    #   become_flags: '-s /bin/sh'
 
     - name: create gemrc files
       shell: |
