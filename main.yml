@@ -8,6 +8,9 @@
     path:
       - "{{ lookup('env','HOME') }}/.local/bin"
     bootloader: "grub"
+    nas_host: false
+    display_manager: "lightdm"
+    desktop_environment: "i3"
   vars_files:
     - "vars/main.yml"
   environment:
