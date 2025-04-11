@@ -1,5 +1,5 @@
 ---
-- name: Syncopated Post-Install
+- name: ArchLinux Workstation
   hosts: localhost
   connection: local
   gather_facts: true

@@ -18,24 +18,43 @@ echo "Shell: $USER_SHELL"
 
 # Install prerequisites
 echo "Installing prerequisites..."
-sudo pacman -Sy --noconfirm --needed git ansible
+BOOTSTRAP_PKGS=(
+  'ansible'
+  'aria2'
+  'base-devel'
+  'bc'
+  'ccache'
+  'cmake'
+  'fd'
+  'dialog'
+  'git'
+  'git-lfs'
+  'gum'
+  'htop'
+  'neovim'
+  'net-tools'
+  'openssh'
+  'python-pip'
+  'reflector'
+  'ruby-bundler'
+  'rubygems'
+  'rust'
+  'unzip'
+  'wget'
+  'zsh'
+)
 
-# Clone repository
-echo "Cloning repository..."
-REPO_URL="https://github.com/b08x/ansible-workstation-arch.git"
-REPO_DIR="/tmp/ansible-workstation-arch"
+# clean cache
+sudo pacman -Scc --noconfirm
 
-# Remove existing repo directory if it exists
-if [ -d "$REPO_DIR" ]; then
-    echo "Removing existing repository directory..."
-    rm -rf "$REPO_DIR"
-fi
+# install pre-requisite packages
+sudo pacman -Sy --noconfirm --needed "${BOOTSTRAP_PKGS[@]}"
 
-git clone $REPO_URL $REPO_DIR
+REPO_URL="https://gitlab.com/syncopatedx/syncopated-ansible.git"
 
 # Run ansible-pull
 echo "Running ansible-pull..."
-cd $REPO_DIR
+
 ansible-pull -U $REPO_URL -i localhost, main.yml \
     -e "user_name=$CURRENT_USER" \
     -e "user_home=$USER_HOME" \

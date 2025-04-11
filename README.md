@@ -58,8 +58,8 @@ This playbook provides a comprehensive workstation setup, including:
 
     ```bash
     # Replace with your repository URL if forked
-    git clone [https://github.com/your-username/ansible-workstation-arch.git](https://github.com/your-username/ansible-workstation-arch.git)
-    cd ansible-workstation-arch
+    git clone [https://github.com/your-username/syncopated-ansible.git](https://github.com/your-username/syncopated-ansible.git)
+    cd syncopated-ansible
     ```
 
 2. **(Optional) Install Ansible Roles via Galaxy:**
@@ -145,7 +145,7 @@ This method is useful for initial setup on a fresh machine or for periodic updat
 
     ```bash
     # Download and execute the bootstrap script (replace URL if needed)
-    curl -sSL [https://raw.githubusercontent.com/your-username/ansible-workstation-arch/main/scripts/bin/bootstrap-ansible-pull.sh](https://www.google.com/search?q=https://raw.githubusercontent.com/your-username/ansible-workstation-arch/main/scripts/bin/bootstrap-ansible-pull.sh) | bash
+    curl -sSL [https://raw.githubusercontent.com/your-username/syncopated-ansible/main/scripts/bin/bootstrap-ansible-pull.sh](https://www.google.com/search?q=https://raw.githubusercontent.com/your-username/syncopated-ansible/main/scripts/bin/bootstrap-ansible-pull.sh) | bash
     ```
 
     This script installs prerequisites (git, ansible), clones the repository, and runs `ansible-pull` with detected user info.
@@ -155,7 +155,7 @@ This method is useful for initial setup on a fresh machine or for periodic updat
 
     ```bash
     # Replace with your repository URL
-    sudo ansible-pull -U [https://github.com/your-username/ansible-workstation-arch.git](https://github.com/your-username/ansible-workstation-arch.git) main.yml
+    sudo ansible-pull -U [https://github.com/your-username/syncopated-ansible.git](https://github.com/your-username/syncopated-ansible.git) main.yml
     ```
 
     * `ansible-pull` clones/updates the repository locally and then runs the specified playbook (`main.yml` by default if not specified) against `localhost`.
@@ -165,16 +165,16 @@ This method is useful for initial setup on a fresh machine or for periodic updat
 
     ```bash
     # Example overriding user details
-    sudo ansible-pull -U [https://github.com/your-username/ansible-workstation-arch.git](https://github.com/your-username/ansible-workstation-arch.git) main.yml \
+    sudo ansible-pull -U [https://github.com/your-username/syncopated-ansible.git](https://github.com/your-username/syncopated-ansible.git) main.yml \
       -e "user_name=myuser" \
       -e "user_home=/home/myuser" \
       -e "user_shell=/bin/zsh"
 
     # Example skipping docker and libvirt roles using tags
-    sudo ansible-pull -U [https://github.com/your-username/ansible-workstation-arch.git](https://github.com/your-username/ansible-workstation-arch.git) main.yml --skip-tags "docker,libvirt"
+    sudo ansible-pull -U [https://github.com/your-username/syncopated-ansible.git](https://github.com/your-username/syncopated-ansible.git) main.yml --skip-tags "docker,libvirt"
 
     # Example running only base and user roles
-    sudo ansible-pull -U [https://github.com/your-username/ansible-workstation-arch.git](https://github.com/your-username/ansible-workstation-arch.git) main.yml --tags "base,user"
+    sudo ansible-pull -U [https://github.com/your-username/syncopated-ansible.git](https://github.com/your-username/syncopated-ansible.git) main.yml --tags "base,user"
     ```
 
 ## 🎨 Customization
