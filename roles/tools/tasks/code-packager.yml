@@ -8,6 +8,7 @@
         state: present
       with_items:
         - jq
+      become: false
 
   rescue:
     - name: installing packages failed
@@ -27,6 +28,8 @@
     mkdir -pv {{ user.home }}/.local/bin
     chmod +x code-packager && \
     chmod +x code-unpackager && \
+    chown {{ user.name }}:{{ user.group }} code-packager && \
+    chown {{ user.name }}:{{ user.group }} code-unpackager && \
     mv code-packager code-unpackager {{ user.home }}/.local/bin/
   args:
     chdir: /tmp/code-packager

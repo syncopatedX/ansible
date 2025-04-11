@@ -13,6 +13,7 @@
         - sox
         - xclip
         - xsel
+      become: false
   rescue:
     - name: installing packages failed
       debug:
@@ -30,6 +31,7 @@
   shell: |
     mkdir -pv {{ user.home }}/.local/bin
     chmod +x whisper-stream && \
+    chown {{ user.name }}:{{ user.group }} whisper-stream && \
     mv whisper-stream {{ user.home }}/.local/bin/whisper-stream
   args:
     chdir: /tmp/whisper-stream
