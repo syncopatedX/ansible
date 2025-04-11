@@ -9,6 +9,7 @@
       with_items:
         - "{{ packages.wm }}"
         - "{{ packages.desktop }}"
+      become: false
   rescue:
     - name: installing packages failed
       debug:
