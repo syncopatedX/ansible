@@ -1,2 +1,4 @@
 ---
 # defaults file for ssh
+ssh:
+  port: 22
