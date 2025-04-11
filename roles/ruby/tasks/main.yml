@@ -41,6 +41,12 @@
       become: true
       become_flags: '-s /bin/sh'
 
+    - name: create gemrc files
+      shell: |
+        touch /root/.gemrc
+        touch {{ user.home }}/.gemrc
+        touch /etc/gemrc
+
     - name: Set --no-user-install in /root/.gemrc
       copy:
         content: |
