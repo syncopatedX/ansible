@@ -79,3 +79,19 @@
         backup: True
   
   tags: ["env", "profile", "xprofile"]
+
+- import_tasks:
+    file: sxhkd.yml
+  tags: ['sxhkd']
+
+- import_tasks:
+    file: picom.yml
+  tags: ['picom']
+
+- import_tasks:
+    file: dunst.yml
+  tags: ['dunst']
+  
+- import_tasks:
+    file: xdg.yml
+  tags: ['xdg']  

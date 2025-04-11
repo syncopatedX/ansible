@@ -5,6 +5,7 @@
         use: paru
         name: sxhkd
         state: present
+      become: false
 
   rescue:
     - name: installing packages failed
@@ -48,7 +49,7 @@
 
 - name: Copy SXHKD configuration file
   template:
-    src: sxhkdrc.j2
+    src: home/.config/sxhkd/sxhkdrc.j2
     dest: "{{ user.home }}/.config/sxhkd/sxhkdrc"
     mode: "0644"
     owner: "{{ user.name }}"

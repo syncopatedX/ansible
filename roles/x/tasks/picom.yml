@@ -3,7 +3,7 @@
 
 - name: Set picom config
   template:
-    src: "picom.conf.j2"
+    src: "home/.config/picom.conf.j2"
     dest: "{{ user.home }}/.config/picom.conf"
     owner: "{{ user.name }}"
     group: "{{ user.group }}"
