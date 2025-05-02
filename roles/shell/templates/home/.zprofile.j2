@@ -9,4 +9,4 @@ echo $PATH | grep -q "$HOME/.local/bin:" || export PATH="$HOME/.local/bin:$PATH"
 # start Xorg with the -keeptty flag and redirect the stdout and stderr output to a file:
 # startx -- -keeptty >~/.xorg.log 2>&1
 
-[[ -z "${DISPLAY}" ]] && [[ "${XDG_VTNR}" -eq 1 ]] && startx -- -keeptty >~/.xorg.log 2>&1
+[[ -z "$DISPLAY" ]] && [[ "${XDG_VTNR}" -eq 1 ]] && startx -- -keeptty >~/.xorg.log 2>&1
