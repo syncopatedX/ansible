@@ -1,16 +1,8 @@
 ---
 
-share:
-  nfs:
-    parent: /home
-    exports:
-      - b08x
-
-samba_host: False
+autologin: true
 
 zsh_theme: kphoen
-
-bootloader: grub
 
 i3:
   autostart:
@@ -50,3 +42,17 @@ systemd_network_networks:
 #       Gateway: 192.168.41.1
 #       DNS: 192.168.41.1
 #       Domains: syncopated.net
+
+share:
+  nfs:
+    parent: /home
+    exports:
+      - b08x
+
+samba_host: False
+
+
+
+
+
+

@@ -1,5 +1,7 @@
 ---
 
+autologin: true
+
 use_libvirt: false
 
 # MACAddress=f0:1d:bc:f2:63:99

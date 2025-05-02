@@ -5,6 +5,7 @@
 
 - import_tasks:
     file: nfs.yml
+  when: nfs_host|bool
   tags: ['nfs']
 
 - import_tasks:

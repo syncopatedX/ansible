@@ -6,14 +6,6 @@
   vars:
     path:
       - "{{ lookup('env','HOME') }}/.local/bin"
-    bootloader: "grub"
-    nas_host: false
-    display_manager: "lightdm"
-    desktop_environment: "i3"
-    use_etc_skel: false
-    ansible_service_mgr: "systemd"
-  # vars_files:
-  #   - "vars/main.yml"
   environment:
     PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path|join(':') }}"
   pre_tasks:
