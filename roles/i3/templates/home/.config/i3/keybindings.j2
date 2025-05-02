@@ -150,7 +150,17 @@ bindsym $mod+F9 [class="^VMPK"] scratchpad show
 ##### bindsym <var> focus output HDMI-2
 ##### bindsym XF86LaunchB nop dropdown
 
-bindsym $mod+Return $exec {{ terminal }} -e /usr/bin/zsh --login
+bindsym $mod+d $exec ~/.config/rofi/scripts/launcher_t1.sh
+
+bindsym $mod+Return $exec kitty
+
+bindsym $mod+Home $exec google-chrome-stable --new-window %U {{ user.home }}/.local/share/html/homepage/index.html
+bindsym $mod+Shift+Home $exec google-chrome-stable --incognito %U {{ user.home }}/.local/share/html/homepage/index.html
+
+bindcode $mod+$KP_Enter $exec {{ terminal }} -e ranger
+bindcode $mod+Shift+$KP_Enter $exec nautilus
+
+bindsym $mod+x $exec xkill
 
 #############################
 #### ---{ other }--- ###

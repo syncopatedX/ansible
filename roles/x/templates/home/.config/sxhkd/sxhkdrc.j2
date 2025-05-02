@@ -1,11 +1,11 @@
-super + Menu
-	cat ~/.config/jgmenu/apps.csv | jgmenu --simple
+# super + Menu
+# 	cat ~/.config/jgmenu/apps.csv | jgmenu --simple
 
-super + o ; {g,a,k,v}
-	{terminator,alacritty,jack-keyboard,vmpk}
+# super + o ; {g,a,k,v}
+# 	{terminator,alacritty,jack-keyboard,vmpk}
 
-super + XF86AudioRecord
-	dsnote.sh
+# super + XF86AudioRecord
+# 	dsnote.sh
 
 control + Menu
   wmfocus
@@ -17,11 +17,6 @@ super + Prior
   ~/Utils/bin/search_web.sh
 
 Menu
-  ~/.config/rofi/scripts/launcher_t1.sh
-
-#super + d
-#  rofi -no-lazy-grab -show drun -modi run,drun,window
-super + d
   ~/.config/rofi/scripts/launcher_t1.sh
 
 super + F5
@@ -36,8 +31,8 @@ F12
 shift + F12
   search_devdocs.sh
 
-XF86Search ; {d,w}
-  {search_devdocs.sh,search_web.sh}
+# XF86Search ; {d,w}
+#   {search_devdocs.sh,search_web.sh}
 
 alt + Tab
   rofi -no-lazy-grab -show window -modi run,drun,window
@@ -48,49 +43,29 @@ alt + shift + Return
 XF86Paste
   xclip -o
 
-alt + shift + KP_1
-  tilda -g ~/.config/tilda/config_0
+# alt + shift + KP_1
+#   tilda -g ~/.config/tilda/config_0
 
-control + XF86LaunchB
-  xfce4-terminal --drop-down
+# control + XF86LaunchB
+#   xfce4-terminal --drop-down
 
-XF86AudioLowerVolume
-  amixer -c 0 set Master 3db-
+# XF86AudioLowerVolume
+#   amixer -c 0 set Master 3db-
 
-XF86AudioRaiseVolume
-  amixer -c 0 set Master 3db+
+# XF86AudioRaiseVolume
+#   amixer -c 0 set Master 3db+
 
-super + XF86AudioRaiseVolume
-  amixer -c 0 set Master toggle
+# super + XF86AudioRaiseVolume
+#   amixer -c 0 set Master toggle
 
-shift + XF86AudioLowerVolume
-  pactl -- set-sink-volume 0 -5%
+# shift + XF86AudioLowerVolume
+#   pactl -- set-sink-volume 0 -5%
 
-shift + XF86AudioRaiseVolume
-  pactl -- set-sink-volume 0 +5%
+# shift + XF86AudioRaiseVolume
+#   pactl -- set-sink-volume 0 +5%
 
-super + XF86AudioLowerVolume
-  pactl -- set-sink-mute 0 toggle
-
-super + x
-  xkill
-
-#super + End
-#	terminator
-
-{% if browser == 'google-chrome-stable' %}
-super + Home
-  {{ browser }} --new-window %U /home/b08x/.local/share/html/homepage/index.html
-
-super + shift + Home
-  {{ browser }} --disable-gpu --incognito %U /home/b08x/.local/share/html/homepage/index.html
-{% endif %}
-
-super + KP_Enter
-  {{ terminal }} -e ranger
-
-super + shift + KP_Enter
-  thunar
+# super + XF86AudioLowerVolume
+#   pactl -- set-sink-mute 0 toggle
 
 Print ; {s,t,c,r}
   {teiler,tmp-screenshot.sh,tmp-screenshot-clip.sh,ssr-hidden.sh}
@@ -98,12 +73,11 @@ Print ; {s,t,c,r}
 super + Print
   sendmidi dev 'Midi Through Port-0' panic
 
-XF86AudioMute
-  mic_mute.sh mute
+# XF86AudioMute
+#   mic_mute.sh mute
 
-super + XF86AudioMute
-  mic_mute.sh unmute
-
+# super + XF86AudioMute
+#   mic_mute.sh unmute
 
 #XF86MonBrightnessDown
 #  brightnessctl -d intel_backlight s 10%-
@@ -111,14 +85,14 @@ super + XF86AudioMute
 #XF86MonBrightnessUp
 #  brightnessctl -d intel_backlight s +10%
 
-#control + alt + End
-#  uxterm -class 'backup' -e sudo shutdown -h now
+control + alt + End
+ uxterm -class 'backup' -e sudo shutdown -h now
 
 control + alt + Home
   uxterm -class 'backup' -e sudo shutdown -r now
 
-XF86AudioMicMute
-  sendmidi dev 'Midi Through Port-0' cc 13 127
+# XF86AudioMicMute
+#   sendmidi dev 'Midi Through Port-0' cc 13 127
 
-super + comma
-  sendmidi dev 'Midi Through Port-0' cc 13 0
+# super + comma
+#   sendmidi dev 'Midi Through Port-0' cc 13 0
