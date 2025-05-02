@@ -12,8 +12,8 @@
     desktop_environment: "i3"
     use_etc_skel: false
     ansible_service_mgr: "systemd"
-  vars_files:
-    - "vars/main.yml"
+  # vars_files:
+  #   - "vars/main.yml"
   environment:
     PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path|join(':') }}"
   pre_tasks:

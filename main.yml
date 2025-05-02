@@ -11,8 +11,8 @@
     nas_host: false
     display_manager: "lightdm"
     desktop_environment: "i3"
-  vars_files:
-    - "vars/main.yml"
+  # vars_files:
+  #   - "vars/main.yml"
   environment:
     PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path|join(':') }}"
   pre_tasks:
@@ -28,18 +28,6 @@
           which belongs to the {{ ansible_os_family }} OS family
       tags: ["always"]
 
-    - name: Ensure user variables are set
-      set_fact:
-        user:
-          name: "{{ user_name | default(lookup('env', 'USER')) }}"
-          home: "{{ user_home | default(lookup('env', 'HOME')) }}"
-          shell: "{{ user_shell | default('/bin/bash') }}"
-          group: "{{ user_name | default(lookup('env', 'USER')) }}"
-          uid: 1000
-          gid: 1000
-          secondary_groups: "input,video,audio"
-          sudoers: true
-      tags: ["always"]
   roles:
     - { role: base, tags: ["base"] }
     - { role: grub, tags: ["grub"], when: "bootloader == 'grub' | default('grub')" }
