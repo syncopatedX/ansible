@@ -1,4 +1,9 @@
 /.venv/**
 .vscode
 .vagrant
-ansible-workstation-arch.code-workspace
+syncopated-ansible.code-workspace
+__pycache__
+.lock
+.qodo
+installer_alt.sh
+installer.sh

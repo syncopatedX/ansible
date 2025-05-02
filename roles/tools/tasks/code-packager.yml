@@ -1,0 +1,38 @@
+---
+# Tasks for code-packager
+- block:
+    - name: Install dependencies
+      aur:
+        use: paru
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - jq
+      become: false
+
+  rescue:
+    - name: installing packages failed
+      debug:
+        msg: "Failed to install packages"
+
+  tags: ["packages"]
+
+- name: Clone code-packager repository
+  git:
+    repo: https://github.com/yohasebe/code-packager.git
+    dest: /tmp/code-packager
+    version: main
+
+- name: Move code-packager file to ~/.local/bin
+  shell: |
+    mkdir -pv {{ user.home }}/.local/bin
+    chmod +x code-packager && \
+    chmod +x code-unpackager && \
+    chown {{ user.name }}:{{ user.group }} code-packager && \
+    chown {{ user.name }}:{{ user.group }} code-unpackager && \
+    mv code-packager code-unpackager {{ user.home }}/.local/bin/
+  args:
+    chdir: /tmp/code-packager
+
+- name: Remove temp folder
+  shell: rm -rf /tmp/code-packager

@@ -1,5 +1,4 @@
 ---
-
 user:
   name: b08x
   group: b08x
@@ -7,9 +6,12 @@ user:
   gid: 1000
   home: /home/b08x
   shell: /usr/bin/zsh
-  secondary_groups: "input,video,audio"
+  secondary_groups: "input,video,audio,realtime"
   realname: Robert Pannick
   sudoers: true
-  workspace: /home/b08x/Workspace
   email: rwpannick@gmail.com
-  gpg: 36A6ECD355DB42B296C0CEE2157CA2FC56ECC96A
+
+
+terminal: terminator
+terminal_alt: urxvt
+browser: google-chrome-stable

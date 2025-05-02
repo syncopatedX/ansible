@@ -1,0 +1,52 @@
+---
+# Description: Reintegrate /etc/rc.local in Linux systems that use Systemd
+#              as their init system.
+# Author: James Cherti
+# License: MIT
+# URL: https://www.jamescherti.com/ansible-config-etc-rc-local-linux-systemd/
+
+- name: Check if /etc/rc.local exists
+  stat:
+    path: "/etc/rc.local"
+  register: etc_rc_local_file
+
+- name: Create the file /etc/rc.local should it not already exist
+  copy:
+    dest: /etc/rc.local
+    owner: root
+    group: root
+    mode: 0750
+    content: |
+      #!/usr/bin/env bash
+  when: not etc_rc_local_file.stat.exists
+
+- name: Create the systemd service rc-local.service
+  register: rc_local
+  copy:
+    dest: /etc/systemd/system/rc-local.service
+    owner: root
+    group: root
+    mode: 0644
+    content: |
+      [Unit]
+      Description=/etc/rc.local compatibility
+
+      [Service]
+      Type=oneshot
+      ExecStart=/etc/rc.local
+      TimeoutSec=0
+      RemainAfterExit=yes
+      SysVStartPriority=99
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: yes
+  when: rc_local.changed|bool
+
+- name: Enable rc-local.service
+  systemd:
+    name: rc-local
+    enabled: true

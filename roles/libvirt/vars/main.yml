@@ -1,2 +1,13 @@
 ---
 # vars file for libvirt
+
+packages__libvirt:
+  - dmidecode
+  - dnsmasq
+  - edk2-ovmf
+  - libguestfs
+  - libvirt
+  - qemu-full
+  - virt-install
+  - virt-manager
+  - virt-viewer

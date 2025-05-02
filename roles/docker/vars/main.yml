@@ -2,4 +2,8 @@
 # vars file for docker
 
 
-# docker: "vars/main.yml"
+packages__docker:
+  - docker
+  - docker-compose
+  - docker-buildx
+  - lazydocker

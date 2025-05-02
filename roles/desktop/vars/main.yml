@@ -1,0 +1,114 @@
+#SPDX-License-Identifier: MIT-0
+---
+# vars file for desktop
+packages:
+  desktop:
+    # - archlinux-xdg-menu
+    - ascii-image-converter
+    - asciiquarium
+    # - asp
+    - aspell-en
+    - barrier
+    - cbonsai
+    - dconf
+    - feh
+    - ffmpegthumbnailer
+    - figlet
+    - fuse-common
+    - fuse3
+    - gconf
+    - gedit
+    - gedit-dark-variant
+    - gedit-plugins
+    - gedit-smart-home
+    - geoclue
+    - gitflow-avh
+    - gitflow-zshcompletion-avh
+    - github-cli
+    - gksu
+    - gnuplot
+    - google-chrome
+    - gpick
+    - grsync
+    - gtksourceview3
+    - gtkspell3
+    - gvfs-smb
+    - imv
+    - iotop
+    - kitti3
+    - kitty
+    - kitty-shell-integration
+    - kitty-terminfo
+    - libaudec
+    - libcaca
+    - libcyaml
+    - lsp-dsp-lib
+    - maim
+    - mediamtx
+    - metagedit-git
+    - mpv
+    - mpv-plugin-excerpt-git
+    - network-manager-applet
+    - osc
+    - patat-bin
+    - pdfjs
+    - python-adblock
+    - qpdfview
+    - qutebrowser
+    - redshift
+    - rofi
+    - sampler
+    - sd
+    - seahorse
+    - simplescreenrecorder
+    - speech-dispatcher
+    - sshpass
+    - stunnel
+    - sudo
+    - sxiv
+    - sysstat
+    - taglib
+    - teiler-git
+    - termdown
+    - terminator
+    - tldr
+    - ttf-tw
+    - ueberzug
+    - unrar
+    - unzip
+    - v4l2loopback-dkms
+    - wmctrl
+    - wmfocus
+    - wordnet-common
+    - xarchiver
+    - xclip
+    - xdot
+    - xterm
+    - xzgv
+    - yt-dlp
+    - zenity
+  fonts:
+    - gnu-free-fonts
+    - ttf-devicons
+    - ttf-font-awesome
+    - ttf-icomoon-feather
+    - ttf-input
+    - ttf-jetbrains-mono
+    - ttf-liberation
+    - ttf-opensans
+    - ttf-ubuntu-font-family
+    - ttf-hack-nerd    
+  themes:
+    - gtk-engines
+    - gtk-engine-murrine
+  qt:
+    - kvantum-qt5
+    - qt5-base
+    - qt5-graphicaleffects
+    - qt5-quickcontrols2
+    - qt5-tools
+    - qt5ct
+    - qt6-base
+    - qt6-declarative
+    - qt6-multimedia
+    - qt6-tools    

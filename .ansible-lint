@@ -32,19 +32,20 @@ strict: true
 
 # Skip specific rules
 skip_list:
-  - '204'  # Lines should be no longer than 160 chars
-  - '301'  # Commands should not change things if nothing needs doing
-  - '303'  # Using command rather than module
-  - '306'  # Shells that use pipes should set the pipeline's return status
-  - '502'  # All tasks should be named
-  - yaml
+  - "204" # Lines should be no longer than 160 chars
+  - "301" # Commands should not change things if nothing needs doing
+  - "303" # Using command rather than module
+  - "306" # Shells that use pipes should set the pipeline's return status
+  - "502" # All tasks should be named
+  # - yaml
+  # - fqcn
 
 # Enable specific rules
 enable_list:
-  - empty-string-compare  # Don't compare to empty string
-  - no-log-password      # Password should use no_log
-  - no-same-owner       # Don't use same owner
+  - empty-string-compare # Don't compare to empty string
+  - no-log-password # Password should use no_log
+  - no-same-owner # Don't use same owner
   # - yaml                # Yaml syntax check
 
 # Configure rule specific configuration
-task_name_prefix: "true"  # Enforce task names to be prefixed with role names
+task_name_prefix: "true" # Enforce task names to be prefixed with role names

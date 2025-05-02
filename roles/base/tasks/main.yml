@@ -1,13 +1,21 @@
 ---
 # tasks file for packages
 
-- name: Set pacman.conf config
-  template:
-    src: etc/pacman.conf.j2
-    dest: /etc/pacman.conf
-    mode: "0644"
-    backup: true
-  tags: ["pacman"]
+# - name: Set pacman.conf config
+#   template:
+#     src: etc/pacman.conf.j2
+#     dest: /etc/pacman.conf
+#     mode: "0644"
+#     backup: true
+#   tags: ["pacman"]
+
+- import_tasks:
+    file: sudo.yml
+  tags: ["sudo"]
+
+- import_tasks:
+    file: user.yml
+  tags: ["user"]
 
 - import_tasks:
     file: repos.yml
@@ -19,19 +27,35 @@
   when: ansible_architecture != "aarch64"
   tags: ["paru"]
 
-- block:
+- name: Ensure local src packages folder exists
+  file:
+    path: /usr/local/src/packages
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+    mode: "2755"
+
+- name: Set makepkg to use aria2
+  template:
+    src: etc/makepkg.conf.j2
+    dest: /etc/makepkg.conf
+    mode: "0644"
+    backup: true
+  tags: ["makepkg"]
+
+- tags: ["packages", "base_pkgs"]
+  block:
     - name: Install base packages
       aur:
         use: auto
         name: "{{ item }}"
         state: present
-      with_items:
-        - "{{ packages.base }}"
+      with_items: "{{ packages__base }}"
+      become: false
   rescue:
-    - name: installing packages failed
+    - name: Installing base packages failed
       debug:
-        msg: "Failed to install shell packages"
-  tags: ["packages", "base_pkgs"]
+        msg: "Failed to install base packages"
 
 - name: Check if mirrors have been updated within the past 24h
   shell: | 
@@ -56,15 +80,6 @@
   changed_when: false
   tags: ["mirrors"]
 
-- name: Set makepkg to use aria2
-  template:
-    src: etc/makepkg.conf.j2
-    dest: /etc/makepkg.conf
-    mode: "0644"
-    backup: true
-  tags: ["makepkg"]
-
 - import_tasks:
     file: updatedb.yml
   tags: ["updatedb"]
-

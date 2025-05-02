@@ -1,0 +1,5 @@
+---
+# defaults file for grub
+
+kernel_parameters_default: "splash threadirqs mitigations=off"
+kernel_parameters: "ipv6.disable=1 net.ifnames=0"

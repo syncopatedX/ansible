@@ -4,7 +4,7 @@
 rvm1_temp_download_path: '/tmp'
 
 #rvm1_default_ruby_version: '{{ rvm1_rubies | last if rvm1_rubies and rvm1_rubies is iterable else rvm1_rubies }}'
-rvm1_default_ruby_version: 3.2.4
+rvm1_default_ruby_version: 3.2.2
 
 rvm1_rvm: '{{ rvm1_install_path }}/bin/rvm'
 

@@ -1,0 +1,47 @@
+---
+- when: user.sudoers |default(false)
+  tags: ["sudoers"]
+  block:
+    - name: Ensure /etc/sudoers.d exists
+      file:
+        path: /etc/sudoers.d/
+        state: directory
+        owner: root
+        mode: "0700"
+        group: root
+        recurse: true
+
+    - name: Set NOPASSWD for user in sudoers
+      ansible.builtin.lineinfile:
+        path: /etc/sudoers.d/99-user
+        line: "{{ user.name }} ALL=(ALL:ALL) NOPASSWD: ALL"
+        validate: "/usr/sbin/visudo -cf %s"
+        mode: "0700"
+        owner: root
+        group: root
+        create: true
+        backup: true
+      when: user.name != 'root'
+
+    - name: Ensure rules.d directory exists
+      file:
+        path: /etc/polkit-1/rules.d/
+        state: directory
+        owner: root
+        group: root
+        mode: "0700"
+
+    - name: Set NOPASSWD for user in polkit
+      copy:
+        content: |
+          /* Allow members of the wheel group to execute any actions
+          * without password authentication, similar to "sudo NOPASSWD:"
+          */
+          polkit.addRule(function(action, subject) {
+            if (subject.isInGroup("wheel")) {
+              return polkit.Result.YES;
+            }
+          });
+        dest: "/etc/polkit-1/rules.d/49-nopasswd_global.rules"
+        mode: "0644"
+      when: ansible_os_family == 'Archlinux'

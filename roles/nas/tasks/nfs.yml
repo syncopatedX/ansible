@@ -1,24 +1,23 @@
 ---
-
 # - name: mount_names
 #   set_fact:
 #     mount_names: "{{ ansible_mounts | map(attribute='mount') | list}}"
-#   tags: ['nfstest']
-#
+#   tags: ["nfstest"]
+
 # - debug:
 #     var: mount_names
 #   loop: "{{ share.nfs.exports }}"
 #   failed_when: item not in mount_names
-#   tags: ['nfstest']
+#   tags: ["nfstest"]
 
-# - name: Create exports folder
-#   file:
-#     path: /srv/exports
-#     state: directory
-#     owner: "{{ user.name }}"
-#     group: "{{ user.group }}"
-#     mode: "2775"
-#   when: bind_share_exports|bool
+- name: Create exports folder
+  file:
+    path: /srv/exports
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+    mode: "2775"
+  when: bind_share_exports|bool
 
 - block:
     - name: Ensure group nobody exists
@@ -53,7 +52,7 @@
         state: restarted
         enabled: yes
       with_items:
-        - nfs-server
+        - nfsv4-server
         - nfs-mountd
         - nfs-idmapd
         - rpcbind
@@ -119,60 +118,59 @@
 
   ignore_errors: "{{ ansible_check_mode }}"
 
-# - block:
-#     - name: Ensure the exported folder already exists
-#       file:
-#         path: "{{ share.nfs.parent }}/{{ item }}"
-#         state: directory
-#         owner: "{{ user.name }}"
-#         group: "{{ user.group }}"
-#         mode: '2775'
-#       with_items:
-#         - "{{ share.nfs.exports }}"
+- block:
+    - name: Ensure the exported folder already exists
+      file:
+        path: "{{ share.nfs.parent }}/{{ item }}"
+        state: directory
+        owner: "{{ user.name }}"
+        group: "{{ user.group }}"
+      with_items:
+        - "{{ share.nfs.exports }}"
 
-#     - name: Create exports folder
-#       file:
-#         path: /srv/exports/{{ item }}
-#         state: directory
-#         owner: "{{ user.name }}"
-#         group: "{{ user.group }}"
-#       with_items:
-#         - "{{ share.nfs.exports }}"
-#       when: bind_share_exports|bool
+    - name: Create exports folder
+      file:
+        path: /srv/exports/{{ item }}
+        state: directory
+        owner: "{{ user.name }}"
+        group: "{{ user.group }}"
+      with_items:
+        - "{{ share.nfs.exports }}"
+      when: bind_share_exports|bool
 
-#     - name: Ensure required entries are made to fstab file
-#       lineinfile:
-#         path: /etc/fstab
-#         state: present
-#         line: "{{ share.nfs.parent }}/{{ item }} /srv/exports/{{ item }} none bind 0 0"
-#       with_items:
-#         - "{{ share.nfs.exports }}"
-#       register: fstab
-#       when: bind_share_exports|bool
+    - name: Ensure required entries are made to fstab file
+      lineinfile:
+        path: /etc/fstab
+        state: present
+        line: "{{ share.nfs.parent }}/{{ item }} /srv/exports/{{ item }} none bind 0 0"
+      with_items:
+        - "{{ share.nfs.exports }}"
+      register: fstab
+      when: bind_share_exports|bool
 
-#     - name: Reload systemd
-#       systemd:
-#         daemon_reload: yes
-#       when: (fstab.changed or bind_share_exports|bool)
+    - name: Reload systemd
+      systemd:
+        daemon_reload: yes
+      when: (fstab.changed or bind_share_exports|bool)
 
-#     # https://docs.ansible.com/ansible/latest/collections/ansible/posix/mount_module.html#parameter-state
-#     - name: Mount and bind the exports
-#       ansible.posix.mount:
-#         path: "/srv/exports/{{ item }}"
-#         src: "{{ user.home }}/{{ item }}"
-#         opts: bind
-#         state: ephemeral
-#         fstype: none
-#       with_items: "{{ share.nfs.exports }}"
-#       ignore_errors: True
+    # https://docs.ansible.com/ansible/latest/collections/ansible/posix/mount_module.html#parameter-state
+    - name: Mount and bind the exports
+      ansible.posix.mount:
+        path: "/srv/exports/{{ item }}"
+        src: "{{ share.nfs.parent }}{{ item }}"
+        opts: bind
+        state: unmounted
+        fstype: none
+      with_items: "{{ share.nfs.exports }}"
+      ignore_errors: True
 
-#     - name: Mounted the binded folders
-#       shell: |
-#         mount /srv/exports/{{ item }}
-#       with_items:
-#         - "{{ share.nfs.exports }}"
+    - name: Mounted the binded folders
+      shell: |
+        mount /srv/exports/{{ item }}
+      with_items:
+        - "{{ share.nfs.exports }}"
 
-#   when: bind_share_exports|bool
+  when: bind_share_exports|bool
 
 - name: Set the exports
   template:

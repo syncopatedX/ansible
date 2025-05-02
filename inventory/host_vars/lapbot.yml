@@ -1,3 +1,15 @@
 ---
 
-use_libvirt: true
+use_libvirt: false
+
+# MACAddress=f0:1d:bc:f2:63:99
+systemd_network_networks:
+  20-wired:
+    Match:
+      Name: eth*
+      MACAddress: f0:1d:bc:f2:63:99
+    Network:
+      Address: 192.168.41.29/24
+      Gateway: 192.168.41.1
+      DNS: 192.168.41.1
+      Domains: syncopated.net
