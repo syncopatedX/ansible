@@ -1,0 +1,19 @@
+font:
+  primary:
+    name: Hack Nerd Font
+    size: 12
+    hintstyle: hintsfull
+  glyphs:
+    name: FontAwesome
+  mono:
+    name: mononoki Nerd Font Mono
+
+# theme options
+theme:
+  name: oomox-soundbot
+  icons: ArchLabs-Dark
+  cursor: xcursor-breeze
+  kvantum: KvFlat
+
+qt5ct_style: kvantum
+qt6ct_style: fusion

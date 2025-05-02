@@ -1,0 +1,14 @@
+---
+share:
+  nfs:
+    parent: /home
+    exports:
+      - b08x
+
+samba_host: False
+
+zsh_theme: kphoen
+
+bootloader: grub
+
+rvm_install: true
