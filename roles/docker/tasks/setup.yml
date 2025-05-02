@@ -1,5 +1,22 @@
 ---
 
+- name: Ensure group "docker" exists
+  group:
+    name: docker
+    state: present
+  tags: ["groups"]    
+
+- name: Add user to docker group
+  user:
+    name: "{{ user.name }}"
+    groups: docker
+    append: yes
+  # check_mode: yes
+  ignore_errors: "{{ ansible_check_mode }}"
+  # register: dockergroup
+  # failed_when: "not 'Group docker does not exist' in dockergroup.msg"
+  tags: ["groups"]
+
 - block:
     - name: Create docker config directory
       file:
