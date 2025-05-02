@@ -12,3 +12,10 @@ zsh_theme: kphoen
 bootloader: grub
 
 rvm_install: true
+
+systemd_network_networks:
+  eth0:
+    Network:
+      Address: 192.168.41.10/24
+      Gateway: 192.168.41.1
+      DNS: 192.168.41.1
