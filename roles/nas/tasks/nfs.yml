@@ -52,7 +52,7 @@
         state: restarted
         enabled: yes
       with_items:
-        - nfs-server
+        - nfsv4-server
         - nfs-mountd
         - nfs-idmapd
         - rpcbind
