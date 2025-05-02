@@ -1,2 +1,4 @@
 ---
 # defaults file for grub
+
+kernel_parameters: "quiet splash threadirqs mitigations=off"

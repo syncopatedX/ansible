@@ -20,6 +20,7 @@
   tags: ["paru"]
 
 - tags: ["packages", "base_pkgs"]
+  become: false
   block:
     - name: Install base packages
       aur:
@@ -28,9 +29,9 @@
         state: present
       with_items: "{{ packages.base }}"
   rescue:
-    - name: Installing packages failed
+    - name: Installing base packages failed
       debug:
-        msg: "Failed to install shell packages"
+        msg: "Failed to install base packages"
 
 - name: Check if mirrors have been updated within the past 24h
   shell: | 
@@ -70,10 +71,6 @@
 - import_tasks:
     file: sudo.yml
   tags: ["sudo"]
-
-- import_tasks:
-    file: shell.yml
-  tags: ["shell"]
 
 - import_tasks:
     file: user.yml

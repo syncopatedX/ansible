@@ -15,13 +15,12 @@ xorg__packages:
   - xf86-input-libinput
   - xf86-input-wacom
   - xf86-video-fbdev
-  # - xf86-video-intel
   - xf86-video-vesa
   - xkill-shortcut
   - xob
   - xorg-bdftopcf
-  - xorg-fonts-alias-75dpi
   - xorg-fonts-alias-100dpi
+  - xorg-fonts-alias-75dpi
   - xorg-fonts-alias-cyrillic
   - xorg-fonts-alias-misc
   - xorg-fonts-misc
@@ -62,3 +61,4 @@ xorg__packages:
   - xorg-xwd
   - xorg-xwininfo
   - xorg-xwud
+  # - xf86-video-intel

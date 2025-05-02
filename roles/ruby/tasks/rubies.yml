@@ -1,6 +1,6 @@
 ---
 - name: Detect rubies
-  command: "{{ rvm1_rvm }} list strings"
+  ansible.builtin.command: "{{ rvm1_rvm }} list strings"
   register: rvm_list_strings
   changed_when: false
 
@@ -9,20 +9,20 @@
 #   loop: '{{ rvm1_rubies | difference(rvm_list_strings.stdout_lines) }}'
 
 - name: Install 3.2.2
-  command: "{{ rvm1_rvm }} install {{ item }}"
+  ansible.builtin.command: "{{ rvm1_rvm }} install {{ item }}"
   loop: "{{ rvm1_rubies | difference(rvm_list_strings.stdout_lines) }}"
 
 - name: Detect default ruby version
-  command: "{{ rvm1_rvm }} alias list default"
+  ansible.builtin.command: "{{ rvm1_rvm }} alias list default"
   changed_when: false
   register: detect_default_ruby_version
 
 - name: Select default ruby
-  command: "{{ rvm1_rvm }} alias create default {{ rvm1_default_ruby_version }}"
+  ansible.builtin.command: "{{ rvm1_rvm }} alias create default {{ rvm1_default_ruby_version }}"
   when: detect_default_ruby_version.stdout|default() == '' or rvm1_default_ruby_version not in detect_default_ruby_version.stdout
 
 - name: Detect installed ruby patch number
-  shell: >
+  ansible.builtin.shell: >
     {{ rvm1_rvm }} list strings | grep {{ item }} | tail -n 1
   with_items: "{{ rvm1_rubies }}"
   changed_when: false
@@ -30,7 +30,7 @@
   check_mode: false # Run in normal mode when in --check mode (http://docs.ansible.com/ansible/playbooks_checkmode.html)
 
 - name: Install bundler if not installed
-  shell: >
+  ansible.builtin.shell: >
     ls {{ rvm1_install_path }}/wrappers/{{ item.stdout }}
     | if ! grep "^bundler " ; then {{ rvm1_install_path }}/wrappers/{{ item.stdout }}/gem install bundler ; fi
   args:
@@ -41,7 +41,7 @@
   changed_when: '"Successfully installed bundler" in bundler_install.stdout'
 
 - name: Symlink ruby related binaries on the system path
-  file:
+  ansible.builtin.file:
     state: "link"
     src: "{{ rvm1_install_path }}/wrappers/default/{{ item }}"
     dest: "{{ rvm1_symlink_to }}/{{ item }}"
@@ -51,7 +51,7 @@
   with_items: "{{ rvm1_symlink_binaries }}"
 
 - name: Symlink bundler binaries on the system path
-  file:
+  ansible.builtin.file:
     state: "link"
     src: "{{ rvm1_install_path }}/wrappers/default/{{ item }}"
     dest: "{{ rvm1_symlink_to }}/{{ item }}"
@@ -61,7 +61,7 @@
   with_items: "{{ rvm1_symlink_bundler_binaries }}"
 
 - name: Delete ruby if relevant
-  command: "{{ rvm1_rvm }} remove {{ rvm1_delete_ruby }}"
+  ansible.builtin.command: "{{ rvm1_rvm }} remove {{ rvm1_delete_ruby }}"
   register: rvm_delete_command
   changed_when: "'#removing' in rvm_delete_command.stdout"
   when: rvm1_delete_ruby is defined and rvm1_delete_ruby

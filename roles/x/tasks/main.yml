@@ -1,7 +1,11 @@
 ---
 # tasks file for x
-- import_tasks:
-    file: packages.yml
+- name: install xorg packages
+  aur:
+    use: paru
+    name: "{{ packages__x11 }}"
+    state: present
+  become: false
   tags: ['packages']
 
 # - block:
@@ -61,7 +65,7 @@
         owner: "{{ user.name }}"
         group: "{{ user.group }}"
         mode: "0644"
-        backup: yes
+        backup: True
       with_items:
         - .xprofile
         - .xserverrc
@@ -94,4 +98,4 @@
   
 - import_tasks:
     file: xdg.yml
-  tags: ['xdg']  
+  tags: ['xdg']

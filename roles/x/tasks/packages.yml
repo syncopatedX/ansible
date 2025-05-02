@@ -1,9 +1,0 @@
----
-
-- name: install xorg packages
-  aur:
-    use: paru
-    name: "{{ packages.x11 }}"
-    state: present
-  become: false
-  tags: ['packages']

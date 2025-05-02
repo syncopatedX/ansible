@@ -4,4 +4,3 @@
   service:
     name: sshd.service
     state: restarted
-  when: ssh.enable_sshd == True
