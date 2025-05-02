@@ -27,7 +27,6 @@
   community.general.pacman:
     name: "{{ packages.ruby }}"
     state: present
-  become: true
   tags: ["packages"]
 
 # by default /etc/gemrc is set to --user-install

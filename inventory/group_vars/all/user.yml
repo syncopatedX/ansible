@@ -10,3 +10,8 @@ user:
   realname: Robert Pannick
   sudoers: true
   email: rwpannick@gmail.com
+
+
+terminal: terminator
+terminal_alt: urxvt
+browser: google-chrome-stable

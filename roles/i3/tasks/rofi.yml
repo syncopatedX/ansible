@@ -1,20 +1,6 @@
 ---
 # tasks file for rofi
 
-- block:
-    - name: Install rofi
-      aur:
-        use: paru
-        name: "{{ item }}"
-        state: present
-      with_items:
-        - rofi
-  rescue:
-    - name: installing packages failed
-      debug:
-        msg: "Failed to install shell packages"
-  tags: ["packages"]
-
 - name: Ensure rofi directories exist
   file:
     dest: "{{ rofi_directory_default_location }}/{{ item.dest }}"
@@ -28,12 +14,12 @@
 
 - name: Synchronize templates - rofi
   template:
-    src: "{{ item }}.j2"
+    src: "home/.config/rofi/{{ item }}.j2"
     dest: "{{ user.home }}/.config/rofi/{{ item }}"
     owner: "{{ user.name }}"
     group: "{{ user.group }}"
     mode: preserve
-    backup: yes
+    backup: True
   with_items:
     - config.rasi
     - gruvbox-common.rasi

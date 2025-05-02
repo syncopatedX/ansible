@@ -1,8 +1,19 @@
 ---
 
-- import_tasks:
-    file: packages.yml
-  tags: ['packages']
+- block:
+    - name: Install i3-wm packages
+      aur:
+        use: paru
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - "{{ packages__i3 }}"
+      become: false
+  rescue:
+    - name: installing packages failed
+      debug:
+        msg: "Failed to install i3-wm packages"
+  tags: ["packages"]        
 
 - name: Ensure i3 directories exist
   file:
@@ -39,7 +50,7 @@
         owner: "{{ user.name }}"
         group: "{{ user.group }}"
         mode: '0644'
-        backup: yes
+        backup: True
       register: wmconfig
       with_items:
         - i3status-rust/config.toml
@@ -52,7 +63,7 @@
         owner: "{{ user.name }}"
         group: "{{ user.group }}"
         mode: '0644'
-        backup: yes
+        backup: True
       register: wmconfig
       with_items:
         - config

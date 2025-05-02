@@ -57,8 +57,6 @@
         backup: yes
       register: xdg_defaults
 
-  become: true
-
 - name: Enable xdg-user-dirs-update service
   systemd:
     name: xdg-user-dirs-update.service
@@ -73,7 +71,6 @@
     path: "{{ user.home }}/.config/user-dirs.dirs"
     state: absent
   register: xdg_userdirs
-  become: true
 
 - name: Run xdg-user-dirs-update
   shell: xdg-user-dirs-update
@@ -99,4 +96,3 @@
 
 - name: Update desktop database
   command: bash -lc "update-desktop-database"
-  become: true

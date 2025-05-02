@@ -1,6 +1,5 @@
 ---
 - when: user.sudoers |default(false)
-  become: true
   tags: ["sudoers"]
   block:
     - name: Ensure /etc/sudoers.d exists
