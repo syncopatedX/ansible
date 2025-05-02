@@ -7,7 +7,7 @@
         name: "{{ item }}"
         state: present
       with_items:
-        - "{{ packages.zsh }}"
+        - "{{ packages__zsh }}"
       become: false
   rescue:
     - name: install zshell packages failed
@@ -22,7 +22,7 @@
     dest: "/usr/share/oh-my-zsh/plugins/"
     owner: root
     group: root
-    backup: yes
+    backup: True
   with_items:
     - fd
     - ripgrep
@@ -49,8 +49,10 @@
   template:
     src: "home/{{ item }}.j2"
     dest: "{{ profile_config_dir }}/{{ item }}"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"    
     mode: "0644"
-    backup: true
+    backup: True
   with_items:
     - .zprofile
     - .zshenv

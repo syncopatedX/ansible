@@ -120,7 +120,7 @@ $exec_always xrdb -load ~/.Xresources
 
 $exec_always "pkill picom; sleep 1; DISPLAY=':0' picom -b; sleep 1"
 
-$exec "nm-applet"
+# $exec "nm-applet"
 $exec "dunst"
 
 $exec_always nitrogen --restore
@@ -132,12 +132,8 @@ $exec pactl -- set-sink-volume 0 55%
 
 $exec_always "reload-sxhkd.sh; sleep 1"
 
-# $exec "barrierc -f --debug INFO --name {{inventory_hostname}} --disable-crypto [soundbot]:24800"
-
 {% if i3.autostart != 'default' %}
 {% for a in i3.autostart %}
 $exec "{{ a }}"
 {% endfor %}
 {% endif %}
-
-$exec terminator --class __scratchpad
