@@ -1,5 +1,16 @@
 ---
 
+packages__reflector_args: >-
+  --latest 200
+  --sort rate
+  --protocol http --protocol https
+  --threads {{ ansible_facts.processor_vcpus }}
+  --save /etc/pacman.d/mirrorlist
+
+packages__gpg_keyserver: keyserver.ubuntu.com
+packages__gpg_conf: |
+  keyserver {{ packages__gpg_keyserver }}
+
 packages__base:
   - aria2
   - aspell

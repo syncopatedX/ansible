@@ -27,6 +27,22 @@
   when: ansible_architecture != "aarch64"
   tags: ["paru"]
 
+- name: Ensure local src packages folder exists
+  file:
+    path: /usr/local/src/packages
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+    mode: "2755"
+
+- name: Set makepkg to use aria2
+  template:
+    src: etc/makepkg.conf.j2
+    dest: /etc/makepkg.conf
+    mode: "0644"
+    backup: true
+  tags: ["makepkg"]
+
 - tags: ["packages", "base_pkgs"]
   block:
     - name: Install base packages
@@ -63,14 +79,6 @@
   when: ( mirror_status.stdout_lines | length < 0 or update_mirrors is defined )
   changed_when: false
   tags: ["mirrors"]
-
-- name: Set makepkg to use aria2
-  template:
-    src: etc/makepkg.conf.j2
-    dest: /etc/makepkg.conf
-    mode: "0644"
-    backup: true
-  tags: ["makepkg"]
 
 - import_tasks:
     file: updatedb.yml
