@@ -1,2 +1,18 @@
 ---
 # vars file for i3
+packages__i3:
+  - arandr
+  - dex
+  - dunst
+  - i3-wm
+  - i3status-rust
+  - nitrogen-git
+  - perl-anyevent-i3
+  - picom
+  - polybar
+  - python-i3ipc
+  - rofi
+  - sxhkd
+  - wmctrl
+  - wmfocus
+  - xob

@@ -1,0 +1,31 @@
+---
+# tasks file for firewalld
+
+- block:
+    - name: Enable and start firewalld
+      systemd:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    - name: Permit traffic to common services
+      firewalld:
+        service: "{{ item }}"
+        state: enabled
+        permanent: yes
+      with_items:
+        - ntp
+        - rsyncd
+        - ssh
+      notify: reload firewalld
+      tags: ["nfs", "ntp", "rsyncd", "ssh"]
+
+    - name: Permit traffic to jacktrip, barrier and qmidinet
+      firewalld:
+        port: "{{ item }}"
+        state: enabled
+        permanent: yes
+      with_items: "{{ rules.allowed }}"
+      notify: reload firewalld
+
+  ignore_errors: "{{ ansible_check_mode }}"

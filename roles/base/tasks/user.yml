@@ -1,0 +1,90 @@
+---
+
+- name: Ensure user is present with proper shell and groups
+  user:
+    name: "{{ user.name }}"
+    shell: "{{ user.shell | default('/usr/bin/zsh') }}"
+    groups: "{{ user.groups | default([]) }}"
+    append: yes
+    state: present
+
+- name: Push aliases template
+  template:
+    src: home/.aliases.j2
+    dest: "{{ profile_config_dir }}/.aliases"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"    
+    mode: "0644"
+    backup: True
+  tags: ["aliases", "profile"]
+
+# - name: Push .profile template
+#   template:
+#     src: home/.profile.j2
+#     dest: "{{ profile_config_dir }}/.profile"
+#     mode: "0644"
+#     backup: True
+#   tags: ["profile"]
+
+- name: Ensure ~/.local/bin exists
+  file:
+    path: "{{ user.home }}/.local/bin"
+    state: directory
+    mode: "0755"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+  tags: ["folders"]
+
+- name: Ensure ~/.local/share exists
+  file:
+    path: "{{ user.home }}/.local/share"
+    state: directory
+    mode: "0755"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+  tags: ["folders"]
+
+# - name: Sync utility scripts
+#   ansible.posix.synchronize:
+#     src: home/.local/bin/
+#     dest: "{{ user.home }}/.local/bin/"
+#     recursive: true
+#     mode: push
+#     delete: false
+#     checksum: true
+#     perms: false
+#     rsync_opts:
+#       - "--update"
+#       - "--omit-dir-times"
+#       - --chown={{ user.name }}:{{ user.group }}
+#   tags: ["scripts"]
+
+# - name: Sync kitty configs plugins
+#   ansible.posix.synchronize:
+#     src: home/.config/kitty/
+#     dest: "{{ user.home }}/.config/kitty/"
+#     recursive: true
+#     mode: push
+#     delete: false
+#     checksum: true
+#     perms: false
+#     rsync_opts:
+#       - "--update"
+#       - "--omit-dir-times"
+#       - --chown={{ user.name }}:{{ user.group }}
+#   tags: ["kitty"]
+
+# - name: Sync ranger configs plugins
+#   ansible.posix.synchronize:
+#     src: home/.config/ranger/
+#     dest: "{{ user.home }}/.config/ranger/"
+#     recursive: true
+#     mode: push
+#     delete: false
+#     checksum: true
+#     perms: false
+#     rsync_opts:
+#       - "--update"
+#       - "--omit-dir-times"
+#       - --chown={{ user.name }}:{{ user.group }}
+#   tags: ["ranger"]

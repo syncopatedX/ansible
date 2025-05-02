@@ -6,7 +6,7 @@ ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
 hostname = "dev01.syncopated.dev"
 # domain_name = "syncopated.dev"
 
-ANSIBLE_HOME = File.join(ENV['HOME'], 'Workspace', 'Syncopated', 'ansible-workstation-arch')
+ANSIBLE_HOME = File.join(ENV['HOME'], 'Workspace', 'Syncopated', 'syncopated-ansible')
 
 Vagrant.configure("2") do |config|
   config.vm.box = "archlinux/archlinux"

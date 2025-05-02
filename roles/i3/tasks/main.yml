@@ -1,8 +1,19 @@
 ---
 
-- import_tasks:
-    file: packages.yml
-  tags: ['packages']
+- block:
+    - name: Install i3-wm packages
+      aur:
+        use: paru
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - "{{ packages__i3 }}"
+      become: false
+  rescue:
+    - name: installing packages failed
+      debug:
+        msg: "Failed to install i3-wm packages"
+  tags: ["packages"]        
 
 - name: Ensure i3 directories exist
   file:
@@ -34,12 +45,12 @@
 
     - name: Set i3status-rs configuration
       template:
-        src: "{{ item }}.j2"
+        src: "home/.config/{{ item }}.j2"
         dest: "{{ user.home }}/.config/{{ item }}"
         owner: "{{ user.name }}"
         group: "{{ user.group }}"
         mode: '0644'
-        backup: yes
+        backup: True
       register: wmconfig
       with_items:
         - i3status-rust/config.toml
@@ -47,12 +58,12 @@
 
     - name: Set i3 configuration
       template:
-        src: "{{ item }}.j2"
+        src: "home/.config/i3/{{ item }}.j2"
         dest: "{{ user.home }}/.config/i3/{{ item }}"
         owner: "{{ user.name }}"
         group: "{{ user.group }}"
         mode: '0644'
-        backup: yes
+        backup: True
       register: wmconfig
       with_items:
         - config
@@ -65,3 +76,7 @@
       notify: Reload i3
 
   tags: ['i3_config']
+
+- import_tasks:
+    file: rofi.yml
+  tags: ['rofi']

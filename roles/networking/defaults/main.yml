@@ -7,38 +7,3 @@ conn_check:
     uri: "http://pihole/admin"
     interval: 120
 
-
-rules:
-  allowed:
-    - 1900/udp
-    - 1935/tcp
-    - 4000/tcp
-    - 5000/tcp
-    - 8008/tcp
-    - 4464/udp
-    - 4560/udp
-    - 5432/tcp
-    - 6379/tcp
-    - 6666/tcp
-    - 7777/udp
-    - 7905/tcp
-    - 7906/tcp
-    - 8000/udp
-    - 8324/tcp
-    - 8384/tcp
-    - 12101/udp
-    - 21027/udp
-    - 21928/udp
-    - 21929/udp
-    - 22000/tcp
-    - 22000/udp
-    - 24800/tcp
-    - 24801/tcp
-    - 32400/tcp
-    - 32410/udp
-    - 32412/udp
-    - 32413/udp
-    - 32414/udp
-    - 32469/tcp
-    - 50924/udp
-    - 55311/udp

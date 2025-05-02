@@ -20,7 +20,7 @@
         state: present
         force: yes
         extra_args: --noconfirm --overwrite '*'
-      loop: "{{ packages.libvirt }}"
+      loop: "{{ packages__libvirt }}"
 
   tags: ['packages']
 

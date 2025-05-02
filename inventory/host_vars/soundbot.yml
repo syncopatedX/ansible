@@ -1,5 +1,14 @@
 ---
 
+share:
+  nfs:
+    parent: /home/b08x
+    exports:
+      - Notebooks
+      - Workspace
+
+samba_host: False
+
 zsh_theme: kphoen
 
 x:
@@ -8,17 +17,20 @@ x:
 
 i3:
   autostart: ''
-  tray_output: "DP-1-2"
+  tray_output: "DP-2-2"
   assignments: ''
   keybindings: ''
   workspaces:
     - "$ws1 output eDP-1"
-    - "$ws2 output DP-1-2"
-    - "$ws3 output DP-1-2"
-    - "$ws4 output DP-1-2"
-    - "$ws5 output DP-1-2"
-    - "$ws6 output DP-1-1"
-    - "$ws7 output DP-1-1"
-    - "$ws8 output DP-1-1"
-    - "$ws9 output DP-1-1"
-    - "$ws10 output DP-1-1"
+    - "$ws2 output DP-2-2"
+    - "$ws3 output DP-2-2"
+    - "$ws4 output DP-2-2"
+    - "$ws5 output DP-2-2"
+    - "$ws6 output DP-2-1"
+    - "$ws7 output DP-2-1"
+    - "$ws8 output DP-2-1"
+    - "$ws9 output DP-2-1"
+    - "$ws10 output DP-2-1"
+
+terminal: kitty
+terminal_alt: urxvt

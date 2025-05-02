@@ -3,93 +3,126 @@
 
 homepage_directory: "{{ user.home }}/.local/share/html/homepage"
 
-homepage:
-  group:
-    intranet:
-      # - name: hookerbot
-      #   url: "http://hookerbot"
-      - name: hookerbot
-        url: "http://192.168.41.1"
-      # - name: linkding
-      #   url: "http://bender.syncopated.net:9090/bookmarks"
-      # - name: pihole
-      #   url: "http://pihole/admin"
-      # - name: pkgrepo
-      #   url: "http://bender.syncopated.net"
-      # - name: plex
-      #   url: "http://tinybot.syncopated.net:32400/web"
-      # - name: qbittorrent
-      #   url: "http://bender.syncopated.net:8080"
-    intranetLLM:
-      - name: Dify
-        url: "http://crambot"
-      - name: Flowise
-        url: "http://crambot:3002"
-      - name: Langfuse
-        url: "http://ninjabot:3000"
-      - name: SillyTavern
-        url: "http://ninjabot:8000"
-      - name: Big-AGI
-        url: "http://localhost:3001"
-      - name: Stirling PDF
-        url: "http://localhost:8080"
-      - name: Redis
-        url: "http://localhost:8001"
-      # - name: ArchiveBox
-      #   url: "http://tinybot.syncopated.net:8000"
-    webtools:
-      - name: gmail
-        url: "https://gmail.google.com"
-      - name: github
-        url: "https://github.com"
-      - name: gitlab
-        url: "https://gitlab.com/b08x"
-      - name: youtube
-        url: "https://www.youtube.com/"
-      - name: reddit
-        url: "https://www.reddit.com/"
-      - name: google search console
-        url: "https://search.google.com/search-console?resource_id=https%3A%2F%2Fb08x.github.io%2F"
-    webtoolsmisc:
-      - name: Huggingface
-        url: "https://huggingface.co/"
-      - name: LLaVA
-        url: "https://llava.hliu.cc/"
-      - name: llama-parse
-        url: "https://cloud.llamaindex.ai/"
-      - name: colors-between
-        url: "https://hexcolor.co/colors-between"
-      - name: d2 playground
-        url: "https://play.d2lang.com/?script=qlDQtVOo5AIEAAD__w%3D%3D&"
-    webtoolsLLM:
-      - name: Anthropic Console
-        url: "https://console.anthropic.com/"
-      - name: Google AI Studio
-        url: "https://makersuite.google.com/app/prompts/new_freeform"
-      - name: Cohere Dashboard
-        url: "https://dashboard.cohere.com/welcome/login?redirect_uri=%2F"
-      - name: Deepgram Console
-        url: "https://playground.deepgram.com/?endpoint=listen&smart_format=true&language=en&model=nova-2"
-      - name: LLMStack
-        url: "https://trypromptly.com/"
-      - name: PromptPerfect
-        url: "https://promptperfect.jina.ai/interactive"
-      - name: PicoVoice
-        url: "https://console.picovoice.ai/"
-    webtoolsLLMchat:
-      - name: Gemini
-        url: "https://gemini.google.com/chat"
-      - name: Claude
-        url: "https://claude.ai/chats"
-      - name: Perplexity
-        url: "https://www.perplexity.ai/"
-      - name: Elevenlabs
-        url: "https://elevenlabs.io/app/speech-synthesis"
-      - name: Suno
-        url: "https://app.suno.ai/create/"
-      - name: chatGPT
-        url: "https://chat.openai.com/"
-      - name: LLM Arena
-        url: "https://chat.lmsys.org/"
-      - name: Pi AI
-        url: "https://pi.ai/threads"
+# Define intranet hosts here
+# The value can be an IP address or a hostname.
+# The template will construct URLs like: <scheme>://<host_value>:<port><path>
+homepage_intranet_hosts:
+  hookerbot: 192.168.41.1
+  crambot: crambot
+  ninjabot: ninjabot
+  localhost: localhost
+  # Add other hosts referenced in commented-out links if needed
+  # bender: bender.syncopated.net
+  # pihole: pihole
+  # tinybot: tinybot.syncopated.net
+
+# Define link groups
+homepage_groups:
+  intranet:
+    # Example using the new structure
+    - name: hookerbot
+      host: hookerbot # References homepage_intranet_hosts.hookerbot
+      # scheme: http # Optional, defaults to http
+      # port: 80     # Optional, defaults to 80 for http, 443 for https
+      # path: /      # Optional, defaults to /
+
+    # Migrated commented-out links (adjust host references as needed)
+    # - name: linkding
+    #   host: bender
+    #   port: 9090
+    #   path: /bookmarks
+    # - name: pihole
+    #   host: pihole
+    #   path: /admin
+    # - name: pkgrepo
+    #   host: bender
+    # - name: plex
+    #   host: tinybot
+    #   port: 32400
+    #   path: /web
+    # - name: qbittorrent
+    #   host: bender
+    #   port: 8080
+    # - name: ArchiveBox
+    #   host: tinybot
+    #   port: 8000
+
+  intranetLLM:
+    - name: Dify
+      host: crambot
+    - name: Flowise
+      host: crambot
+      port: 3002
+    - name: Langfuse
+      host: ninjabot
+      port: 3000
+    - name: SillyTavern
+      host: ninjabot
+      port: 8000
+    - name: Big-AGI
+      host: localhost
+      port: 3001
+    - name: Stirling PDF
+      host: localhost
+      port: 8080
+    - name: Redis
+      host: localhost
+      port: 8001
+
+  # --- Web link groups remain unchanged for now ---
+  webtools:
+    - name: gmail
+      url: "https://gmail.google.com"
+    - name: github
+      url: "https://github.com"
+    - name: gitlab
+      url: "https://gitlab.com/b08x"
+    - name: youtube
+      url: "https://www.youtube.com/"
+    - name: reddit
+      url: "https://www.reddit.com/"
+    - name: google search console
+      url: "https://search.google.com/search-console?resource_id=https%3A%2F%2Fb08x.github.io%2F"
+  webtoolsmisc:
+    - name: Huggingface
+      url: "https://huggingface.co/"
+    - name: LLaVA
+      url: "https://llava.hliu.cc/"
+    - name: llama-parse
+      url: "https://cloud.llamaindex.ai/"
+    - name: colors-between
+      url: "https://hexcolor.co/colors-between"
+    - name: d2 playground
+      url: "https://play.d2lang.com/?script=qlDQtVOo5AIEAAD__w%3D%3D&"
+  webtoolsLLM:
+    - name: Anthropic Console
+      url: "https://console.anthropic.com/"
+    - name: Google AI Studio
+      url: "https://makersuite.google.com/app/prompts/new_freeform"
+    - name: Cohere Dashboard
+      url: "https://dashboard.cohere.com/welcome/login?redirect_uri=%2F"
+    - name: Deepgram Console
+      url: "https://playground.deepgram.com/?endpoint=listen&smart_format=true&language=en&model=nova-2"
+    - name: LLMStack
+      url: "https://trypromptly.com/"
+    - name: PromptPerfect
+      url: "https://promptperfect.jina.ai/interactive"
+    - name: PicoVoice
+      url: "https://console.picovoice.ai/"
+  webtoolsLLMchat:
+    - name: Gemini
+      url: "https://gemini.google.com/chat"
+    - name: Claude
+      url: "https://claude.ai/chats"
+    - name: Perplexity
+      url: "https://www.perplexity.ai/"
+    - name: Elevenlabs
+      url: "https://elevenlabs.io/app/speech-synthesis"
+    - name: Suno
+      url: "https://app.suno.ai/create/"
+    - name: chatGPT
+      url: "https://chat.openai.com/"
+    - name: LLM Arena
+      url: "https://chat.lmsys.org/"
+    - name: Pi AI
+      url: "https://pi.ai/threads"

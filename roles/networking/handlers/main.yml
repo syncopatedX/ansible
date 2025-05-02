@@ -1,5 +1,8 @@
 ---
 
+- name: Refresh host facts
+  ansible.builtin.setup:
+
 - name: enable systemd-timesyncd service
   systemd:
     name: systemd-timesyncd

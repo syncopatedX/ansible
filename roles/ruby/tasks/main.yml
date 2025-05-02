@@ -2,91 +2,40 @@
 # tasks file for ruby
 
 - name: Load a variable file based on the OS type, or a default if not found.
-  include_vars: "{{ lookup('ansible.builtin.first_found', params) }}"
+  ansible.builtin.include_vars: "{{ lookup('ansible.builtin.first_found', params) }}"
   vars:
     params:
       files:
-        # - '{{ansible_distribution}}.yml'
-        - '{{ansible_os_family}}.yml'
-        # - Archlinux.yml
+        - "{{ ansible_os_family }}.yml"
       paths:
-        - 'vars'
-  tags: ['packages']
+        - "vars"
+  tags: ["packages"]
 
 - name: Load the main vars
-  include_vars: main.yml
+  ansible.builtin.include_vars: main.yml
   vars:
     params:
       paths:
-        - 'vars'
+        - "vars"
 
-- setup:
-- debug:
-    msg: "{{ packages }}"
+- ansible.builtin.setup:
+- ansible.builtin.debug:
+    msg: "{{ packages.ruby }}"
   when: debug_vars is defined
 
 - name: Install Ruby dev packages
-  package:
-    name: "{{ packages }}"
+  community.general.pacman:
+    name: "{{ packages.ruby }}"
     state: present
-  become: true
-  tags: ['packages']
+  tags: ["packages"]
 
 # by default /etc/gemrc is set to --user-install
 # set --no-user-install in /root/.gemrc
 # to install gems system wide using sudo
-- block:
-    - debug:
-        msg: "{{ ansible_env | to_nice_json }}"
-      become: true
-      become_flags: '-s /bin/sh'
-
-    - name: Set --no-user-install in /root/.gemrc
-      copy:
-        content: |
-          gem: --no-user-install --no-document
-        dest: "/root/.gemrc"
-        owner: root
-
-    - name: Set --user-install in /home/user/.gemrc
-      copy:
-        content: |
-          gem: --user-install
-        dest: "{{ user.home }}/.gemrc"
-        owner: "{{ user.name }}"
-
-    - name: Set --no-user-install in /etc/gemrc
-      copy:
-        content: |
-          gem: --user-install
-        dest: "/etc/gemrc"
-        owner: root
-
-    - name: gather list of installed gems
-      shell: "/usr/bin/gem list | awk '{ print $1 }'"
-      register: gemlist
-      changed_when: gemlist.rc != 0
-      ignore_errors: "{{ ansible_check_mode }}"
-
-    - name: set list of gems to install
-      set_fact:
-        _gems: "{{ gems|difference(gemlist.stdout) }}"
-
-    - name: Display gems to be installed
-      debug:
-        msg: "{{ _gems }}"
-      when: debug_vars is defined
-
-    - name: install ruby gems
-      command: "/use/bin/gem install {{ item }}"
-      with_items:
-        - "{{ _gems }}"
-      when: _gems | length > 0
-
-  become: true
-  become_flags: '-s /bin/sh'
-  environment:
-    PATH: "/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl"
+# - become: true
+# become_flags: '-s /usr/bin/sh'
+# environment:
+#   PATH: "/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl"
 
 # - name: Install ruby profile.d script
 #   template:
@@ -125,13 +74,71 @@
 #   become: true
 #   tags: ["ruby__gems"]
 
-- block:
+  # block:
+  #   # - debug:
+  #   #     msg: "{{ ansible_env | to_nice_json }}"
+  #   #   become: true
+  #   #   become_flags: '-s /usr/bin/sh'
 
+  #   - name: Create gemrc files
+  #     ansible.builtin.shell: |
+  #       touch /root/.gemrc && \
+  #       touch {{ user.home }}/.gemrc && \
+  #       touch /etc/gemrc
+  #   - name: Set --no-user-install in /root/.gemrc
+  #     ansible.builtin.copy:
+  #       content: |
+  #         gem: --no-user-install --no-document
+  #       dest: "/root/.gemrc"
+  #       owner: root
+  #       mode: "0644"
+
+  #   - name: Set --user-install in /home/user/.gemrc
+  #     ansible.builtin.copy:
+  #       content: |
+  #         gem: --user-install
+  #       dest: "{{ user.home }}/.gemrc"
+  #       owner: "{{ user.name }}"
+  #       mode: "0644"
+
+  #   - name: Set --no-user-install in /etc/gemrc
+  #     ansible.builtin.copy:
+  #       content: |
+  #         gem: --user-install
+  #       dest: "/etc/gemrc"
+  #       owner: root
+  #       mode: "0644"
+
+  #   - name: Gather list of installed system gems
+  #     ansible.builtin.command: "/usr/bin/gem list --no-versions" # Get just the names
+  #     register: installed_system_gems_raw
+  #     changed_when: false
+  #     check_mode: false # Always run check to get current state
+
+  #   # Process the output to get a clean list of gem names
+  #   - name: Set fact for installed system gem names
+  #     ansible.builtin.set_fact:
+  #       installed_system_gem_names: "{{ installed_system_gems_raw.stdout_lines | map('regex_replace', '^([^ ]+).*', '\\1') | list }}"
+
+  #   - name: Set list of gems to install
+  #     ansible.builtin.set_fact:
+  #       _gems: "{{ gems | difference(gemlist.stdout) }}"
+
+# - name: Install system Ruby gems
+#   community.general.gem:
+#     name: "{{ item }}"
+#     state: present
+#     executable: /usr/bin/gem
+#     user_install: false # Explicitly ensure system install
+#   loop: "{{ gems }}" # Loop through desired gems
+#   # Check if gem name is NOT in the list of installed gems
+#   when: item not in (installed_system_gems.gems | default({}) | list)
+
+- when: rvm_install|default(false)|bool == true
+  become: false
+  tags: ["rvm"]
+  block:
     - name: Install RVM
-      import_tasks: 'rvm.yml'
-
+      ansible.builtin.import_tasks: "rvm.yml"
     - name: Install Ruby and Gems
-      import_tasks: 'rubies.yml'
-
-  when: rvm_install|default(false)|bool == True
-  tags: ['rvm']
+      ansible.builtin.import_tasks: "rubies.yml"

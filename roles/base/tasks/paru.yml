@@ -1,10 +1,9 @@
 ---
-
 - name: Check if paru installed
   stat:
     path: /usr/bin/paru
   register: paru
-  tags: ['packages']
+  tags: ["packages"]
 
 - name: Install paru if not installed
   block:
@@ -40,12 +39,12 @@
       become: False
 
   when: not paru.stat.exists
-  tags: ['packages']
+  tags: ["packages"]
 
 - name: Adjust paru config
   template:
     src: etc/paru.conf.j2
     dest: /etc/paru.conf
-    mode: '0644'
+    mode: "0644"
     backup: True
   # ignore_errors: "{{ ansible_check_mode }}"

@@ -52,7 +52,7 @@
         state: restarted
         enabled: yes
       with_items:
-        - nfs-server
+        - nfsv4-server
         - nfs-mountd
         - nfs-idmapd
         - rpcbind
@@ -125,7 +125,6 @@
         state: directory
         owner: "{{ user.name }}"
         group: "{{ user.group }}"
-        mode: "2775"
       with_items:
         - "{{ share.nfs.exports }}"
 
@@ -143,7 +142,7 @@
       lineinfile:
         path: /etc/fstab
         state: present
-        line: "{{ share.nfs.parent }}{{ item }} /srv/exports/{{ item }} none bind 0 0"
+        line: "{{ share.nfs.parent }}/{{ item }} /srv/exports/{{ item }} none bind 0 0"
       with_items:
         - "{{ share.nfs.exports }}"
       register: fstab

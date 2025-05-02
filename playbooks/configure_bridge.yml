@@ -1,0 +1,167 @@
+---
+# https://g.co/gemini/share/0dfaed46a274
+- name: Configure Bridge Interface
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    - name: Prompt for existing bridge name to remove (if any)
+      pause:
+        prompt: "Enter existing bridge name to remove (if any):"
+      register: old_bridge_name_reg
+      when: old_bridge_name is undefined
+
+    - name: Prompt for new bridge interface name
+      pause:
+        prompt: "Enter new bridge interface name:"
+      register: bridge_name_reg
+      when: bridge_name is undefined
+
+    - name: Get available network interfaces
+      set_fact:
+        available_interfaces: "{{ ansible_interfaces | select('match', '^(en|br)') | list }}"
+
+    - name: Prompt for bridge slave interface
+      pause:
+        prompt: "Choose interface to use as a bridge: {{ available_interfaces }}"
+      register: bridge_slave_reg
+      when: bridge_slave is undefined
+
+    - name: Get current IP address of slave interface
+      shell: "ip address | grep '{{ bridge_slave_reg.user_input | default(bridge_slave) }}' | grep inet | awk '{print $2}'"
+      register: current_ip
+      ignore_errors: true
+      when: ipaddr is undefined
+
+    - name: Prompt for bridge IP address
+      pause:
+        prompt: "Enter IP address for bridge interface (current: {{ current_ip.stdout | default('None') }}):"
+      register: ipaddr_reg
+      when: ipaddr is undefined
+
+    - name: Prompt for bridge gateway
+      pause:
+        prompt: "Enter gateway:"
+      register: gateway_reg
+      when: gateway is undefined
+
+    - name: Prompt for bridge DNS
+      pause:
+        prompt: "Enter DNS:"
+      register: dns_reg
+      when: dns is undefined
+
+    - name: Prompt for bridge DNS search
+      pause:
+        prompt: "Enter DNS search:"
+      register: search_reg
+      when: search is undefined
+
+    - name: Confirm configuration
+      pause:
+        prompt: |
+          "Confirm configuration:
+          Old bridge to remove: {{ old_bridge_name_reg.user_input | default(old_bridge_name | default('None')) }}
+          Bridge name: {{ bridge_name_reg.user_input | default(bridge_name) }}
+          Bridge slave: {{ bridge_slave_reg.user_input | default(bridge_slave) }}
+          Bridge address: {{ ipaddr_reg.user_input | default(ipaddr) }}
+          Bridge gateway: {{ gateway_reg.user_input | default(gateway) }}
+          Bridge DNS: {{ dns_reg.user_input | default(dns) }}
+          Bridge DNS search: {{ search_reg.user_input | default(search) }}
+          Is this correct? (yes/no)"
+      register: confirmation
+      when:
+        - old_bridge_name is undefined
+        - bridge_name is undefined
+        - bridge_slave is undefined
+        - ipaddr is undefined
+        - gateway is undefined
+        - dns is undefined
+        - search is undefined
+
+    - set_fact:
+        old_bridge_name: "{{ old_bridge_name_reg.user_input | default(old_bridge_name) }}"
+        bridge_name: "{{ bridge_name_reg.user_input | default(bridge_name) }}"
+        bridge_slave: "{{ bridge_slave_reg.user_input | default(bridge_slave) }}"
+        ipaddr: "{{ ipaddr_reg.user_input | default(ipaddr) }}"
+        gateway: "{{ gateway_reg.user_input | default(gateway) }}"
+        dns: "{{ dns_reg.user_input | default(dns) }}"
+        search: "{{ search_reg.user_input | default(search) }}"
+      when:
+        - old_bridge_name is undefined
+        - bridge_name is undefined
+        - bridge_slave is undefined
+        - ipaddr is undefined
+        - gateway is undefined
+        - dns is undefined
+        - search is undefined
+
+    - block:
+        - name: Remove old bridge (if specified)
+          nmcli:
+            conn_name: "{{ old_bridge_name }}"
+            state: absent
+          when: old_bridge_name | length > 0
+
+        - name: Create new bridge interface
+          nmcli:
+            conn_name: "{{ bridge_name }}"
+            type: bridge
+            autoconnect: yes
+            ifname: "{{ bridge_name }}"
+            ip4: "{{ ipaddr }}"
+            gw4: "{{ gateway }}"
+            dns4: "{{ dns }}"
+            dns4_search: "{{ search }}"
+            state: present
+          notify: restart_networkmanager
+
+        - name: Remove existing connection of slave interface
+          nmcli:
+            conn_name: "{{ bridge_slave }}"
+            state: absent
+          notify: restart_networkmanager
+
+        - name: Add slave interface to bridge
+          nmcli:
+            conn_name: "{{ bridge_slave }}"
+            type: bridge-slave
+            master: "{{ bridge_name }}"
+            autoconnect: yes
+            ifname: "{{ bridge_slave }}"
+            state: present
+          notify: restart_networkmanager
+
+        - name: Prompt for reboot
+          pause:
+            prompt: "Reboot now? (yes/no)"
+          register: reboot_confirmation
+          when: reboot_confirmation_input is undefined
+
+        - name: Reboot system
+          reboot:
+          when: (reboot_confirmation.user_input | default(reboot_confirmation_input)) | lower == 'yes'
+
+        - name: Wait for remote host to come back online
+          wait_for_connection:
+            delay: 10
+            timeout: 300
+          when: (reboot_confirmation.user_input | default(reboot_confirmation_input)) | lower == 'yes'
+
+        - name: Inform user of success
+          debug:
+            msg: "Host back up"
+
+      when: confirmation.user_input | default('yes') | lower == 'yes'
+      
+      rescue:
+        - name: Inform user of cancellation
+          debug:
+            msg: "Bridge configuration cancelled by user."
+          when: confirmation.user_input | default('yes') | lower != 'yes'
+
+  handlers:
+    - name: restart_networkmanager
+      service:
+        name: NetworkManager
+        state: restarted

@@ -1,0 +1,128 @@
+---
+# tasks file for fabric
+- block:
+    - name: Install dependencies
+      aur:
+        use: auto
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - go
+
+  rescue:
+    - name: installing packages failed
+      debug:
+        msg: "Failed to install packages"
+
+  tags: ["packages"]
+
+# - name: Add go bin to path
+#   lineinfile:
+#     path: "{{ lookup('env','HOME') }}/.zshrc"
+#     line: "export PATH=$PATH:{{ lookup('env','HOME') }}/go/bin"
+#     create: yes
+
+# - name: Create local src directory
+#   file:
+#     path: "{{ source_dir }}"
+#     state: directory
+#     owner: "{{ user.name }}"
+#     group: "{{ user.name }}"
+#     mode: '0755'
+#     recurse: yes
+
+# - name: Clone fabric repository
+#   git:
+#     repo: https://github.com/b08x/fabric.git
+#     dest: "{{ source_dir }}/fabric"
+#     accept_hostkey: yes
+#     update: no
+#     force: no
+#     version: main
+
+# - block:
+#     - name: Build the fabric binary
+#       shell: |
+#         go build -a
+#       args:
+#         chdir: "{{ source_dir }}/fabric"
+
+#     - name: Install the compiled binary usr bin
+#       shell: |
+#         install -Dm755 fabric /usr/bin/fabric
+#       args:
+#         chdir: "{{ source_dir }}/fabric"
+#       become: true
+  
+#   when: ansible_architecture != "aarch64"
+
+# - name: Install release binary for pi4
+#   shell: |
+#     curl -L {{ arm_binary }} > fabric && \
+#     chmod +x fabric && \
+#     install -Dm755 fabric /usr/bin/fabric && \
+#     /usr/bin/fabric --version
+#   args:
+#     chdir: /tmp
+#   become: true
+#   when: ansible_architecture == "aarch64"
+
+# - name: Create .env file
+#   block:
+#     - name: Create .config/fabric directory
+#       file:
+#         path: "{{ fabric_home }}"
+#         state: directory
+#         owner: "{{ user.name }}"
+#         group: "{{ user.name }}"
+#         mode: '0755'
+
+#     - name: Create .env file
+#       copy:
+#         dest: "{{ fabric_home }}/.env"
+#         content: |
+#           DEFAULT_VENDOR=Gemini
+#           DEFAULT_MODEL=gemini-2.0-flash-exp
+#           DEFAULT_MODEL_CONTEXT_LENGTH=40960
+#           PATTERNS_LOADER_GIT_REPO_URL=https://github.com/b08x/fabric.git
+#           PATTERNS_LOADER_GIT_REPO_PATTERNS_FOLDER=patterns
+#           GROQ_API_KEY=
+#           GROQ_API_BASE_URL=https://api.groq.com/openai/v1
+#           GEMINI_API_KEY=
+#           OPENROUTER_API_KEY=
+#           OPENROUTER_API_BASE_URL=https://openrouter.ai/api/v1
+  
+#   tags: ["env"]
+
+# - name: update patterns 
+#   shell: |
+#     fabric -U
+
+# - name: rsync patterns from src repo
+#   shell: |
+#     rsync -avP {{ source_dir }}/fabric/patterns {{ fabric_home }}
+
+- block:
+    - name: Check if folder exists (with error handling)
+      stat:
+        path: "{{ user.home }}/.config/fabric/patterns"
+      register: folder_info
+      ignore_errors: true
+
+    - name: Add fabric aliases to .aliases
+      shell: |
+        for pattern_file in {{ patterns }}/*; do
+          pattern_name=$(basename "$pattern_file")
+          alias_command="alias $pattern_name='fabric --pattern $pattern_name'"
+          if ! grep -q "$alias_command" "{{ user.home }}/.aliases"; then
+            echo "$alias_command" >> "{{ user.home }}/.aliases"
+          fi
+        done
+      when: folder_info.stat.exists
+  vars:
+    patterns: "{{ user.home }}/.config/fabric/patterns"
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path|join(':') }}"
+  tags: ["aliases"]
+
+
