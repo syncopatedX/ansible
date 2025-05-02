@@ -1,4 +1,21 @@
 ---
+
+- block:
+    - name: Install zshell packages
+      aur:
+        use: auto
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - "{{ packages.zsh }}"
+      become: false
+  rescue:
+    - name: install zshell packages failed
+      debug:
+        msg: "Failed to install zshell packages"
+
+  tags: ["packages", "shell_pkgs"]
+
 - name: Install fd and ripgrep ohmyzsh plugins
   copy:
     src: "usr/share/oh-my-zsh/plugins/{{ item }}"
@@ -6,7 +23,6 @@
     owner: root
     group: root
     backup: yes
-  become: true
   with_items:
     - fd
     - ripgrep
@@ -34,10 +50,11 @@
     src: "home/{{ item }}.j2"
     dest: "{{ profile_config_dir }}/{{ item }}"
     mode: "0644"
-    backup: True
+    backup: true
   with_items:
     - .zprofile
     - .zshenv
     - .zshrc
     - .zlogin
   tags: ["env", "profile", "zprofile"]
+

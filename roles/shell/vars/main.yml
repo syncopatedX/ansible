@@ -1,0 +1,10 @@
+---
+
+packages:
+  zsh:
+    - oh-my-zsh-git
+    - zoxide
+    - zsh
+    - zsh-autocomplete
+    - zsh-completions
+    - zsh-syntax-highlighting

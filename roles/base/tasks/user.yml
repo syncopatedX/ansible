@@ -1,43 +1,30 @@
 ---
-- block:
-    - name: Install shell packages
-      aur:
-        use: auto
-        name: "{{ item }}"
-        state: present
-      with_items:
-        - "{{ packages.shell }}"
-  rescue:
-    - name: install shell packages failed
-      debug:
-        msg: "Failed to install shell packages"
 
-  tags: ["packages", "shell_pkgs"]
+- name: Ensure user is present with proper shell and groups
+  user:
+    name: "{{ user.name }}"
+    shell: "{{ user.shell | default('/usr/bin/zsh') }}"
+    groups: "{{ user.groups | default([]) }}"
+    append: yes
+    state: present
 
 - name: Push aliases template
   template:
     src: home/.aliases.j2
     dest: "{{ profile_config_dir }}/.aliases"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"    
     mode: "0644"
     backup: True
   tags: ["aliases", "profile"]
 
-- name: Push .profile template
-  template:
-    src: home/.profile.j2
-    dest: "{{ profile_config_dir }}/.profile"
-    mode: "0644"
-    backup: True
-  tags: ["profile"]
-
-- name: Ensure user is present with proper shell and groups
-  user:
-    name: "{{ user.name }}"
-    shell: "{{ user.shell | default('/bin/zsh') }}"
-    groups: "{{ user.groups | default([]) }}"
-    append: yes
-    state: present
-  become: true
+# - name: Push .profile template
+#   template:
+#     src: home/.profile.j2
+#     dest: "{{ profile_config_dir }}/.profile"
+#     mode: "0644"
+#     backup: True
+#   tags: ["profile"]
 
 - name: Ensure ~/.local/bin exists
   file:
