@@ -1,4 +1,5 @@
 ---
+
 share:
   nfs:
     parent: /home
@@ -11,11 +12,21 @@ zsh_theme: kphoen
 
 bootloader: grub
 
-rvm_install: true
+i3:
+  autostart:
+    - "sleep 1;barrierc -f --debug INFO --name crambot --disable-crypto [soundbot]:24800"
+  tray_output: "primary"
+  assignments: "default"
+  workspaces: "default"
+  keybindings: "default"
 
 systemd_network_networks:
-  eth0:
+  20-wired:
+    Match:
+      Name: eth*
+      MACAddress: b8:ca:3a:94:51:ca
     Network:
       Address: 192.168.41.10/24
       Gateway: 192.168.41.1
       DNS: 192.168.41.1
+      Domains: syncopated.net

@@ -1,6 +1,12 @@
 # {{ ansible_managed }}
 
-{% for section_name, section_contents in ({"Match": {"Name": network.key}} | combine(network.value, recursive=False)).items() %}
+{% set match_section = {"Name": network.key} %}
+{% if network.value.Match is defined %}
+  {% set _ = match_section.update(network.value.Match) %}
+  {% set _ = network.value.pop('Match') %}
+{% endif %}
+
+{% for section_name, section_contents in ({"Match": match_section} | combine(network.value, recursive=False)).items() %}
 {% for content in [section_contents] | flatten %}
 [{{ section_name }}]
 {% for key, values in content.items() %}

@@ -1,12 +1,22 @@
 ---
 # tasks file for grub
 
-- name: Set kernel parameters
+- name: Set default kernel parameters
   lineinfile:
     dest: /etc/default/grub
     regexp: '^GRUB_CMDLINE_LINUX_DEFAULT'
     state: present
-    line: 'GRUB_CMDLINE_LINUX_DEFAULT="{{ kernel_parameters }}"'
+    line: 'GRUB_CMDLINE_LINUX_DEFAULT="{{ kernel_parameters_default }}"'
+  when: kernel_parameters_default is defined
+  notify:
+    - rebuild grub
+
+- name: Set default kernel parameters
+  lineinfile:
+    dest: /etc/default/grub
+    regexp: '^GRUB_CMDLINE_LINUX'
+    state: present
+    line: 'GRUB_CMDLINE_LINUX="{{ kernel_parameters }}"'
   when: kernel_parameters is defined
   notify:
     - rebuild grub
