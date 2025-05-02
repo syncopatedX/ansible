@@ -16,7 +16,7 @@
         path: /etc/sudoers.d/99-user
         line: "{{ user.name }} ALL=(ALL:ALL) NOPASSWD: ALL"
         validate: "/usr/sbin/visudo -cf %s"
-        mode: "0440"
+        mode: "0700"
         owner: root
         group: root
         create: true

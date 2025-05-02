@@ -10,6 +10,14 @@
 #   tags: ["pacman"]
 
 - import_tasks:
+    file: sudo.yml
+  tags: ["sudo"]
+
+- import_tasks:
+    file: user.yml
+  tags: ["user"]
+
+- import_tasks:
     file: repos.yml
   when: ansible_architecture != "aarch64"
   tags: ["repos"]
@@ -20,14 +28,14 @@
   tags: ["paru"]
 
 - tags: ["packages", "base_pkgs"]
-  become: false
   block:
     - name: Install base packages
       aur:
         use: auto
         name: "{{ item }}"
         state: present
-      with_items: "{{ packages.base }}"
+      with_items: "{{ packages__base }}"
+      become: false
   rescue:
     - name: Installing base packages failed
       debug:
@@ -67,11 +75,3 @@
 - import_tasks:
     file: updatedb.yml
   tags: ["updatedb"]
-
-- import_tasks:
-    file: sudo.yml
-  tags: ["sudo"]
-
-- import_tasks:
-    file: user.yml
-  tags: ["user"]
