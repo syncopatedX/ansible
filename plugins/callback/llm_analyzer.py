@@ -3,6 +3,14 @@
 # GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
+from ansible.plugins.callback import CallbackBase
+from ansible.module_utils._text import to_text
+import yaml
+from typing import Any, Dict, Optional
+from pathlib import Path
+import os
+import json
+import datetime
 
 __metaclass__ = type
 
@@ -74,6 +82,37 @@ DOCUMENTATION = """
         ini:
           - section: callback_llm_analyzer
             key: max_tokens
+      langfuse_public_key:
+        description: Langfuse Public Key for prompt management.
+        env:
+          - name: ANSIBLE_LANGFUSE_PUBLIC_KEY
+        ini:
+          - section: callback_llm_analyzer
+            key: langfuse_public_key
+      langfuse_secret_key:
+        description: Langfuse Secret Key for prompt management.
+        env:
+          - name: ANSIBLE_LANGFUSE_SECRET_KEY
+        ini:
+          - section: callback_llm_analyzer
+            key: langfuse_secret_key
+      langfuse_host:
+        description: Langfuse Host URL for prompt management.
+        default: https://cloud.langfuse.com
+        env:
+          - name: ANSIBLE_LANGFUSE_HOST
+        ini:
+          - section: callback_llm_analyzer
+            key: langfuse_host
+      langfuse_enabled:
+        description: Enable or disable Langfuse integration. Defaults to true if keys and host are provided.
+        type: bool
+        default: true
+        env:
+          - name: ANSIBLE_LANGFUSE_ENABLED
+        ini:
+          - section: callback_llm_analyzer
+            key: langfuse_enabled
 
     examples: |
       # Enable the callback plugin in ansible.cfg
@@ -87,6 +126,10 @@ DOCUMENTATION = """
       model = gpt-4
       temperature = 0.4
       max_tokens = 1000
+      # langfuse_public_key = "pk-lf-..." # Optional: For fetching prompts from Langfuse
+      # langfuse_secret_key = "sk-lf-..." # Optional: For fetching prompts from Langfuse
+      # langfuse_host = "https://your-langfuse-instance.com" # Optional: For fetching prompts from Langfuse
+      # langfuse_enabled = true # Optional
 
       # Example using environment variables with Gemini
       export AI_PROVIDER=gemini
@@ -113,15 +156,6 @@ DOCUMENTATION = """
       model = anthropic/claude-3-opus
 """
 
-import datetime
-import json
-import os
-from pathlib import Path
-from typing import Any, Dict, Optional
-
-import yaml
-from ansible.module_utils._text import to_text
-from ansible.plugins.callback import CallbackBase
 
 # Provider-specific imports
 AVAILABLE_PROVIDERS = {}
@@ -165,6 +199,13 @@ except ImportError:
 # OpenRouter uses OpenAI's client
 AVAILABLE_PROVIDERS["openrouter"] = AVAILABLE_PROVIDERS["openai"]
 
+try:
+    import langfuse
+    from langfuse import Langfuse
+    LANGFUSE_AVAILABLE = True
+except ImportError:
+    LANGFUSE_AVAILABLE = False
+
 
 class AIProvider:
     def __init__(
@@ -174,12 +215,16 @@ class AIProvider:
         model: str,
         temperature: float,
         max_tokens: Optional[int],
+        langfuse_client: Optional[Any] = None,  # Langfuse client instance
+        langfuse_enabled: bool = False,       # Status of Langfuse integration
     ):
         self.provider = provider
         self.api_key = api_key
         self.model = model
         self.temperature = temperature
         self.max_tokens = max_tokens
+        self.langfuse_client = langfuse_client
+        self.langfuse_enabled = langfuse_enabled
         self.client = None
         self.api_callers = {}  # Initialize api_callers here
         self._setup_client()
@@ -267,29 +312,107 @@ class AIProvider:
     def _create_prompt(
         self, task_text: Optional[str] = None, play_text: Optional[str] = None
     ) -> str:
+        print(f"DEBUG: _create_prompt called. Task_text: {bool(task_text)}, Play_text: {bool(play_text)}") # General entry
+        prompt_template_str = None
+        prompt_name = None
+        context_text = None
+
         if task_text:
-            return (
-                "Review the following Ansible code: "
-                f"\n```\n{task_text}```\n"
-                "Analyze its function, adherence to best practices, potential issues, "
-                "and inefficiencies. Then provide your response in this format:\n"
-                "1. First explain the current code and any issues\n"
-                "2. After 'IMPROVED CODE:', provide the complete improved version of the code\n"
-                "3. After 'EXPLANATION:', explain your improvements\n\n"
-                "Consider Ansible best practices and general programming principles (DRY, least astonishment)."
-            )
+            prompt_name = "ansible_task_prompt"
+            context_text = task_text
+            print(f"DEBUG: Prompt type determined: TASK ('{prompt_name}')")
         elif play_text:
-            return (
-                "Review the following Ansible playbook, "
-                "focusing on overall purpose and effectiveness:"
-                f"\n```\n{play_text}```\n"
-                "Provide your response in this format:\n"
-                "1. First explain the playbook's function\n"
-                "2. After 'IMPROVED CODE:', provide the complete improved version of the playbook\n"
-                "3. After 'EXPLANATION:', explain your improvements\n\n"
-                "If no improvements are needed, write 'IMPROVED CODE: No improvements needed'"
-            )
-        return ""
+            prompt_name = "ansible_play_prompt"
+            context_text = play_text
+            print(f"DEBUG: Prompt type determined: PLAY ('{prompt_name}')")
+        else:
+            print("DEBUG: No task or play text in _create_prompt. Returning empty.")
+            return ""  # No context, no prompt
+
+        if self.langfuse_enabled and self.langfuse_client and prompt_name:
+            print(f"DEBUG: Langfuse is enabled. Attempting to fetch prompt: '{prompt_name}'")
+            try:
+                # Langfuse SDK's get_prompt returns a Prompt object
+                # The actual prompt string is usually in prompt.prompt (or similar attribute)
+                # Assuming version 2.x of langfuse SDK: prompt_object.get_langfuse_prompt().prompt
+                # For simplicity, let's assume it has a .prompt attribute or a method to get the string.
+                # We need to check the exact way to get the string from the Prompt object.
+                # Let's assume `get_prompt` returns an object with a `prompt` attribute for the template string.
+                # Or, if `get_prompt` itself returns the string directly (older versions or specific config).
+                # Based on Langfuse docs, prompt.compile() might be needed if it's a V2 prompt object.
+                # For now, let's assume a simple attribute access after checking type.
+
+                print(f"DEBUG: PRE-CALL to self.langfuse_client.get_prompt('{prompt_name}')")
+                # Fetch the prompt object from Langfuse
+                langfuse_prompt_object = self.langfuse_client.get_prompt(
+                    prompt_name, label="production")
+                print(f"DEBUG: POST-CALL to self.langfuse_client.get_prompt('{prompt_name}'). Object received: {type(langfuse_prompt_object)}")
+
+
+                # The actual prompt content is in langfuse_prompt_object.prompt
+                # This is the template string.
+                prompt_template_str = langfuse_prompt_object.prompt
+                print(f"DEBUG: Extracted .prompt attribute. Type: {type(prompt_template_str)}. Content snippet: '{str(prompt_template_str)[:100]}...'")
+
+
+                if not isinstance(prompt_template_str, str):
+                    # This case handles if langfuse_prompt_object.prompt is not a string as expected
+                    # Potentially, it could be a more complex object that needs specific handling
+                    # or compilation, e.g., langfuse_prompt_object.compile(**variables)
+                    # For now, we'll assume it's a string or log an error.
+                    print(
+                        f"Warning: Fetched prompt '{prompt_name}' from Langfuse is not a string. Type: {type(prompt_template_str)}. Falling back to local prompt.")
+                    prompt_template_str = None  # Force fallback
+                else:
+                    print(
+                        f"Successfully fetched prompt '{prompt_name}' from Langfuse.")
+
+            except Exception as e:
+                print(
+                    f"Warning: Failed to fetch prompt '{prompt_name}' from Langfuse: {str(e)}. Falling back to local prompt.")
+                prompt_template_str = None  # Ensure fallback
+        else:
+            print(f"DEBUG: Langfuse conditions not met or no prompt_name. Enabled: {self.langfuse_enabled}, Client: {bool(self.langfuse_client)}, Prompt Name: {prompt_name}")
+
+
+        # If Langfuse fetching failed or was skipped, use local generation
+        if prompt_template_str is None:
+            print(f"DEBUG: Fallback to local prompt generation for '{prompt_name}'.")
+            if task_text:
+                prompt_template_str = (
+                    "Review the following Ansible code: "
+                    # Using Jinja-like placeholder
+                    "\n```\n{{task_text}}\n```\n"
+                    "Analyze its function, adherence to best practices, potential issues, "
+                    "and inefficiencies. Then provide your response in this format:\n"
+                    "1. First explain the current code and any issues\n"
+                    "2. After 'IMPROVED CODE:', provide the complete improved version of the code\n"
+                    "3. After 'EXPLANATION:', explain your improvements\n\n"
+                    "Consider Ansible best practices and general programming principles (DRY, least astonishment)."
+                )
+            elif play_text:
+                prompt_template_str = (
+                    "Review the following Ansible playbook, "
+                    "focusing on overall purpose and effectiveness:"
+                    # Using Jinja-like placeholder
+                    "\n```\n{{play_text}}\n```\n"
+                    "Provide your response in this format:\n"
+                    "1. First explain the playbook's function\n"
+                    "2. After 'IMPROVED CODE:', provide the complete improved version of the playbook\n"
+                    "3. After 'EXPLANATION:', explain your improvements\n\n"
+                    "If no improvements are needed, write 'IMPROVED CODE: No improvements needed'"
+                )
+            else:
+                return ""
+
+        # Substitute the context into the prompt string
+        final_prompt = prompt_template_str
+        if task_text and "{{task_text}}" in final_prompt:
+            final_prompt = final_prompt.replace("{{task_text}}", task_text)
+        elif play_text and "{{play_text}}" in final_prompt:
+            final_prompt = final_prompt.replace("{{play_text}}", play_text)
+
+        return final_prompt
 
     def _call_openai_api(self, prompt):
         kwargs = {
@@ -390,6 +513,11 @@ class CallbackModule(CallbackBase):
         self.analysis_dir.mkdir(exist_ok=True)
         self.task_count = 0
         self.play_count = 0
+        self.langfuse_client = None
+        self.langfuse_enabled = False
+        self.langfuse_public_key = None
+        self.langfuse_secret_key = None
+        self.langfuse_host = None
 
     def set_options(self, task_keys=None, var_options=None, direct=None):
         super(CallbackModule, self).set_options(
@@ -404,6 +532,10 @@ class CallbackModule(CallbackBase):
         if not api_key:
             api_key = self.get_option("api_key")
 
+        # Initialize Langfuse FIRST, so its status is available for AIProvider
+        self._initialize_langfuse()
+
+        # Now, initialize and validate AI provider
         try:
             self.ai_provider = AIProvider(
                 provider=provider,
@@ -411,23 +543,90 @@ class CallbackModule(CallbackBase):
                 model=self.get_option("model"),
                 temperature=float(self.get_option("temperature")),
                 max_tokens=self.get_option("max_tokens"),
+                langfuse_client=self.langfuse_client,  # These should now be correctly set
+                langfuse_enabled=self.langfuse_enabled,   # by the _initialize_langfuse call
             )
+            # Validate AI provider API key only if instantiation was successful
+            if not self.ai_provider.validate_api_key():
+                self.disabled = True  # Disables LLM-based analysis if key is bad
+                print(f"\nLLM Analyzer disabled: Invalid API key for {provider}. LLM analysis will be skipped.")
         except Exception as e:
-            self.disabled = True
+            self.disabled = True  # Disables LLM-based analysis if provider init fails
             print(
-                f"\nLLM Analyzer disabled: Failed to initialize provider {provider}: {str(e)}"
+                f"\nLLM Analyzer disabled: Failed to initialize AI provider '{provider}': {str(e)}. LLM analysis will be skipped."
             )
+            # No return here, the plugin object itself is still valid, just analysis is disabled.
+            # If AI provider fails, langfuse might still be useful for other things if we extend the plugin later.
+
+    def _initialize_langfuse(self):
+        if not LANGFUSE_AVAILABLE:
+            # Check if user attempted to configure Langfuse to avoid unnecessary warnings
+            # Use get_option directly as self attributes might not be set yet if called early
+            _lf_pk_opt = self.get_option("langfuse_public_key")
+            _lf_sk_opt = self.get_option("langfuse_secret_key")
+            if _lf_pk_opt or _lf_sk_opt:  # only warn if user tried to configure it
+                print("\nLangfuse SDK not found. Langfuse prompt fetching will be disabled. Please install the 'langfuse' Python package.")
+            self.langfuse_enabled = False
             return
 
-        # Validate API key before proceeding
-        if not self.ai_provider.validate_api_key():
-            self.disabled = True
-            print(f"\nLLM Analyzer disabled: Invalid API key for {provider}")
-            return
+        # Read options fresh, as direct might have been passed to set_options
+        self.langfuse_public_key = self.get_option("langfuse_public_key")
+        self.langfuse_secret_key = self.get_option("langfuse_secret_key")
+        self.langfuse_host = self.get_option("langfuse_host")
+        _langfuse_enabled_option_val = self.get_option("langfuse_enabled")
+
+        # Convert string 'true'/'false' from env/ini to boolean if necessary
+        if isinstance(_langfuse_enabled_option_val, str):
+            _langfuse_enabled_option = _langfuse_enabled_option_val.lower() in [
+                'true', '1', 'yes']
+        elif isinstance(_langfuse_enabled_option_val, bool):
+            _langfuse_enabled_option = _langfuse_enabled_option_val
+        else:  # Default if type is unexpected (e.g. None if not set)
+            _langfuse_enabled_option = True  # Default to true if keys are present
+
+        # Determine if Langfuse should be effectively enabled
+        # Enable if all credentials are provided AND (_langfuse_enabled_option is True OR it was not set and thus defaults to True logic)
+        if self.langfuse_public_key and self.langfuse_secret_key and self.langfuse_host:
+            # if langfuse_enabled was not set at all
+            if not isinstance(self.get_option("langfuse_enabled"), (str, bool)):
+                # Default to true if keys are present and enabled not specified
+                self.langfuse_enabled = True
+            else:
+                self.langfuse_enabled = _langfuse_enabled_option  # Use the explicit value
+        else:
+            self.langfuse_enabled = False  # Disable if essential credentials are not set
+
+        if self.langfuse_enabled:
+            try:
+                self.langfuse_client = Langfuse(
+                    public_key=self.langfuse_public_key,
+                    secret_key=self.langfuse_secret_key,
+                    host=self.langfuse_host,
+                )
+                if self.langfuse_client:
+                    print(
+                        "\nLangfuse client initialized successfully. Prompt fetching from Langfuse is active.")
+                else:  # Should not happen if Langfuse() constructor doesn't raise error
+                    raise Exception(
+                        "Langfuse client object is None after initialization.")
+            except Exception as e:
+                print(
+                    f"\nFailed to initialize Langfuse client: {str(e)}. Langfuse prompt fetching will be disabled.")
+                self.langfuse_enabled = False  # Disable it effectively
+                self.langfuse_client = None
+        elif _langfuse_enabled_option and not (self.langfuse_public_key and self.langfuse_secret_key and self.langfuse_host):
+            # Warn if explicitly enabled but missing credentials
+            print("\nLangfuse is configured to be enabled, but essential credentials (public_key, secret_key, host) are missing. Langfuse prompt fetching disabled.")
+        elif not _langfuse_enabled_option and (self.langfuse_public_key or self.langfuse_secret_key):
+            # Warn if explicitly disabled but some credentials were provided
+            print(
+                "\nLangfuse prompt fetching is explicitly disabled via 'langfuse_enabled' configuration.")
+        # If no credentials and not explicitly enabled, no message is needed.
 
     def _extract_improvements(self, content: str) -> Dict[str, Any]:
         """Extract improved code and explanation from the AI response."""
-        result = {"improved_code": None, "explanation": None, "has_improvements": False}
+        result = {"improved_code": None,
+                  "explanation": None, "has_improvements": False}
 
         # Split content at "IMPROVED CODE:" marker
         parts = content.split("IMPROVED CODE:")

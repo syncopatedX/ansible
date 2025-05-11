@@ -37,7 +37,6 @@
     - { role: x, tags: ["x"] }
     # - { role: audio, tags: ["audio"] }
     - { role: input-remapper, tags: ["input-remapper"] }
-    - { role: lightdm, tags: ["lightdm"], when: "display_manager == 'lightdm' | default('console')" }
     - { role: i3, tags: ["i3"], when: "desktop_environment == 'i3' | default('i3')" }
     - { role: tools, tags: ["tools"] }
     - { role: media, tags: ["media"] }

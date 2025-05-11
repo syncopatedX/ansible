@@ -7,3 +7,4 @@ __pycache__
 .qodo
 installer_alt.sh
 installer.sh
+.env
