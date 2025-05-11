@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI-Powered Search Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      .search-shadow {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+      .category-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+      .browser-tab {
+        position: relative;
+        padding: 8px 16px;
+        background: #e5e7eb;
+        border-radius: 8px 8px 0 0;
+        margin-right: 4px;
+        cursor: pointer;
+        border: 1px solid #d1d5db;
+        border-bottom: none;
+        z-index: 1;
+      }
+      .browser-tab.active {
+        background: white;
+        border-bottom: 1px solid white;
+        z-index: 2;
+      }
+      .browser-tab:hover:not(.active) {
+        background: #f3f4f6;
+      }
+      .browser-tab .close-tab {
+        margin-left: 8px;
+        color: #6b7280;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+      }
+      .browser-tab .close-tab:hover {
+        background: #d1d5db;
+        color: #111827;
+      }
+      .browser-tabs-container {
+        display: flex;
+        background: #e5e7eb;
+        padding: 8px 8px 0 8px;
+        border-bottom: 1px solid #d1d5db;
+      }
+      .add-tab {
+        padding: 8px;
+        cursor: pointer;
+        color: #6b7280;
+        border-radius: 8px 8px 0 0;
+      }
+      .add-tab:hover {
+        background: #d1d5db;
+        color: #111827;
+      }
+      .tab-content-container {
+        padding: 0;
+        background: white;
+        border: 1px solid #d1d5db;
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        height: 600px;
+      }
+      .tab-iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        border-radius: 0 0 8px 8px;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 min-h-screen">
+    <!-- Header with Search -->
+    <header
+      class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-md"
+    >
+      <div class="container mx-auto px-4 py-6">
+        <div class="flex flex-col items-center">
+          <div class="flex items-center mb-6">
+            <i class="fas fa-robot text-3xl mr-3"></i>
+            <h1 class="text-3xl font-bold">AI Search Portal</h1>
+          </div>
+
+          <!-- Search Box -->
+          <div class="w-full max-w-2xl">
+            <div class="relative flex items-center">
+              <!-- Search Engine Toggle -->
+              <div class="absolute left-3 flex items-center">
+                <img
+                  id="engineLogo"
+                  src="https://www.google.com/images/branding/product/1x/google_gsa_2020_48dp.png"
+                  class="h-6 w-6 cursor-pointer"
+                  onclick="toggleEngine()"
+                  title="Switch between Google and Perplexity"
+                />
+              </div>
+
+              <!-- Search Form -->
+              <div id="gSearch" class="w-full">
+                <form
+                  id="googleForm"
+                  class="google"
+                  action="https://google.com/search"
+                  method="get"
+                  target="_blank"
+                >
+                  <input
+                    class="w-full py-3 pl-12 pr-16 rounded-full text-gray-800 search-shadow focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    type="text"
+                    name="q"
+                    placeholder="Search with Google..."
+                  />
+                  <button
+                    type="submit"
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-600"
+                  >
+                    <i class="fas fa-search text-xl"></i>
+                  </button>
+                </form>
+              </div>
+
+              <div id="dSearch" class="w-full" style="display: none">
+                <form
+                  id="perplexityForm"
+                  class="duck"
+                  action="https://www.perplexity.ai/search"
+                  method="get"
+                  target="_blank"
+                >
+                  <input
+                    class="w-full py-3 pl-12 pr-16 rounded-full text-gray-800 search-shadow focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    type="text"
+                    name="q"
+                    placeholder="Ask Perplexity AI..."
+                  />
+                  <button
+                    type="submit"
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-purple-600"
+                  >
+                    <i class="fas fa-robot text-xl"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+      <!-- Quick Links Section -->
+      <section class="mb-12">
+        <h2 class="text-xl font-bold text-gray-800 mb-6">Quick Access</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Category Cards -->
+          <div
+            class="category-card bg-white rounded-lg shadow-md p-6 transition-all duration-200"
+          >
+            <div class="flex items-center mb-4">
+              <div class="bg-blue-100 p-3 rounded-full mr-4">
+                <i class="fas fa-file-alt text-blue-600 text-xl"></i>
+              </div>
+              <h3 class="font-semibold text-gray-800">Documents</h3>
+            </div>
+            <div class="bookmarks">
+              <ul class="space-y-2">
+                <li>
+                  <a href="#" class="text-blue-600 hover:underline"
+                    >Company Docs</a
+                  >
+                </li>
+                <li>
+                  <a href="#" class="text-blue-600 hover:underline"
+                    >Templates</a
+                  >
+                </li>
+                <li>
+                  <a href="#" class="text-blue-600 hover:underline"
+                    >HR Policies</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div
+            class="category-card bg-white rounded-lg shadow-md p-6 transition-all duration-200"
+          >
+            <div class="flex items-center mb-4">
+              <div class="bg-green-100 p-3 rounded-full mr-4">
+                <i class="fas fa-laptop-code text-green-600 text-xl"></i>
+              </div>
+              <h3 class="font-semibold text-gray-800">Development</h3>
+            </div>
+            <div class="bookmarks">
+              <ul class="space-y-2">
+                <li>
+                  <a href="#" class="text-blue-600 hover:underline">GitHub</a>
+                </li>
+                <li>
+                  <a href="#" class="text-blue-600 hover:underline"
+                    >Code Repos</a
+                  >
+                </li>
+                <li>
+                  <a href="#" class="text-blue-600 hover:underline">API Docs</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div
+            class="category-card bg-white rounded-lg shadow-md p-6 transition-all duration-200"
+          >
+            <div class="flex items-center mb-4">
+              <div class="bg-purple-100 p-3 rounded-full mr-4">
+                <i class="fas fa-brain text-purple-600 text-xl"></i>
+              </div>
+              <h3 class="font-semibold text-gray-800">AI Tools</h3>
+            </div>
+            <div class="bookmarks">
+              <ul class="space-y-2">
+                <li>
+                  <a href="#" class="text-blue-600 hover:underline">ChatGPT</a>
+                </li>
+                <li>
+                  <a href="#" class="text-blue-600 hover:underline">Claude</a>
+                </li>
+                <li>
+                  <a href="#" class="text-blue-600 hover:underline"
+                    >Perplexity</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div
+            class="category-card bg-white rounded-lg shadow-md p-6 transition-all duration-200"
+          >
+            <div class="flex items-center mb-4">
+              <div class="bg-red-100 p-3 rounded-full mr-4">
+                <i class="fas fa-users text-red-600 text-xl"></i>
+              </div>
+              <h3 class="font-semibold text-gray-800">Collaboration</h3>
+            </div>
+            <div class="bookmarks">
+              <ul class="space-y-2">
+                <li>
+                  <a href="#" class="text-blue-600 hover:underline">Slack</a>
+                </li>
+                <li>
+                  <a href="#" class="text-blue-600 hover:underline">Teams</a>
+                </li>
+                <li>
+                  <a href="#" class="text-blue-600 hover:underline">Zoom</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- AI Assistants Section with Browser Tabs -->
+      <section>
+        <h2 class="text-xl font-bold text-gray-800 mb-6">
+          AI Assistants & Generators
+        </h2>
+
+        <!-- Browser-style Tabs -->
+        <div class="browser-tabs-container">
+          <div id="tabList" class="flex flex-1 overflow-x-auto">
+            <!-- Tabs will be added here by JavaScript -->
+          </div>
+          <div class="add-tab" onclick="addNewTab()">
+            <i class="fas fa-plus"></i>
+          </div>
+        </div>
+
+        <!-- Tab Content Container -->
+        <div class="tab-content-container">
+          <!-- Tab contents will be loaded here -->
+          <div id="tabContent"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 mt-12">
+      <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="mb-4 md:mb-0">
+            <p>&copy; 2023 AI Search Portal. All rights reserved.</p>
+          </div>
+          <div class="flex space-x-6">
+            <a href="#" class="hover:text-blue-300">Privacy</a>
+            <a href="#" class="hover:text-blue-300">Terms</a>
+            <a href="#" class="hover:text-blue-300">Help</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Define our AI assistants with their web UI URLs
+      const aiAssistants = [
+        {
+          id: "chatgpt",
+          title: "ChatGPT",
+          icon: "fa-comment-dots",
+          url: "https://chat.openai.com/",
+          color: "green",
+        },
+        {
+          id: "claude",
+          title: "Claude AI",
+          icon: "fa-comment-alt",
+          url: "https://claude.ai/chat",
+          color: "orange",
+        },
+        {
+          id: "perplexity",
+          title: "Perplexity",
+          icon: "fa-search",
+          url: "https://www.perplexity.ai/",
+          color: "purple",
+        },
+        {
+          id: "gemini",
+          title: "Gemini",
+          icon: "fa-gem",
+          url: "https://gemini.google.com/",
+          color: "blue",
+        },
+        {
+          id: "mistral",
+          title: "Mistral",
+          icon: "fa-cloud",
+          url: "https://chat.mistral.ai/chat",
+          color: "indigo",
+        },
+        {
+          id: "copilot",
+          title: "Copilot",
+          icon: "fa-code",
+          url: "https://copilot.microsoft.com/",
+          color: "blue",
+        },
+        {
+          id: "deepseek",
+          title: "DeepSeek",
+          icon: "fa-brain",
+          url: "https://chat.deepseek.com/",
+          color: "teal",
+        },
+      ];
+
+      // Track open tabs
+      let openTabs = [];
+      let activeTabId = null;
+
+      // Initialize the first tab when page loads
+      document.addEventListener("DOMContentLoaded", function () {
+        // Add first assistant as default tab
+        addTab(aiAssistants[0]);
+      });
+
+      // Toggle between Google and Perplexity search
+      function toggleEngine() {
+        const googleSearch = document.getElementById("gSearch");
+        const perplexitySearch = document.getElementById("dSearch");
+        const engineLogo = document.getElementById("engineLogo");
+
+        if (googleSearch.style.display === "none") {
+          googleSearch.style.display = "block";
+          perplexitySearch.style.display = "none";
+          engineLogo.src =
+            "https://www.google.com/images/branding/product/1x/google_gsa_2020_48dp.png";
+        } else {
+          googleSearch.style.display = "none";
+          perplexitySearch.style.display = "block";
+          engineLogo.src =
+            "https://www.perplexity.ai/images/perplexity-logo-square.png";
+        }
+      }
+
+      // Add a new tab
+      function addTab(assistant) {
+        // Check if tab already exists
+        const existingTab = openTabs.find((tab) => tab.id === assistant.id);
+        if (existingTab) {
+          switchTab(assistant.id);
+          return;
+        }
+
+        // Add to open tabs
+        openTabs.push({
+          id: assistant.id,
+          title: assistant.title,
+          icon: assistant.icon,
+          url: assistant.url,
+        });
+
+        // Create tab element
+        const tabElement = document.createElement("div");
+        tabElement.className = "browser-tab";
+        tabElement.id = `tab-${assistant.id}`;
+        tabElement.innerHTML = `
+                <i class="fas ${assistant.icon} mr-2"></i>
+                ${assistant.title}
+                <span class="close-tab" onclick="closeTab(event, '${assistant.id}')">
+                    <i class="fas fa-times text-xs"></i>
+                </span>
+            `;
+        tabElement.onclick = function () {
+          switchTab(assistant.id);
+        };
+
+        // Add to tab list
+        document.getElementById("tabList").appendChild(tabElement);
+
+        // If this is the first tab, make it active
+        if (openTabs.length === 1) {
+          switchTab(assistant.id);
+        }
+
+        // Create content for this tab
+        createTabContent(assistant);
+      }
+
+      // Add a new tab (from the + button)
+      function addNewTab() {
+        // For demo purposes, cycle through assistants
+        const nextAssistantIndex = openTabs.length % aiAssistants.length;
+        addTab(aiAssistants[nextAssistantIndex]);
+      }
+
+      // Switch to a tab
+      function switchTab(tabId) {
+        // Update active tab styling
+        document.querySelectorAll(".browser-tab").forEach((tab) => {
+          tab.classList.remove("active");
+        });
+        document.getElementById(`tab-${tabId}`).classList.add("active");
+
+        // Update active tab ID
+        activeTabId = tabId;
+
+        // Show the corresponding content
+        document.querySelectorAll(".tab-iframe").forEach((iframe) => {
+          iframe.style.display = "none";
+        });
+        document.getElementById(`iframe-${tabId}`).style.display = "block";
+      }
+
+      // Close a tab
+      function closeTab(event, tabId) {
+        event.stopPropagation();
+
+        // Remove from open tabs
+        openTabs = openTabs.filter((tab) => tab.id !== tabId);
+
+        // Remove tab element
+        const tabElement = document.getElementById(`tab-${tabId}`);
+        tabElement.parentNode.removeChild(tabElement);
+
+        // Remove content
+        const contentElement = document.getElementById(`iframe-${tabId}`);
+        if (contentElement) {
+          contentElement.parentNode.removeChild(contentElement);
+        }
+
+        // If we closed the active tab, switch to another one
+        if (activeTabId === tabId) {
+          if (openTabs.length > 0) {
+            switchTab(openTabs[0].id);
+          } else {
+            // No tabs left - add a default one
+            addTab(aiAssistants[0]);
+          }
+        }
+      }
+
+      // Create content for a tab
+      function createTabContent(assistant) {
+        const iframe = document.createElement("iframe");
+        iframe.className = "tab-iframe";
+        iframe.id = `iframe-${assistant.id}`;
+        iframe.src = assistant.url;
+        iframe.style.display = "none";
+
+        document.getElementById("tabContent").appendChild(iframe);
+      }
+    </script>
+  </body>
+</html>

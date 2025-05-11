@@ -51,16 +51,16 @@ homepage_groups:
     - name: Dify
       host: crambot
     - name: Flowise
-      host: crambot
+      host: ninjabot
       port: 3002
     - name: Langfuse
-      host: ninjabot
+      host: crambot
       port: 3000
     - name: SillyTavern
       host: ninjabot
       port: 8000
     - name: Big-AGI
-      host: localhost
+      host: steve
       port: 3001
     - name: Stirling PDF
       host: localhost
