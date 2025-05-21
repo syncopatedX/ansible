@@ -48,6 +48,11 @@ This playbook provides a comprehensive workstation setup, including:
   * Sets a simple static HTML homepage with configurable links.
 * **🔊 Media:**
   * Configuration for media applications (e.g., Musikcube).
+* **🎵 Professional Audio:**
+  * Configurable audio server selection (JACK, PulseAudio, PipeWire).
+  * System tuning for low-latency audio performance.
+  * Realtime privileges and CPU optimization for audio processing.
+  * Audio normalization tools and utilities.
 
 ## ✅ Requirements
 
@@ -81,7 +86,7 @@ The playbook is organized into modular roles found in the `roles/` directory:
 
 | Role               | Description                                                                                                                            |
 | :----------------- | :------------------------------------------------------------------------------------------------------------------------------------- |
-| `audio`            | Linux audio setup (JACK, PulseAudio, ALSA, tuning, utilities).                                                                         |
+| `audio`            | Professional Linux audio setup with configurable server selection (JACK, PulseAudio, PipeWire) via `use_jack` and `use_pipewire` variables. Includes comprehensive system tuning for low-latency performance, realtime privileges, CPU optimization, and audio normalization tools.                                                                         |
 | `base`             | Core system setup, package management (pacman/paru), repositories, base packages, user creation, sudoers, `rc.local`.                   |
 | `desktop`          | General desktop applications, fonts, and themes.                                                                                       |
 | `docker`           | Docker Engine & Docker Compose installation and configuration (including optional NVIDIA support).                                       |
@@ -282,6 +287,15 @@ The playbook's behavior can be customized through variables. Below are key varia
 | :---------------------- | :------------------ | :------------------------------------------- | :------------------------------------------------------------------------------------------------------ |
 | `packages_*`            | Various             | `roles/*/defaults/main.yml` (role-specific)  | Lists of packages to install (e.g., `base_packages`, `x_packages`).                                     |
 
+#### Audio Configuration
+
+| Variable                | Role(s)             | File Location                                | Description                                                                                             |
+| :---------------------- | :------------------ | :------------------------------------------- | :------------------------------------------------------------------------------------------------------ |
+| `use_jack`              | `audio`             | `roles/audio/defaults/main.yml`             | When `true`, configures JACK audio server for professional audio work.                                  |
+| `use_pipewire`          | `audio`             | `roles/audio/defaults/main.yml`             | When `true`, configures PipeWire audio server (modern replacement for PulseAudio and JACK).             |
+| `jack_control`          | `audio`             | `roles/audio/defaults/main.yml`             | Configuration settings for JACK server (device selection, etc).                                         |
+| `additional_packages`   | `audio`             | `roles/audio/defaults/main.yml`             | List of additional audio-related packages to install.                                                   |
+
 #### Web & Services
 
 | Variable                | Role(s)             | File Location                                | Description                                                                                             |
@@ -337,6 +351,7 @@ Run specific parts of the playbook using tags defined in playbooks (`main.yml`, 
 | Tag | Description |
 | :--- | :--- |
 | `aliases` | Configure shell aliases |
+| `audio` | Configure professional audio setup (JACK, PulseAudio, PipeWire) |
 | `base` | Core system setup tasks |
 | `base_pkgs` | Install base system packages |
 | `code-packager` | Install and configure code-packager tool |
@@ -405,6 +420,9 @@ Run specific parts of the playbook using tags defined in playbooks (`main.yml`, 
 
     # Run only systemd-networkd and firewalld tasks
     ansible-playbook -i inventory/inventory.ini main.yml -b --tags "systemd-network,firewalld"
+    
+    # Run only audio configuration
+    ansible-playbook -i inventory/inventory.ini main.yml -b --tags "audio"
     
     # Run only tools installation
     ansible-playbook -i inventory/inventory.ini main.yml -b --tags "tools,code-packager,whisper-stream"
