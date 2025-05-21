@@ -1,0 +1,68 @@
+---
+
+- tags: ["packages", "pulseaudio_pkgs"]
+  become: false
+  block:
+    - name: Install pulseaudio packages
+      aur:
+        use: auto
+        name: "{{ packages__audio.pulseaudio }}"
+        state: present
+  rescue:
+    - name: Installing base packages failed
+      debug:
+        msg: "Failed to install base packages"
+
+- name: ensure pulse config directory exists
+  file:
+    path: "{{ user.home }}/.config/pulse"
+    state: directory
+  become: false
+
+- name: update pulseaudio configs
+  copy:
+    src: "etc/pulse/{{ item }}"
+    dest: "{{ user.home }}/.config/pulse/{{ item }}"
+    mode: '0644'
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+    backup: True
+  with_items:
+    - client.conf
+    - daemon.conf
+    - default.pa
+    - system.pa
+
+- block:
+    - name: ensure /etc/pulse/default.pa.d exists
+      file:
+        path: /etc/pulse/default.pa.d
+        state: directory
+
+    - name: install bluetooth config
+      copy:
+        src: etc/pulse/default.pa.d/bluetooth.pa
+        dest: /etc/pulse/default.pa.d/bluetooth.pa
+        mode: '0644'
+      when: use_bluetooth is defined
+
+    - name: adjust pulseaudio.service file
+      lineinfile:
+        path: /usr/lib/systemd/user/pulseaudio.service
+        insertafter: '^Description'
+        line: 'After=jack_control.service'
+        backup: yes
+
+  become: True
+
+- name: enable pulseaudio service
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+    scope: user
+  with_items:
+    - pulseaudio.service
+    - pulseaudio.socket
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ user.uid }}"
+  become: False

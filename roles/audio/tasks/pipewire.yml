@@ -1,0 +1,18 @@
+---
+    
+- name: Starting pipewire tasks
+  debug:
+    msg: "Starting pipewire tasks"
+
+- tags: ["packages", "pipewire_pkgs"]
+  become: false
+  block:
+    - name: Install pipewire packages
+      aur:
+        use: auto
+        name: "{{ packages__audio.pipewire }}"
+        state: present
+  rescue:
+    - name: Installing pipewire packages failed
+      debug:
+        msg: "Failed to install pipewire packages"

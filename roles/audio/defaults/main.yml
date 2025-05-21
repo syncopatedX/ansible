@@ -1,0 +1,35 @@
+---
+
+use_jack: false
+use_pipewire: true
+
+jack:
+  dps:
+    device: hw:0
+    capture: none
+    playback: none
+    rate: 48000
+    period: 1024
+    nperiods: 2
+    hwmon: False
+    hwmeter: False
+    duplex: True
+    softmode: False
+    monitor: True
+    dither: n
+    shorts: False
+    mididriver: seq
+  eps:
+    driver: alsa
+    name: default
+    realtime: True
+    realtimepriority: 10
+    temporary: False
+    verbose: False
+    # client-timeout: Client timeout limit in milliseconds. (sint:notset:0:0)
+    # clock-source: Clocksource type : c(ycle) | h(pet) | s(ystem). (uint:notset:0:0)
+    port-max: 2048
+    replaceregistry: False
+    sync: False
+    # self-connect-mode: Self connect mode. (char:notset: : )
+    # slave-drivers: Slave drivers to use (str:notset::)

@@ -1,0 +1,37 @@
+---
+
+- name: enable and restart rtirq service
+  systemd:
+    name: rtirq
+    state: restarted
+    enabled: yes
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: enable and restart rtkit service
+  systemd:
+    name: rtkit-daemon
+    state: restarted
+    enabled: yes
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: restart pulseAudio
+  systemd:
+    name: "{{ item }}"
+    state: restarted
+    scope: user
+  with_items:
+    - pulseaudio.service
+    - pulseaudio.socket
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ user.uid }}"
+  become_user: "{{ user.name }}"
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: reload user systemd
+  systemd:
+    daemon_reload: yes
+  become_user: "{{ user.name }}"
+
+- name: reload systemd
+  systemd:
+    daemon_reload: yes
