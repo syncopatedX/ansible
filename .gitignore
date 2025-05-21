@@ -8,3 +8,5 @@ __pycache__
 installer_alt.sh
 installer.sh
 .env
+/llm_analysis/
+/.goose/
