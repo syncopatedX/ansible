@@ -1,3 +1,5 @@
+# [SIFT Assesment 2025-05-26](SIFT-2025-05-23.md)
+
 # 🤖 Ansible Workstation Archlinux 🚀
 
 This Ansible playbook automates the configuration of a development-focused workstation, primarily targeting Arch Linux 🐧 and its derivatives. It leverages Ansible roles for modularity and maintainability, setting up everything from base system utilities to a complete development environment. It supports both standard `ansible-playbook` execution and `ansible-pull` for agent-based configuration management.
