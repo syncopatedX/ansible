@@ -1,12 +1,11 @@
 ---
 # tasks file for login
-- import_tasks:
+- ansible.builtin.import_tasks:
     file: getty.yml
   when: window_manager == 'i3'
   tags: ["getty"]
 
-- import_tasks:
+- ansible.builtin.import_tasks:
     file: greetd.yml
   when: window_manager == 'sway'
   tags: ["greetd"]
- 

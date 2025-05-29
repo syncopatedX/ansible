@@ -1,34 +1,33 @@
 ---
-
 - name: Ensure group storage exists
-  group:
+  ansible.builtin.group:
     name: storage
     gid: 1036
 
 - name: Ensure user home exists
-  user:
+  ansible.builtin.user:
     name: home
     state: present
     shell: /sbin/nologin
     group: storage
 
 - name: Set smb.conf
-  copy:
+  ansible.builtin.copy:
     src: etc/samba/smb.conf
     dest: /etc/samba/smb.conf
     owner: root
     group: root
-    mode: '0644'
-    backup: True
+    mode: "0644"
+    backup: true
 
 - name: Permit traffic to samba services
-  firewalld:
+  ansible.posix.firewalld:
     service: samba
-    permanent: yes
+    permanent: true
     state: enabled
 
 - name: Enable samba service
-  service:
+  ansible.builtin.service:
     name: samba
     state: started
-    enabled: yes
+    enabled: true

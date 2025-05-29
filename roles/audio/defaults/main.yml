@@ -11,25 +11,25 @@ jack:
     rate: 48000
     period: 1024
     nperiods: 2
-    hwmon: False
-    hwmeter: False
-    duplex: True
-    softmode: False
-    monitor: True
+    hwmon: false
+    hwmeter: false
+    duplex: true
+    softmode: false
+    monitor: true
     dither: n
-    shorts: False
+    shorts: false
     mididriver: seq
   eps:
     driver: alsa
     name: default
-    realtime: True
+    realtime: true
     realtimepriority: 10
-    temporary: False
-    verbose: False
+    temporary: false
+    verbose: false
     # client-timeout: Client timeout limit in milliseconds. (sint:notset:0:0)
     # clock-source: Clocksource type : c(ycle) | h(pet) | s(ystem). (uint:notset:0:0)
     port-max: 2048
-    replaceregistry: False
-    sync: False
+    replaceregistry: false
+    sync: false
     # self-connect-mode: Self connect mode. (char:notset: : )
     # slave-drivers: Slave drivers to use (str:notset::)

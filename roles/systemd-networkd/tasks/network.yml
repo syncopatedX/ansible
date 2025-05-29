@@ -1,10 +1,10 @@
 ---
 - name: Instantiate systemd-networkd networkd.conf drop-ins
-  template:
+  ansible.builtin.template:
     src: conf.j2
     dest: /etc/systemd/networkd.conf.d/{{ conf.key }}.conf
     owner: systemd-network
-    mode: 0640
+    mode: "0640"
   loop: "{{ systemd_network_confs | combine | dict2items }}"
   loop_control:
     loop_var: conf
@@ -14,11 +14,11 @@
     - Restart systemd-networkd service
 
 - name: Instantiate systemd-networkd network devices
-  template:
+  ansible.builtin.template:
     src: netdev.j2
     dest: /etc/systemd/network/{{ netdev.key }}.netdev
     owner: systemd-network
-    mode: 0640
+    mode: "0640"
   loop: "{{ systemd_network_netdevs | combine | dict2items }}"
   loop_control:
     loop_var: netdev
@@ -28,11 +28,11 @@
     - Restart systemd-networkd service
 
 - name: Instantiate systemd-networkd networks
-  template:
+  ansible.builtin.template:
     src: network.j2
     dest: /etc/systemd/network/{{ network.key }}.network
     owner: systemd-network
-    mode: 0640
+    mode: "0640"
   loop: "{{ systemd_network_networks | combine | dict2items }}"
   loop_control:
     loop_var: network
@@ -42,13 +42,13 @@
     - Restart systemd-networkd service
 
 - name: Copy extra files relevant for systemd-networkd
-  copy: "{{ item }}"
+  ansible.builtin.copy: "{{ item }}"
   loop: "{{ systemd_network_copy_files }}"
   notify:
     - Restart systemd-networkd service
 
 - name: Capture unwanted networkd conf files
-  find:
+  ansible.builtin.find:
     paths:
       - /etc/systemd/networkd.conf.d/
     patterns:
@@ -60,7 +60,7 @@
   register: systemd_network_unwanted_network_conf_files
 
 - name: Capture unwanted network files
-  find:
+  ansible.builtin.find:
     paths:
       - /etc/systemd/network/
     patterns:
@@ -75,13 +75,11 @@
   register: systemd_network_unwanted_network_files
 
 - name: Delete existing unwanted network interfaces
-  shell: |
+  ansible.builtin.shell: |
     if [ ! -e /sys/class/net/{{ interface_name | quote }} ]; then
       exit 128
     fi
     ip link delete {{ interface_name | quote }}
-  # From `man ip`:
-  # Exit status is 0 if command was successful, and 1 if there is a syntax error.  If an error was reported by the kernel exit status is 2.
   register: result
   failed_when: result.rc not in [0, 128]
   changed_when: result.rc != 128
@@ -99,7 +97,7 @@
   when: not systemd_network_keep_existing_definitions
 
 - name: Delete unwanted systemd-networkd config files
-  file:
+  ansible.builtin.file:
     state: absent
     path: "{{ path }}"
   notify:
@@ -117,25 +115,24 @@
     loop_var: path
   when: not systemd_network_keep_existing_definitions
 
-- meta: flush_handlers
-
+- ansible.builtin.meta: flush_handlers
 - name: Enable systemd-networkd service
-  service:
+  ansible.builtin.service:
     name: systemd-networkd
-    enabled: True
+    enabled: true
     state: started
 
 - name: Check if NetworkManager exists
-  command: systemctl cat NetworkManager
+  ansible.builtin.command: systemctl cat NetworkManager
   failed_when: networkmanager_service_exists.rc not in [0, 1]
-  changed_when: False
+  changed_when: false
   register: networkmanager_service_exists
 
 - name: Disable NetworkManager
-  systemd:
+  ansible.builtin.systemd:
     name: NetworkManager
-    enabled: False
-    masked: True
+    enabled: false
+    masked: true
     state: stopped
   when: networkmanager_service_exists.rc == 0
 

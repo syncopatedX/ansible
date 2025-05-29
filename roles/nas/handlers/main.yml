@@ -1,6 +1,6 @@
 ---
 # handlers file for nfs
 
-- name: reload firewalld
-  shell: "firewall-cmd --reload"
+- name: Reload firewalld
+  ansible.builtin.command: "firewall-cmd --reload"
   ignore_errors: "{{ ansible_check_mode }}"

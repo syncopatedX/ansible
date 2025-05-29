@@ -1,7 +1,5 @@
 ---
 # vars file for docker
-
-
 packages__docker:
   - docker
   - docker-compose

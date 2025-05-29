@@ -1,37 +1,37 @@
 ---
 - name: Install systemd-resolved
-  pacman:
+  community.general.pacman:
     name: systemd-resolvconf
   when: ansible_distribution == 'Archlinux'
 
 - name: Configure resolv.conf
-  file:
+  ansible.builtin.file:
     dest: /etc/resolv.conf
     state: link
     src: /run/systemd/resolve/resolv.conf
-    force: True
-    follow: False
+    force: true
+    follow: false
 
 - name: Check if resolvconf service exists
-  command: systemctl cat resolvconf.service
+  ansible.builtin.command: systemctl cat resolvconf.service
   failed_when: resolvconf_service_list.rc not in [0, 1]
-  changed_when: False
+  changed_when: false
   register: resolvconf_service_list
 
 - name: Stop, disable, and mask resolvconf
-  systemd:
+  ansible.builtin.systemd:
     name: resolvconf
-    enabled: False
-    masked: True
+    enabled: false
+    masked: true
     state: stopped
   when: resolvconf_service_list.rc == 0
 
 - name: Instantiate systemd-resolved resolved.conf drop-ins
-  template:
+  ansible.builtin.template:
     src: conf.j2
     dest: /etc/systemd/resolved.conf.d/{{ conf.key }}.conf
     owner: systemd-resolve
-    mode: 0640
+    mode: "0640"
   loop: "{{ systemd_resolve_confs | combine | dict2items }}"
   loop_control:
     loop_var: conf
@@ -41,7 +41,7 @@
     - Restart systemd-resolved service
 
 - name: Capture unwanted resolved conf files
-  find:
+  ansible.builtin.find:
     paths:
       - /etc/systemd/resolved.conf.d/
     patterns:
@@ -53,7 +53,7 @@
   register: systemd_resolve_unwanted_resolve_conf_files
 
 - name: Delete unwanted systemd-resolved config files
-  file:
+  ansible.builtin.file:
     state: absent
     path: "{{ path }}"
   notify:
@@ -68,10 +68,9 @@
   loop_control:
     loop_var: path
 
-- meta: flush_handlers
-
+- ansible.builtin.meta: flush_handlers
 - name: Enable systemd-resolved
-  service:
+  ansible.builtin.service:
     name: systemd-resolved
-    enabled: True
+    enabled: true
     state: started

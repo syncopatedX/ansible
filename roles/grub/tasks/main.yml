@@ -2,9 +2,9 @@
 # tasks file for grub
 
 - name: Set default kernel parameters
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: /etc/default/grub
-    regexp: '^GRUB_CMDLINE_LINUX_DEFAULT'
+    regexp: "^GRUB_CMDLINE_LINUX_DEFAULT"
     state: present
     line: 'GRUB_CMDLINE_LINUX_DEFAULT="{{ kernel_parameters_default }}"'
   when: kernel_parameters_default is defined
@@ -12,39 +12,39 @@
     - rebuild grub
 
 - name: Set default kernel parameters
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: /etc/default/grub
-    regexp: '^GRUB_CMDLINE_LINUX'
+    regexp: "^GRUB_CMDLINE_LINUX"
     state: present
     line: 'GRUB_CMDLINE_LINUX="{{ kernel_parameters }}"'
   when: kernel_parameters is defined
   notify:
     - rebuild grub
 
-- name: enable Grub submenus
-  lineinfile:
+- name: Enable Grub submenus
+  ansible.builtin.lineinfile:
     dest: /etc/default/grub
-    regexp: '^GRUB_DISABLE_SUBMENU'
+    regexp: "^GRUB_DISABLE_SUBMENU"
     state: present
-    line: '#GRUB_DISABLE_SUBMENU=y'
+    line: "#GRUB_DISABLE_SUBMENU=y"
   notify:
     - rebuild grub
 
 - name: Enable saved as default
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: /etc/default/grub
-    regexp: '^GRUB_DEFAULT'
+    regexp: "^GRUB_DEFAULT"
     state: present
-    line: 'GRUB_DEFAULT=saved'
+    line: "GRUB_DEFAULT=saved"
   notify:
     - rebuild grub
 
 - name: Enable saved as default
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: /etc/default/grub
-    regexp: '^#GRUB_SAVEDEFAULT'
+    regexp: "^#GRUB_SAVEDEFAULT"
     state: present
-    line: 'GRUB_SAVEDEFAULT=true'
+    line: "GRUB_SAVEDEFAULT=true"
   notify:
     - rebuild grub
 
@@ -60,5 +60,5 @@
         - rebuild grub
   rescue:
     - name: Installing base packages failed
-      debug:
+      ansible.builtin.debug:
         msg: "Failed to install base packages"

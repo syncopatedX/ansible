@@ -1,6 +1,5 @@
 ---
-
-- become: False
+- become: false
   block:
     - name: Install sway packages
       aur:
@@ -13,12 +12,12 @@
 
   rescue:
     - name: Installing sway packages failed
-      debug:
+      ansible.builtin.debug:
         msg: "Failed to install sway packages"
-  
+
   always:
     - name: Ensure sway directories exist
-      file:
+      ansible.builtin.file:
         dest: "{{ sway_directory_default_location }}/{{ item.dest }}"
         state: directory
         owner: "{{ item.owner | default(omit) }}"
@@ -26,50 +25,50 @@
         mode: "{{ item.mode | default(omit) }}"
         recurse: "{{ item.recurse | default(false) }}"
       loop: "{{ sway_directory_definitions }}"
-      check_mode: no
+      check_mode: false
       tags: ["folders"]
 
 - name: Update sway system configs
   ansible.posix.synchronize:
     src: etc/sway/
     dest: /etc/sway
-    recursive: yes
+    recursive: true
     mode: push
-    delete: no
-    checksum: yes
-    perms: no
-    owner: no
-    group: no
-  become: True
+    delete: false
+    checksum: true
+    perms: false
+    owner: false
+    group: false
+  become: true
 
 - name: Update environment file
   ansible.builtin.copy:
     src: etc/environment
     dest: /etc/environment
-    mode: '0644'
-    backup: yes
-  become: True
+    mode: "0644"
+    backup: true
+  become: true
 
-- become: False
+- become: false
   block:
     - name: Update sway user configs
       ansible.posix.synchronize:
         src: home/.config/sway/
         dest: "{{ user.home }}/.config/sway"
-        recursive: yes
+        recursive: true
         mode: push
-        delete: no
-        checksum: yes
-        perms: no
-        owner: no
-        group: no
+        delete: false
+        checksum: true
+        perms: false
+        owner: false
+        group: false
 
     - name: Update waybar css
       ansible.builtin.template:
         src: "home/.config/waybar/{{ item }}.j2"
         dest: "{{ user.home }}/.config/waybar/{{ item }}"
-        mode: '0644'
-        backup: yes
+        mode: "0644"
+        backup: true
       with_items:
         - style.css
         - theme.css
@@ -78,8 +77,8 @@
       ansible.builtin.template:
         src: "home/.config/wlogout/{{ item }}.j2"
         dest: "{{ user.home }}/.config/wlogout/{{ item }}"
-        mode: '0644'
-        backup: yes
+        mode: "0644"
+        backup: true
       with_items:
         - style.css
         - theme.css

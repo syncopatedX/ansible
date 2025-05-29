@@ -40,10 +40,10 @@ packages__audio:
     - bipscript-ide
     - jacktrip
     - baudline-bin
-  #   - carla
+    #   - carla
     - fmit
     - gigedit
-  #   - guitarix
+    #   - guitarix
     - helm-synth
     - jaaa
     - jack-keyboard
@@ -68,14 +68,14 @@ packages__audio:
     - polyphone
     - ams
     - audacity
-  #   - scala-music
-  #   - scala-music-scales
+    #   - scala-music
+    #   - scala-music-scales
     - sfizz
     - sonic-visualiser
     - sooperlooper-git
-  #   - stochas
-  #   - tonespace
-  #   - vital-synth
+    #   - stochas
+    #   - tonespace
+    #   - vital-synth
     - spectmorph
     - tuned
     - vmpk

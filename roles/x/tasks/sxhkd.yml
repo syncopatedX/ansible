@@ -1,5 +1,6 @@
 ---
-- block:
+- tags: ["packages"]
+  block:
     - name: Install SXHKD on Arch Linux
       aur:
         use: paru
@@ -8,14 +9,13 @@
       become: false
 
   rescue:
-    - name: installing packages failed
-      debug:
+    - name: Installing packages failed
+      ansible.builtin.debug:
         msg: "Failed to install shell packages"
 
-  tags: ["packages"]
 
 - name: Install sxhkd reload function
-  copy:
+  ansible.builtin.copy:
     content: |
       #!/usr/bin/env bash
       # shellcheck disable=CODE
@@ -40,7 +40,7 @@
   tags: ["Utils"]
 
 - name: Ensure SXHKD configuration directory exists
-  file:
+  ansible.builtin.file:
     path: "{{ user.home }}/.config/sxhkd"
     state: directory
     mode: "0755"
@@ -48,7 +48,7 @@
     group: "{{ user.group }}"
 
 - name: Copy SXHKD configuration file
-  template:
+  ansible.builtin.template:
     src: home/.config/sxhkd/sxhkdrc.j2
     dest: "{{ user.home }}/.config/sxhkd/sxhkdrc"
     mode: "0644"

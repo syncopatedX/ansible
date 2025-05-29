@@ -1,12 +1,12 @@
 ---
 # tasks file for x
-- name: install xorg packages
+- name: Install xorg packages
   aur:
     use: paru
     name: "{{ packages__x11 }}"
     state: present
   become: false
-  tags: ['packages']
+  tags: ["packages"]
 
 # - block:
 #     - name: Set xorg.conf
@@ -17,7 +17,7 @@
 #         group: root
 #         mode: '0644'
 #         backup: yes
-      
+
 #     - name: Set video modules in mkinitcpio
 #       template:
 #         src: etc/mkinitcpio.conf.j2
@@ -38,7 +38,7 @@
 #   tags: ['video', 'mkinitcpio']
 
 - name: Disable vblank
-  copy:
+  ansible.builtin.copy:
     content: |
       <device screen="0" driver="dri2">
           <application name="Default">
@@ -51,21 +51,21 @@
     group: "{{ user.group }}"
   when: disable_vblank is defined
 
-
-- block:
+- tags: ["env", "profile", "xprofile"]
+  block:
     - name: Display x vars
-      debug:
+      ansible.builtin.debug:
         msg: "{{ x }}"
       when: debug_vars is defined
 
     - name: Set xserver configs
-      template:
+      ansible.builtin.template:
         src: "home/{{ item }}.j2"
         dest: "{{ user.home }}/{{ item }}"
         owner: "{{ user.name }}"
         group: "{{ user.group }}"
         mode: "0644"
-        backup: True
+        backup: true
       with_items:
         - .xprofile
         - .xserverrc
@@ -74,28 +74,27 @@
       # changed_when: (xconfig.msg is defined and not 'All items completed' in xconfig.msg)
 
     - name: Set xinitrc config
-      template:
+      ansible.builtin.template:
         src: home/.xinitrc.j2
         dest: "{{ user.home }}/.xinitrc"
         owner: "{{ user.name }}"
         group: "{{ user.group }}"
-        mode: '0755'
-        backup: True
-  
-  tags: ["env", "profile", "xprofile"]
+        mode: "0755"
+        backup: true
 
-- import_tasks:
+
+- ansible.builtin.import_tasks:
     file: sxhkd.yml
-  tags: ['sxhkd']
+  tags: ["sxhkd"]
 
-- import_tasks:
+- ansible.builtin.import_tasks:
     file: picom.yml
-  tags: ['picom']
+  tags: ["picom"]
 
-- import_tasks:
+- ansible.builtin.import_tasks:
     file: dunst.yml
-  tags: ['dunst']
-  
-- import_tasks:
+  tags: ["dunst"]
+
+- ansible.builtin.import_tasks:
     file: xdg.yml
-  tags: ['xdg']
+  tags: ["xdg"]

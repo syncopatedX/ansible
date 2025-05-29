@@ -1,10 +1,9 @@
 ---
-
-- name: starting audio role tasks
-  debug:
+- name: Starting audio role tasks
+  ansible.builtin.debug:
     msg: "Starting audio tasks"
 
-- import_tasks:
+- ansible.builtin.import_tasks:
     file: packages.yml
   tags: ["packages"]
 
@@ -52,21 +51,21 @@
 #   become: True
 #   tags: ['modprobe']
 
-- import_tasks:
+- ansible.builtin.import_tasks:
     file: jack.yml
   when: use_jack|bool
   tags: ["jack"]
 
-- import_tasks:
+- ansible.builtin.import_tasks:
     file: pulseaudio.yml
   when: use_jack|bool
   tags: ["pulseaudio"]
 
-- import_tasks:
+- ansible.builtin.import_tasks:
     file: pipewire.yml
   when: use_pipewire|bool
   tags: ["pipewire"]
 
-- import_tasks:
+- ansible.builtin.import_tasks:
     file: tuning.yml
   tags: ["tuning"]

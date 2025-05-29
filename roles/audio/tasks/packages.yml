@@ -1,5 +1,4 @@
 ---
-
 - tags: ["packages", "audio_pkgs"]
   become: false
   block:
@@ -13,7 +12,7 @@
         - "{{ packages__audio.tuning }}"
   rescue:
     - name: Installing base packages failed
-      debug:
+      ansible.builtin.debug:
         msg: "Failed to install base packages"
 
 # - name: install audio applications and plugins

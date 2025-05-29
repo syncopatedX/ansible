@@ -1,6 +1,7 @@
 ---
 # tasks file for input-remapper
-- block:
+- tags: ["packages"]
+  block:
     - name: Install input-remapper
       aur:
         use: paru
@@ -8,18 +9,17 @@
         state: present
       become: false
   rescue:
-    - name: installing packages failed
-      debug:
+    - name: Installing packages failed
+      ansible.builtin.debug:
         msg: "Failed to install shell packages"
-  tags: ["packages"]
 
 - name: Ensure input-remapper preset synchronization
   block:
     - name: Ensure destination directory exists
       ansible.builtin.file:
-        path: '{{ user.home }}/.config/input-remapper-2/presets/'
+        path: "{{ user.home }}/.config/input-remapper-2/presets/"
         state: directory
-        mode: '0755'
+        mode: "0755"
         owner: "{{ user.name }}"
         group: "{{ user.group }}"
       # when: source_dir.stat.exists
@@ -29,7 +29,7 @@
         checksum: true
         delete: false
         src: home/.config/input-remapper/presets/
-        dest: '{{ user.home }}/.config/input-remapper-2/presets/'
+        dest: "{{ user.home }}/.config/input-remapper-2/presets/"
         mode: push
         perms: false
         recursive: true
@@ -47,7 +47,7 @@
         msg: "Failed to sync input-remapper presets: {{ ansible_failed_result }}"
 
 - name: Enable input-remapper service
-  systemd:
+  ansible.builtin.systemd:
     name: input-remapper
-    enabled: True
+    enabled: true
   ignore_errors: "{{ ansible_check_mode }}"

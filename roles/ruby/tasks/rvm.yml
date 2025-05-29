@@ -54,13 +54,15 @@
   ansible.builtin.command: "{{ rvm1_rvm }} autolibs {{ rvm1_autolib_mode }}"
   when: not rvm_binary.stat.exists
 
-- name: Detect rvm openssl
-  ansible.builtin.stat:
-    path: "{{ rvm1_install_path }}/usr/ssl"
-  register: rvm_openssl
-  become: false
+- block:
+    - name: Detect rvm openssl
+      ansible.builtin.stat:
+        path: "{{ rvm1_install_path }}/usr/ssl"
+      register: rvm_openssl
+      become: false
 
-- name: Install openssl
-  ansible.builtin.command: "{{ rvm1_rvm }} pkg install openssl"
-  when:
-    - not rvm_openssl.stat.exists
+    - name: Install openssl
+      ansible.builtin.command: "{{ rvm1_rvm }} pkg install openssl"
+      when:
+        - not rvm_openssl.stat.exists
+  when: use_openssl is defined

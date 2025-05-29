@@ -1,6 +1,6 @@
 ---
-
-- block:
+- tags: ["packages"]
+  block:
     - name: Install i3-wm packages
       aur:
         use: paru
@@ -10,13 +10,12 @@
         - "{{ packages__i3 }}"
       become: false
   rescue:
-    - name: installing packages failed
-      debug:
+    - name: Installing packages failed
+      ansible.builtin.debug:
         msg: "Failed to install i3-wm packages"
-  tags: ["packages"]        
 
 - name: Ensure i3 directories exist
-  file:
+  ansible.builtin.file:
     dest: "{{ i3_directory_default_location }}/{{ item.dest }}"
     state: directory
     owner: "{{ item.owner | default(omit) }}"
@@ -24,46 +23,47 @@
     mode: "{{ item.mode | default(omit) }}"
     recurse: "{{ item.recurse | default(false) }}"
   loop: "{{ i3_directory_definitions }}"
-  check_mode: no
+  check_mode: false
   tags: ["folders"]
 
 # if this file does not exist, lightdm will fail to start
 - name: Set dmrc to selected window manager
-  copy:
+  ansible.builtin.copy:
     content: |
       [Desktop]
       Session=i3
     dest: "{{ user.home }}/.dmrc"
     owner: "{{ user.name }}"
-    mode: '0644'
-    
-- block:
+    mode: "0644"
+
+- tags: ["i3_config"]
+  block:
     - name: Display i3 vars
-      debug:
+      ansible.builtin.debug:
         msg: "{{ i3 }}"
       when: debug_vars is defined
 
     - name: Set i3status-rs configuration
-      template:
+      ansible.builtin.template:
         src: "home/.config/{{ item }}.j2"
         dest: "{{ user.home }}/.config/{{ item }}"
         owner: "{{ user.name }}"
         group: "{{ user.group }}"
-        mode: '0644'
-        backup: True
+        mode: "0644"
+        backup: true
       register: wmconfig
       with_items:
         - i3status-rust/config.toml
         - i3status-rust/themes/syncopated.toml
 
     - name: Set i3 configuration
-      template:
+      ansible.builtin.template:
         src: "home/.config/i3/{{ item }}.j2"
         dest: "{{ user.home }}/.config/i3/{{ item }}"
         owner: "{{ user.name }}"
         group: "{{ user.group }}"
-        mode: '0644'
-        backup: True
+        mode: "0644"
+        backup: true
       register: wmconfig
       with_items:
         - config
@@ -74,5 +74,3 @@
         # - window_assignments
         # - autostart
       notify: Reload i3
-
-  tags: ['i3_config']

@@ -1,15 +1,14 @@
 ---
-
 - name: Install rsyncd config
-  template:
+  ansible.builtin.template:
     src: etc/rsyncd.conf.j2
     dest: /etc/rsyncd.conf
-    mode: '0644'
+    mode: "0644"
   register: rsyncd_config
 
 - name: Ensure rsyncd service is running
-  service:
+  ansible.builtin.service:
     name: rsyncd
     state: restarted
-    enabled: yes
+    enabled: true
   when: rsyncd_config.changed

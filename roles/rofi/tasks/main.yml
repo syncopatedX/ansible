@@ -1,7 +1,8 @@
 ---
 # tasks file for rofi
 
-- block:
+- tags: ["packages"]
+  block:
     - name: Install rofi packages
       aur:
         use: paru
@@ -11,12 +12,12 @@
       become: false
 
     - name: Remove rofi in favor of rofi-wayland
-      pacman:
+      community.general.pacman:
         name: rofi
         state: absent
-        force: yes
+        force: true
         extra_args: --noconfirm
-      ignore_errors: True
+      ignore_errors: true
       when: window_manager == 'sway'
 
     - name: Install rofi packages
@@ -27,13 +28,12 @@
       when: window_manager == 'sway'
       become: false
   rescue:
-    - name: installing packages rofi failed
-      debug:
+    - name: Installing packages rofi failed
+      ansible.builtin.debug:
         msg: "Failed to install rofi packages"
-  tags: ["packages"]
 
 - name: Ensure rofi directories exist
-  file:
+  ansible.builtin.file:
     dest: "{{ rofi_directory_default_location }}/{{ item.dest }}"
     state: directory
     owner: "{{ item.owner | default(omit) }}"
@@ -41,16 +41,16 @@
     mode: "{{ item.mode | default(omit) }}"
     recurse: "{{ item.recurse | default(false) }}"
   loop: "{{ rofi_directory_definitions }}"
-  check_mode: no
+  check_mode: false
 
 - name: Synchronize templates - rofi
-  template:
+  ansible.builtin.template:
     src: "home/.config/rofi/{{ item }}.j2"
     dest: "{{ user.home }}/.config/rofi/{{ item }}"
     owner: "{{ user.name }}"
     group: "{{ user.group }}"
     mode: preserve
-    backup: True
+    backup: true
   with_items:
     - config.rasi
     - gruvbox-common.rasi

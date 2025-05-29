@@ -1,21 +1,20 @@
 ---
-
-- name: enable and restart rtirq service
-  systemd:
+- name: Enable and restart rtirq service
+  ansible.builtin.systemd:
     name: rtirq
     state: restarted
-    enabled: yes
+    enabled: true
   ignore_errors: "{{ ansible_check_mode }}"
 
-- name: enable and restart rtkit service
-  systemd:
+- name: Enable and restart rtkit service
+  ansible.builtin.systemd:
     name: rtkit-daemon
     state: restarted
-    enabled: yes
+    enabled: true
   ignore_errors: "{{ ansible_check_mode }}"
 
-- name: restart pulseAudio
-  systemd:
+- name: Restart pulseAudio
+  ansible.builtin.systemd:
     name: "{{ item }}"
     state: restarted
     scope: user
@@ -27,11 +26,11 @@
   become_user: "{{ user.name }}"
   ignore_errors: "{{ ansible_check_mode }}"
 
-- name: reload user systemd
-  systemd:
-    daemon_reload: yes
+- name: Reload user systemd
+  ansible.builtin.systemd:
+    daemon_reload: true
   become_user: "{{ user.name }}"
 
-- name: reload systemd
-  systemd:
-    daemon_reload: yes
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: true

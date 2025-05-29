@@ -1,7 +1,6 @@
 ---
-
 - name: Ensure dunst configuration directory exists
-  file:
+  ansible.builtin.file:
     path: "{{ user.home }}/.config/dunst"
     state: directory
     mode: "0755"
@@ -11,11 +10,11 @@
 
 #TODO: Add dunst and picom xdg autostart desktop entries
 - name: Set dunst config
-  template:
+  ansible.builtin.template:
     src: "home/.config/dunst/dunstrc.j2"
     dest: "{{ user.home }}/.config/dunst/dunstrc"
     owner: "{{ user.name }}"
     group: "{{ user.group }}"
-    mode: '0644'
-    backup: yes
+    mode: "0644"
+    backup: true
   tags: ["profile", "dunst"]

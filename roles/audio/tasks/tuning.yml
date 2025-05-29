@@ -1,58 +1,54 @@
 ---
-
 - block:
-    - name: ensure user belongs to audio group
-      user:
+    - name: Ensure user belongs to audio group
+      ansible.builtin.user:
         name: "{{ user.name }}"
         groups: "audio"
-        append: yes
+        append: true
 
-    - name: ensure /etc/security/limits.d directory exists
-      file:
+    - name: Ensure /etc/security/limits.d directory exists
+      ansible.builtin.file:
         path: /etc/security/limits.d
         state: directory
         owner: root
         group: root
-        mode: '0755'
+        mode: "0755"
 
-    - name: install limits conf
-      copy:
+    - name: Install limits conf
+      ansible.builtin.copy:
         src: etc/security/limits.d/99-realtime-privileges.conf
         dest: /etc/security/limits.d/99-realtime-privileges.conf
         owner: root
         group: root
-        mode: '0644'
-        backup: True
+        mode: "0644"
+        backup: true
 
-    - name: install timer permissions file
-      copy:
+    - name: Install timer permissions file
+      ansible.builtin.copy:
         src: etc/udev/rules.d/40-timer-permissions.rules
         dest: /etc/udev/rules.d/40-timer-permissions.rules
         owner: root
         group: root
-        mode: '0644'
+        mode: "0644"
 
-    - block:
-        - name: set vm.swappiness to 10 to ensure swap isn't overly used
-          sysctl: name=vm.swappiness value=10 state=present reload=yes
+    - ignore_errors: true
+      tags: ["sysctl"]
+      block:
+        - name: Set vm.swappiness to 10 to ensure swap isn't overly used
+          ansible.posix.sysctl: name=vm.swappiness value=10 state=present reload=yes
+        - name: Set vm.dirty_background_bytes to 100000000
+          ansible.posix.sysctl: name=vm.dirty_background_bytes value=100000000 state=present reload=yes
+        - name: Set fs.inotify.max_user_watches
+          ansible.posix.sysctl: name=fs.inotify.max_user_watches value=524288 state=present reload=yes
+        - name: Set dev.hpet.max-user-freq=3072
+          ansible.posix.sysctl: name=dev.hpet.max-user-freq value=3072 state=present reload=yes
 
-        - name: set vm.dirty_background_bytes to 100000000
-          sysctl: name=vm.dirty_background_bytes value=100000000 state=present reload=yes
-
-        - name: set fs.inotify.max_user_watches
-          sysctl: name=fs.inotify.max_user_watches value=524288 state=present reload=yes
-
-        - name: set dev.hpet.max-user-freq=3072
-          sysctl: name=dev.hpet.max-user-freq value=3072 state=present reload=yes
-
-      ignore_errors: yes
-      tags: ['sysctl']
-
-    - block:
-        - name: enable tuned service
-          systemd:
+    - tags: ["tuned"]
+      block:
+        - name: Enable tuned service
+          ansible.builtin.systemd:
             name: tuned
-            enabled: yes
+            enabled: true
           ignore_errors: "{{ ansible_check_mode }}"
 
         # - name: set tuned profile to laptop-battery-powersave
@@ -61,83 +57,80 @@
         #   register: tuned_profile
         #   changed_when: tuned_profile.rc != 0
 
-        - name: create tuned profile folder
-          file:
+        - name: Create tuned profile folder
+          ansible.builtin.file:
             path: /etc/tuned/realtime-modified
             state: directory
             owner: root
             group: root
-            recurse: True
+            recurse: true
 
-        - name: install realtime-modified profile
-          copy:
+        - name: Install realtime-modified profile
+          ansible.builtin.copy:
             src: etc/tuned/realtime-modified/tuned.conf
             dest: /etc/tuned/realtime-modified/tuned.conf
             owner: root
             group: root
-            mode: '0644'
-
-      tags: ['tuned']
+            mode: "0644"
 
 
-    - block:
-        - name: install rtirq defaults
-          copy:
+
+    - tags: ["rtirq", "rtkit"]
+      notify:
+        - "enable and restart rtirq service"
+        - "enable and restart rtkit service"
+
+      block:
+        - name: Install rtirq defaults
+          ansible.builtin.copy:
             src: etc/sysconfig/rtirq
             dest: /etc/rtirq.conf
-            directory_mode: no
+            directory_mode: false
             owner: root
             group: root
-            mode: '0644'
+            mode: "0644"
           register: rtirq_config
 
         # rtkit package should be installed before this happens
         # otherwise, if it sees this systemd file, it'll report
         # being already installed and error out
 
-        - name: install rtkit.conf
-          copy:
+        - name: Install rtkit.conf
+          ansible.builtin.copy:
             src: etc/rtkit.conf
             dest: /etc/rtkit.conf
-            directory_mode: no
+            directory_mode: false
             owner: root
             group: root
-            mode: '0644'
+            mode: "0644"
           register: rtkit_conf
 
-        - name: install rtkit systemd file
-          template:
+        - name: Install rtkit systemd file
+          ansible.builtin.template:
             src: usr/lib/systemd/system/rtkit-daemon.service.j2
             dest: /usr/lib/systemd/system/rtkit-daemon.service
-            mode: '0644'
+            mode: "0644"
           register: rtkit_systemd
 
-      tags: ['rtirq', 'rtkit']
-      notify:
-        - "enable and restart rtirq service"
-        - "enable and restart rtkit service"
-
-
-    - name: install cpucpower defaults
-      template:
+    - name: Install cpucpower defaults
+      ansible.builtin.template:
         src: etc/default/cpupower.j2
         dest: /etc/default/cpupower
-        mode: '0644'
-        backup: yes
-      tags: ['cpupower']
+        mode: "0644"
+        backup: true
+      tags: ["cpupower"]
 
-    - name: enable cpupower service
-      service:
+    - name: Enable cpupower service
+      ansible.builtin.service:
         name: cpupower
-        enabled: True
+        enabled: true
       ignore_errors: "{{ ansible_check_mode }}"
-      tags: ['cpupower']
+      tags: ["cpupower"]
 
     # Do not use the irqbalance daemon, or do so carefully [4].
     # https://wiki.archlinux.org/title/Professional_audio#Tips_and_tricks
-    - name: disable irqbalance service
-      service:
+    - name: Disable irqbalance service
+      ansible.builtin.service:
         name: irqbalance
-        enabled: True
-      ignore_errors: True
-
+        enabled: true
+      ignore_errors: true

@@ -12,6 +12,6 @@ firewall:
       rpc: 40418
 
 nfs_host: false
-samba_host: False
+samba_host: false
 
-bind_share_exports: True
+bind_share_exports: true

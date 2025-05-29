@@ -1,6 +1,6 @@
 ---
-
-- block:
+- tags: ["packages", "shell_pkgs"]
+  block:
     - name: Install zshell packages
       aur:
         use: auto
@@ -10,32 +10,31 @@
         - "{{ packages__zsh }}"
       become: false
   rescue:
-    - name: install zshell packages failed
-      debug:
+    - name: Install zshell packages failed
+      ansible.builtin.debug:
         msg: "Failed to install zshell packages"
 
-  tags: ["packages", "shell_pkgs"]
 
 - name: Install fd and ripgrep ohmyzsh plugins
-  copy:
+  ansible.builtin.copy:
     src: "usr/share/oh-my-zsh/plugins/{{ item }}"
     dest: "/usr/share/oh-my-zsh/plugins/"
     owner: root
     group: root
-    backup: True
+    backup: true
   with_items:
     - fd
     - ripgrep
 
 - name: Install zsh custom functions configs
-  synchronize:
+  ansible.posix.synchronize:
     src: home/.local/share/zsh/
     dest: "{{ user.home }}/.local/share/zsh/"
-    recursive: yes
+    recursive: true
     mode: push
-    delete: yes
-    checksum: yes
-    perms: no
+    delete: true
+    checksum: true
+    perms: false
     rsync_opts:
       - "--update"
       - "--omit-dir-times"
@@ -46,13 +45,13 @@
   tags: ["zsh_functions"]
 
 - name: Set zsh profile configs
-  template:
+  ansible.builtin.template:
     src: "home/{{ item }}.j2"
     dest: "{{ profile_config_dir }}/{{ item }}"
     owner: "{{ user.name }}"
     group: "{{ user.group }}"
     mode: "0644"
-    backup: True
+    backup: true
   with_items:
     - .zshenv
     - .zshrc
@@ -60,11 +59,11 @@
   tags: ["env", "profile"]
 
 - name: Set .zprofile if getty autologin is enabled
-  template:
+  ansible.builtin.template:
     src: "home/.zprofile.j2"
     dest: "{{ profile_config_dir }}/.zprofile"
     owner: "{{ user.name }}"
     group: "{{ user.group }}"
     mode: "0644"
-    backup: True
+    backup: true
   when: window_manager == 'i3' and autologin|bool

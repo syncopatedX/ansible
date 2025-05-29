@@ -1,11 +1,9 @@
 ---
-- block:
-
+- tags: ["packages"]
+  block:
     - name: Install vagrant
-      pacman:
+      community.general.pacman:
         name: vagrant
         state: present
-        force: yes
+        force: true
         extra_args: --noconfirm
-
-  tags: ['packages']

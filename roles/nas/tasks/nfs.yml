@@ -11,7 +11,7 @@
 #   tags: ["nfstest"]
 
 - name: Create exports folder
-  file:
+  ansible.builtin.file:
     path: /srv/exports
     state: directory
     owner: "{{ user.name }}"
@@ -19,49 +19,53 @@
     mode: "2775"
   when: bind_share_exports|bool
 
-- block:
+- ignore_errors: "{{ ansible_check_mode }}"
+
+  block:
     - name: Ensure group nobody exists
-      group:
+      ansible.builtin.group:
         name: nobody
         gid: 65534
-        non_unique: True
-        system: True
+        non_unique: true
+        system: true
 
     - name: Ensure user nobody exists
-      user:
+      ansible.builtin.user:
         name: nobody
-        system: True
+        system: true
         state: present
         shell: /sbin/nologin
         uid: 65534
         group: nobody
 
     - name: Install nfs configs
-      template:
+      ansible.builtin.template:
         src: "etc/{{ item }}.j2"
         dest: "/etc/{{ item }}"
         mode: "0644"
-        backup: yes
+        backup: true
       with_items:
         - idmapd.conf
         - nfs.conf
 
     - name: Ensure nfs/rpc services are enabled and started
-      service:
+      ansible.builtin.service:
         name: "{{ item }}"
         state: restarted
-        enabled: yes
+        enabled: true
       with_items:
         - nfsv4-server
         - nfs-mountd
         - nfs-idmapd
         - rpcbind
 
-    - block:
+    - when: ansible_os_family == 'Archlinux' or ansible_os_family == 'RedHat'
+
+      block:
         - name: Permit traffic to rpcbind
-          firewalld:
+          ansible.posix.firewalld:
             port: "{{ item }}"
-            permanent: yes
+            permanent: true
             state: enabled
           with_items:
             - 111/tcp
@@ -83,13 +87,13 @@
             - 892/tcp
             - 892/udp
 
-        - name: reload firewalld
-          shell: "firewall-cmd --reload"
+        - name: Reload firewalld
+          ansible.builtin.command: "firewall-cmd --reload"
           ignore_errors: "{{ ansible_check_mode }}"
 
-      when: ansible_os_family == 'Archlinux' or ansible_os_family == 'RedHat'
+    - when: ansible_distribution == 'MX' or ansible_distribution == 'Debian'
 
-    - block:
+      block:
         - name: Permit tcp traffic to rpcbind
           community.general.ufw:
             rule: allow
@@ -113,10 +117,6 @@
             - "892"
             - "32769"
             - "32803"
-
-      when: ansible_distribution == 'MX' or ansible_distribution == 'Debian'
-
-  ignore_errors: "{{ ansible_check_mode }}"
 
 - block:
     - name: Ensure the exported folder already exists
@@ -150,7 +150,7 @@
 
     - name: Reload systemd
       systemd:
-        daemon_reload: yes
+        daemon_reload: true
       when: (fstab.changed or bind_share_exports|bool)
 
     # https://docs.ansible.com/ansible/latest/collections/ansible/posix/mount_module.html#parameter-state
@@ -162,7 +162,7 @@
         state: unmounted
         fstype: none
       with_items: "{{ share.nfs.exports }}"
-      ignore_errors: True
+      ignore_errors: true
 
     - name: Mounted the binded folders
       shell: |
@@ -179,7 +179,7 @@
     owner: root
     group: root
     mode: "0644"
-    backup: yes
+    backup: true
   register: exportsra
 
 - name: Reload exports

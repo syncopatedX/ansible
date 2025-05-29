@@ -1,5 +1,4 @@
 ---
-
 - tags: ["packages", "pulseaudio_pkgs"]
   become: false
   block:
@@ -10,59 +9,59 @@
         state: present
   rescue:
     - name: Installing base packages failed
-      debug:
+      ansible.builtin.debug:
         msg: "Failed to install base packages"
 
-- name: ensure pulse config directory exists
-  file:
+- name: Ensure pulse config directory exists
+  ansible.builtin.file:
     path: "{{ user.home }}/.config/pulse"
     state: directory
   become: false
 
-- name: update pulseaudio configs
-  copy:
+- name: Update pulseaudio configs
+  ansible.builtin.copy:
     src: "etc/pulse/{{ item }}"
     dest: "{{ user.home }}/.config/pulse/{{ item }}"
-    mode: '0644'
+    mode: "0644"
     owner: "{{ user.name }}"
     group: "{{ user.group }}"
-    backup: True
+    backup: true
   with_items:
     - client.conf
     - daemon.conf
     - default.pa
     - system.pa
 
-- block:
-    - name: ensure /etc/pulse/default.pa.d exists
-      file:
+- become: true
+
+  block:
+    - name: Ensure /etc/pulse/default.pa.d exists
+      ansible.builtin.file:
         path: /etc/pulse/default.pa.d
         state: directory
 
-    - name: install bluetooth config
-      copy:
+    - name: Install bluetooth config
+      ansible.builtin.copy:
         src: etc/pulse/default.pa.d/bluetooth.pa
         dest: /etc/pulse/default.pa.d/bluetooth.pa
-        mode: '0644'
+        mode: "0644"
       when: use_bluetooth is defined
 
-    - name: adjust pulseaudio.service file
-      lineinfile:
+    - name: Adjust pulseaudio.service file
+      ansible.builtin.lineinfile:
         path: /usr/lib/systemd/user/pulseaudio.service
-        insertafter: '^Description'
-        line: 'After=jack_control.service'
-        backup: yes
+        insertafter: "^Description"
+        line: "After=jack_control.service"
+        backup: true
 
-  become: True
-
-- name: enable pulseaudio service
-  systemd:
+- name: Enable pulseaudio service
+  ansible.builtin.systemd:
     name: "{{ item }}"
-    enabled: yes
+    enabled: true
     scope: user
   with_items:
     - pulseaudio.service
     - pulseaudio.socket
   environment:
     XDG_RUNTIME_DIR: "/run/user/{{ user.uid }}"
-  become: False
+  become: false

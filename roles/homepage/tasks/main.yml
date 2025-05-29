@@ -1,25 +1,23 @@
 ---
 # tasks file for homepage
-
-
 - name: Create homepage folder
-  file:
+  ansible.builtin.file:
     path: "{{ homepage_directory }}"
     state: directory
     owner: "{{ user.name }}"
     group: "{{ user.group }}"
-    mode: '2755'
-    recurse: False
+    mode: "2755"
+    recurse: false
 
-- name: sync folder
-  synchronize:
+- name: Sync folder
+  ansible.posix.synchronize:
     src: home/.local/share/html/homepage/
     dest: "{{ homepage_directory }}/"
-    recursive: yes
+    recursive: true
     mode: push
-    delete: no
-    checksum: yes
-    perms: no
+    delete: false
+    checksum: true
+    perms: false
     rsync_opts:
       - "--update"
       - "--omit-dir-times"
@@ -28,10 +26,10 @@
       - "--chown={{ user.name }}:{{ user.name }}"
 
 - name: Set index.html template
-  template:
+  ansible.builtin.template:
     src: home/.local/share/html/homepage/index.html.j2
     dest: "{{ homepage_directory }}/index.html"
     owner: "{{ user.name }}"
     group: "{{ user.group }}"
-    mode: '0664'
-    backup: False
+    mode: "0664"
+    backup: false

@@ -1,16 +1,15 @@
 ---
-
 - name: Ensure group "docker" exists
-  group:
+  ansible.builtin.group:
     name: docker
     state: present
-  tags: ["groups"]    
+  tags: ["groups"]
 
 - name: Add user to docker group
-  user:
+  ansible.builtin.user:
     name: "{{ user.name }}"
     groups: docker
-    append: yes
+    append: true
   # check_mode: yes
   ignore_errors: "{{ ansible_check_mode }}"
   # register: dockergroup
@@ -19,22 +18,22 @@
 
 - block:
     - name: Create docker config directory
-      file:
+      ansible.builtin.file:
         path: /etc/docker
         state: directory
         owner: root
         group: root
-        mode: '0755'
+        mode: "0755"
 
     - name: Ensure docker data directory exists
-      file:
+      ansible.builtin.file:
         path: "{{ docker.storage }}"
         state: directory
         owner: root
         group: root
 
     - name: Set docker storage location
-      copy:
+      ansible.builtin.copy:
         content: |
           {
             "data-root": "{{ docker.storage }}"
@@ -44,18 +43,18 @@
         owner: root
       notify: reload systemd daemon
 
-    # - name: Set docker storage location
-    #   lineinfile:
-    #     path: "/usr/lib/systemd/system/docker.service"
-    #     regexp: "^ExecStart=/usr/bin/dockerd"
-    #     line: "ExecStart=/usr/bin/dockerd --data-root {{ docker.storage }} -H fd:// --containerd=/run/containerd/containerd.sock"
-    #     insertafter: "[Service]"
-    #     firstmatch: True
-    #     backup: True
-    #   # register: dockerstorage
-    #   # failed_when: "not 'Destination /usr/lib/systemd/system/docker.service does not exist' in dockerstorage.msg"
-    #   ignore_errors: "{{ ansible_check_mode }}"
-    #   notify: reload systemd daemon
+# - name: Set docker storage location
+#   lineinfile:
+#     path: "/usr/lib/systemd/system/docker.service"
+#     regexp: "^ExecStart=/usr/bin/dockerd"
+#     line: "ExecStart=/usr/bin/dockerd --data-root {{ docker.storage }} -H fd:// --containerd=/run/containerd/containerd.sock"
+#     insertafter: "[Service]"
+#     firstmatch: True
+#     backup: True
+#   # register: dockerstorage
+#   # failed_when: "not 'Destination /usr/lib/systemd/system/docker.service does not exist' in dockerstorage.msg"
+#   ignore_errors: "{{ ansible_check_mode }}"
+#   notify: reload systemd daemon
 
 # - name: Create docker config directory
 #   file:
@@ -73,10 +72,8 @@
 #     mode: '0644'
 #     backup: True
 
-
-
 - name: Disable overlay redirect
-  copy:
+  ansible.builtin.copy:
     content: |
       options overlay metacopy=off redirect_dir=off
 
@@ -84,9 +81,9 @@
     owner: root
 
 - name: Set docker service preset
-  systemd:
+  ansible.builtin.systemd:
     name: docker
-    enabled: True
+    enabled: true
   ignore_errors: "{{ ansible_check_mode }}"
   # register: dockerservice
   # failed_when: "not 'Could not find the requested service' in dockerservice.msg"

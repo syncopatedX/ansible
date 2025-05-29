@@ -1,17 +1,17 @@
 ---
 - name: Reload systemd configuration
-  service:
-    daemon_reload: True
+  ansible.builtin.service:
+    daemon_reload: true
 
 - name: Restart systemd-networkd service
-  service:
+  ansible.builtin.service:
     name: systemd-networkd
-    enabled: True
-    masked: False
+    enabled: true
+    masked: false
     state: restarted
 
 - name: Restart systemd-resolved service
-  service:
+  ansible.builtin.service:
     name: systemd-resolved
-    enabled: True
+    enabled: true
     state: restarted

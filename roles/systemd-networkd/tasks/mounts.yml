@@ -1,17 +1,17 @@
 ---
 - name: Initialize list of wanted mount units
-  set_fact:
+  ansible.builtin.set_fact:
     systemd_mount_wanted_mount_unit_filenames: []
 
 - name: Instantiate mount units
-  include_tasks: mount-unit.yml
+  ansible.builtin.include_tasks: mount-unit.yml
   loop: "{{ systemd_mounts | combine | dict2items }}"
   loop_control:
     loop_var: conf
     label: "{{ conf.key }}"
 
 - name: Capture unwanted mount units
-  find:
+  ansible.builtin.find:
     paths:
       - /etc/systemd/system/
     patterns:
@@ -20,7 +20,7 @@
   register: systemd_mount_unwanted_mount_unit_files
 
 - name: Delete unwanted mount units
-  file:
+  ansible.builtin.file:
     state: absent
     path: "{{ path }}"
   notify:
@@ -34,4 +34,4 @@
   loop_control:
     loop_var: path
 
-- meta: flush_handlers
+- ansible.builtin.meta: flush_handlers
