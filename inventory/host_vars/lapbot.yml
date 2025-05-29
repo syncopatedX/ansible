@@ -18,3 +18,5 @@ systemd_network_networks:
       Gateway: 192.168.41.1
       DNS: 192.168.41.1
       Domains: syncopated.net
+      LinkLocalAddressing: no
+      IPv6AcceptRA: no
