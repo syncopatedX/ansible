@@ -77,8 +77,8 @@
 
     - tags: ["rtirq", "rtkit"]
       notify:
-        - "enable and restart rtirq service"
-        - "enable and restart rtkit service"
+        - "Enable and restart rtirq service"
+        - "Enable and restart rtkit service"
 
       block:
         - name: Install rtirq defaults
