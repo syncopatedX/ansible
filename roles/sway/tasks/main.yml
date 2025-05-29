@@ -15,7 +15,8 @@
     - name: Installing sway packages failed
       debug:
         msg: "Failed to install sway packages"
-  ensure:
+  
+  always:
     - name: Ensure sway directories exist
       file:
         dest: "{{ sway_directory_default_location }}/{{ item.dest }}"
