@@ -8,13 +8,5 @@
     name: systemd-timesyncd
     enabled: yes
 
-- name: reload firewalld
-  shell: "firewall-cmd --reload"
-  ignore_errors: "{{ ansible_check_mode }}"
-
-- name: reload ufw
-  shell: "ufw reload"
-  ignore_errors: "{{ ansible_check_mode }}"
-
 - name: Reload udev rules
   shell: "/sbin/udevadm control --reload-rules"
