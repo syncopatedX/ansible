@@ -30,6 +30,12 @@
     dest: /etc/libvirt/libvirtd.conf
     mode: '0644'
 
+- name: Allow br0 in the qemu bridge ACL 
+  copy:
+    src: etc/qemu/bridge.conf
+    dest: /etc/qemu/bridge.conf
+    mode: '0644'
+
 - name: Disable lvmetad for remote access reasons
   lineinfile:
     dest: /etc/lvm/lvm.conf
