@@ -3,7 +3,3 @@
 - import_tasks:
     file: zsh.yml
   tags: ["zsh"]
-
-- import_tasks:
-    file: autologin.yml
-  tags: ["getty"]

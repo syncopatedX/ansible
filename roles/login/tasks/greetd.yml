@@ -1,0 +1,19 @@
+---
+
+- name: Update greetd configs
+  ansible.posix.synchronize:
+    src: etc/greetd/
+    dest: /etc/greetd
+    recursive: yes
+    mode: push
+    delete: no
+    checksum: yes
+    perms: no
+    owner: no
+    group: no
+  become: True
+
+- name: Enable greetd
+  ansible.builtin.systemd:
+    name: greetd
+    enabled: true

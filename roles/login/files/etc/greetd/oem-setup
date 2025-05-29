@@ -1,0 +1,33 @@
+# global variables
+include /etc/sway/definitions
+
+# include theme specific definitions
+include $theme/definitions
+
+# enable default input/output devices
+include /etc/sway/inputs/*
+include /etc/sway/outputs/*
+
+# run global sway scripts
+include /etc/sway/config.d/*
+
+# enable wlogout theme
+exec_always 'mkdir -p /tmp/gtkgreet && ln -sf $theme/theme.css /tmp/gtkgreet/'
+
+# enable idle mode
+exec {
+  $idle
+}
+
+# start calamares if available, otherwise start the greeter
+for_window [app_id="calamares"] floating enable, border pixel 1, sticky enable, resize set width 80 ppt height 60 ppt
+
+exec {
+  '[ -x "$(command -v calamares)" ] && sudo -E calamares || swaymsg exit'
+}
+
+# offer shutdown options
+bindsym $mod+Shift+e exec $shutdown --layout /etc/greetd/wlogout --css /etc/greetd/wlogout.css
+
+# capture PowerOff key
+bindsym XF86PowerOff exec $shutdown --layout /etc/greetd/wlogout --css /etc/greetd/wlogout.css

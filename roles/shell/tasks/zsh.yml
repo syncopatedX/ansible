@@ -50,12 +50,22 @@
     src: "home/{{ item }}.j2"
     dest: "{{ profile_config_dir }}/{{ item }}"
     owner: "{{ user.name }}"
-    group: "{{ user.group }}"    
+    group: "{{ user.group }}"
     mode: "0644"
     backup: True
   with_items:
-    - .zprofile
     - .zshenv
     - .zshrc
     - .zlogin
-  tags: ["env", "profile", "zprofile"]
+  tags: ["env", "profile"]
+
+- name: Set .zprofile if getty autologin is enabled
+  template:
+    src: "home/.zprofile.j2"
+    dest: "{{ profile_config_dir }}/.zprofile"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"    
+    mode: "0644"
+    backup: True
+  when: window_manager == 'i3' and autologin|bool
+  
