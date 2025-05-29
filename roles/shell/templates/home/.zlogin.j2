@@ -1,5 +1,5 @@
 export UU_ORDER="$UU_ORDER:~/.zlogin"
 
-{% if rvm_install == 'true' %}
+{% if rvm_install|default(false)|bool == true %}
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
 {% endif %}
