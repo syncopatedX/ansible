@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Non Mixer
+Comment=Modular Digital Audio Workstation - Mixer
+Comment[fr]=Station de travail audio-numérique modulaire - Mixeur
+Exec=env LADSPA_PATH=/usr/lib/ladspa LADSPA_RDF_PATH=/usr/share/ladspa/rdf /usr/local/bin/non-mixer
+Terminal=false
+Type=Application
+Icon=non-mixer
+Categories=AudioVideo;Audio;

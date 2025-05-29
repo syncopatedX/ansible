@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=x42-matrixmixer8x8
+GenericName=Matrix Mixer
+Comment=Matrix Mixer 8x8
+Exec=x42-matrixmixer8x8
+Icon=x42-matrixmixer8x8
+Terminal=false
+StartupNotify=false

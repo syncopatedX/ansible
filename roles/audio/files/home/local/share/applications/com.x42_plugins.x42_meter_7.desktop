@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=x42-meter EBU Meter (Stereo)
+GenericName=Audio Meter
+Comment=EBU Meter (Stereo)
+Exec=x42-meter 7
+Icon=x42-meter
+Terminal=false
+StartupNotify=false

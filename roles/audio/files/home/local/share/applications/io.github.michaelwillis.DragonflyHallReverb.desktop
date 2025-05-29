@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=DragonflyHallReverb
+Comment=io.github.michaelwillis.DragonflyHallReverb
+Exec=DragonflyHallReverb
+Icon=dragonfly
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;

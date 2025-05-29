@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=x42-meter EBU R128 Meter
+GenericName=Audio Meter
+Comment=EBU R128 Meter
+Exec=x42-meter 0
+Icon=x42-meter
+Terminal=false
+StartupNotify=false

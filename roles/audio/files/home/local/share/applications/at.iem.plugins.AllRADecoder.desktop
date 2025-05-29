@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=AllRADecoder
+GenericName=Ambisonic Decoder Designer
+Comment=Design an Ambisonic decoder for an arbitrary loudspeaker layout using the AllRAD approach.
+Exec=AllRADecoder
+Icon=iempluginsuite
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;iempluginsuite;

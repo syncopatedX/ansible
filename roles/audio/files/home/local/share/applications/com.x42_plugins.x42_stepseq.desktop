@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=x42-stepseq
+GenericName=Step Sequencer
+Comment=Simple step sequencer for moddevices.com
+Exec=x42-stepseq
+Icon=x42-stepseq
+Terminal=false
+StartupNotify=false

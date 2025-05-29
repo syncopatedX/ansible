@@ -1,0 +1,111 @@
+---
+- name: Configure Chrome for Constant Recording Volume on Arch Linux
+  hosts: all # Or specify your target Arch Linux host(s)
+  vars:
+    ansible_python_interpreter: /usr/bin/python # Common for Arch
+    target_user_home: "{{ ansible_env.HOME }}" # Assumes connection user is the target desktop user
+    graphical_patchbay: "helvum" # You can change this to "qpwgraph" if preferred
+
+  tasks:
+    - name: Ensure system is up-to-date
+      become: yes
+      community.general.pacman:
+        update_cache: yes
+        upgrade: yes
+
+    - name: Install PipeWire, audio utilities, and graphical patchbay
+      become: yes
+      community.general.pacman:
+        name:
+          - pipewire
+          - pipewire-pulse
+          - pipewire-alsa
+          - pipewire-jack
+          - wireplumber
+          - gst-plugin-pipewire
+          - pavucontrol
+          - "{{ graphical_patchbay }}" # Installs helvum by default
+        state: present
+
+    - name: Ensure target directory for user applications exists
+      ansible.builtin.file:
+        path: "{{ target_user_home }}/.local/share/applications"
+        state: directory
+        mode: '0755'
+
+    - name: Copy Google Chrome desktop file for recording setup
+      ansible.builtin.copy:
+        src: /usr/share/applications/google-chrome.desktop
+        dest: "{{ target_user_home }}/.local/share/applications/google-chrome-recording.desktop"
+        remote_src: yes
+        mode: '0644'
+      register: chrome_desktop_file_copied
+      # Fails if google-chrome.desktop doesn't exist (Chrome not installed or different name)
+      # You might want to add a check or ensure Chrome is installed first.
+
+    - name: Modify Exec lines in the copied Chrome desktop file
+      ansible.builtin.lineinfile:
+        path: "{{ target_user_home }}/.local/share/applications/google-chrome-recording.desktop"
+        regexp: '^(Exec=(?:/opt/google/chrome/|/usr/bin/)google-chrome-stable(?: --incognito| --new-window)?)(.*)$'
+        line: '\1 --disable-features=HardwareMediaKeyHandling\2'
+        backrefs: yes
+      when: chrome_desktop_file_copied.changed or chrome_desktop_file_copied.is_exists # Only run if file was copied or already exists
+      # This regex attempts to match common paths for google-chrome-stable
+
+    - name: Change Name in the copied Chrome desktop file
+      ansible.builtin.lineinfile:
+        path: "{{ target_user_home }}/.local/share/applications/google-chrome-recording.desktop"
+        regexp: '^Name=Google Chrome$'
+        line: 'Name=Google Chrome (Recording)'
+        backrefs: yes
+      when: chrome_desktop_file_copied.changed or chrome_desktop_file_copied.is_exists
+
+    - name: Update user's desktop database
+      ansible.builtin.command:
+        cmd: "update-desktop-database {{ target_user_home }}/.local/share/applications"
+      changed_when: false # This command doesn't reliably indicate change
+
+    - name: Deploy audio setup script for Chrome recording
+      ansible.builtin.copy:
+        dest: "{{ target_user_home }}/setup_chrome_recording_audio.sh"
+        mode: '0755'
+        content: |
+          #!/bin/bash
+
+          echo "Setting up Chrome recording audio environment..."
+
+          # Create ChromeRecordingSink if it doesn't exist
+          if ! pactl list sinks short 2>/dev/null | grep -q "ChromeRecordingSink"; then
+              pactl load-module module-null-sink sink_name=ChromeRecordingSink sink_properties=device.description="Chrome_Recording_Sink"
+              echo "ChromeRecordingSink created."
+          else
+              echo "ChromeRecordingSink already exists."
+          fi
+
+          # Remove existing loopbacks to avoid duplicates if script is re-run
+          # This is a simple way; more robust would be to store and unload specific IDs
+          echo "Attempting to unload existing loopbacks to ChromeRecordingSink.monitor..."
+          for id in $(pactl list modules short | grep module-loopback | grep "source=ChromeRecordingSink.monitor" | awk '{print $1}'); do
+              echo "Unloading loopback module ID: $id"
+              pactl unload-module $id
+          done
+          
+          # Create loopback for monitoring
+          pactl load-module module-loopback source=ChromeRecordingSink.monitor sink=@DEFAULT_SINK@ latency_msec=20
+          echo "Monitoring loopback for ChromeRecordingSink to @DEFAULT_SINK@ (re)created."
+
+          echo ""
+          echo "Audio environment setup complete. Remember to:"
+          echo "1. Launch Chrome using your modified 'Google Chrome (Recording)' shortcut."
+          echo "2. In pavucontrol (Playback tab), ensure Chrome's output is set to 'Chrome_Recording_Sink'."
+          echo "3. In {{ graphical_patchbay }} (or qpwgraph), connect 'ChromeRecordingSink.monitor' (or its monitor) to your recording app's input."
+
+    - name: Display reminder for manual steps
+      ansible.builtin.debug:
+        msg:
+          - "Ansible setup complete."
+          - "MANUAL STEP: Open Chrome (using 'Google Chrome (Recording)' shortcut), go to chrome://flags and ENABLE 'WebRTC PipeWire capturer', then relaunch Chrome."
+          - "MANUAL STEP (Each time you record): Run '~/setup_chrome_recording_audio.sh'."
+          - "MANUAL STEP (Each time, after running script): Use pavucontrol to set Chrome's output to 'Chrome_Recording_Sink'."
+          - "MANUAL STEP (Each time, after running script): Use {{ graphical_patchbay }} or qpwgraph to connect 'ChromeRecordingSink.monitor' to your recording application."
+

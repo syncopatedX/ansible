@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=JAPA
+Comment=A 'perceptual' or 'psychoacoustic' audio spectrum analyser
+Exec=japa -J
+Icon=japa
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;

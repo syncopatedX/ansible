@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Monique
+Comment=Monique Synth
+Exec=Monique
+Terminal=false
+Type=Application
+Icon=soundbot
+Categories=AudioVideo;Audio;

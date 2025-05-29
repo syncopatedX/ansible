@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=MultiEncoder
+GenericName=Ambisonics Encoder
+Comment=Encode multiple sources with just one plug-in.
+Exec=MultiEncoder
+Icon=iempluginsuite
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;iempluginsuite;

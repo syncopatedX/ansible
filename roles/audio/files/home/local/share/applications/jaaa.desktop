@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=JAAA
+Comment=JACK and ALSA Audio Analyser
+Exec=jaaa -J
+Icon=japa
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;

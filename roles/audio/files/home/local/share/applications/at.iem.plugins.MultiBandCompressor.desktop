@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=MultiBandCompressor
+GenericName=Multiband Compressor
+Comment=Splits an Ambisonic signal into four bands and compresses them individually.
+Exec=MultiBandCompressor
+Icon=iempluginsuite
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;iempluginsuite;

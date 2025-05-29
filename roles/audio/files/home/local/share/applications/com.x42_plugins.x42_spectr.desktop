@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=x42-spectr
+GenericName=Spectrum Analyzer
+Comment=Spectrum Analyzer
+Exec=x42-spectr
+Icon=x42-spectr
+Terminal=false
+StartupNotify=false

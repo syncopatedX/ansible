@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Bipscript-IDE
+Comment=Something
+Exec=/usr/local/bin/bipscript-ide
+Terminal=false
+Type=Application
+Icon=soundbot
+Categories=AudioVideo;Audio;Development;

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Baudline
+Comment=Baudline
+Exec=/usr/local/bin/baudline_jack -channels 4
+Terminal=false
+Type=Application
+Icon=spectro512
+Categories=AudioVideo;Audio;

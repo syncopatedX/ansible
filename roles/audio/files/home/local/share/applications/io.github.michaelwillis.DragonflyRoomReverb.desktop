@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=DragonflyRoomReverb
+Comment=io.github.michaelwillis.DragonflyRoomReverb
+Exec=DragonflyRoomReverb
+Icon=dragonfly
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;

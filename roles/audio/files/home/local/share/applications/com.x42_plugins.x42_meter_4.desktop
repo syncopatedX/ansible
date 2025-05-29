@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=x42-meter BBC Meter (Stereo)
+GenericName=Audio Meter
+Comment=BBC Meter (Stereo)
+Exec=x42-meter 4
+Icon=x42-meter
+Terminal=false
+StartupNotify=false

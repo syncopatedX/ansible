@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=DragonflyPlateReverb
+Comment=io.github.michaelwillis.DragonflyPlateReverb
+Exec=DragonflyPlateReverb
+Icon=dragonfly
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=DirectivityShaper
+GenericName=Directivity Shaper
+Comment=Filter input signal into four independent bands, to which different directivity patterns can be applied to.
+Exec=DirectivityShaper
+Icon=iempluginsuite
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;iempluginsuite;

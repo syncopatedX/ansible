@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=x42-meter Goniometer
+GenericName=Audio Meter
+Comment=Goniometer
+Exec=x42-meter 13
+Icon=x42-meter
+Terminal=false
+StartupNotify=false

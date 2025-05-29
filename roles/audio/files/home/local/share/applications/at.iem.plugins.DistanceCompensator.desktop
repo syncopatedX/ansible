@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=DistanceCompensator
+GenericName=Distance Compensation
+Comment=Calculate the needed delays and gains in order to compensate for distance differences.
+Exec=DistanceCompensator
+Icon=iempluginsuite
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;iempluginsuite;

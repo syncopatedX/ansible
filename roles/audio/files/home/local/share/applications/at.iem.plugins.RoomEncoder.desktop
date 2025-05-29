@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=RoomEncoder
+GenericName=Room Encoder
+Comment=Puts a source and a listener into a virtual shoebox-shaped room and renders over 200 wall reflections.
+Exec=RoomEncoder
+Icon=iempluginsuite
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;iempluginsuite;

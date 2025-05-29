@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=ams
+GenericName=Synthesizer
+Comment=A real-time modular synthesizer and effect processor
+Exec=ams
+Icon=ams_32
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;

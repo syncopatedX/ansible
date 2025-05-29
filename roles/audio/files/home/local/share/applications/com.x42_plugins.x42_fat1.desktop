@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=x42-fat1
+GenericName=Auto Tune
+Comment=Auto-tuner based on Fons Adriaensen's zita-at1
+Exec=x42-fat1
+Icon=x42-fat1
+Terminal=false
+StartupNotify=false

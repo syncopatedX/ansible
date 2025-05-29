@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=BinauralDecoder
+GenericName=Binaural Decoder
+Comment=Renders the Ambisonic input signal to a binaural headphone signal using the MagLS approach.
+Exec=BinauralDecoder
+Icon=iempluginsuite
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;iempluginsuite;

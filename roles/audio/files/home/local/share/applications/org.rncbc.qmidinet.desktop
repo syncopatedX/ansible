@@ -1,0 +1,16 @@
+[Desktop Entry]
+Name=QmidiNet
+Version=1.0
+GenericName=MIDI Network
+GenericName[fr]=Réseau MIDI
+Comment=QmidiNet is a MIDI Network Gateway via UDP/IP Multicast
+Comment[fr]=QmidiNet est une passerelle de réseau MIDI via UDP/IP Multicast
+Exec=qmidinet
+Icon=org.rncbc.qmidinet
+Categories=Audio;AudioVideo;Midi;X-Alsa;X-Jack;Qt;
+Keywords=MIDI;ALSA;JACK;Multicast;Network;UDP;IP;Qt;
+Terminal=false
+Type=Application
+StartupWMClass=qmidinet
+X-Window-Icon=qmidinet
+X-SuSE-translate=true

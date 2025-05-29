@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=x42-meter Stereo Phase-Correlation Meter
+GenericName=Audio Meter
+Comment=Stereo Phase-Correlation Meter
+Exec=x42-meter 12
+Icon=x42-meter
+Terminal=false
+StartupNotify=false

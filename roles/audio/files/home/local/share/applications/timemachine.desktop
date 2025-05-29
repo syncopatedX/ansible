@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Timemachine
+Comment=Timemachine
+Exec=/usr/local/bin/timemachine
+Terminal=false
+Type=Application
+Icon=timemachine-icon
+Categories=AudioVideo;Audio;

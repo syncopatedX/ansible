@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=StereoEncoder
+GenericName=Ambisonic Encoder
+Comment=Encodes mono or stereo audio signals into the Ambisonic domain.
+Exec=StereoEncoder
+Icon=iempluginsuite
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;iempluginsuite;

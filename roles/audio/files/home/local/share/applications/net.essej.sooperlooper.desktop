@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=SooperLooper
+GenericName=Live Looping Sampler
+Comment=Live Looping Sampler
+Exec=slgui
+Icon=net.essej.sooperlooper
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;;

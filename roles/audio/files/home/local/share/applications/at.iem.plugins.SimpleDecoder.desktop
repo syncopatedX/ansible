@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=SimpleDecoder
+GenericName=Ambisonic Decoder
+Comment=Reads JSON configuration files and decodes the Ambisonic input signal to loudspeaker signals.
+Exec=SimpleDecoder
+Icon=iempluginsuite
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;iempluginsuite;

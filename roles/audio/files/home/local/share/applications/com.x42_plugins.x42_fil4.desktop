@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=x42-fil4
+GenericName=Parametric Equalizer
+Comment=4 band parametric equalizer with additional low+high shelf filters, Low and High-pass
+Exec=x42-fil4
+Icon=x42-fil4
+Terminal=false
+StartupNotify=false

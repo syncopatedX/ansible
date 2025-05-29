@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=x42-meter DR-14 - Crest Factor Loudness Range Meter
+GenericName=Audio Meter
+Comment=DR-14 - Crest Factor Loudness Range Meter
+Exec=x42-meter 11
+Icon=x42-meter
+Terminal=false
+StartupNotify=false

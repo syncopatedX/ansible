@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Atom
+Comment=Atom editor
+Exec=atom
+Terminal=false
+Type=Application
+Icon=atom
+Categories=Development;

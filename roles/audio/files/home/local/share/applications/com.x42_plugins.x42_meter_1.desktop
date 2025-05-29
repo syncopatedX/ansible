@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=x42-meter K20/RMS Meter (Stereo)
+GenericName=Audio Meter
+Comment=K20/RMS Meter (Stereo)
+Exec=x42-meter 1
+Icon=x42-meter
+Terminal=false
+StartupNotify=false
