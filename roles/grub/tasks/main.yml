@@ -9,7 +9,7 @@
     line: 'GRUB_CMDLINE_LINUX_DEFAULT="{{ kernel_parameters_default }}"'
   when: kernel_parameters_default is defined
   notify:
-    - rebuild grub
+    - Rebuild grub
 
 - name: Set default kernel parameters
   ansible.builtin.lineinfile:
@@ -19,7 +19,7 @@
     line: 'GRUB_CMDLINE_LINUX="{{ kernel_parameters }}"'
   when: kernel_parameters is defined
   notify:
-    - rebuild grub
+    - Rebuild grub
 
 - name: Enable Grub submenus
   ansible.builtin.lineinfile:
@@ -28,7 +28,7 @@
     state: present
     line: "#GRUB_DISABLE_SUBMENU=y"
   notify:
-    - rebuild grub
+    - Rebuild grub
 
 - name: Enable saved as default
   ansible.builtin.lineinfile:
@@ -37,7 +37,7 @@
     state: present
     line: "GRUB_DEFAULT=saved"
   notify:
-    - rebuild grub
+    - Rebuild grub
 
 - name: Enable saved as default
   ansible.builtin.lineinfile:
@@ -46,7 +46,7 @@
     state: present
     line: "GRUB_SAVEDEFAULT=true"
   notify:
-    - rebuild grub
+    - Rebuild grub
 
 - tags: ["packages", "grub_pkgs"]
   become: false
@@ -57,7 +57,7 @@
         name: grub-hook
         state: present
       notify:
-        - rebuild grub
+        - Rebuild grub
   rescue:
     - name: Installing base packages failed
       ansible.builtin.debug:
