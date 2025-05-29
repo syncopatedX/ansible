@@ -1,13 +1,15 @@
 ---
+
 - tags: ["packages"]
   block:
     - name: Install i3-wm packages
       aur:
         use: paru
-        name: "{{ item }}"
+        name: "{{ i3_package_item }}"
         state: present
-      with_items:
-        - "{{ packages__i3 }}"
+      loop: "{{ packages__i3 }}"
+      loop_control:
+        loop_var: i3_package_item
       become: false
   rescue:
     - name: Installing packages failed
@@ -16,13 +18,15 @@
 
 - name: Ensure i3 directories exist
   ansible.builtin.file:
-    dest: "{{ i3_directory_default_location }}/{{ item.dest }}"
+    dest: "{{ i3_directory_default_location }}/{{ i3_directory_item.dest }}"
     state: directory
-    owner: "{{ item.owner | default(omit) }}"
-    group: "{{ item.group | default(omit) }}"
-    mode: "{{ item.mode | default(omit) }}"
-    recurse: "{{ item.recurse | default(false) }}"
+    owner: "{{ i3_directory_item.owner | default(omit) }}"
+    group: "{{ i3_directory_item.group | default(omit) }}"
+    mode: "{{ i3_directory_item.mode | default(omit) }}"
+    recurse: "{{ i3_directory_item.recurse | default(false) }}"
   loop: "{{ i3_directory_definitions }}"
+  loop_control:
+    loop_var: i3_directory_item
   check_mode: false
   tags: ["folders"]
 
@@ -45,27 +49,29 @@
 
     - name: Set i3status-rs configuration
       ansible.builtin.template:
-        src: "home/.config/{{ item }}.j2"
-        dest: "{{ user.home }}/.config/{{ item }}"
+        src: "home/.config/{{ i3_status_template_item }}.j2"
+        dest: "{{ user.home }}/.config/{{ i3_status_template_item }}"
         owner: "{{ user.name }}"
         group: "{{ user.group }}"
         mode: "0644"
         backup: true
       register: wmconfig
-      with_items:
+      loop:
         - i3status-rust/config.toml
         - i3status-rust/themes/syncopated.toml
+      loop_control:
+        loop_var: i3_status_template_item
 
     - name: Set i3 configuration
       ansible.builtin.template:
-        src: "home/.config/i3/{{ item }}.j2"
-        dest: "{{ user.home }}/.config/i3/{{ item }}"
+        src: "home/.config/i3/{{ i3_config_template_item }}.j2"
+        dest: "{{ user.home }}/.config/i3/{{ i3_config_template_item }}"
         owner: "{{ user.name }}"
         group: "{{ user.group }}"
         mode: "0644"
         backup: true
       register: wmconfig
-      with_items:
+      loop:
         - config
         - modes/resize
         - keybindings
@@ -73,4 +79,14 @@
         - window_behavior
         # - window_assignments
         # - autostart
+      loop_control:
+        loop_var: i3_config_template_item
       notify: Reload i3
+
+- name: Update environment file
+  ansible.builtin.copy:
+    src: etc/environment
+    dest: /etc/environment
+    mode: "0644"
+    backup: true
+  become: true

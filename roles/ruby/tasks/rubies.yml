@@ -8,7 +8,7 @@
 #   command: '{{ rvm1_rvm }} install {{ item }} {{ rvm1_ruby_install_flags }}'
 #   loop: '{{ rvm1_rubies | difference(rvm_list_strings.stdout_lines) }}'
 
-- name: Install 3.2.2
+- name: Install 3.4.x
   ansible.builtin.command: "{{ rvm1_rvm }} install {{ item }}"
   loop: "{{ rvm1_rubies | difference(rvm_list_strings.stdout_lines) }}"
 

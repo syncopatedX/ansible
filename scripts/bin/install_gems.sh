@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+sudo gem update --system 3.6.9
+
 INSTALLED_GEMS=$(gem list | awk '{ print $1 }')
 
 GEMS=(
@@ -93,5 +95,5 @@ mapfile -t DIFF < \
     )
 
 for gem in "${DIFF[@]}"; do
-  gem install "$gem" || continue
+  gem install --user-install "$gem" || continue
 done
