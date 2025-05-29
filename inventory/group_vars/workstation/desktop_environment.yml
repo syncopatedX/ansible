@@ -6,4 +6,4 @@ display_manager: "lightdm"
 
 autologin: false
 
-desktop_environment: "i3"
+window_manager: "i3"

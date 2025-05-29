@@ -1,6 +1,28 @@
 ---
 # tasks file for rofi
 
+- block:
+    - name: Install rofi packages
+      aur:
+        use: paru
+        name: rofi
+        state: present
+      when: window_manager == 'i3'
+      become: false
+
+    - name: Install rofi packages
+      aur:
+        use: paru
+        name: rofi-wayland
+        state: present
+      when: window_manager == 'sway'
+      become: false
+  rescue:
+    - name: installing packages rofi failed
+      debug:
+        msg: "Failed to install rofi packages"
+  tags: ["packages"]
+
 - name: Ensure rofi directories exist
   file:
     dest: "{{ rofi_directory_default_location }}/{{ item.dest }}"
