@@ -9,6 +9,8 @@ window_manager: "sway"
 
 use_libvirt: false
 
+rvm_install: false
+
 # MACAddress=f0:1d:bc:f2:63:99
 systemd_network_networks:
   20-wired:
