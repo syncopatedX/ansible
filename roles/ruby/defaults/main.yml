@@ -86,7 +86,6 @@ gems:
   - kramdown
   - langchainrb
   - logging
-  - gem-wrappers
   - minitest
   - mocha
   - multi_json
