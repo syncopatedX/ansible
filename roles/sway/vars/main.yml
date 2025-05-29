@@ -19,4 +19,5 @@ packages__sway:
   - wl-clipboard
   - wf-recorder
   - rofi-wayland
+  - xdg-desktop-portal-wlr
   - xorg-xwayland

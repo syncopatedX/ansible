@@ -139,24 +139,24 @@
     state: stopped
   when: networkmanager_service_exists.rc == 0
 
-- name: Check if legacy networking exists
-  command: systemctl cat networking
-  failed_when: networking_service_exists.rc not in [0, 1]
-  changed_when: False
-  register: networking_service_exists
+# - name: Check if legacy networking exists
+#   command: systemctl cat networking
+#   failed_when: networking_service_exists.rc not in [0, 1]
+#   changed_when: False
+#   register: networking_service_exists
 
-- name: Disable legacy networking
-  systemd:
-    name: networking
-    enabled: False
-    masked: True
-    state: stopped
-  when: networking_service_exists.rc == 0
+# - name: Disable legacy networking
+#   systemd:
+#     name: networking
+#     enabled: False
+#     masked: True
+#     state: stopped
+#   when: networking_service_exists.rc == 0
 
-- name: Remove content from /etc/network/interfaces
-  copy:
-    dest: /etc/network/interfaces
-    content: |
-      # Ansible managed - Do not edit here
-      # We do not use legacy networking but systemd-networkd.
-      # See /etc/systemd/network/ for the configuration
+# - name: Remove content from /etc/network/interfaces
+#   copy:
+#     dest: /etc/network/interfaces
+#     content: |
+#       # Ansible managed - Do not edit here
+#       # We do not use legacy networking but systemd-networkd.
+#       # See /etc/systemd/network/ for the configuration
