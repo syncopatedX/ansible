@@ -10,6 +10,15 @@
       when: window_manager == 'i3'
       become: false
 
+    - name: Remove rofi in favor of rofi-wayland
+      pacman:
+        name: rofi
+        state: absent
+        force: yes
+        extra_args: --noconfirm
+      ignore_errors: True
+      when: window_manager == 'sway'
+
     - name: Install rofi packages
       aur:
         use: paru
