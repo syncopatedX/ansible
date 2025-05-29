@@ -44,9 +44,9 @@
         ruby__gems: "{{ gems | difference(gemlist.stdout_lines | map('split', ' ') | map('first')) }}"
 
     - name: Install system Ruby gems
-      ansible.builtin.command: "gem install --user-install {{ ruby_gem }}"
-      loop: "{{ ruby__gems }}"
-      loop_var: ruby_gem
+      ansible.builtin.command: "gem install --user-install {{ item }}"
+      with_items: 
+        - "{{ ruby__gems }}"
       when: ruby__gems | length > 0
   vars:
     path:
