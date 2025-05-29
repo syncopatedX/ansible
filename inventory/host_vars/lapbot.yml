@@ -1,6 +1,9 @@
 ---
 
-autologin: true
+autologin: false
+
+display_manager: "greetd"
+window_manager: "sway"
 
 use_libvirt: false
 
