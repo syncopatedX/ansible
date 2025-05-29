@@ -28,7 +28,6 @@
     - { role: systemd-networkd, tags: ["networkd"] }
     - { role: ntp, tags: ["ntp"] }
     - { role: grub, tags: ["grub"], when: "bootloader == 'grub' | default('grub')" }
-    - { role: login, tags: ["login"] }
     - { role: shell, tags: ["shell"] }
     - { role: ruby, tags: ["ruby"] }
     # - { role: fabric, tags: ["fabric"] }
@@ -39,6 +38,7 @@
     - { role: rofi, tags: ["rofi"] }    
     - { role: i3, tags: ["i3"], when: "window_manager == 'i3' | default('i3')" }
     - { role: sway, tags: ["sway"], when: "window_manager == 'sway' | default('i3')" }
+    - { role: login, tags: ["login"] }
     - { role: audio, tags: ["audio"] }
     - { role: input-remapper, tags: ["input-remapper"] }
     - { role: tools, tags: ["tools"] }
