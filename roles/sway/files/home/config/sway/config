@@ -1,0 +1,77 @@
+# Default config for sway
+#
+# Read `man 5 sway` for a complete reference.
+
+# global variables
+include /etc/sway/definitions
+
+# do your override of global definitions here - e.g. switching a theme
+#set $theme /etc/sway/themes/matcha-blue
+
+# import theme specific definitions
+include $theme/definitions
+
+# Your preferred terminal emulator
+set $term footclient
+set $term_float_portrait $term --app-id=floating_shell_portrait
+set $term_float_landscape $term --app-id=floating_shell_landscape
+
+# Your preferred application launcher
+# Note: pass the final command to swaymsg so that the resulting window can be opened
+# on the original workspace that the command was run on.
+set $launcher_options --background-color=$launcher-background-color --text-color=$launcher-text-color --selection-color=$launcher-selection-color --match-color=$launcher-matching-color --border-color=$launcher-border-color --lines=20 --width=50 --border-radius=10
+set $menu fuzzel --icon-theme=$icon-theme --terminal "$term" --font="$launcher-font" $launcher_options
+set $selwin sws.sh --dmenu-cmd "fuzzel --no-icons --dmenu $launcher_options" --format "%W | %A - %T" --font "$launcher-font"
+
+### Lockscreen configuration
+#
+set $locking swaylock --daemonize --ignore-empty-password --show-failed-attempts --color=$lock-background-color --inside-color=$lock-inside-color --inside-ver-color=$lock-verify-color --inside-wrong-color=$lock-error-color --ring-color=$lock-ring-color --ring-ver-color=$lock-verify-color --text-color=$lock-text-color
+
+### Idle configuration
+# This will lock your screen after 300 seconds of inactivity, then turn off
+# your displays after another 300 seconds, and turn your screens back on when
+# resumed. It will also lock your screen before your computer goes to sleep.
+#
+set $idle swayidle -w \
+    timeout 240 'light -G > /tmp/brightness && light -S 10' resume 'light -S $([ -f /tmp/brightness ] && cat /tmp/brightness || echo 100%)' \
+    timeout 300 'exec $locking' \
+    timeout 600 'swaymsg "output * dpms off"' \
+    resume 'swaymsg "output * dpms on"' \
+    before-sleep 'exec $locking'
+
+# statusbar command
+set $statusbar waybar
+
+# pulseaudio command
+set $pulseaudio pavucontrol
+
+# help command
+set $help $term_float_portrait mdcat -p $HOME/README.md
+
+# calendar application
+set $calendar $term_float_portrait khal interactive
+
+# cpu / mem monitors
+set $cpu_mon btop
+set $mem_mon btop
+
+# defines the custom menu in waybar
+set $app_menu yad --icons --read-dir=/usr/share/applications --sort-by-name --icon-size=48 --title='Applications' --term='$term -- %s' --no-buttons --close-on-unfocus
+
+# enable default input/output devices
+include /etc/sway/inputs/*
+include /etc/sway/outputs/*
+
+# enable default modes
+include /etc/sway/modes/*
+
+# run global sway scripts
+include /etc/sway/config.d/*
+
+# include scripts to set up theme files
+include $HOME/.config/sway/themes/scripts/*
+
+# include additional configs e.g. to autostart applications
+# for changes to it please change the responding files
+# or add new ones to the folder below
+include $HOME/.config/sway/config.d/*

@@ -10,3 +10,4 @@ installer.sh
 .env
 /llm_analysis/
 /.goose/
+***/roles/desktop/files/nautilus-scripts/**

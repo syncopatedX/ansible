@@ -1,0 +1,70 @@
+---
+
+- name: updated greetd configs
+  synchronize:
+    src: etc/greetd/
+    dest: /etc/greetd
+    recursive: yes
+    mode: push
+    delete: no
+    checksum: yes
+    perms: no
+    rsync_opts:
+      - "--update"
+      - "--omit-dir-times"
+  become: True
+
+- name: update sway system configs
+  synchronize:
+    src: etc/sway/
+    dest: /etc/sway
+    recursive: yes
+    mode: push
+    delete: no
+    checksum: yes
+    perms: no
+    rsync_opts:
+      - "--update"
+      - "--omit-dir-times"
+  become: True
+
+- name: update environment file
+  copy:
+    src: etc/environment
+    dest: /etc/environment
+    mode: '0644'
+    backup: yes
+  become: True
+
+- name: update sway user configs
+  synchronize:
+    src: home/config/sway/
+    dest: "{{ user.home }}/.config/sway"
+    recursive: yes
+    mode: push
+    delete: no
+    checksum: yes
+    perms: no
+    rsync_opts:
+      - "--update"
+      - "--omit-dir-times"
+
+- name: update waybar css
+  template:
+    src: "home/config/waybar/{{ item }}.j2"
+    dest: "{{ user.home }}/.config/waybar/{{ item }}"
+    mode: '0644'
+    backup: yes
+  with_items:
+    - style.css
+    - theme.css
+
+- name: update wlogout css
+  template:
+    src: "home/config/wlogout/{{ item }}.j2"
+    dest: "{{ user.home }}/.config/wlogout/{{ item }}"
+    mode: '0644'
+    backup: yes
+  with_items:
+    - style.css
+    - theme.css
