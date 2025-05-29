@@ -1,0 +1,47 @@
+### Variables
+#
+# Logo key. Use Mod1 for Alt and Mod4 for Super.
+set $mod Mod4
+set $alt Mod1
+set $ctrl_l 37
+set $ctrl_r 105
+
+set $KP_1 87
+set $KP_2 88
+set $KP_3 89
+set $KP_4 83
+set $KP_5 84
+set $KP_6 85
+set $KP_7 79
+set $KP_8 80
+set $KP_9 81
+set $KP_0 90
+set $KP_Enter 104
+
+set $ws1 "1"
+set $ws2 "2"
+set $ws3 "3"
+set $ws4 "4"
+set $ws5 "5"
+set $ws6 "6"
+set $ws7 "7"
+set $ws8 "8"
+set $ws9 "9"
+set $ws10 "10"
+
+# Home row direction keys, like vim
+set $left h
+set $down j
+set $up k
+set $right l
+
+# styles - defaults to either matcha-green or matcha-blue
+# custom themes can be added in user config
+set $theme /etc/sway/themes/matcha-green
+#set $theme /etc/sway/themes/matcha-blue
+
+# default shutdown and idle commands
+set $shutdown wlogout --buttons-per-row 3
+set $idle swayidle -w \
+    timeout 300 'swaymsg "output * dpms off"' \
+    resume 'swaymsg "output * dpms on"'

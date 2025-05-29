@@ -1,0 +1,171 @@
+### Key bindings
+#
+# Basics:
+#
+## Launch // Terminal ##
+bindsym $mod+Return exec $term
+
+## Launch Ranger
+#bindsym $mod+Shift+Return exec ranger
+
+bindcode $mod+$KP_Enter exec kitty -e ranger
+
+## Action // Kill focused window ##
+bindsym $mod+Shift+q kill
+bindsym F1 kill
+
+## Launch // Application Launcher ##
+bindsym $mod+d exec $menu
+bindsym Menu exec $menu
+
+## Launch // Window Switcher ##
+# bindsym $mod+Shift+space exec $selwin
+
+# Drag floating windows by holding down $mod and left mouse button.
+# Resize them with right mouse button + $mod.
+# Despite the name, also works for non-floating windows.
+# Change normal to inverse to use left mouse button for resizing and right
+# mouse button for dragging.
+floating_modifier $mod normal
+
+## Action // Reload Sway Configuration ##
+bindsym $mod+Shift+c reload
+
+## Launch // Exit Menu ##
+bindsym $mod+Shift+e exec $shutdown
+
+## Action // Increase volume of Master ##
+bindsym XF86AudioRaiseVolume exec amixer -q sset 'Master' 5%+
+
+## Action // Decrease volume of Master ##
+bindsym XF86AudioLowerVolume exec amixer -q sset 'Master' 5%-
+
+## Action // Mute volume of Master ##
+bindsym XF86AudioMute exec amixer -q sset 'Master' toggle
+
+## Action // Increase brightness ##
+bindsym XF86MonBrightnessUp exec light -A 5
+
+## Action // Decrease brightness ##
+bindsym XF86MonBrightnessDown exec light -U 5
+
+## Action // Show shutdown dialog on PowerOff key ##
+bindsym XF86PowerOff exec $shutdown
+
+#
+# Moving around:
+#
+# Move your focus around
+## Navigation // Move focus // $mod + ↑ ↓ ← → ##
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+
+# alternatively, you can use the cursor keys:
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+
+
+#
+# Workspaces:
+#
+## Navigation // Switch workspace // $mod + [number] ##
+bindsym $mod+1 workspace 1
+bindsym $mod+2 workspace 2
+bindsym $mod+3 workspace 3
+bindsym $mod+4 workspace 4
+bindsym $mod+5 workspace 5
+bindsym $mod+6 workspace 6
+bindsym $mod+7 workspace 7
+bindsym $mod+8 workspace 8
+bindsym $mod+9 workspace 9
+bindsym $mod+0 workspace 10
+## Action // Move focussed window to workspace // $mod + Shift + [number] ##
+bindsym $mod+Shift+1 move container to workspace 1
+bindsym $mod+Shift+2 move container to workspace 2
+bindsym $mod+Shift+3 move container to workspace 3
+bindsym $mod+Shift+4 move container to workspace 4
+bindsym $mod+Shift+5 move container to workspace 5
+bindsym $mod+Shift+6 move container to workspace 6
+bindsym $mod+Shift+7 move container to workspace 7
+bindsym $mod+Shift+8 move container to workspace 8
+bindsym $mod+Shift+9 move container to workspace 9
+bindsym $mod+Shift+0 move container to workspace 10
+# Note: workspaces can have any name you want, not just numbers.
+# We just use 1-10 as the default.
+bindcode $mod+Mod2+$KP_1 workspace $ws1
+bindcode $mod+Mod2+$KP_2 workspace $ws2
+bindcode $mod+Mod2+$KP_3 workspace $ws3
+bindcode $mod+Mod2+$KP_4 workspace $ws4
+bindcode $mod+Mod2+$KP_5 workspace $ws5
+bindcode $mod+Mod2+$KP_6 workspace $ws6
+bindcode $mod+Mod2+$KP_7 workspace $ws7
+bindcode $mod+Mod2+$KP_8 workspace $ws8
+bindcode $mod+Mod2+$KP_9 workspace $ws9
+bindcode $mod+Mod2+$KP_0 workspace $ws10
+
+bindcode $mod+Shift+Mod2+$KP_1 move container to workspace $ws1
+bindcode $mod+Shift+Mod2+$KP_2 move container to workspace $ws2
+bindcode $mod+Shift+Mod2+$KP_3 move container to workspace $ws3
+bindcode $mod+Shift+Mod2+$KP_4 move container to workspace $ws4
+bindcode $mod+Shift+Mod2+$KP_5 move container to workspace $ws5
+bindcode $mod+Shift+Mod2+$KP_6 move container to workspace $ws6
+bindcode $mod+Shift+Mod2+$KP_7 move container to workspace $ws7
+bindcode $mod+Shift+Mod2+$KP_8 move container to workspace $ws8
+bindcode $mod+Shift+Mod2+$KP_9 move container to workspace $ws9
+bindcode $mod+Shift+Mod2+$KP_0 move container to workspace $ws10
+#
+# Layout stuff:
+#
+## Setting // Split windows horizontally ##
+bindsym $mod+v splith
+## Setting // Split windows vertically ##
+bindsym $mod+h splitv
+
+## Action // Switch to window stacking ##
+bindsym $mod+Shift+s layout stacking
+## Action // Switch to window tabbing ##
+bindsym $mod+Shift+t layout tabbed
+## Action // Toggle window splitting ##
+bindsym $mod+t layout toggle split
+
+bindsym $mod+Shift+h layout splitv
+bindsym $mod+Shift+v layout splith
+
+## Action // Toggle fullscreen ##
+bindsym F11 fullscreen
+
+bindsym $mod+Shift+m sticky toggle
+
+## Action // Toggle floating ##
+bindsym $mod+Shift+space floating toggle
+
+## Navigation // Swap focus between the tiling area and the floating area ##
+bindsym $mod+space focus mode_toggle
+
+## Navigation // Swap focus to the parent window ##
+bindsym $mod+a focus parent
+
+## Launch // Help ##
+bindsym $mod+question exec $help
+
+bindsym $mod+Home exec google-chrome-stable --new-window %U ~/.local/share/html/homepage/index.html
+bindsym $mod+Shift+Home exec google-chrome-stable --incognito %U ~/.local/share/html/homepage/index.html
+
+
+default_border pixel 1
+hide_edge_borders smart
+
+#
+# Status Bar:
+#
+# Read `man 5 sway-bar` for more information about this section.
+bar {
+    position top
+
+    # Run waybar instead of swaybar
+    swaybar_command $statusbar
+}

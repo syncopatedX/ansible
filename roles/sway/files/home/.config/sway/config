@@ -3,7 +3,7 @@
 # Read `man 5 sway` for a complete reference.
 
 # global variables
-include /etc/sway/definitions
+include $HOME/.config/sway/definitions
 
 # do your override of global definitions here - e.g. switching a theme
 #set $theme /etc/sway/themes/matcha-blue
@@ -12,7 +12,8 @@ include /etc/sway/definitions
 include $theme/definitions
 
 # Your preferred terminal emulator
-set $term footclient
+# set $term footclient
+set $term kitty
 set $term_float_portrait $term --app-id=floating_shell_portrait
 set $term_float_landscape $term --app-id=floating_shell_landscape
 
@@ -52,18 +53,18 @@ set $help $term_float_portrait mdcat -p $HOME/README.md
 set $calendar $term_float_portrait khal interactive
 
 # cpu / mem monitors
-set $cpu_mon btop
-set $mem_mon btop
+set $cpu_mon htop
+set $mem_mon htop
 
 # defines the custom menu in waybar
 set $app_menu yad --icons --read-dir=/usr/share/applications --sort-by-name --icon-size=48 --title='Applications' --term='$term -- %s' --no-buttons --close-on-unfocus
 
 # enable default input/output devices
-include /etc/sway/inputs/*
-include /etc/sway/outputs/*
+include $HOME/.config/sway/inputs/*
+include $HOME/.config/sway/outputs/*
 
 # enable default modes
-include /etc/sway/modes/*
+include $HOME/.config/sway/modes/*
 
 # run global sway scripts
 include /etc/sway/config.d/*

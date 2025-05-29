@@ -1,9 +1,0 @@
-/* import css definitions for current theme */
-@import url("/tmp/gtkgreet/theme.css");
-
-* {
-    background-image: none;
-}
-window {
-    background-color: @transparent_background_color;
-}

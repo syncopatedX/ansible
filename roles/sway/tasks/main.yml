@@ -1,21 +1,34 @@
 ---
 
-- name: updated greetd configs
-  synchronize:
-    src: etc/greetd/
-    dest: /etc/greetd
-    recursive: yes
-    mode: push
-    delete: no
-    checksum: yes
-    perms: no
-    rsync_opts:
-      - "--update"
-      - "--omit-dir-times"
-  become: True
+- block:
+    - name: Install sway packages
+      aur:
+        use: paru
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - "{{ packages__sway }}"
+      become: false
+  rescue:
+    - name: installing packages failed
+      debug:
+        msg: "Failed to install sway packages"
+  tags: ["packages"]        
 
-- name: update sway system configs
-  synchronize:
+- name: Ensure sway directories exist
+  file:
+    dest: "{{ sway_directory_default_location }}/{{ item.dest }}"
+    state: directory
+    owner: "{{ item.owner | default(omit) }}"
+    group: "{{ item.group | default(omit) }}"
+    mode: "{{ item.mode | default(omit) }}"
+    recurse: "{{ item.recurse | default(false) }}"
+  loop: "{{ sway_directory_definitions }}"
+  check_mode: no
+  tags: ["folders"]
+
+- name: Update sway system configs
+  ansible.posix.synchronize:
     src: etc/sway/
     dest: /etc/sway
     recursive: yes
@@ -23,35 +36,33 @@
     delete: no
     checksum: yes
     perms: no
-    rsync_opts:
-      - "--update"
-      - "--omit-dir-times"
+    owner: no
+    group: no
   become: True
 
-- name: update environment file
-  copy:
+- name: Update environment file
+  ansible.builtin.copy:
     src: etc/environment
     dest: /etc/environment
     mode: '0644'
     backup: yes
   become: True
 
-- name: update sway user configs
-  synchronize:
-    src: home/config/sway/
+- name: Update sway user configs
+  ansible.posix.synchronize:
+    src: home/.config/sway/
     dest: "{{ user.home }}/.config/sway"
     recursive: yes
     mode: push
     delete: no
     checksum: yes
     perms: no
-    rsync_opts:
-      - "--update"
-      - "--omit-dir-times"
+    owner: no
+    group: no
 
-- name: update waybar css
-  template:
-    src: "home/config/waybar/{{ item }}.j2"
+- name: Update waybar css
+  ansible.builtin.template:
+    src: "home/.config/waybar/{{ item }}.j2"
     dest: "{{ user.home }}/.config/waybar/{{ item }}"
     mode: '0644'
     backup: yes
@@ -59,12 +70,13 @@
     - style.css
     - theme.css
 
-- name: update wlogout css
-  template:
-    src: "home/config/wlogout/{{ item }}.j2"
+- name: Update wlogout css
+  ansible.builtin.template:
+    src: "home/.config/wlogout/{{ item }}.j2"
     dest: "{{ user.home }}/.config/wlogout/{{ item }}"
     mode: '0644'
     backup: yes
   with_items:
     - style.css
     - theme.css
+
