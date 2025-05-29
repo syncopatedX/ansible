@@ -11,6 +11,11 @@
         - "{{ packages__sway }}"
       tags: ["packages"]
 
+  rescue:
+    - name: Installing sway packages failed
+      debug:
+        msg: "Failed to install sway packages"
+  ensure:
     - name: Ensure sway directories exist
       file:
         dest: "{{ sway_directory_default_location }}/{{ item.dest }}"
@@ -22,11 +27,6 @@
       loop: "{{ sway_directory_definitions }}"
       check_mode: no
       tags: ["folders"]
-
-  rescue:
-    - name: Installing sway packages failed
-      debug:
-        msg: "Failed to install sway packages"
 
 - name: Update sway system configs
   ansible.posix.synchronize:
