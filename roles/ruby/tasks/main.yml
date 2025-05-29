@@ -49,9 +49,10 @@
         - "{{ ruby__gems }}"
       when: ruby__gems | length > 0
   vars:
+    ruby_version: "3.4.0"
     path:
-      - "{{ lookup('env','HOME') }}/.gem/ruby/3.4.0/bin"
-      - "{{ lookup('env','HOME') }}/.local/share/gem/ruby/3.4.0/bin"
+      - "{{ lookup('env', 'HOME') }}/.gem/ruby/{{ ruby_version }}/bin"
+      - "{{ lookup('env', 'HOME') }}/.local/share/gem/ruby/{{ ruby_version }}/bin"
   environment:
     PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path|join(':') }}"
 
