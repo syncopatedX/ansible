@@ -19,7 +19,7 @@
         mode: "0644"
         backup: true
       register: timesyncd_conf
-      notify: enable systemd-timesyncd service
+      notify: Enable systemd-timesyncd Service
 
     - name: Sync hwclock
       ansible.builtin.shell: |
