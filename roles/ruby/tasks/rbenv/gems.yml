@@ -4,7 +4,7 @@
   ansible.builtin.shell:
     cmd: "source {{ rbenv_user_home }}/.zshrc && {{ rbenv_root_path }}/bin/rbenv exec gem install {{ item.name }} {% if item.version is defined %}-v {{ item.version }}{% endif %} --no-document"
   args:
-    executable: /bin/bash
+    executable: /usr/bin/zsh
   loop: "{{ rbenv_default_gems }}"
   register: gem_install_result
   changed_when: "'Successfully installed' in gem_install_result.stdout"

@@ -5,7 +5,7 @@
       ansible.builtin.shell:
         cmd: "source {{ rbenv_user_home }}/.zshrc && {{ rbenv_root_path }}/bin/rbenv versions | grep -q '{{ ruby_version_global }}'"
       args:
-        executable: /bin/bash
+        executable: /usr/bin/zsh
       register: ruby_version_check
       changed_when: false
       failed_when: false
@@ -14,7 +14,7 @@
       ansible.builtin.shell:
         cmd: "source {{ rbenv_user_home }}/.zshrc && {{ rbenv_root_path }}/bin/rbenv install {{ ruby_version_global }}"
       args:
-        executable: /bin/bash
+        executable: /usr/bin/zsh
         creates: "{{ rbenv_root_path }}/versions/{{ ruby_version_global }}/bin/ruby"
       when: ruby_version_check.rc!= 0
       environment:
@@ -24,7 +24,7 @@
       ansible.builtin.shell:
         cmd: "source {{ rbenv_user_home }}/.zshrc && {{ rbenv_root_path }}/bin/rbenv global {{ ruby_version_global }}"
       args:
-        executable: /bin/bash
+        executable: /usr/bin/zsh
       when: ruby_version_check.rc!= 0
 
 
