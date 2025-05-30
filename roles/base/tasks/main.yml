@@ -43,6 +43,11 @@
     backup: true
   tags: ["makepkg"]
 
+- name: Update cache
+  community.general.pacman:
+    update_cache: true
+    upgrade: false
+
 - tags: ["packages", "base_pkgs"]
   block:
     - name: Install base packages
