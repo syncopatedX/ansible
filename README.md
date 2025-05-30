@@ -90,27 +90,27 @@ The playbook is organized into modular roles found in the `roles/` directory:
 
 | Role               | Description                                                                                                                            |
 | :----------------- | :------------------------------------------------------------------------------------------------------------------------------------- |
-| [audio](audio/)            | Professional Linux audio setup with configurable server selection (JACK, PulseAudio, PipeWire) via `use_jack` and `use_pipewire` variables. Includes comprehensive system tuning for low-latency performance, realtime privileges, CPU optimization, and audio normalization tools.                                                                         |
-| [base](base/)             | Core system setup, package management (pacman/paru), repositories, base packages, user creation, sudoers, `rc.local`.                   |
-| [desktop](desktop/)          | General desktop applications, fonts, and themes.                                                                                       |
-| [docker](docker/)           | Docker Engine & Docker Compose installation and configuration (including optional NVIDIA support).                                       |
+| [audio](roles/audio/)            | Professional Linux audio setup with configurable server selection (JACK, PulseAudio, PipeWire) via `use_jack` and `use_pipewire` variables. Includes comprehensive system tuning for low-latency performance, realtime privileges, CPU optimization, and audio normalization tools.                                                                         |
+| [base](roles/base/)             | Core system setup, package management (pacman/paru), repositories, base packages, user creation, sudoers, `rc.local`.                   |
+| [desktop](roles/desktop/)          | General desktop applications, fonts, and themes.                                                                                       |
+| [docker](roles/docker/)           | Docker Engine & Docker Compose installation and configuration (including optional NVIDIA support).                                       |
 | `fabric`           | Fabric AI scripting tool setup and configuration.                                                                                      |
-| [firewalld](firewalld)        | Firewall configuration using firewalld, opening necessary ports.                                                                       |
-| [grub](grub/)             | GRUB bootloader configuration tweaks (kernel parameters, submenus, savedefault).                                                       |
-| [homepage](homepage)         | Simple static HTML homepage setup.                                                                                                     |
-| [i3](i3/)               | i3 Window Manager, i3status-rust, Rofi configuration.                                                                                  |
-| [input-remapper](input-remapper/)   | Input device mapping tool setup.                                                                                                       |
-| [libvirt](libvirt)          | Libvirt virtualization stack & optional Vagrant integration.                                                                           |
+| [firewalld](roles/firewalld/)        | Firewall configuration using firewalld, opening necessary ports.                                                                       |
+| [grub](roles/grub/)             | GRUB bootloader configuration tweaks (kernel parameters, submenus, savedefault).                                                       |
+| [homepage](roles/homepage/)         | Simple static HTML homepage setup.                                                                                                     |
+| [i3](roles/i3/)               | i3 Window Manager, i3status-rust, Rofi configuration.                                                                                  |
+| [input-remapper](roles/input-remapper/)   | Input device mapping tool setup.                                                                                                       |
+| [libvirt](roles/libvirt/)          | Libvirt virtualization stack & optional Vagrant integration.                                                                           |
 | `media`            | Media-related configurations (e.g., Musikcube).                                                                                        |
-| [nas](nas/)              | NFS & Samba server configuration.                                                                                                      |
-| [network](network/)           | Comprehensive network management using NetworkManager. Consolidates functionality from previous networking roles (networking, networkmanager, and systemd-networkd). Supports ethernet, Wi-Fi, bridges, static/DHCP configurations, and udev rules. |
-| [ntp](ntp/)              | Time synchronization using `systemd-timesyncd`.                                                                                        |
-| [ruby](ruby/)             | Ruby environment setup (System gems, optional RVM).                                                                                    |
-| [shell](shell)            | Zsh, Oh My Zsh, aliases, functions, kitty, ranger configuration.                                                                       |
-| [ssh](ssh/)              | OpenSSH server/client configuration and hardening.                                                                                     |
-| [sway](sway/)             | Tiling Window Manager for Wayland                                                                                    |
-| [tools](tools/)            | Installation of custom scripts/tools like `code-packager`, `whisper-stream`.                                                           |
-| [x](x/)                | X11 server, drivers, core X utilities, Picom, Dunst, sxhkd, XDG configuration.                                                         |
+| [nas](roles/nas/)              | NFS & Samba server configuration.                                                                                                      |
+| [network](roles/network/)           | Comprehensive network management using NetworkManager. Consolidates functionality from previous networking roles (networking, networkmanager, and systemd-networkd). Supports ethernet, Wi-Fi, bridges, static/DHCP configurations, and udev rules. |
+| [ntp](roles/ntp/)              | Time synchronization using `systemd-timesyncd`.                                                                                        |
+| [ruby](roles/ruby/)             | Ruby environment setup (System gems, optional RVM).                                                                                    |
+| [shell](roles/shell/)            | Zsh, Oh My Zsh, aliases, functions, kitty, ranger configuration.                                                                       |
+| [ssh](roles/ssh/)              | OpenSSH server/client configuration and hardening.                                                                                     |
+| [sway](roles/sway/)             | Tiling Window Manager for Wayland                                                                                    |
+| [tools](roles/tools/)            | Installation of custom scripts/tools like `code-packager`, `whisper-stream`.                                                           |
+| [x](roles/x/)                | X11 server, drivers, core X utilities, Picom, Dunst, sxhkd, XDG configuration.                                                         |
 
 *(Refer to individual `roles/<role_name>/README.md` files for detailed documentation on each role's capabilities, variables, and usage)*
 
