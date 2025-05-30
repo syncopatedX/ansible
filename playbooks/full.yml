@@ -25,7 +25,7 @@
     - { role: base, tags: ["base"] }
     - { role: ssh, tags: ["ssh"] }
     - { role: firewalld, tags: ["firewalld"] }
-    - { role: systemd-networkd, tags: ["networkd"] }
+    - { role: network, tags: ["network", "networkd", "networkmanager", "dns"] }
     - { role: ntp, tags: ["ntp"] }
     - { role: grub, tags: ["grub"], when: "bootloader == 'grub' | default('grub')" }
     - { role: shell, tags: ["shell"] }

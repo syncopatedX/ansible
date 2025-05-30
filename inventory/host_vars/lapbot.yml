@@ -9,7 +9,8 @@ window_manager: "sway"
 
 use_libvirt: false
 
-# MACAddress=f0:1d:bc:f2:63:99
+networking: "systemd-network"
+
 systemd_network_networks:
   20-wired:
     Match:
@@ -19,6 +20,16 @@ systemd_network_networks:
       Address: 192.168.41.29/24
       Gateway: 192.168.41.1
       DNS: 192.168.41.1
+      Domains: syncopated.net
+      LinkLocalAddressing: no
+      IPv6AcceptRA: no
+  25-wireless:
+    Match:
+      Name: wlan*
+      MACAddress: 9c:30:5b:d8:0c:1f
+    Network:
+      Address: 192.168.41.11/24
+      Gateway: 192.168.41.1
       Domains: syncopated.net
       LinkLocalAddressing: no
       IPv6AcceptRA: no
