@@ -62,4 +62,4 @@
   ansible.builtin.import_tasks: "rbenv/ruby.yml"
 
 - name: Install Gems
-  ansible.builtin.import_tasks: "rbenv/gem.yml"
+  ansible.builtin.import_tasks: "rbenv/gems.yml"
