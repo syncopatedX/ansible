@@ -89,6 +89,7 @@ gems:
   - minitest
   - mocha
   - multi_json
+  - nano-bots
   - neovim
   - net-ssh
   - open3
@@ -102,6 +103,7 @@ gems:
   - rdoc
   - rexml
   - rouge
+  - ruby_llm
   - ruby-lsp
   - ruby-openai
   - rugged

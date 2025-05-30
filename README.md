@@ -53,6 +53,10 @@ This playbook provides a comprehensive workstation setup, including:
   * System tuning for low-latency audio performance.
   * Realtime privileges and CPU optimization for audio processing.
   * Audio normalization tools and utilities.
+* **🔍 Dynamic Inventory:**
+  * Enhanced inventory management with group and host variable support.
+  * Flexible group hierarchy and variable inheritance.
+  * See [Dynamic-Inventory.md](docs/Dynamic-Inventory.md) for detailed documentation.
 
 ## ✅ Requirements
 
@@ -99,16 +103,16 @@ The playbook is organized into modular roles found in the `roles/` directory:
 | [libvirt](libvirt)          | Libvirt virtualization stack & optional Vagrant integration.                                                                           |
 | `media`            | Media-related configurations (e.g., Musikcube).                                                                                        |
 | [nas](nas/)              | NFS & Samba server configuration.                                                                                                      |
+| [network](network/)           | Comprehensive network management using NetworkManager. Consolidates functionality from previous networking roles (networking, networkmanager, and systemd-networkd). Supports ethernet, Wi-Fi, bridges, static/DHCP configurations, and udev rules. |
 | [ntp](ntp/)              | Time synchronization using `systemd-timesyncd`.                                                                                        |
 | [ruby](ruby/)             | Ruby environment setup (System gems, optional RVM).                                                                                    |
 | [shell](shell)            | Zsh, Oh My Zsh, aliases, functions, kitty, ranger configuration.                                                                       |
 | [ssh](ssh/)              | OpenSSH server/client configuration and hardening.                                                                                     |
 | [sway](sway/)             | Tiling Window Manager for Wayland                                                                                    |
-| [systemd-networkd](systemd-networkd) | Network configuration using `systemd-networkd` and `systemd-resolved`. Includes handling of network, netdev, link, and mount units. |
 | [tools](tools/)            | Installation of custom scripts/tools like `code-packager`, `whisper-stream`.                                                           |
 | [x](x/)                | X11 server, drivers, core X utilities, Picom, Dunst, sxhkd, XDG configuration.                                                         |
 
-*(Refer to individual `roles/<role_name>/README.md` or `roles/<role_name>/tasks/main.yml` for specifics)*
+*(Refer to individual `roles/<role_name>/README.md` files for detailed documentation on each role's capabilities, variables, and usage)*
 
 ## 🚀 Usage
 
@@ -266,12 +270,8 @@ The playbook's behavior can be customized through variables. Below are key varia
 
 | Variable                | Role(s)             | File Location                                | Description                                                                                             |
 | :---------------------- | :------------------ | :------------------------------------------- | :------------------------------------------------------------------------------------------------------ |
-| `systemd_network_confs` | `systemd-networkd`  | `roles/systemd-networkd/defaults/main.yml`  | Configures `/etc/systemd/networkd.conf.d/*.conf` files.                                                |
-| `systemd_resolve_confs` | `systemd-networkd`  | `roles/systemd-networkd/defaults/main.yml`  | Configures `/etc/systemd/resolved.conf.d/*.conf` files.                                                |
-| `systemd_mounts`        | `systemd-networkd`  | `roles/systemd-networkd/defaults/main.yml`  | Configures `/etc/systemd/system/*.mount` files.                                                        |
-| `systemd_network_netdevs` | `systemd-networkd` | `roles/systemd-networkd/defaults/main.yml` | Configures `/etc/systemd/network/*.netdev` files for virtual network interfaces.                      |
-| `systemd_network_networks` | `systemd-networkd` | `roles/systemd-networkd/defaults/main.yml` | Configures `/etc/systemd/network/*.network` files for network interfaces.                            |
-| `systemd_network_keep_existing_definitions` | `systemd-networkd` | `roles/systemd-networkd/defaults/main.yml` | When `false`, deletes existing network definitions and interfaces before applying new ones. |
+| `network_interfaces`    | `network`           | `roles/network/defaults/main.yml`           | List of network interfaces to configure (ethernet, Wi-Fi, bridge).                                      |
+| `etc_hosts`             | `network`           | `roles/network/defaults/main.yml`           | Content for the `/etc/hosts` file.                                                                      |
 
 #### Theming & Appearance
 
@@ -320,19 +320,14 @@ zsh_theme: robbyrussell
 rvm_install: true
 
 # Networking example
-systemd_network_networks:
-  20-wired:
-    Match:
-      Name: enp1s0
-    Network:
-      DHCP: yes
-      DNS: 192.168.1.1
-```
-
-### Example (Command Line Override)
-
-```bash
-ansible-playbook -i inventory/inventory.ini playbooks/full.yml -b -e "use_docker=false" -e "user_name=newuser"
+network_interfaces:
+  - ifname: "eth0"
+    conn_name: "Wired connection eth0"
+    type: "ethernet"
+    method4: "manual"
+    ip4: "192.168.1.100/24"
+    gw4: "192.168.1.1"
+    dns4: ["192.168.1.1", "8.8.8.8"]
 ```
 
 ### Example (Command Line Override)
@@ -374,7 +369,7 @@ Run specific parts of the playbook using tags defined in playbooks (`main.yml`, 
 | `menus` | Configure application menus |
 | `mirrors` | Update and optimize package mirrors |
 | `nas` | Set up NAS-related services |
-| `networkd` | Configure systemd-networkd |
+| `network` | Configure network settings |
 | `nfs` | Set up NFS server/client |
 | `ntp` | Configure time synchronization |
 | `packages` | General package installation tasks |
@@ -395,8 +390,6 @@ Run specific parts of the playbook using tags defined in playbooks (`main.yml`, 
 | `sudoers` | Manage sudoers configuration |
 | `sxhkd` | Configure Simple X Hotkey Daemon |
 | `systemd-mounts` | Configure systemd mount units |
-| `systemd-network` | Configure systemd network settings |
-| `systemd-resolve` | Configure systemd-resolved |
 | `tools` | Install and configure custom tools |
 | `updatedb` | Configure and run updatedb for file indexing |
 | `user` | Manage user accounts |
@@ -417,8 +410,8 @@ Run specific parts of the playbook using tags defined in playbooks (`main.yml`, 
     # Run only base setup and shell configuration tasks
     ansible-playbook -i inventory/inventory.ini main.yml -b --tags "base,shell"
 
-    # Run only systemd-networkd and firewalld tasks
-    ansible-playbook -i inventory/inventory.ini main.yml -b --tags "systemd-network,firewalld"
+    # Run only network and firewalld tasks
+    ansible-playbook -i inventory/inventory.ini main.yml -b --tags "network,firewalld"
     
     # Run only audio configuration
     ansible-playbook -i inventory/inventory.ini main.yml -b --tags "audio"
@@ -450,7 +443,7 @@ Run specific parts of the playbook using tags defined in playbooks (`main.yml`, 
 * **SSH Issues:** Ensure SSH connectivity (for `ansible-playbook`), correct user, and authentication. Check firewall rules (`firewalld` role, `ssh` role).
 * **Package Errors:** Check Ansible output for `pacman`/`paru` errors. Verify internet access and repository reachability. Ensure `aur_builder` user (if used) has necessary permissions.
 * **`ansible-pull` Failures:** Check permissions for cloning/writing in `/var/lib/ansible/local/` (or configured path). Ensure `git` and `ansible-core` are installed on the target. Check the repository URL and branch.
-* **Networking Issues:** Verify configurations applied by the `systemd-networkd` role. Use `networkctl` and `resolvectl` on the target host for diagnostics. Check `firewalld` status and rules.
+* **Networking Issues:** Verify configurations applied by the `network` role. Use `nmcli` on the target host for diagnostics. Check `firewalld` status and rules.
 * **Idempotency Problems:** Review task `when` conditions and checks for existing states.
 * **Check Mode:** Use `ansible-playbook --check` to preview changes. Note that `--check` mode might not perfectly simulate all state changes, especially with shell commands or complex services.
 * **Variable Issues:** Use `-v`, `-vv`, or `-vvv` for verbose output. Check variable precedence and definitions in inventory, group/host vars, and role defaults. Verify `ansible.cfg` settings like `error_on_undefined_vars`.
