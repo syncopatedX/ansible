@@ -11,3 +11,4 @@ installer.sh
 /llm_analysis/
 /.goose/
 ***/roles/desktop/files/nautilus-scripts/**
+*.jsx
