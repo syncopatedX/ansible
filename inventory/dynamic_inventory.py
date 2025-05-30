@@ -17,6 +17,39 @@ STATIC_HOSTS = [
     "steve"
 ]
 
+# Group definitions based on inventory.ini
+# This maps hostnames to their groups
+HOST_GROUPS = {
+    "ninjabot": ["dev"],
+    "soundbot": ["dev"],
+    "lapbot": ["dev"],
+    "crambot": ["virt"],
+    "steve": ["pi"]
+}
+
+# Group hierarchy (parent-child relationships)
+GROUP_HIERARCHY = {
+    "workstation": ["dev"],
+    "server": ["virt"]
+}
+
+# Group variables
+GROUP_VARS = {
+    "dev": {
+        "rvm_install": "true"
+    },
+    "virt": {
+        "rvm_install": "true"
+    }
+}
+
+# Host-specific overrides for variables
+HOST_VARS_OVERRIDE = {
+    "soundbot": {
+        "ansible_connection": "local"
+    }
+}
+
 # Optional subnet to scan for fallback discovery (e.g., if mDNS fails)
 SUBNET = "192.168.41.0/24"
 
@@ -136,6 +169,7 @@ def build_inventory():
     """
     Build the inventory structure according to Ansible's expected format.
     """
+    # Initialize inventory with groups
     inventory = {
         "all": {
             "hosts": [],
@@ -145,6 +179,14 @@ def build_inventory():
             "hostvars": {}
         }
     }
+    
+    # Initialize all groups
+    for group in set(sum(HOST_GROUPS.values(), [])) | set(GROUP_HIERARCHY.keys()):
+        inventory[group] = {
+            "hosts": [],
+            "vars": GROUP_VARS.get(group, {}),
+            "children": GROUP_HIERARCHY.get(group, [])
+        }
     
     # Track hosts by IP to avoid duplicates
     discovered_ips = {}
@@ -157,8 +199,22 @@ def build_inventory():
     for hostname, host_vars in mdns_hosts.items():
         ip = host_vars["ansible_host"]
         discovered_ips[ip] = hostname
+        
+        # Add host to the 'all' group
         inventory["all"]["hosts"].append(hostname)
+        
+        # Apply any host-specific variable overrides
+        if hostname in HOST_VARS_OVERRIDE:
+            host_vars.update(HOST_VARS_OVERRIDE[hostname])
+            
+        # Add host variables to _meta section
         inventory["_meta"]["hostvars"][hostname] = host_vars
+        
+        # Add host to its specific groups
+        if hostname in HOST_GROUPS:
+            for group in HOST_GROUPS[hostname]:
+                if group in inventory:
+                    inventory[group]["hosts"].append(hostname)
     
     # Add dynamically scanned hosts if enabled
     if ENABLE_SUBNET_SCAN:
@@ -175,12 +231,18 @@ def build_inventory():
             # Otherwise, use the IP as the hostname
             hostname = ip
             debug_print(f"Adding IP-based host: {hostname}")
+            
+            # Add to 'all' group
             inventory["all"]["hosts"].append(hostname)
+            
+            # Add host variables to _meta section
             inventory["_meta"]["hostvars"][hostname] = {
                 "ansible_host": ip,
                 "ansible_user": "b08x",
                 "ansible_connection": "ssh"
             }
+            
+            # IP-based hosts are not added to any specific groups
     else:
         debug_print("Subnet scanning disabled, skipping")
     
