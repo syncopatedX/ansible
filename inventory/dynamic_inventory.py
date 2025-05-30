@@ -123,7 +123,7 @@ def resolve_mdns_hosts(hosts):
         try:
             # Try to resolve with .local suffix first
             try:
-                ip = socket.gethostbyname(f"{host}.local")
+                ip = socket.gethostbyname(f"{host}")
             except socket.gaierror:
                 # Fall back to no suffix
                 ip = socket.gethostbyname(host)
