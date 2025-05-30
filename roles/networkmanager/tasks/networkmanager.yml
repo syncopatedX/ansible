@@ -40,3 +40,7 @@
 - import_tasks:
     file: interfaces.yml
   when: network_interfaces is defined
+
+- import_tasks:
+    file: bridge.yml
+  when: network_interface_bridge is defined

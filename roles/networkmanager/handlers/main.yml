@@ -5,3 +5,8 @@
 
 - name: Reload udev rules
   shell: "/sbin/udevadm control --reload-rules"
+
+- name: restart_networkmanager
+  service:
+    name: NetworkManager
+    state: restarted
