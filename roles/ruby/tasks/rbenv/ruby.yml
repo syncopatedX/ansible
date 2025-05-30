@@ -1,0 +1,35 @@
+---
+
+- block:
+    - name: Check if desired Ruby version {{ ruby_version_global }} is already installed
+      ansible.builtin.shell:
+        cmd: "source {{ rbenv_user_home }}/.zshrc && {{ rbenv_root_path }}/bin/rbenv versions | grep -q '{{ ruby_version_global }}'"
+      args:
+        executable: /bin/bash
+      register: ruby_version_check
+      changed_when: false
+      failed_when: false
+
+    - name: Install Ruby {{ ruby_version_global }}
+      ansible.builtin.shell:
+        cmd: "source {{ rbenv_user_home }}/.zshrc && {{ rbenv_root_path }}/bin/rbenv install {{ ruby_version_global }}"
+      args:
+        executable: /bin/bash
+        creates: "{{ rbenv_root_path }}/versions/{{ ruby_version_global }}/bin/ruby"
+      when: ruby_version_check.rc!= 0
+      environment:
+        RUBY_CONFIGURE_OPTS: "--disable-install-doc"
+
+    - name: Set global Ruby version to {{ ruby_version_global }}
+      ansible.builtin.shell:
+        cmd: "source {{ rbenv_user_home }}/.zshrc && {{ rbenv_root_path }}/bin/rbenv global {{ ruby_version_global }}"
+      args:
+        executable: /bin/bash
+      when: ruby_version_check.rc!= 0
+
+
+  become: false
+
+
+
+

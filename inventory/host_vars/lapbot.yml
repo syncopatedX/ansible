@@ -9,6 +9,8 @@ window_manager: "sway"
 
 use_libvirt: false
 
+rbenv_install: true
+
 networking: "systemd-network"
 
 systemd_network_networks:

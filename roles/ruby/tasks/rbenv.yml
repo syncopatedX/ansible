@@ -1,0 +1,65 @@
+# tasks/rbenv.yml
+- name: Check if rbenv is already installed
+  ansible.builtin.stat:
+    path: "{{ rbenv_root_path }}/bin/rbenv"
+  register: rbenv_stat_result
+
+- block:
+    - name: Clone rbenv repository
+      ansible.builtin.git:
+        repo: "{{ rbenv_repo_url }}"
+        dest: "{{ rbenv_root_path }}"
+        version: "{{ rbenv_version }}"
+        accept_hostkey: yes
+      when: not rbenv_stat_result.stat.exists
+
+    - name: Create rbenv plugins directory
+      ansible.builtin.file:
+        path: "{{ rbenv_root_path }}/plugins"
+        state: directory
+        owner: "{{ rbenv_user }}"
+        group: "{{ rbenv_user }}" # Or a relevant group
+        mode: '0755'
+
+    - name: Check if ruby-build is already installed
+      ansible.builtin.stat:
+        path: "{{ rbenv_root_path }}/plugins/ruby-build"
+      register: ruby_build_stat_result
+
+    - name: Clone ruby-build plugin repository
+      ansible.builtin.git:
+        repo: "{{ ruby_build_repo_url }}"
+        dest: "{{ rbenv_root_path }}/plugins/ruby-build"
+        version: "{{ ruby_build_version }}"
+        accept_hostkey: yes
+      when: not ruby_build_stat_result.stat.exists
+
+    - name: Add rbenv to PATH in {{ rbenv_user }}'s.zshrc
+      ansible.builtin.lineinfile:
+        path: "{{ rbenv_user_home }}/.zshrc"
+        line: 'export PATH="{{ rbenv_root_path }}/bin:$PATH"'
+        regexp: '^export PATH="?{{ rbenv_root_path }}/bin:\$PATH"?$'
+        state: present
+        create: yes
+        owner: "{{ rbenv_user }}"
+        group: "{{ rbenv_user }}"
+        mode: '0644'
+
+    - name: Add rbenv init to {{ rbenv_user }}'s.zshrc
+      ansible.builtin.lineinfile:
+        path: "{{ rbenv_user_home }}/.zshrc"
+        line: 'eval "$(rbenv init - zsh)"'
+        regexp: '^eval "\$\(rbenv init -\s*(zsh)?\)"$'
+        state: present
+        create: yes
+        owner: "{{ rbenv_user }}"
+        group: "{{ rbenv_user }}"
+        mode: '0644'
+
+  become: false
+
+- name: Install Ruby
+  ansible.builtin.import_tasks: "rbenv/ruby.yml"
+
+- name: Install Gems
+  ansible.builtin.import_tasks: "rbenv/gem.yml"
