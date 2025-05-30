@@ -41,3 +41,9 @@
   vars:
     wifi_ssid: "{{ wifi_ssid }}"
     wifi_passphrase: "{{ wifi_passphrase }}"
+
+- name: Set default iwd main.conf
+  copy:
+    src: etc/iwd/main.conf
+    dest: /etc/iwd/main.conf
+    mode: '0644'
