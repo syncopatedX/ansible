@@ -46,10 +46,14 @@
       debug:
         msg: "Host has wireless interfaces: {{ has_wireless }}"
 
-    - import_playbook: iwd_config.yml
-      when: has_wireless
+# Corrected conditional playbook inclusion:
+- name: Conditionally configure wireless with iwd
+  ansible.builtin.include_playbook: iwd_config.yml
+  when: has_wireless
 
-    - import_playbook: networking.yml
+# Unconditional playbook import (remains static if that's the intent for this one):
+- name: Configure base networking # Added name for clarity
+  ansible.builtin.import_playbook: networking.yml
 
 - name: Environment
   hosts: all
