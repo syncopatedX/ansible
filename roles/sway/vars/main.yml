@@ -17,6 +17,7 @@ packages__sway:
   - swaylock
   - waybar
   - wl-clipboard
+  - wlogout
   - wf-recorder
   - rofi-wayland
   - xdg-desktop-portal-wlr
