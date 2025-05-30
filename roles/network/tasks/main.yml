@@ -3,6 +3,29 @@
   debug:
     msg: "Starting networking tasks"
 
+- block:
+
+    - name: Check for wireless interfaces
+      set_fact:
+        has_wireless: "{{ ansible_interfaces | select('match', '^wl') | list | length > 0 }}"
+      register: result
+      when: ansible_interfaces is defined
+
+    - name: Debug has_wireless variable
+      debug:
+        msg: "Host has wireless interfaces: {{ has_wireless }}"
+
+  rescue:
+    - name: If this errors...
+      debug:
+        msg: "{{ result }}"
+
+
+- import_tasks: 
+    file: iwd.yml
+  tags: ['iwd', 'wireless']
+  when: has_wireless
+
 # https://gitlab.com/klaasjan/vagrant-ansible/-/blob/master/ansible/roles/configure_network/tasks/main.yml?ref_type=heads
 
 # - name: Setup udev for network devices
