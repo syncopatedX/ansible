@@ -1,13 +1,2 @@
 ---
-- name: Create extra directories relevant for systemd-networkd
-  ansible.builtin.file:
-    path: "{{ item | dirname }}"
-    state: directory
-  loop: "{{ systemd_network_copy_files | map(attribute='dest') | list + ['/etc/systemd/networkd.conf.d/', '/etc/systemd/resolved.conf.d/', '/etc/network/'] }}"
 
-- ansible.builtin.include_tasks: network.yml
-  tags: [systemd-network]
-- ansible.builtin.include_tasks: resolve.yml
-  tags: [systemd-resolve]
-- ansible.builtin.include_tasks: mounts.yml
-  tags: [systemd-mounts]

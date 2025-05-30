@@ -1,0 +1,29 @@
+---
+
+- name: Refresh host facts
+  ansible.builtin.setup:
+
+- name: Reload udev rules
+  shell: "/sbin/udevadm control --reload-rules"
+
+- name: Restart NetworkManager
+  service:
+    name: NetworkManager
+    state: restarted
+
+- name: Reload systemd configuration
+  ansible.builtin.service:
+    daemon_reload: true
+
+- name: Restart systemd-networkd service
+  ansible.builtin.service:
+    name: systemd-networkd
+    enabled: true
+    masked: false
+    state: restarted
+
+- name: Restart systemd-resolved service
+  ansible.builtin.service:
+    name: systemd-resolved
+    enabled: true
+    state: restarted

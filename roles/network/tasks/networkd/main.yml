@@ -1,7 +1,7 @@
 ---
 - name: Instantiate systemd-networkd networkd.conf drop-ins
   ansible.builtin.template:
-    src: conf.j2
+    src: etc/systemd/networkd.conf.d/network.j2
     dest: /etc/systemd/networkd.conf.d/{{ conf.key }}.conf
     owner: systemd-network
     mode: "0640"
@@ -15,7 +15,7 @@
 
 - name: Instantiate systemd-networkd network devices
   ansible.builtin.template:
-    src: netdev.j2
+    src: etc/systemd/networkd.conf.d/netdev.j2
     dest: /etc/systemd/network/{{ netdev.key }}.netdev
     owner: systemd-network
     mode: "0640"
@@ -29,7 +29,7 @@
 
 - name: Instantiate systemd-networkd networks
   ansible.builtin.template:
-    src: network.j2
+    src: etc/systemd/networkd.conf.d/network.j2
     dest: /etc/systemd/network/{{ network.key }}.network
     owner: systemd-network
     mode: "0640"
