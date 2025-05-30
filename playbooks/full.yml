@@ -1,15 +1,18 @@
 ---
-- name: ArchLinux Workstation
+- name: Base
   hosts: all
-  gather_facts: true
   become: true
+  gather_facts: true
+  tags: ["base_setup"]
+  
   vars:
     path:
       - "{{ lookup('env','HOME') }}/.local/bin"
   environment:
     PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path|join(':') }}"
+  
   pre_tasks:
-    - name: Set profile config directory fact
+    - name: Set profile config directory
       ansible.builtin.set_fact:
         profile_config_dir: "{{ '/etc/skel' if use_etc_skel | bool else user.home }}"
       tags: ["always"]
@@ -22,25 +25,92 @@
       tags: ["always"]
 
   roles:
-    - { role: base, tags: ["base"] }
     - { role: ssh, tags: ["ssh"] }
-    - { role: firewalld, tags: ["firewalld"] }
-    - { role: network, tags: ["network", "networkd", "networkmanager", "dns"] }
-    - { role: ntp, tags: ["ntp"] }
+    - { role: base, tags: ["base"] }
     - { role: grub, tags: ["grub"], when: "bootloader == 'grub' | default('grub')" }
+
+       
+- name: Networking
+  hosts: all
+  become: true
+  gather_facts: true
+  tags: ["network_config"]
+  
+  pre_tasks:
+    - name: Check for wireless interfaces
+      set_fact:
+        has_wireless: "{{ ansible_interfaces | select('match', '^wl') | list | length > 0 }}"
+      when: ansible_interfaces is defined
+
+    - name: Debug has_wireless variable
+      debug:
+        msg: "Host has wireless interfaces: {{ has_wireless }}"
+
+    - import_playbook: iwd_config.yml
+      when: has_wireless
+
+    - import_playbook: networking.yml
+
+- name: Environment
+  hosts: all
+  become: true
+  gather_facts: true
+  tags: ["environment_setup"]
+
+  roles:
     - { role: shell, tags: ["shell"] }
     - { role: ruby, tags: ["ruby"] }
-    # - { role: fabric, tags: ["fabric"] }
-    - { role: docker, tags: ["docker"], when: "use_docker == 'true' | default('false')" }
-    - { role: libvirt, tags: ["libvirt"], when: "use_libvirt == 'true' | default('false')" }
-    - { role: nas, tags: ["nas"], when: "nfs_host == 'true' or samba_host == 'true'" }
+
+
+- name: Desktop
+  hosts: all
+  become: true
+  gather_facts: true
+  tags: ["desktop_setup"]
+  vars:
+    path:
+      - "{{ lookup('env','HOME') }}/.local/bin"
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path|join(':') }}"
+
+  roles:
+
+    - { role: audio, tags: ["audio"] }
+    - { role: input-remapper, tags: ["input-remapper"] }
     - { role: x, tags: ["x"], when: "window_manager != 'sway'" }
     - { role: rofi, tags: ["rofi"] }
     - { role: i3, tags: ["i3"], when: "window_manager == 'i3' | default('i3')" }
     - { role: sway, tags: ["sway"], when: "window_manager == 'sway' | default('i3')" }
     - { role: login, tags: ["login"] }
-    - { role: audio, tags: ["audio"] }
-    - { role: input-remapper, tags: ["input-remapper"] }
-    - { role: tools, tags: ["tools"] }
-    - { role: media, tags: ["media"] }
     - { role: homepage, tags: ["homepage"] }
+    - { role: tools, tags: ["tools"] }
+    - { role: fabric, tags: ["fabric"] }
+    - { role: media, tags: ["media"] }
+
+- name: Virtualization
+  hosts: all
+  become: true
+  gather_facts: true
+  tags: ["virtualization_setup"]
+  vars:
+    path:
+      - "{{ lookup('env','HOME') }}/.local/bin"
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path|join(':') }}"
+
+  roles:
+    - { role: docker, tags: ["docker"], when: "use_docker == 'true' | default('false')" }
+    - { role: libvirt, tags: ["libvirt"], when: "use_libvirt == 'true' | default('false')" }    
+
+- name: Network Storage
+  hosts: all
+  become: true
+  gather_facts: true
+  tags: ["storage_setup"]
+  vars:
+    path:
+      - "{{ lookup('env','HOME') }}/.local/bin"
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path|join(':') }}"
+
+- import_playbook: networking.yml
