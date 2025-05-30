@@ -3,7 +3,7 @@
 
 - tags: ["packages"]
   block:
-    - name: Install rofi packages
+    - name: Install rofi package
       aur:
         use: paru
         name: rofi
@@ -20,7 +20,7 @@
       ignore_errors: true
       when: window_manager == 'sway'
 
-    - name: Install rofi packages
+    - name: Install rofi-wayland
       aur:
         use: paru
         name: rofi-wayland
@@ -32,38 +32,40 @@
       ansible.builtin.debug:
         msg: "Failed to install rofi packages"
 
-- name: Ensure rofi directories exist
-  ansible.builtin.file:
-    dest: "{{ rofi_directory_default_location }}/{{ item.dest }}"
-    state: directory
-    owner: "{{ item.owner | default(omit) }}"
-    group: "{{ item.group | default(omit) }}"
-    mode: "{{ item.mode | default(omit) }}"
-    recurse: "{{ item.recurse | default(false) }}"
-  loop: "{{ rofi_directory_definitions }}"
-  check_mode: false
+- become: false
+  block:
+    - name: Ensure rofi directories exist
+      ansible.builtin.file:
+        dest: "{{ rofi_directory_default_location }}/{{ item.dest }}"
+        state: directory
+        owner: "{{ user.name }}"
+        group: "{{ user.group }}"
+        mode: "{{ item.mode | default(omit) }}"
+        recurse: "{{ item.recurse | default(false) }}"
+      loop: "{{ rofi_directory_definitions }}"
+      check_mode: false
 
-- name: Synchronize templates - rofi
-  ansible.builtin.template:
-    src: "home/.config/rofi/{{ item }}.j2"
-    dest: "{{ user.home }}/.config/rofi/{{ item }}"
-    owner: "{{ user.name }}"
-    group: "{{ user.group }}"
-    mode: preserve
-    backup: true
-  with_items:
-    - config.rasi
-    - gruvbox-common.rasi
-    - gruvbox-dark-hard.rasi
-    - colors/onedark.rasi
-    - scripts/launcher_main.sh
-    - scripts/launcher_t1.sh
-    - scripts/launcher_t4.sh
-    - launchers/type-1/shared/colors.rasi
-    - launchers/type-1/shared/fonts.rasi
-    - launchers/type-1/style-8.rasi
-    - launchers/type-1/style-10.rasi
-    - launchers/type-4/shared/colors.rasi
-    - launchers/type-4/shared/fonts.rasi
-    - launchers/type-4/style-6.rasi
-  tags: ["menus"]
+    - name: Synchronize templates - rofi
+      ansible.builtin.template:
+        src: "home/.config/rofi/{{ item }}.j2"
+        dest: "{{ user.home }}/.config/rofi/{{ item }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.group }}"
+        mode: preserve
+        backup: true
+      with_items:
+        - config.rasi
+        - gruvbox-common.rasi
+        - gruvbox-dark-hard.rasi
+        - colors/onedark.rasi
+        - scripts/launcher_main.sh
+        - scripts/launcher_t1.sh
+        - scripts/launcher_t4.sh
+        - launchers/type-1/shared/colors.rasi
+        - launchers/type-1/shared/fonts.rasi
+        - launchers/type-1/style-8.rasi
+        - launchers/type-1/style-10.rasi
+        - launchers/type-4/shared/colors.rasi
+        - launchers/type-4/shared/fonts.rasi
+        - launchers/type-4/style-6.rasi
+      tags: ["menus"]
