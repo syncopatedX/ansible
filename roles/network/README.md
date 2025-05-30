@@ -1,292 +1,85 @@
+# Ansible Role: Network
 
-# Ansible Role: networkmanager
+This role manages various aspects of network configuration on a Linux host. It supports setting up wireless connections, mDNS, network interfaces via NetworkManager or systemd-networkd, DNS resolution with systemd-resolved, and network-related systemd mount units.
 
 ## Description
 
-This role manages network configurations on compatible Linux systems using **NetworkManager**. It is designed to:
+The `network` role aims to provide a flexible way to configure networking components. It can:
 
-* Establish NetworkManager as the primary network configuration tool by disabling services like `systemd-networkd`.
-* Configure various network interface types, including **ethernet**, **Wi-Fi**, and **bridge** interfaces.
-* Set static IP addresses, DHCP configurations, DNS, and routing.
-* Create `udev` rules for persistent network interface naming based on MAC addresses.
-* Manage the `/etc/hosts` file.
-
-The role is structured to allow detailed configuration of network interfaces through Ansible variables.
-
-## Important Note on Current Role Structure
-
-As of the current structure of the provided files:
-
-* The main entry point for the role, `tasks/main.yml`, by default, only executes a debug task and the task for setting the `/etc/hosts` file.
-* The core networking functionalities (disabling `systemd-networkd`, configuring NetworkManager, and setting up interfaces via `tasks/networkmanager.yml` and `tasks/interfaces.yml`) are **not automatically executed**.
-* To enable the full functionality of this role, you will likely need to ensure that `tasks/networkmanager.yml` is included in the execution flow, for example, by uncommenting or adding an `import_tasks` or `include_tasks` directive for `networkmanager.yml` within `tasks/main.yml`.
-
-Example modification to `tasks/main.yml`:
-
-```yaml
----
-# tasks/main.yml
-- name: Networking Tasks
-  debug:
-    msg: "Starting networking tasks"
-
-- import_tasks: networkmanager.yml
-  tags: ['networkmanager']
-
-- name: Set hosts files
-  template:
-    src: etc/hosts.j2
-    dest: /etc/hosts
-    owner: root
-    group: root
-    mode: '0644'
-    backup: True
-  when: etc_hosts is defined
-  tags: ['dns']
-````
+- Install and configure `iwd` for wireless connectivity, including prompting for SSID and passphrase if not provided as variables.
+- Install and configure Avahi for mDNS (Multicast DNS), allowing for easier host discovery on the local network.
+- Configure network interfaces (Ethernet, WiFi, Bridges) using **NetworkManager**. This includes setting static or DHCP IP addresses, DNS, and udev rules for interface naming.
+- Configure network interfaces, DNS, and mounts using **systemd-networkd** and **systemd-resolved**. This includes managing `.network`, `.netdev`, and mount unit files.
+- Automatically detect wireless interfaces to conditionally apply wireless configurations.
+- Handle the installation of necessary packages for the chosen network management tools (NetworkManager or systemd-networkd components).
+- Manage service states (enable, start, stop, disable, mask) for relevant network daemons like `NetworkManager`, `systemd-networkd`, `systemd-resolved`, `iwd`, and `avahi-daemon`.
 
 ## Requirements
 
-* **Ansible**: Version 2.1 or higher.
-* **Target System**: A systemd-based Linux distribution where NetworkManager is the desired network management tool.
-* **Collections**: The `community.general` Ansible collection must be installed (`ansible-galaxy collection install community.general`) as the role uses the `community.general.nmcli` module.
-* **Privileges**: Root or sufficient `sudo` privileges are required on the target hosts to manage network services, configurations, and udev rules.
+- Ansible 2.1 or higher.
+- The target host should be a Linux system using systemd.
+- If using AUR packages (like `iwgtk`), an AUR helper should be configured on the target Arch Linux machine, and the Ansible user should have permissions to use it (or `become: false` tasks need to be managed appropriately).
 
 ## Role Variables
 
-This role uses several variables to customize network configurations. The primary variables are:
+The role uses several variables to customize the network configuration. Key variables are often defined in `defaults/main.yml` and can be overridden in your playbook or inventory.
 
-### `network_interfaces`
+| Variable                                   | Description                                                                                                                                                                                             | Primary File(s) / Context                                                                                                |
+| :----------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :----------------------------------------------------------------------------------------------------------------------- |
+| **General Variables** |                                                                                                                                                                                                         |                                                                                                                          |
+| `packages__network`                        | A dictionary defining packages to install. Contains keys `networkd` (list of packages for `systemd-networkd` setup e.g., `android-tethering`, `iwd`) and `networkmanager` (list for `NetworkManager` e.g., `network-manager-applet`). | `network/defaults/main.yml`                                                              |
+| `conn_check`                               | Configuration for NetworkManager's connectivity check. Includes `uri` (default: "<http://piholes/admin>") and `interval` (default: 120).                                    | `network/defaults/main.yml`                                                              |
+| `ansible_service_mgr`                      | Specifies the service manager (default: "systemd").                                                                                                                     | `network/defaults/main.yml`                                                              |
+| **systemd-networkd & systemd-resolved** | These variables are primarily used when `systemd_network_networks` is defined, triggering the systemd-networkd configuration tasks.                                        |                                                                                                                          |
+| `systemd_network_confs`                    | A dictionary defining custom configurations for `systemd-networkd` (e.g., global settings in `/etc/systemd/networkd.conf.d/`). Each key becomes the filename (e.g., `key.conf`) and the value is the content. | `network/defaults/main.yml`, `network/tasks/networkd/main.yml` |
+| `systemd_resolve_confs`                    | A dictionary defining custom configurations for `systemd-resolved` (e.g., `/etc/systemd/resolved.conf.d/`). Each key becomes the filename and the value is the content. | `network/defaults/main.yml`, `network/tasks/networkd/resolve.yml` |
+| `systemd_network_netdevs`                  | A dictionary defining virtual network devices (`.netdev` files) for `systemd-networkd`. The key is the filename (e.g., `vlan.netdev`) and the value contains the netdev configuration. | `network/defaults/main.yml`, `network/tasks/networkd/main.yml` |
+| `systemd_network_networks`                 | A dictionary defining network configurations (`.network` files) for `systemd-networkd`. The key is the filename (e.g., `ethernet.network`) and the value contains the network configuration. | `network/defaults/main.yml`, `network/tasks/networkd/main.yml`, `network/tasks/main.yml` |
+| `systemd_network_copy_files`               | A list of dictionaries, each specifying `src` and `dest` to copy additional files for `systemd-networkd`.                                                         | `network/defaults/main.yml`, `network/tasks/networkd/main.yml` |
+| `systemd_network_keep_existing_definitions`| Boolean, if `false` (default), a cleanup of unmanaged networkd config files is performed.                                                                            | `network/defaults/main.yml`, `network/tasks/networkd/main.yml` |
+| `systemd_mounts`                           | A dictionary defining systemd mount units. The key is a descriptive name, and the value contains the mount unit configuration details, particularly `Mount.Where` which specifies the mount point. | `network/defaults/main.yml`, `network/tasks/networkd/mounts.yml`, `network/tasks/networkd/mount-unit.yml` |
+| **NetworkManager Variables** | These variables are primarily used when `network_interfaces` is defined, triggering the NetworkManager configuration tasks.           |                                                                                                                          |
+| `network_interfaces`                       | A list of dictionaries, each defining a network interface to be configured by NetworkManager. See example structure in "Example Playbook" section.      | `network/tasks/networkmanager/interfaces.yml`, `network/tasks/main.yml` |
+| `network_interface_bridge`                 | A variable (e.g., boolean or dictionary) that triggers the NetworkManager bridge configuration tasks. If defined, interactive prompts may appear unless sub-variables are set. Sub-variables include: `old_bridge_name`, `bridge_name`, `bridge_slave`, `ipaddr`, `gateway`, `dns`, `search`, `reboot_confirmation_input`. | `network/tasks/networkmanager/main.yml`, `network/tasks/networkmanager/bridge.yml` |
+| **iwd (Wireless) Variables** | Used when `has_wireless` is true (auto-detected).                                                                                                                              |                                                                                                                          |
+| `wifi_ssid`                                | The SSID of the wireless network. If not provided, the role will pause and prompt for it.                                                                                       | `network/tasks/iwd.yml`                                                                      |
+| `wifi_passphrase`                          | The passphrase for the wireless network. If not provided, the role will pause and prompt for it (echo off). Consider using Ansible Vault for this.                              | `network/tasks/iwd.yml`                                                                      |
 
-A list of dictionaries, where each dictionary defines a network interface to be configured. This is the most critical variable for customizing network setups.
+### Tags
 
-* **Type**: `list` of `dict`
-* **Default**: `undefined` (The tasks in `interfaces.yml` will only run if this variable is defined).
+The role utilizes tags to allow for more granular execution:
 
-**Structure of each item in `network_interfaces`:**
-
-|   |   |   |   |   |
-|---|---|---|---|---|
-|**Parameter**|**Type**|**Required**|**Description**|**Example**|
-|`ifname`|`string`|Yes|Target interface name.|`"eth0"`, `"wlan0"`, `"br0"`|
-|`conn_name`|`string`|Yes|NetworkManager connection name. Often the same as `ifname`.|`"Wired connection 1"`, `"MyWiFi"`|
-|`type`|`string`|Yes|Type of interface. Supported: `ethernet`, `wifi`, `bridge`.|`"ethernet"`|
-|`mac`|`string`|No|MAC address. Used for udev rules and specific ethernet/wifi configurations.|`"00:11:22:AA:BB:CC"`|
-|`method4`|`string`|No|IPv4 configuration method: `manual` (static), `auto` (DHCP), `disabled` (deactivates connection).|`"manual"`|
-|`ip4`|`string`|No|IPv4 address and prefix (e.g., `192.168.1.10/24`). Required for `method4: manual`.|`"192.168.1.50/24"`|
-|`gw4`|`string`|No|IPv4 gateway. Usually required for `method4: manual` unless it's an isolated network.|`"192.168.1.1"`|
-|`dns4`|`list`|No|List of IPv4 DNS servers.|`["8.8.8.8", "1.1.1.1"]`|
-|`dns4_search`|`list`|No|List of DNS search domains.|`["example.com", "internal.example.com"]`|
-|`autoconnect`|`boolean`|No|Whether the connection should automatically connect. Defaults to `yes` via `nmcli`.|`yes`|
-|`state`|`string`|No|State of the connection: `present` (default), `absent`.|`"present"`|
-|`ssid`|`string`|Wifi|SSID for `type: wifi` connections.|`"MyHomeNetwork"`|
-|`assigned_address`|`string`|Wifi|Cloned MAC address for `type: wifi`.|`"00:DE:AD:BE:EF:00"`|
-|`bridge`|`string`|BridgeSlave|Master bridge interface name (e.g., `br0`) for `type: ethernet` interfaces acting as bridge slaves.|`"br0"`|
-
-**Note on `udev` rules:** The role includes a task to set `udev` rules using the `etc/udev/rules.d/10-network.rules.j2` template. This task iterates through all items in `network_interfaces` to potentially pin interface names based on MAC addresses (`item.mac` and `item.ifname`).
-
-### `etc_hosts`
-
-Defines the content for the `/etc/hosts` file. The role uses the `etc/hosts.j2` template to generate this file. The exact structure required for `etc_hosts` depends on the content of this template (which is not provided in the input). Typically, it could be a multi-line string or a dictionary/list of host entries.
-
-* **Type**: `string` or `dict`/`list` (depending on `etc/hosts.j2` template)
-* **Default**: `undefined` (The task will only run if this variable is defined).
-* **Example (as a string)**:YAML
-
-    ```yaml
-    etc_hosts: |
-      127.0.0.1 localhost
-      192.168.1.10 server1.example.com server1
-      192.168.1.11 server2.example.com server2
-    ```
-
-### `packages` (from `defaults/main.yml`)
-
-* **Type**: `list`
-* **Default**: `["network-manager-applet"]`
-* **Note**: Currently, no task within this role uses this variable to install these packages. You would need to add a package installation task if desired.
-
-### `conn_check` (from `defaults/main.yml`)
-
-Variables intended for NetworkManager's connectivity check.
-
-* **Type**: `dict`
-* **Default**:YAML
-
-    ```yaml
-    conn_check:
-      uri: "http://pihole/admin"
-      interval: 120
-    ```
-
-* **Parameters**:
-  * `uri` (string): The URI that NetworkManager will check to determine connectivity.
-  * `interval` (integer): The interval in seconds between connectivity checks.
-* **Note**: The task `Ensure networkmanager connection check is enabled` in `tasks/networkmanager.yml` currently hardcodes the connectivity check configuration (`[connectivity]\nenabled=true`) into `/etc/NetworkManager/conf.d/20-connectivity.conf` and **does not utilize these `conn_check.uri` or `conn_check.interval` variables**.
-
-## Tasks Overview
-
-The role is organized into several task files:
-
-* **`tasks/main.yml`**:
-
-  * The default entry point for the role.
-  * Currently includes a debug message and a task to configure `/etc/hosts` using the `etc/hosts.j2` template (if `etc_hosts` is defined).
-  * **Crucially, the import of `networkmanager.yml` (which contains the main network setup logic) is commented out by default.**
-* **`tasks/networkmanager.yml`**: (Must be invoked, e.g., from `tasks/main.yml`)
-
-  * Disables the `systemd-networkd` service to prevent conflicts with NetworkManager.
-  * Creates a configuration file (`/etc/NetworkManager/conf.d/20-connectivity.conf`) to enable NetworkManager's connectivity check (hardcoded to `enabled=true`).
-  * Ensures the `NetworkManager` service is enabled and started.
-  * Ensures the `NetworkManager-dispatcher.service` is enabled and started.
-  * Includes `tasks/interfaces.yml` if the `network_interfaces` variable is defined.
-* **`tasks/interfaces.yml`**: (Invoked by `tasks/networkmanager.yml`)
-
-  * Prints host network variables (`item.ifname` from `network_interfaces`).
-  * Sets `udev` rules for network interface naming using the `etc/udev/rules.d/10-network.rules.j2` template, iterating over `network_interfaces`.
-  * Manages various types of NetworkManager connections using the `community.general.nmcli` module:
-    * Adds Ethernet devices (static IP).
-    * Adds Wi-Fi devices (static IP or DHCP).
-    * Adds "audio subnet" devices (ethernet without a gateway).
-    * Adds bridge devices.
-    * Adds Ethernet devices as bridge slaves.
-    * Deactivates specified Ethernet or Wi-Fi devices (`method4: disabled`).
-  * Ensures the `NetworkManager` service is enabled and restarted after interface configurations.
-
-## Handlers
-
-The role defines the following handlers in `handlers/main.yml`:
-
-* **`Refresh host facts`**: Triggers `ansible.builtin.setup` to refresh Ansible facts for the host.
-* **`Reload udev rules`**: Executes `/sbin/udevadm control --reload-rules` to apply new udev rules. This can be notified by tasks that modify udev rules.
+- `iwd`, `wireless`: Tasks related to `iwd` and wireless setup.
+- `avahi`, `dns`: Tasks related to Avahi mDNS setup. `dns` tag is also used for other DNS related tasks.
+- `networkmanager`: Tasks related to NetworkManager configuration.
+- `systemd-network`: Tasks related to `systemd-networkd` base configuration.
+- `systemd-resolve`: Tasks related to `systemd-resolved` configuration.
+- `systemd-mounts`: Tasks related to `systemd` mount units.
+- `udev`: Tasks related to udev rule configuration for network interfaces.
 
 ## Dependencies
 
-* None listed in `meta/main.yml`.
+None explicitly listed in `meta/main.yml`. However, based on tasks:
 
-## Example Playbook
+- `community.general.nmcli` module is used for NetworkManager tasks.
+- `community.general.pacman` module is used for installing `systemd-resolvconf` on Arch Linux.
+- `aur` module (implicit, likely from a collection like `kewlfft.aur`) is used for `iwd` and `iwgtk` installation if `use: auto` is effective.
 
-YAML
+## Example Playbook / Use Case Scenarios
+
+### 1. Basic Setup with NetworkManager (DHCP Ethernet, mDNS)
 
 ```yaml
-- hosts: all
+- hosts: servers
   become: yes
+  roles:
+    - role: network
   vars:
     network_interfaces:
       - ifname: "eth0"
-        conn_name: "Wired connection eth0"
+        conn_name: "Wired connection 1"
+        mac: "YOUR_ETH0_MAC_ADDRESS" # Important for udev rule if used
         type: "ethernet"
-        method4: "manual"
-        ip4: "192.168.1.100/24"
-        gw4: "192.168.1.1"
-        dns4: ["192.168.1.1", "8.8.8.8"]
-        dns4_search: ["mydomain.local"]
-        autoconnect: yes
+        method4: "auto"
+        autoconnect: true
         state: "present"
-        mac: "00:1A:2B:3C:4D:5E" # Important for udev rule if matching by MAC
-
-      - ifname: "wlan0"
-        conn_name: "MyOfficeWiFi"
-        type: "wifi"
-        method4: "auto" # DHCP
-        ssid: "OfficeNetworkSSID"
-        autoconnect: yes
-        state: "present"
-        mac: "00:AA:BB:CC:DD:EE"
-
-      - ifname: "eth1" # Interface to be deactivated
-        conn_name: "eth1_disabled"
-        type: "ethernet"
-        method4: "disabled"
-        state: "present" # Connection profile exists but is inactive
-        mac: "00:11:22:33:44:55"
-
-    etc_hosts: |
-      127.0.0.1 localhost
-      {{ ansible_default_ipv4.address | default('127.0.0.1') }} {{ ansible_fqdn | default(ansible_hostname) }} {{ ansible_hostname }}
-      10.0.0.5 appserver.mydomain.local appserver
-      10.0.0.6 dbserver.mydomain.local dbserver
-
-  roles:
-    - your_username.networkmanager # Or just 'networkmanager' if in a standard roles path
-```
-
-**Note**: Ensure that `tasks/main.yml` in the role is configured to call `tasks/networkmanager.yml` for the above playbook to apply full network configurations.
-
-## How to Customize
-
-1. **Modify `tasks/main.yml`**:
-
-    * As highlighted in the "Important Note" section, ensure `tasks/networkmanager.yml` is included from `tasks/main.yml` to activate the core networking logic.
-2. **Define `network_interfaces`**:
-
-    * This is the primary way to customize network settings. Populate the `network_interfaces` list in your playbook vars, host vars, or group vars.
-    * **Static Ethernet Example**:YAML
-
-        ```yaml
-        network_interfaces:
-          - ifname: "eno1"
-            conn_name: "Static Eno1"
-            type: "ethernet"
-            method4: "manual"
-            ip4: "10.10.0.50/16"
-            gw4: "10.10.0.1"
-            dns4: ["10.10.0.1"]
-            mac: "YOUR_ENO1_MAC_ADDRESS" # For udev rule
-        ```
-
-    * **DHCP WiFi Example**:YAML
-
-        ```yaml
-        network_interfaces:
-          - ifname: "wlp2s0"
-            conn_name: "Company Guest WiFi"
-            type: "wifi"
-            method4: "auto"
-            ssid: "GuestWiFiSSID"
-            mac: "YOUR_WLAN_MAC_ADDRESS" # For udev rule / identification
-        ```
-
-    * **Bridge Example**:YAML
-
-        ```yaml
-        network_interfaces:
-          # Bridge Interface
-          - ifname: "br0"
-            conn_name: "Bridge br0"
-            type: "bridge"
-            method4: "manual"
-            ip4: "192.168.5.1/24"
-            # No gateway for the bridge itself if it's just a layer 2 bridge for VMs on the same subnet
-          # Slave interface 1
-          - ifname: "eth1"
-            conn_name: "br0-slave-eth1"
-            type: "ethernet" # This interface becomes part of the bridge
-            bridge: "br0"    # Master bridge name
-            method4: "manual" # Often manual with no IP, or settings inherited
-            state: "present"
-            mac: "YOUR_ETH1_MAC_ADDRESS"
-        ```
-
-3. **Define `etc_hosts`**:
-
-    * Provide the desired content for `/etc/hosts` via the `etc_hosts` variable. The format depends on your `etc/hosts.j2` template.
-4. **Customize Default Variables (Optional)**:
-
-    * You can override variables from `defaults/main.yml` (like `packages` or `conn_check`) in your inventory or playbook, though be aware of the current implementation notes (e.g., `packages` not being installed, `conn_check` vars not used by the connectivity task).
-5. **Templates**:
-
-    * If you need to change how udev rules are generated or how `/etc/hosts` is formatted, you will need to modify the Jinja2 templates used by the role:
-        * `templates/etc/udev/rules.d/10-network.rules.j2`
-        * `templates/etc/hosts.j2`
-    * (Note: The content of these templates was not provided, so their exact behavior is assumed based on typical usage.)
-
-## License
-
-BSD
-
-## Author Information
-
-your name (Update with actual author details)
-
-(Based on meta/main.yml)

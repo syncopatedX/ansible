@@ -38,7 +38,8 @@ This playbook provides a comprehensive workstation setup, including:
 * **⌨️ Input Device Management:**
   * `input-remapper` installation and configuration.
 * **🌐 Networking & Services:**
-  * `systemd-networkd` and `systemd-resolved` for network configuration.
+  * Unified network configuration with support for both `systemd-networkd` and NetworkManager.
+  * Automatic wireless interface detection and interactive Wi-Fi setup using the pause module.
   * `firewalld` setup.
   * OpenSSH server/client configuration (`ssh` role).
   * NTP (Time Synchronization) via `systemd-timesyncd` (`ntp` role).
@@ -103,7 +104,7 @@ The playbook is organized into modular roles found in the `roles/` directory:
 | [libvirt](roles/libvirt/)          | Libvirt virtualization stack & optional Vagrant integration.                                                                           |
 | `media`            | Media-related configurations (e.g., Musikcube).                                                                                        |
 | [nas](roles/nas/)              | NFS & Samba server configuration.                                                                                                      |
-| [network](roles/network/)           | Comprehensive network management using NetworkManager. Consolidates functionality from previous networking roles (networking, networkmanager, and systemd-networkd). Supports ethernet, Wi-Fi, bridges, static/DHCP configurations, and udev rules. |
+| [network](roles/network/)           | Comprehensive network management supporting multiple backends (NetworkManager, systemd-networkd). Features automatic wireless interface detection, interactive Wi-Fi configuration using the pause module, and support for ethernet, Wi-Fi, bridges, static/DHCP configurations, and udev rules. |
 | [ntp](roles/ntp/)              | Time synchronization using `systemd-timesyncd`.                                                                                        |
 | [ruby](roles/ruby/)             | Ruby environment setup (System gems, optional RVM).                                                                                    |
 | [shell](roles/shell/)            | Zsh, Oh My Zsh, aliases, functions, kitty, ranger configuration.                                                                       |
@@ -192,6 +193,12 @@ The playbook's behavior can be customized through variables. Below are key varia
 | `use_pipewire`          | `audio`             | `roles/audio/defaults/main.yml`             | When `true`, configures PipeWire audio server (modern replacement for PulseAudio and JACK).             |
 | `jack_control`          | `audio`             | `roles/audio/defaults/main.yml`             | Configuration settings for JACK server (device selection, etc).                                         |
 | `additional_packages`   | `audio`             | `roles/audio/defaults/main.yml`             | List of additional audio-related packages to install.                                                   |
+
+#### Interactive Configuration
+
+| Variable                | Role(s)             | File Location                                | Description                                                                                             |
+| :---------------------- | :------------------ | :------------------------------------------- | :------------------------------------------------------------------------------------------------------ |
+| N/A                     | `network`           | `roles/network/tasks/iwd.yml`               | Uses the `pause` module to interactively prompt for wireless SSID and passphrase during playbook execution, allowing for interactive input anywhere in a task sequence (unlike `vars_prompt` which can only be used at the beginning of a play). |
 
 #### Web & Services
 
@@ -341,7 +348,7 @@ Run specific parts of the playbook using tags defined in playbooks (`main.yml`, 
 * **SSH Issues:** Ensure SSH connectivity (for `ansible-playbook`), correct user, and authentication. Check firewall rules (`firewalld` role, `ssh` role).
 * **Package Errors:** Check Ansible output for `pacman`/`paru` errors. Verify internet access and repository reachability. Ensure `aur_builder` user (if used) has necessary permissions.
 * **`ansible-pull` Failures:** Check permissions for cloning/writing in `/var/lib/ansible/local/` (or configured path). Ensure `git` and `ansible-core` are installed on the target. Check the repository URL and branch.
-* **Networking Issues:** Verify configurations applied by the `network` role. Use `nmcli` on the target host for diagnostics. Check `firewalld` status and rules.
+* **Networking Issues:** Verify configurations applied by the `network` role. For NetworkManager-based setups, use `nmcli` on the target host for diagnostics. For systemd-networkd setups, check `networkctl` status. For wireless issues, examine `/var/lib/iwd/` configurations. Check `firewalld` status and rules.
 * **Idempotency Problems:** Review task `when` conditions and checks for existing states.
 * **Check Mode:** Use `ansible-playbook --check` to preview changes. Note that `--check` mode might not perfectly simulate all state changes, especially with shell commands or complex services.
 * **Variable Issues:** Use `-v`, `-vv`, or `-vvv` for verbose output. Check variable precedence and definitions in inventory, group/host vars, and role defaults. Verify `ansible.cfg` settings like `error_on_undefined_vars`.
