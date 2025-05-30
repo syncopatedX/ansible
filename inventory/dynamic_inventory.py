@@ -7,6 +7,7 @@ import re
 import os
 import configparser
 from pathlib import Path
+import yaml
 
 # Static hostnames that should always be attempted (with .local mDNS support)
 STATIC_HOSTS = [
@@ -250,6 +251,48 @@ def build_inventory():
     return inventory
 
 
+def export_to_yaml(inventory):
+    """
+    Convert the inventory to Ansible-compatible YAML format
+    """
+    # Create a copy of the inventory to modify for YAML export
+    yaml_inventory = {}
+    
+    # Process each group
+    for group_name, group_data in inventory.items():
+        # Skip the _meta section as it's handled differently
+        if group_name == "_meta":
+            continue
+            
+        # Create the group in the YAML inventory
+        yaml_inventory[group_name] = {}
+        
+        # Add hosts if any
+        if group_data.get("hosts"):
+            yaml_inventory[group_name]["hosts"] = {}
+            for host in group_data["hosts"]:
+                # Get host variables from _meta section
+                host_vars = inventory["_meta"]["hostvars"].get(host, {})
+                
+                # Only include non-empty host vars
+                if host_vars:
+                    yaml_inventory[group_name]["hosts"][host] = host_vars
+                else:
+                    yaml_inventory[group_name]["hosts"][host] = None
+        
+        # Add children if any
+        if group_data.get("children") and group_data["children"]:
+            yaml_inventory[group_name]["children"] = {}
+            for child in group_data["children"]:
+                yaml_inventory[group_name]["children"][child] = None
+        
+        # Add group vars if any (excluding empty dicts)
+        if group_data.get("vars") and group_data["vars"]:
+            yaml_inventory[group_name]["vars"] = group_data["vars"]
+    
+    return yaml.dump(yaml_inventory, default_flow_style=False, sort_keys=False)
+
+
 if __name__ == "__main__":
     if len(sys.argv) == 2 and sys.argv[1] == "--list":
         # Enable debug mode with environment variable
@@ -274,7 +317,24 @@ enable_subnet_scan = true
 # Exclude the router at 192.168.41.1
 ip_whitelist = ^192\\.168\\.41\\.(2|3|4|10|29|30|31)$
 """)
+    elif len(sys.argv) == 2 and sys.argv[1] == "--yaml":
+        # Export inventory to YAML format
+        inventory = build_inventory()
+        print(export_to_yaml(inventory))
+    elif len(sys.argv) == 3 and sys.argv[1] == "--export":
+        # Export inventory to a YAML file
+        output_file = sys.argv[2]
+        inventory = build_inventory()
+        yaml_content = export_to_yaml(inventory)
+        
+        try:
+            with open(output_file, 'w') as f:
+                f.write(yaml_content)
+            sys.stderr.write(f"Inventory exported to {output_file}\n")
+        except Exception as e:
+            sys.stderr.write(f"Error exporting inventory: {str(e)}\n")
+            sys.exit(1)
     else:
-        sys.stderr.write("Usage: dynamic_inventory.py --list or --host <hostname> or --config\n")
+        sys.stderr.write("Usage: dynamic_inventory.py --list | --host <hostname> | --config | --yaml | --export <filename>\n")
         sys.exit(1)
 
