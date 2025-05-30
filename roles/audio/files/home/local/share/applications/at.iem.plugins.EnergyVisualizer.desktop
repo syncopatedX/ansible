@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=EnergyVisualizer
+GenericName=Audio Visualizer
+Comment=Visualizes the energy distribution on the sphere of the Ambisonic input signal using a Hammer-Aitoff projection (a spherical projection which is area-preserving)
+Exec=EnergyVisualizer
+Icon=iempluginsuite
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;iempluginsuite;

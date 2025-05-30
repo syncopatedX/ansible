@@ -2,11 +2,11 @@
 #  - dest: ".config/picom"
 
 - name: Set picom config
-  template:
+  ansible.builtin.template:
     src: "home/.config/picom.conf.j2"
     dest: "{{ user.home }}/.config/picom.conf"
     owner: "{{ user.name }}"
     group: "{{ user.group }}"
-    mode: '0644'
-    backup: yes
+    mode: "0644"
+    backup: true
   tags: ["profile", "picom"]

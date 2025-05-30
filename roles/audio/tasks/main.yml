@@ -1,0 +1,71 @@
+---
+- name: Starting audio role tasks
+  ansible.builtin.debug:
+    msg: "Starting audio tasks"
+
+- ansible.builtin.import_tasks:
+    file: packages.yml
+  tags: ["packages"]
+
+# - block:
+#     - name: install lsmi
+#       copy:
+#         src: "usr/local/bin/{{ item }}"
+#         dest: "/usr/local/bin/{{ item }}"
+#         mode: '0755'
+#       with_items:
+#         - lsmi-joystick
+#         - lsmi-keyhack
+#         - lsmi-monterey
+#         - lsmi-mouse
+
+#     - name: install makeh2kit and makesfz
+#       copy:
+#         src: "usr/local/bin/{{ item }}"
+#         dest: "/usr/local/bin/{{ item }}"
+#         mode: '0755'
+#       with_items:
+#         - makeh2kit
+#         - makesfz
+
+#     - name: install ebu-norm
+#       copy:
+#         src: "usr/local/bin/{{ item }}"
+#         dest: "/usr/local/bin/{{ item }}"
+#         mode: '0755'
+#       with_items:
+#         - ebu-norm
+#         - ebu-scan
+#         - tp-norm
+#         - tp-normv2
+
+#   become: True
+#   tags: ['utils']
+
+# - name: add modprobe option to not use a usb card are the default device
+#   lineinfile:
+#     path: /etc/modprobe.d/10-alsa_usb.conf
+#     line: "options snd slots=snd-hda-intel,snd-usb-audio"
+#     create: yes
+#     backup: yes
+#   become: True
+#   tags: ['modprobe']
+
+- ansible.builtin.import_tasks:
+    file: jack.yml
+  when: use_jack|bool
+  tags: ["jack"]
+
+- ansible.builtin.import_tasks:
+    file: pulseaudio.yml
+  when: use_jack|bool
+  tags: ["pulseaudio"]
+
+- ansible.builtin.import_tasks:
+    file: pipewire.yml
+  when: use_pipewire|bool
+  tags: ["pipewire"]
+
+- ansible.builtin.import_tasks:
+    file: tuning.yml
+  tags: ["tuning"]

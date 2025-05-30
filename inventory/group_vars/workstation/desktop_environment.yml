@@ -1,0 +1,9 @@
+---
+
+bootloader: grub
+
+display_manager: "lightdm"
+
+autologin: false
+
+window_manager: "i3"

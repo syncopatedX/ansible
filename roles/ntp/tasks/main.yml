@@ -1,33 +1,31 @@
 ---
 # tasks file for ntp
-
-
 - name: Check if systemd-timesyncd service exists
-  stat:
+  ansible.builtin.stat:
     path: /usr/lib/systemd/system/systemd-timesyncd.service
   register: timesyncd_service
 
-- block:
-  - name: Create timesyncd.conf.d directory
-    file:
-      path: /etc/systemd/timesyncd.conf.d
-      state: directory
+- when: timesyncd_service.stat.exists
+  block:
+    - name: Create timesyncd.conf.d directory
+      ansible.builtin.file:
+        path: /etc/systemd/timesyncd.conf.d
+        state: directory
 
-  - name: set ntp servers in timesyncd.conf
-    copy:
-      src: etc/systemd/timesyncd.conf.d/local.conf
-      dest: /etc/systemd/timesyncd.conf.d/local.conf
-      mode: '0644'
-      backup: yes
-    register: timesyncd_conf
-    notify: enable systemd-timesyncd service
+    - name: Set ntp servers in timesyncd.conf
+      ansible.builtin.copy:
+        src: etc/systemd/timesyncd.conf.d/local.conf
+        dest: /etc/systemd/timesyncd.conf.d/local.conf
+        mode: "0644"
+        backup: true
+      register: timesyncd_conf
+      notify: Enable systemd-timesyncd Service
 
-  - name: Sync hwclock
-    shell: |
-      timedatectl set-ntp true && \
-      sleep 4 && \
-      hwclock --systohc
-    when:
-      - timesyncd_conf.changed
-      - ansible_distribution != 'Debian'
-  when: timesyncd_service.stat.exists
+    - name: Sync hwclock
+      ansible.builtin.shell: |
+        timedatectl set-ntp true && \
+        sleep 4 && \
+        hwclock --systohc
+      when:
+        - timesyncd_conf.changed
+        - ansible_distribution != 'Debian'

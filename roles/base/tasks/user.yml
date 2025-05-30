@@ -1,21 +1,20 @@
 ---
-
 - name: Ensure user is present with proper shell and groups
-  user:
+  ansible.builtin.user:
     name: "{{ user.name }}"
     shell: "{{ user.shell | default('/usr/bin/zsh') }}"
     groups: "{{ user.groups | default([]) }}"
-    append: yes
+    append: true
     state: present
 
 - name: Push aliases template
-  template:
+  ansible.builtin.template:
     src: home/.aliases.j2
     dest: "{{ profile_config_dir }}/.aliases"
     owner: "{{ user.name }}"
-    group: "{{ user.group }}"    
+    group: "{{ user.group }}"
     mode: "0644"
-    backup: True
+    backup: true
   tags: ["aliases", "profile"]
 
 # - name: Push .profile template
@@ -27,7 +26,7 @@
 #   tags: ["profile"]
 
 - name: Ensure ~/.local/bin exists
-  file:
+  ansible.builtin.file:
     path: "{{ user.home }}/.local/bin"
     state: directory
     mode: "0755"
@@ -36,7 +35,7 @@
   tags: ["folders"]
 
 - name: Ensure ~/.local/share exists
-  file:
+  ansible.builtin.file:
     path: "{{ user.home }}/.local/share"
     state: directory
     mode: "0755"

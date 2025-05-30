@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=ToolBox
+GenericName=Ambisonic Transformation
+Comment=Flips the Ambisonic input signal along the x, y and/or z axis.
+Exec=ToolBox
+Icon=iempluginsuite
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;iempluginsuite;

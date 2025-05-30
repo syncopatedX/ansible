@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=zita-mu1
+Comment=A simple JACK app used to organise stereo monitoring
+Exec=zita-mu1
+Icon=redzita
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;

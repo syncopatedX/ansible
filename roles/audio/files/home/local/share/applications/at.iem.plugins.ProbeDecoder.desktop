@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=ProbeDecoder
+GenericName=Ambisonic Decoder
+Comment=A little tool to sample/decode the Ambisonic input signal for one specific direction and listen to the output.
+Exec=ProbeDecoder
+Icon=iempluginsuite
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;iempluginsuite;

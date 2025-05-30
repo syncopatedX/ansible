@@ -1,0 +1,2 @@
+# Determine connection mode dynamically
+ansible_connection: "{{ 'local' if inventory_hostname == ansible_hostname else 'ssh' }}"

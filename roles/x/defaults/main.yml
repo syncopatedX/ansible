@@ -2,7 +2,7 @@
 # defaults file for x
 
 x:
-  autostart: 'default'
+  autostart: "default"
 
 xorg__packages:
   - dunst

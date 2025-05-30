@@ -1,9 +1,0 @@
----
-
-packages:
-  - network-manager-applet
-
-conn_check:
-    uri: "http://pihole/admin"
-    interval: 120
-

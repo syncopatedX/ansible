@@ -1,0 +1,83 @@
+---
+- name: Remove pipewire
+  community.general.pacman:
+    name: "{{ packages__audio.pipewire }}"
+    state: absent
+    force: true
+    extra_args: --noconfirm
+  become: true
+  ignore_errors: true
+
+# stderr: 'error: target not found: jack'
+- name: Remove jack in favor of jack2dbus
+  ansible.builtin.shell: |
+    paru -Rdd jack --noconfirm
+  ignore_errors: true
+
+- tags: ["packages", "jack_pkgs"]
+  become: false
+  block:
+    - name: Install jack packages
+      aur:
+        use: auto
+        name: "{{ packages__audio.jack }}"
+        state: present
+  rescue:
+    - name: Installing base packages failed
+      ansible.builtin.debug:
+        msg: "Failed to install base packages"
+
+- name: Set jack engine parameters
+  ansible.builtin.command: jack_control eps driver {{ jack.eps.driver }}
+  environment:
+    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ user.uid }}/bus"
+  register: result
+  changed_when: result.rc != 0
+  become: false
+
+- name: Set jack driver parameters
+  ansible.builtin.shell: |
+    jack_control dps device {{ jack.dps.device }}
+    jack_control dps midi-driver {{ jack.dps.mididriver }}
+    jack_control dps monitor {{ jack.dps.monitor }}
+    jack_control dps period {{ jack.dps.period }}
+  environment:
+    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ user.uid }}/bus"
+  register: result
+  changed_when: result.rc != 0
+  become: false
+
+- name: Create environment file for jack_control.service
+  ansible.builtin.copy:
+    content: |
+      DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
+    dest: "/etc/default/jack_control"
+  become: true
+
+- name: Create systemd user directory
+  ansible.builtin.file:
+    path: "{{ user.home }}/.config/systemd/user/default.target.wants"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+    mode: "0755"
+
+- name: Install jack_control service file
+  ansible.builtin.copy:
+    src: "usr/lib/systemd/user/jack_control.service"
+    dest: "{{ user.home }}/.config/systemd/user/jack_control.service"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+    mode: "0644"
+
+- name: Enable jack services
+  ansible.builtin.systemd:
+    name: jack_control
+    enabled: true
+    state: started
+    scope: user
+    daemon_reload: true
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ user.uid }}"
+  ignore_errors: "{{ ansible_check_mode }}"
+  become: false

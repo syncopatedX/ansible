@@ -48,6 +48,15 @@ This playbook provides a comprehensive workstation setup, including:
   * Sets a simple static HTML homepage with configurable links.
 * **🔊 Media:**
   * Configuration for media applications (e.g., Musikcube).
+* **🎵 Professional Audio:**
+  * Configurable audio server selection (JACK, PulseAudio, PipeWire).
+  * System tuning for low-latency audio performance.
+  * Realtime privileges and CPU optimization for audio processing.
+  * Audio normalization tools and utilities.
+* **🔍 Dynamic Inventory:**
+  * Enhanced inventory management with group and host variable support.
+  * Flexible group hierarchy and variable inheritance.
+  * See [Dynamic-Inventory.md](docs/Dynamic-Inventory.md) for detailed documentation.
 
 ## ✅ Requirements
 
@@ -74,6 +83,36 @@ This playbook provides a comprehensive workstation setup, including:
     ```bash
     # ansible-galaxy install -r requirements.yml
     ```
+
+## 🧩 Roles Overview
+
+The playbook is organized into modular roles found in the `roles/` directory:
+
+| Role               | Description                                                                                                                            |
+| :----------------- | :------------------------------------------------------------------------------------------------------------------------------------- |
+| [audio](audio/)            | Professional Linux audio setup with configurable server selection (JACK, PulseAudio, PipeWire) via `use_jack` and `use_pipewire` variables. Includes comprehensive system tuning for low-latency performance, realtime privileges, CPU optimization, and audio normalization tools.                                                                         |
+| [base](base/)             | Core system setup, package management (pacman/paru), repositories, base packages, user creation, sudoers, `rc.local`.                   |
+| [desktop](desktop/)          | General desktop applications, fonts, and themes.                                                                                       |
+| [docker](docker/)           | Docker Engine & Docker Compose installation and configuration (including optional NVIDIA support).                                       |
+| `fabric`           | Fabric AI scripting tool setup and configuration.                                                                                      |
+| [firewalld](firewalld)        | Firewall configuration using firewalld, opening necessary ports.                                                                       |
+| [grub](grub/)             | GRUB bootloader configuration tweaks (kernel parameters, submenus, savedefault).                                                       |
+| [homepage](homepage)         | Simple static HTML homepage setup.                                                                                                     |
+| [i3](i3/)               | i3 Window Manager, i3status-rust, Rofi configuration.                                                                                  |
+| [input-remapper](input-remapper/)   | Input device mapping tool setup.                                                                                                       |
+| [libvirt](libvirt)          | Libvirt virtualization stack & optional Vagrant integration.                                                                           |
+| `media`            | Media-related configurations (e.g., Musikcube).                                                                                        |
+| [nas](nas/)              | NFS & Samba server configuration.                                                                                                      |
+| [network](network/)           | Comprehensive network management using NetworkManager. Consolidates functionality from previous networking roles (networking, networkmanager, and systemd-networkd). Supports ethernet, Wi-Fi, bridges, static/DHCP configurations, and udev rules. |
+| [ntp](ntp/)              | Time synchronization using `systemd-timesyncd`.                                                                                        |
+| [ruby](ruby/)             | Ruby environment setup (System gems, optional RVM).                                                                                    |
+| [shell](shell)            | Zsh, Oh My Zsh, aliases, functions, kitty, ranger configuration.                                                                       |
+| [ssh](ssh/)              | OpenSSH server/client configuration and hardening.                                                                                     |
+| [sway](sway/)             | Tiling Window Manager for Wayland                                                                                    |
+| [tools](tools/)            | Installation of custom scripts/tools like `code-packager`, `whisper-stream`.                                                           |
+| [x](x/)                | X11 server, drivers, core X utilities, Picom, Dunst, sxhkd, XDG configuration.                                                         |
+
+*(Refer to individual `roles/<role_name>/README.md` files for detailed documentation on each role's capabilities, variables, and usage)*
 
 ## 🚀 Usage
 
@@ -179,37 +218,191 @@ This is the traditional method where you run `ansible-playbook` from a controlle
 
 Tailor the playbook using Ansible variables.
 
-* **Locations (Order of Precedence - High to Low):**
-  1. Command Line (`-e "var=value"`)
-  2. Host Variables (`inventory/host_vars/<hostname>.yml`)
-  3. Group Variables (`inventory/group_vars/<groupname>.yml`)
-  4. Global Group Variables (`inventory/group_vars/all/*.yml`)
-  5. Role Defaults (`roles/<rolename>/defaults/main.yml`)
-* **Key Variables (Examples - Check role defaults/vars for specifics):**
-  * `user_name`, `user_group`, `user_uid`, `user_home`, `user_shell`: Define primary user details (often used by `base` and `shell` roles).
-  * `user_sudoer`: `true`/`false` to grant passwordless sudo via `base` role.
-  * `use_docker`: `true`/`false` to enable/disable Docker role.
-  * `use_libvirt`: `true`/`false` to enable/disable Libvirt role.
-  * `use_vagrant`: `true`/`false` to enable/disable Vagrant (requires `use_libvirt=true`).
-  * `docker_nvidia_support`: `true`/`false` to enable Docker NVIDIA support.
-  * `rvm_install`: `true`/`false` to enable/disable RVM installation in `ruby` role.
-  * `zsh_theme`: Set the desired Oh My Zsh theme in `shell` role.
-  * `packages_*`: Variables within roles defining package lists (e.g., `base_packages`, `x_packages`).
-  * `colors_*`: Variables defining color schemes (e.g., `colors_base00`, see `inventory/group_vars/all/colors.yml`).
-  * `theme_*`: Variables defining theme elements (see `inventory/group_vars/all/theme.yml`).
-  * `i3_*`: Dictionaries/variables for i3 settings within the `i3` role.
-  * `x_*`: Dictionaries/variables for X11 settings within the `x` role.
-  * `homepage_*`: Variables defining links for the static homepage.
-  * `networkd_*`: Variables for configuring `systemd-networkd` interfaces, networks, netdevs, mounts (see `systemd-networkd` role).
-* **Example (Command Line Override):**
+### Variable Precedence (Highest to Lowest)
 
-    ```bash
-    ansible-playbook -i inventory/inventory.ini playbooks/full.yml -b -e "use_docker=false" -e "user_name=newuser"
-    ```
+| Level | Location                                      | Description                                    |
+| :---- | :-------------------------------------------- | :--------------------------------------------- |
+| 1     | Command Line (`-e "var=value"`)               | Overrides all other variable definitions.      |
+| 2     | Host Variables (`inventory/host_vars/*.yml`)  | Specific variables for a single host.          |
+| 3     | Group Variables (`inventory/group_vars/*.yml`) | Variables applied to hosts within a group.     |
+| 4     | Global Variables (`inventory/group_vars/all`) | Variables applied to all hosts in inventory. |
+| 5     | Role Defaults (`roles/*/defaults/main.yml`)   | Default values defined within each role.       |
+
+### Key Variables
+
+The playbook's behavior can be customized through variables. Below are key variables organized by category with their file locations. For a complete list, check individual role `defaults/main.yml` or `vars/main.yml` files.
+
+#### User Configuration
+
+| Variable                | Role(s)             | File Location                                | Description                                                                                             |
+| :---------------------- | :------------------ | :------------------------------------------- | :------------------------------------------------------------------------------------------------------ |
+| `user_name`             | `base`, `shell`     | `roles/base/defaults/main.yml`              | Primary user's username for the system.                                                                 |
+| `user_group`            | `base`, `shell`     | `roles/base/defaults/main.yml`              | Primary user's group name (defaults to same as username).                                               |
+| `user_uid`              | `base`              | `roles/base/defaults/main.yml`              | Primary user's UID (numeric user identifier).                                                           |
+| `user_home`             | `base`, `shell`     | `roles/base/defaults/main.yml`              | Full path to primary user's home directory (e.g., `/home/username`).                                    |
+| `user_shell`            | `base`, `shell`     | `roles/base/defaults/main.yml`              | Primary user's default shell (e.g., `/bin/zsh`).                                                        |
+| `user_sudoer`           | `base`              | `roles/base/defaults/main.yml`              | When `true`, grants passwordless sudo access to the primary user.                                       |
+
+#### Virtualization & Containerization
+
+| Variable                | Role(s)             | File Location                                | Description                                                                                             |
+| :---------------------- | :------------------ | :------------------------------------------- | :------------------------------------------------------------------------------------------------------ |
+| `use_docker`            | `docker`            | `roles/docker/defaults/main.yml`            | When `true`, enables Docker installation and configuration.                                             |
+| `docker_nvidia_support` | `docker`            | `roles/docker/defaults/main.yml`            | When `true`, configures Docker with NVIDIA GPU support.                                                 |
+| `use_libvirt`           | `libvirt`           | `roles/libvirt/defaults/main.yml`           | When `true`, enables libvirt virtualization stack installation.                                         |
+| `use_vagrant`           | `libvirt`           | `roles/libvirt/defaults/main.yml`           | When `true`, installs Vagrant (requires `use_libvirt=true`).                                            |
+
+#### Shell & Desktop Environment
+
+| Variable                | Role(s)             | File Location                                | Description                                                                                             |
+| :---------------------- | :------------------ | :------------------------------------------- | :------------------------------------------------------------------------------------------------------ |
+| `zsh_theme`             | `shell`             | `roles/shell/defaults/main.yml`             | Specifies the Oh My Zsh theme to use.                                                                   |
+| `i3_*`                  | `i3`                | `roles/i3/defaults/main.yml`                | Collection of variables for i3 window manager configuration.                                            |
+| `x_*`                   | `x`                 | `roles/x/defaults/main.yml`                 | Variables controlling X11 environment settings.                                                         |
+
+#### Development Environment
+
+| Variable                | Role(s)             | File Location                                | Description                                                                                             |
+| :---------------------- | :------------------ | :------------------------------------------- | :------------------------------------------------------------------------------------------------------ |
+| `rvm_install`           | `ruby`              | `roles/ruby/defaults/main.yml`              | When `true`, installs Ruby Version Manager instead of system Ruby.                                      |
+
+#### Networking
+
+| Variable                | Role(s)             | File Location                                | Description                                                                                             |
+| :---------------------- | :------------------ | :------------------------------------------- | :------------------------------------------------------------------------------------------------------ |
+| `network_interfaces`    | `network`           | `roles/network/defaults/main.yml`           | List of network interfaces to configure (ethernet, Wi-Fi, bridge).                                      |
+| `etc_hosts`             | `network`           | `roles/network/defaults/main.yml`           | Content for the `/etc/hosts` file.                                                                      |
+
+#### Theming & Appearance
+
+| Variable                | Role(s)             | File Location                                | Description                                                                                             |
+| :---------------------- | :------------------ | :------------------------------------------- | :------------------------------------------------------------------------------------------------------ |
+| `colors_*`              | Various (via `all`) | `inventory/group_vars/all/colors.yml`        | Color scheme definitions (e.g., `colors_base00`) defined in `inventory/group_vars/all/colors.yml`.      |
+| `theme_*`               | Various (via `all`) | `inventory/group_vars/all/theme.yml`         | Theme element definitions defined in `inventory/group_vars/all/theme.yml`.                              |
+
+#### Package Installation
+
+| Variable                | Role(s)             | File Location                                | Description                                                                                             |
+| :---------------------- | :------------------ | :------------------------------------------- | :------------------------------------------------------------------------------------------------------ |
+| `packages_*`            | Various             | `roles/*/defaults/main.yml` (role-specific)  | Lists of packages to install (e.g., `base_packages`, `x_packages`).                                     |
+
+#### Audio Configuration
+
+| Variable                | Role(s)             | File Location                                | Description                                                                                             |
+| :---------------------- | :------------------ | :------------------------------------------- | :------------------------------------------------------------------------------------------------------ |
+| `use_jack`              | `audio`             | `roles/audio/defaults/main.yml`             | When `true`, configures JACK audio server for professional audio work.                                  |
+| `use_pipewire`          | `audio`             | `roles/audio/defaults/main.yml`             | When `true`, configures PipeWire audio server (modern replacement for PulseAudio and JACK).             |
+| `jack_control`          | `audio`             | `roles/audio/defaults/main.yml`             | Configuration settings for JACK server (device selection, etc).                                         |
+| `additional_packages`   | `audio`             | `roles/audio/defaults/main.yml`             | List of additional audio-related packages to install.                                                   |
+
+#### Web & Services
+
+| Variable                | Role(s)             | File Location                                | Description                                                                                             |
+| :---------------------- | :------------------ | :------------------------------------------- | :------------------------------------------------------------------------------------------------------ |
+| `homepage_*`            | `homepage`          | `roles/homepage/defaults/main.yml`          | Variables defining links and appearance for the static homepage.                                        |
+
+### Example Variable Customization
+
+```yaml
+# Example host_vars/myworkstation.yml
+user_name: developer
+user_home: /home/developer
+user_shell: /bin/zsh
+user_sudoer: true
+
+use_docker: true
+docker_nvidia_support: true
+use_libvirt: true
+use_vagrant: true
+
+zsh_theme: robbyrussell
+
+rvm_install: true
+
+# Networking example
+network_interfaces:
+  - ifname: "eth0"
+    conn_name: "Wired connection eth0"
+    type: "ethernet"
+    method4: "manual"
+    ip4: "192.168.1.100/24"
+    gw4: "192.168.1.1"
+    dns4: ["192.168.1.1", "8.8.8.8"]
+```
+
+### Example (Command Line Override)
+
+```bash
+ansible-playbook -i inventory/inventory.ini playbooks/full.yml -b -e "use_docker=false" -e "user_name=newuser"
+```
 
 ## 🏷️ Using Tags
 
 Run specific parts of the playbook using tags defined in playbooks (`main.yml`, `playbooks/full.yml`) and role tasks.
+
+### Available Tags
+
+| Tag | Description |
+| :--- | :--- |
+| `aliases` | Configure shell aliases |
+| `audio` | Configure professional audio setup (JACK, PulseAudio, PipeWire) |
+| `base` | Core system setup tasks |
+| `base_pkgs` | Install base system packages |
+| `code-packager` | Install and configure code-packager tool |
+| `docker` | Docker installation and configuration |
+| `docker_pkgs` | Install Docker-related packages |
+| `dunst` | Configure Dunst notification daemon |
+| `env` | Set up environment variables |
+| `fabric` | Install and configure Fabric AI scripting tool |
+| `firewalld` | Configure firewall using firewalld |
+| `folders` | Create and configure directories |
+| `groups` | Manage system groups |
+| `grub` | Configure GRUB bootloader |
+| `grub_pkgs` | Install GRUB-related packages |
+| `homepage` | Set up static HTML homepage |
+| `i3` | Install and configure i3 window manager |
+| `i3_config` | Configure i3 window manager settings |
+| `input-remapper` | Set up input device mapping |
+| `keybindings` | Configure keyboard shortcuts |
+| `libvirt` | Install and configure libvirt virtualization |
+| `makepkg` | Configure makepkg settings |
+| `menus` | Configure application menus |
+| `mirrors` | Update and optimize package mirrors |
+| `nas` | Set up NAS-related services |
+| `network` | Configure network settings |
+| `nfs` | Set up NFS server/client |
+| `ntp` | Configure time synchronization |
+| `packages` | General package installation tasks |
+| `paru` | Install and configure paru AUR helper |
+| `picom` | Configure Picom compositor |
+| `profile` | Set up user profile configurations |
+| `repos` | Configure package repositories |
+| `rofi` | Configure Rofi application launcher |
+| `rsyncd` | Set up rsync daemon |
+| `ruby` | Install and configure Ruby environment |
+| `rvm` | Install and configure Ruby Version Manager |
+| `samba` | Set up Samba file sharing |
+| `setup` | General setup tasks |
+| `shell` | Configure shell environment |
+| `shell_pkgs` | Install shell-related packages |
+| `ssh` | Configure SSH server/client |
+| `sudo` | Configure sudo access |
+| `sudoers` | Manage sudoers configuration |
+| `sxhkd` | Configure Simple X Hotkey Daemon |
+| `systemd-mounts` | Configure systemd mount units |
+| `tools` | Install and configure custom tools |
+| `updatedb` | Configure and run updatedb for file indexing |
+| `user` | Manage user accounts |
+| `vagrant` | Install and configure Vagrant |
+| `whisper-stream` | Install and configure whisper-stream tool |
+| `x` | Configure X11 environment |
+| `xdg` | Configure XDG Base Directory settings |
+| `xprofile` | Configure X11 profile settings |
+| `zprofile` | Configure Zsh profile |
+| `zsh` | Install and configure Zsh shell |
+| `zsh_functions` | Configure Zsh functions |
+
+### Usage Examples
 
 * **Run Only Specific Tags:**
 
@@ -217,8 +410,14 @@ Run specific parts of the playbook using tags defined in playbooks (`main.yml`, 
     # Run only base setup and shell configuration tasks
     ansible-playbook -i inventory/inventory.ini main.yml -b --tags "base,shell"
 
-    # Run only systemd-networkd and firewalld tasks
-    ansible-playbook -i inventory/inventory.ini main.yml -b --tags "systemd-networkd,firewalld"
+    # Run only network and firewalld tasks
+    ansible-playbook -i inventory/inventory.ini main.yml -b --tags "network,firewalld"
+    
+    # Run only audio configuration
+    ansible-playbook -i inventory/inventory.ini main.yml -b --tags "audio"
+    
+    # Run only tools installation
+    ansible-playbook -i inventory/inventory.ini main.yml -b --tags "tools,code-packager,whisper-stream"
     ```
 
 * **Skip Specific Tags:**
@@ -226,6 +425,9 @@ Run specific parts of the playbook using tags defined in playbooks (`main.yml`, 
     ```bash
     # Run everything EXCEPT docker and libvirt
     ansible-playbook -i inventory/inventory.ini playbooks/full.yml -b --skip-tags "docker,libvirt"
+    
+    # Run everything EXCEPT X11 related configurations
+    ansible-playbook -i inventory/inventory.ini playbooks/full.yml -b --skip-tags "x,i3,picom,dunst,sxhkd"
     ```
 
 * **List Available Tags:**
@@ -236,40 +438,12 @@ Run specific parts of the playbook using tags defined in playbooks (`main.yml`, 
     ansible-playbook -i inventory/inventory.ini main.yml --list-tags
     ```
 
-## 🧩 Roles Overview
-
-The playbook is organized into modular roles found in the `roles/` directory:
-
-* `base`: Core system setup, package management (pacman/paru), repositories, base packages, user creation, sudoers, `rc.local`.
-* `desktop`: General desktop environment components (potentially shared across WMs/DEs - check tasks).
-* `docker`: Docker Engine & Docker Compose installation and configuration.
-* `fabric`: Fabric AI tool setup.
-* `firewalld`: Firewall configuration using firewalld.
-* `fonts`: Font installation.
-* `grub`: GRUB bootloader theme and configuration tweaks.
-* `homepage`: Simple static HTML homepage setup.
-* `i3`: i3 Window Manager, i3status-rust, Rofi configuration.
-* `input-remapper`: Input device mapping tool setup.
-* `libvirt`: Libvirt virtualization stack & optional Vagrant integration.
-* `lightdm`: LightDM Display Manager setup (currently minimal).
-* `media`: Media-related configurations (e.g., Musikcube).
-* `nas`: NFS & Samba server configuration.
-* `ntp`: Time synchronization using `systemd-timesyncd`.
-* `ruby`: Ruby environment setup (System gems, optional RVM).
-* `shell`: Zsh, Oh My Zsh, aliases, functions, kitty, ranger configuration.
-* `ssh`: OpenSSH server/client configuration and hardening.
-* `systemd-networkd`: Network configuration using `systemd-networkd` and `systemd-resolved`. Includes handling of network, netdev, link, and mount units.
-* `tools`: Installation of custom scripts/tools like `code-packager`, `whisper-stream`.
-* `x`: X11 server, drivers, core X utilities, Picom, Dunst, sxhkd, XDG configuration.
-
-*(Refer to individual `roles/<role_name>/README.md` or `roles/<role_name>/tasks/main.yml` for specifics)*
-
 ## 🤔 Troubleshooting
 
 * **SSH Issues:** Ensure SSH connectivity (for `ansible-playbook`), correct user, and authentication. Check firewall rules (`firewalld` role, `ssh` role).
 * **Package Errors:** Check Ansible output for `pacman`/`paru` errors. Verify internet access and repository reachability. Ensure `aur_builder` user (if used) has necessary permissions.
 * **`ansible-pull` Failures:** Check permissions for cloning/writing in `/var/lib/ansible/local/` (or configured path). Ensure `git` and `ansible-core` are installed on the target. Check the repository URL and branch.
-* **Networking Issues:** Verify configurations applied by the `systemd-networkd` role. Use `networkctl` and `resolvectl` on the target host for diagnostics. Check `firewalld` status and rules.
+* **Networking Issues:** Verify configurations applied by the `network` role. Use `nmcli` on the target host for diagnostics. Check `firewalld` status and rules.
 * **Idempotency Problems:** Review task `when` conditions and checks for existing states.
 * **Check Mode:** Use `ansible-playbook --check` to preview changes. Note that `--check` mode might not perfectly simulate all state changes, especially with shell commands or complex services.
 * **Variable Issues:** Use `-v`, `-vv`, or `-vvv` for verbose output. Check variable precedence and definitions in inventory, group/host vars, and role defaults. Verify `ansible.cfg` settings like `error_on_undefined_vars`.

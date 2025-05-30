@@ -2,13 +2,13 @@
 # tasks file for docker
 
 - name: Check if Docker is installed
-  command: docker --version
+  ansible.builtin.command: docker --version
   register: docker_check
   changed_when: false
   ignore_errors: true
 
 - name: Print Docker version if installed
-  debug:
+  ansible.builtin.debug:
     msg: "Docker version: {{ docker_check.msg }}"
   when: docker_check.rc == 0
 
@@ -20,7 +20,7 @@
     extra_args: "--overwrite '*'"
   with_items:
     - "{{ packages__docker }}"
-  become: False
+  become: false
   tags: ["packages", "docker_pkgs"]
 
 - name: Install docker nvidia packages
@@ -32,10 +32,10 @@
   loop:
     - nvidia-container-toolkit
     - nvidia-docker-compose
-  become: False
+  become: false
   when: nvidia is defined
   tags: ["packages", "docker_pkgs"]
 
-- import_tasks:
+- ansible.builtin.import_tasks:
     file: setup.yml
   tags: ["setup"]

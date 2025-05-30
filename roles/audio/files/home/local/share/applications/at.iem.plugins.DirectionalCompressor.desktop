@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=DirectionalCompressor
+GenericName=Compressor Limiter
+Comment=A more sophisticated Ambisonic compressor/limiter which lets you control the dynamics for different spatial regions.
+Exec=DirectionalCompressor
+Icon=iempluginsuite
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;iempluginsuite;

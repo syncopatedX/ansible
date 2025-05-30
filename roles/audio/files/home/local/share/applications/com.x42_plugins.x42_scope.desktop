@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=x42-scope
+GenericName=Oscilloscope
+Comment=Simple audio oscilloscope with variable time scale, triggering, cursors and numeric readout
+Exec=x42-scope
+Icon=x42-scope
+Terminal=false
+StartupNotify=false

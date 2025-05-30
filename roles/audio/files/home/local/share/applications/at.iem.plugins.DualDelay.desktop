@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=DualDelay
+GenericName=Delay
+Comment=Two delay-lines, which can be configured independently.
+Exec=DualDelay
+Icon=iempluginsuite
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;iempluginsuite;

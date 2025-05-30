@@ -1,17 +1,19 @@
 ---
 - name: Check if paru installed
-  stat:
+  ansible.builtin.stat:
     path: /usr/bin/paru
   register: paru
   tags: ["packages"]
 
 - name: Install paru if not installed
+  when: not paru.stat.exists
+  tags: ["packages"]
   block:
     - name: Install paru
-      pacman:
+      community.general.pacman:
         name: paru
         state: present
-        force: yes
+        force: true
         extra_args: --noconfirm
       register: paru_package
       until: "paru_package is not failed"
@@ -20,31 +22,29 @@
 
   rescue:
     - name: Clone paru
-      git:
+      ansible.builtin.git:
         repo: "https://aur.archlinux.org/paru.git"
         dest: "/tmp/paru"
-        accept_hostkey: yes
-        update: yes
-        force: no
-      become: False
+        accept_hostkey: true
+        update: true
+        force: false
+      become: false
 
     - name: Make and install paru
-      shell: "makepkg -si --noconfirm --needed"
+      ansible.builtin.command: "makepkg -si --noconfirm --needed"
       args:
         chdir: "/tmp/paru"
-      become: False
+      become: false
 
-    - name: clean and update package cache
-      shell: "paru -Sc --noconfirm && paru -Syy"
-      become: False
+    - name: Clean and update package cache
+      ansible.builtin.shell: "paru -Sc --noconfirm && paru -Syy"
+      become: false
 
-  when: not paru.stat.exists
-  tags: ["packages"]
 
 - name: Adjust paru config
-  template:
+  ansible.builtin.template:
     src: etc/paru.conf.j2
     dest: /etc/paru.conf
     mode: "0644"
-    backup: True
+    backup: true
   # ignore_errors: "{{ ansible_check_mode }}"

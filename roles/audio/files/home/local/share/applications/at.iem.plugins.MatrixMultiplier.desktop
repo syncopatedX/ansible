@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=MatrixMultiplier
+GenericName=Matrix Transformation
+Comment=Load a configuration which contains a TransformationMatrix object which will be applied to the input signal.
+Exec=MatrixMultiplier
+Icon=iempluginsuite
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;iempluginsuite;

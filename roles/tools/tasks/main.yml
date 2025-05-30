@@ -1,10 +1,10 @@
 ---
 # tasks file for tools
 
-- import_tasks:
+- ansible.builtin.import_tasks:
     file: code-packager.yml
   tags: ["code-packager"]
 
-- import_tasks:
+- ansible.builtin.import_tasks:
     file: whisper-stream.yml
   tags: ["whisper-stream"]

@@ -1,5 +1,4 @@
 ---
-
-- import_tasks:
+- ansible.builtin.import_tasks:
     file: zsh.yml
   tags: ["zsh"]

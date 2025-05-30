@@ -37,7 +37,8 @@ skip_list:
   - "303" # Using command rather than module
   - "306" # Shells that use pipes should set the pipeline's return status
   - "502" # All tasks should be named
-  # - yaml
+  - yaml[truthy]
+  - loop_var_prefix[missing]
   # - fqcn
 
 # Enable specific rules

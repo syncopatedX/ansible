@@ -1,0 +1,18 @@
+---
+- when: "autologin == 'true' | default('false')"
+  block:
+    - name: Create getty@tty1.service.d directory
+      ansible.builtin.file:
+        path: "/etc/systemd/system/getty@tty1.service.d"
+        state: directory
+        owner: root
+        group: root
+
+    - name: Create systemd drop-in file for virtual console autologin
+      ansible.builtin.template:
+        src: "etc/systemd/system/getty@tty1.service.d/autologin.conf.j2"
+        dest: "/etc/systemd/system/getty@tty1.service.d/autologin.conf"
+        owner: root
+        group: root
+        mode: "0644"
+        backup: true

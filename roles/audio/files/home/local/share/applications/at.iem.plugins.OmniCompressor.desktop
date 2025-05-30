@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=OmniCompressor
+GenericName=Ambisonic Limiter Compressor
+Comment=An Ambisonic compressor which can also be used as a limiter.
+Exec=OmniCompressor
+Icon=iempluginsuite
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;iempluginsuite;

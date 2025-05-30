@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=x42-meter Signal Distribution Histogram
+GenericName=Audio Meter
+Comment=Signal Distribution Histogram
+Exec=x42-meter 17
+Icon=x42-meter
+Terminal=false
+StartupNotify=false

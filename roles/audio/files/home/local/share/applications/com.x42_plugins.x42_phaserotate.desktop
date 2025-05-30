@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=x42-phaserotate
+GenericName=Phase Rotation
+Comment=Audio Phase rotate
+Exec=x42-phaserotate
+Icon=x42-phaserotate
+Terminal=false
+StartupNotify=false

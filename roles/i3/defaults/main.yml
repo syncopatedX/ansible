@@ -3,11 +3,11 @@
 
 i3:
   home: "{{ lookup('env','HOME') }}/.config/i3"
-  autostart: 'default'
-  assignments: 'default'
-  workspaces: 'default'
-  keybindings: 'default'
-  tray_output: 'primary'
+  autostart: "default"
+  assignments: "default"
+  workspaces: "default"
+  keybindings: "default"
+  tray_output: "primary"
 
 __i3_workspaces:
   - workspace:
@@ -41,7 +41,7 @@ __i3_workspaces:
     id: 0
     name: " 0 "
 
-i3_directory_default_mode: '0750'
+i3_directory_default_mode: "0750"
 
 # The default directory owner when creating directories using `i3_directory_definitions`
 i3_directory_default_owner: "{{ user.name }}"
@@ -51,36 +51,12 @@ i3_directory_default_group: "{{ user.group }}"
 
 i3_directory_default_location: "{{ user.home }}"
 
-i3_directory_default_recurse: False
+i3_directory_default_recurse: false
 
 i3_directory_definitions:
   - dest: ".config/i3"
   - dest: ".config/i3/modes"
   - dest: ".config/i3status-rust/themes"
-
-rofi_directory_default_mode: '0750'
-
-# The default directory owner when creating directories using `i3_directory_definitions`
-rofi_directory_default_owner: "{{ user.name }}"
-
-# The default directory group when creating directories using `i3_directory_definitions`
-rofi_directory_default_group: "{{ user.group }}"
-
-rofi_directory_default_location: "{{ user.home }}"
-
-rofi_directory_default_recurse: False
-
-rofi_directory_definitions:
-  - dest: ".config/rofi"
-  - dest: ".config/rofi/colors"
-  - dest: ".config/rofi/images"  
-  - dest: ".config/rofi/launchers"
-  - dest: ".config/rofi/launchers/type-1"
-  - dest: ".config/rofi/launchers/type-1/shared"
-  - dest: ".config/rofi/launchers/type-4"
-  - dest: ".config/rofi/launchers/type-4/shared"
-  - dest: ".config/rofi/powermenu"
-  - dest: ".config/rofi/scripts"
 
 terminal: terminator
 terminal_alt: urxvt

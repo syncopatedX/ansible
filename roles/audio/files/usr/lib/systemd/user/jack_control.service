@@ -1,0 +1,23 @@
+[Unit]
+Description=systemd unit for jack_control
+Before=pulseaudio.service
+
+[Service]
+Type=oneshot
+# Prefixing the path with '-' makes it try to load, but if the file doesn't
+# exist, it continues onward.
+EnvironmentFile=-/etc/default/jack_control
+ExecStartPre=-/bin/bash -c '/usr/bin/pulseaudio -k;sleep 0.5'
+ExecStartPre=-/bin/bash -c '/usr/bin/a2j_control --exit;sleep 0.5'
+ExecStart=/usr/bin/jack_control start
+ExecStartPost=-/bin/bash -c 'sleep 0.5;/usr/bin/a2j_control --start'
+ExecStop=-/bin/bash -c '/usr/bin/a2j_control --exit;sleep 0.5'
+ExecStop=/usr/bin/jack_control exit
+RemainAfterExit=true
+
+# When stopping, how long to wait before giving up and sending SIGKILL?
+# Keep in mind that SIGKILL on a process can cause data loss.
+TimeoutStopSec=infinity
+
+[Install]
+WantedBy=default.target

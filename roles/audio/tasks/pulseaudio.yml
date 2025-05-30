@@ -1,0 +1,67 @@
+---
+- tags: ["packages", "pulseaudio_pkgs"]
+  become: false
+  block:
+    - name: Install pulseaudio packages
+      aur:
+        use: auto
+        name: "{{ packages__audio.pulseaudio }}"
+        state: present
+  rescue:
+    - name: Installing base packages failed
+      ansible.builtin.debug:
+        msg: "Failed to install base packages"
+
+- name: Ensure pulse config directory exists
+  ansible.builtin.file:
+    path: "{{ user.home }}/.config/pulse"
+    state: directory
+  become: false
+
+- name: Update pulseaudio configs
+  ansible.builtin.copy:
+    src: "etc/pulse/{{ item }}"
+    dest: "{{ user.home }}/.config/pulse/{{ item }}"
+    mode: "0644"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+    backup: true
+  with_items:
+    - client.conf
+    - daemon.conf
+    - default.pa
+    - system.pa
+
+- become: true
+
+  block:
+    - name: Ensure /etc/pulse/default.pa.d exists
+      ansible.builtin.file:
+        path: /etc/pulse/default.pa.d
+        state: directory
+
+    - name: Install bluetooth config
+      ansible.builtin.copy:
+        src: etc/pulse/default.pa.d/bluetooth.pa
+        dest: /etc/pulse/default.pa.d/bluetooth.pa
+        mode: "0644"
+      when: use_bluetooth is defined
+
+    - name: Adjust pulseaudio.service file
+      ansible.builtin.lineinfile:
+        path: /usr/lib/systemd/user/pulseaudio.service
+        insertafter: "^Description"
+        line: "After=jack_control.service"
+        backup: true
+
+- name: Enable pulseaudio service
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: true
+    scope: user
+  with_items:
+    - pulseaudio.service
+    - pulseaudio.socket
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ user.uid }}"
+  become: false

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=x42-meter BBC M-6
+GenericName=Audio Meter
+Comment=BBC M-6
+Exec=x42-meter 5
+Icon=x42-meter
+Terminal=false
+StartupNotify=false

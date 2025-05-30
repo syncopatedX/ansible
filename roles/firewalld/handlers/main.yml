@@ -1,2 +1,9 @@
 ---
-# handlers file for firewalld
+
+- name: reload firewalld
+  shell: "firewall-cmd --reload"
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: reload ufw
+  shell: "ufw reload"
+  ignore_errors: "{{ ansible_check_mode }}"

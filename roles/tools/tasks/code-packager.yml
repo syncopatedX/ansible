@@ -1,6 +1,7 @@
 ---
 # Tasks for code-packager
-- block:
+- tags: ["packages"]
+  block:
     - name: Install dependencies
       aur:
         use: paru
@@ -11,20 +12,19 @@
       become: false
 
   rescue:
-    - name: installing packages failed
-      debug:
+    - name: Installing packages failed
+      ansible.builtin.debug:
         msg: "Failed to install packages"
 
-  tags: ["packages"]
 
 - name: Clone code-packager repository
-  git:
+  ansible.builtin.git:
     repo: https://github.com/yohasebe/code-packager.git
     dest: /tmp/code-packager
     version: main
 
 - name: Move code-packager file to ~/.local/bin
-  shell: |
+  ansible.builtin.shell: |
     mkdir -pv {{ user.home }}/.local/bin
     chmod +x code-packager && \
     chmod +x code-unpackager && \
@@ -35,4 +35,4 @@
     chdir: /tmp/code-packager
 
 - name: Remove temp folder
-  shell: rm -rf /tmp/code-packager
+  ansible.builtin.command: rm -rf /tmp/code-packager

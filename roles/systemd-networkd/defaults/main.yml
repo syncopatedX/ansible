@@ -1,4 +1,6 @@
 ---
+ansible_service_mgr: "systemd"
+
 systemd_network_confs: {}
 systemd_resolve_confs: {}
 systemd_network_netdevs: {}

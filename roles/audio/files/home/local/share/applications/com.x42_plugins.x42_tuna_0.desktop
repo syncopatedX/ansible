@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=x42-tuna Instrument Tuner
+GenericName=Music Instrument Tuner
+Comment=Instrument Tuner
+Exec=x42-tuna 0
+Icon=x42-tuna
+Terminal=false
+StartupNotify=false

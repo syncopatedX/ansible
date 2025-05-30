@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=x42-darc
+GenericName=Dynamic Audio Range Compressor
+Comment=A general purpose audio signal compressor
+Exec=x42-darc
+Icon=x42-darc
+Terminal=false
+StartupNotify=false

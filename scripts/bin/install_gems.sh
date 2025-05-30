@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+sudo gem update --system 3.6.9
+
 INSTALLED_GEMS=$(gem list | awk '{ print $1 }')
 
 GEMS=(
@@ -16,22 +18,27 @@ GEMS=(
   'fractional'
   'geo_coord'
   'google_custom_search_api'
+  'google-cloud-translate'
   'highline'
   'i18n'
   'i3ipc'
   'jongleur'
   'json'
   'jsonl'
+  'hashie'
   'kramdown'
   'langchainrb'
   'lingua'
   'logging'
+  'jongleur'
   'mimemagic'
   'minitest'
   'mocha'
   'multi_json'
   'net-ssh'
   'numpy'
+  'langchain'
+  'lingua'
   'ohm-contrib'
   'ohm'
   'open3'
@@ -39,10 +46,13 @@ GEMS=(
   'parallel'
   'pastel'
   'pg'
+  'pgvector'
   'pry-doc'
   'pry'
   'psych'
   'pycall'
+  'pragmatic_segmenter'
+  'pragmatic_tokenizer'
   'rake'
   'rdoc'
   'redis-namespace'
@@ -50,6 +60,8 @@ GEMS=(
   'rexml'
   'rouge'
   'ruby-lsp'
+  'ruby_llm'
+  'ruby-spacy'
   'rugged'
   'sequel'
   'solargraph'
@@ -59,14 +71,20 @@ GEMS=(
   'treetop'
   'tty-box'
   'tty-command'
-  'tty-cursor'
+  'tty-config'
+  'tty-editor'
+  'tty-exit'
+  'tty-file'
+  'tty-font'
+  'tty-link'
+  'tty-logger'
   'tty-markdown'
-  'tty-progressbar'
+  'tty-option'
   'tty-prompt'
   'tty-screen'
   'tty-spinner'
   'tty-table'
-  'tty-tree'
+  
 )
 
 # https://stackoverflow.com/a/42399479
@@ -77,5 +95,5 @@ mapfile -t DIFF < \
     )
 
 for gem in "${DIFF[@]}"; do
-  gem install "$gem" || continue
+  gem install --user-install "$gem" || continue
 done

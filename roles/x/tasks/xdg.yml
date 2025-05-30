@@ -8,13 +8,13 @@
         state: present
       become: false
   rescue:
-    - name: installing packages failed
-      debug:
+    - name: Installing packages failed
+      ansible.builtin.debug:
         msg: "Failed to install shell packages"
 
 - block:
     - name: Ensure /etc/xdg exists
-      file:
+      ansible.builtin.file:
         path: /etc/xdg
         state: directory
         owner: root
@@ -22,7 +22,7 @@
         mode: "0755"
 
     - name: Set XDG env vars
-      copy:
+      ansible.builtin.copy:
         content: |
           # -*- mode: shell-script -*-
           # ref: https://wiki.archlinux.org/title/XDG_Base_Directory
@@ -37,7 +37,7 @@
       tags: ["env"]
 
     - name: Create /etc/xdg/menus and /usr/share/desktop-entries
-      file:
+      ansible.builtin.file:
         path: "{{ item }}"
         state: directory
         mode: "0755"
@@ -48,32 +48,32 @@
         - /usr/share/desktop-directories
 
     - name: Set xdg user-dirs defaults
-      copy:
+      ansible.builtin.copy:
         src: etc/xdg/user-dirs.defaults
         dest: /etc/xdg/user-dirs.defaults
         owner: root
         group: root
         mode: "0644"
-        backup: yes
+        backup: true
       register: xdg_defaults
 
 - name: Enable xdg-user-dirs-update service
-  systemd:
+  ansible.builtin.systemd:
     name: xdg-user-dirs-update.service
-    enabled: yes
+    enabled: true
     scope: user
   environment:
     XDG_RUNTIME_DIR: "/run/user/{{ user.uid }}"
   become: false
 
 - name: Remove existing user-dirs.dirs
-  file:
+  ansible.builtin.file:
     path: "{{ user.home }}/.config/user-dirs.dirs"
     state: absent
   register: xdg_userdirs
 
 - name: Run xdg-user-dirs-update
-  shell: xdg-user-dirs-update
+  ansible.builtin.command: xdg-user-dirs-update
   when: xdg_defaults.changed or xdg_userdirs.changed
 
 # - name: Set xdg autostart applications
@@ -95,4 +95,4 @@
 #       - "--chown=root:root"
 
 - name: Update desktop database
-  command: bash -lc "update-desktop-database"
+  ansible.builtin.command: bash -lc "update-desktop-database"

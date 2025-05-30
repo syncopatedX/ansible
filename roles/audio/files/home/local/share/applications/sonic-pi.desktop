@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Sonic Pi
+Comment=Sound composition with Ruby
+Exec=env LADSPA_PATH=/usr/lib/ladspa LADSPA_RDF_PATH=/usr/share/ladspa/rdf /opt/sonic-pi/bin/sonic-pi
+Terminal=false
+Type=Application
+Icon=sonic-pi
+Categories=AudioVideo;Audio;Development;

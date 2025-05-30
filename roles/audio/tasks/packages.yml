@@ -1,0 +1,27 @@
+---
+- tags: ["packages", "audio_pkgs"]
+  become: false
+  block:
+    - name: Install audio packages
+      aur:
+        use: auto
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - "{{ packages__audio.alsa }}"
+        - "{{ packages__audio.tuning }}"
+  rescue:
+    - name: Installing base packages failed
+      ansible.builtin.debug:
+        msg: "Failed to install base packages"
+
+# - name: install audio applications and plugins
+#   aur:
+#     use: paru
+#     name: "{{ item }}"
+#     state: present
+#     extra_args: "--overwrite '*'"
+#   with_items:
+#     - "{{ packages__audio.ambisonics }}"
+#     - "{{ packages__audio.applications }}"
+#     - "{{ packages__audio.plugins }}"

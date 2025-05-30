@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=x42-dpl
+GenericName=Peak Limiter
+Comment=Look-ahead digital peak limiter intended but not limited to the final step of mastering or mixing
+Exec=x42-dpl
+Icon=x42-dpl
+Terminal=false
+StartupNotify=false

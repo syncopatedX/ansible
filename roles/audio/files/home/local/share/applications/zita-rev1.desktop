@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=zita-rev1
+Comment=A reworked jack version of the reverb originally developed for Aeolus.
+Exec=zita-rev1
+Icon=redzita
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;

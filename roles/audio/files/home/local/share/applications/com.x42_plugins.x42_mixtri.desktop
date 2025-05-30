@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=x42-mixtri
+GenericName=Mixer'n'Trigger
+Comment=Matrix mixer and trigger processor
+Exec=x42-mixtri
+Icon=x42-mixtri
+Terminal=false
+StartupNotify=false

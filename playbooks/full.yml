@@ -6,24 +6,16 @@
   vars:
     path:
       - "{{ lookup('env','HOME') }}/.local/bin"
-    bootloader: "grub"
-    nas_host: false
-    display_manager: "lightdm"
-    desktop_environment: "i3"
-    use_etc_skel: false
-    ansible_service_mgr: "systemd"
-  # vars_files:
-  #   - "vars/main.yml"
   environment:
     PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path|join(':') }}"
   pre_tasks:
     - name: Set profile config directory fact
-      set_fact:
+      ansible.builtin.set_fact:
         profile_config_dir: "{{ '/etc/skel' if use_etc_skel | bool else user.home }}"
       tags: ["always"]
 
     - name: Display ansible_distribution
-      debug:
+      ansible.builtin.debug:
         msg: |
           The host {{ inventory_hostname }} has {{ ansible_distribution }} installed,
           which belongs to the {{ ansible_os_family }} OS family
@@ -31,22 +23,24 @@
 
   roles:
     - { role: base, tags: ["base"] }
-    - { role: shell, tags: ["shell"] }
-    - { role: ruby, tags: ["ruby"] }
-    - { role: grub, tags: ["grub"], when: "bootloader == 'grub' | default('grub')" }
     - { role: ssh, tags: ["ssh"] }
     - { role: firewalld, tags: ["firewalld"] }
-    - { role: systemd-networkd, tags: ["networkd"] }
+    - { role: network, tags: ["network", "networkd", "networkmanager", "dns"] }
     - { role: ntp, tags: ["ntp"] }
+    - { role: grub, tags: ["grub"], when: "bootloader == 'grub' | default('grub')" }
+    - { role: shell, tags: ["shell"] }
+    - { role: ruby, tags: ["ruby"] }
+    # - { role: fabric, tags: ["fabric"] }
     - { role: docker, tags: ["docker"], when: "use_docker == 'true' | default('false')" }
     - { role: libvirt, tags: ["libvirt"], when: "use_libvirt == 'true' | default('false')" }
-    - { role: nas, tags: ["nas"], when: "nas_host == 'true' | default('false')" }
-    - { role: fabric, tags: ["fabric"] }
-    - { role: x, tags: ["x"] }
-    # - { role: audio, tags: ["audio"] }
+    - { role: nas, tags: ["nas"], when: "nfs_host == 'true' or samba_host == 'true'" }
+    - { role: x, tags: ["x"], when: "window_manager != 'sway'" }
+    - { role: rofi, tags: ["rofi"] }
+    - { role: i3, tags: ["i3"], when: "window_manager == 'i3' | default('i3')" }
+    - { role: sway, tags: ["sway"], when: "window_manager == 'sway' | default('i3')" }
+    - { role: login, tags: ["login"] }
+    - { role: audio, tags: ["audio"] }
     - { role: input-remapper, tags: ["input-remapper"] }
-    - { role: lightdm, tags: ["lightdm"], when: "display_manager == 'lightdm' | default('console')" }
-    - { role: i3, tags: ["i3"], when: "desktop_environment == 'i3' | default('i3')" }
     - { role: tools, tags: ["tools"] }
     - { role: media, tags: ["media"] }
     - { role: homepage, tags: ["homepage"] }

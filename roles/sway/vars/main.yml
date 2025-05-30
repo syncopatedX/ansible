@@ -1,0 +1,23 @@
+---
+# vars file for sway
+
+packages__sway:
+  - foot
+  - fuzzel
+  - greetd
+  - greetd-gtkgreet
+  - grim
+  - kanshi
+  - mako
+  - mdcat
+  - slurp
+  - sway
+  - swaybg
+  - swayidle
+  - swaylock
+  - waybar
+  - wl-clipboard
+  - wf-recorder
+  - rofi-wayland
+  - xdg-desktop-portal-wlr
+  - xorg-xwayland

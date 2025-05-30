@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=x42-meter Surround Level 8
+GenericName=Audio Meter
+Comment=Surround Level 8
+Exec=x42-meter 19
+Icon=x42-meter
+Terminal=false
+StartupNotify=false
