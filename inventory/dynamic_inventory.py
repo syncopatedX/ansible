@@ -15,7 +15,7 @@ hostname = socket.gethostname()
 # Assign it to a variable (which we've already done in the previous step)
 
 # Now, 'hostname' variable holds the hostname of the system
-print(f"The hostname of this machine is: {hostname}")
+# print(f"The hostname of this machine is: {hostname}")  # Commented out to ensure valid JSON output for Ansible
 
 # Static hostnames that should always be attempted (with .local mDNS support)
 STATIC_HOSTS = [
