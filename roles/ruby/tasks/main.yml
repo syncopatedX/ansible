@@ -35,7 +35,7 @@
 - become: false
   block:
     - name: Gather list of installed gems
-      ansible.builtin.command: gem list
+      ansible.builtin.command: gem list --config-file ~/.gemrc
       register: gemlist
       ignore_errors: "{{ ansible_check_mode }}"
 
