@@ -1,0 +1,7 @@
+---
+
+- name: Pre-install the aur helper pikaur
+  ansible.builtin.import_role:
+    name: "gnfzdz.archlinux.pikaur"
+  become: "{{ archlinux_aur_become  }}"
+  become_user: "{{ archlinux_aur_become_user }}"

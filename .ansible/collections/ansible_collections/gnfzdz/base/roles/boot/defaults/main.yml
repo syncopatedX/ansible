@@ -1,0 +1,20 @@
+---
+
+boot_efi_mount_path: "{{ ['/efi', '/boot/efi', '/boot'] | select('in', (ansible_mounts | map(attribute='mount'))) | first | default('') }}"
+boot_root_device: '{{ (ansible_mounts | selectattr("mount", "eq", "/") | first).device }}'
+boot_root_fs_type: '{{ (ansible_mounts | selectattr("mount", "eq", "/") | first).fstype }}'
+boot_allow_reboot: "{{ ansible_connection != 'local' }}"
+
+# Device to install
+# TODO default, guess based on location of /boot
+boot_mbr_device: '{{ (ansible_local | default({})).provisioning.mbr.device | default("") }}'
+
+# TODO default, guess based on logical volume being parent of / and/or /boot
+boot_lvm_enabled: '{{ (ansible_local | default({})).provisioning.lvm.enabled | default("false") | bool }}'
+
+# TODO default, guess based on luks container being parent of / and/or /boot
+boot_encryption_enabled: '{{ (ansible_local | default({})).provisioning.encryption.enabled | default("false") | bool }}'
+boot_encryption_device: '{{ (ansible_local | default({})).provisioning.encryption.device }}'
+boot_encryption_dm_name: '{{ (ansible_local | default({})).provisioning.encryption.dm_name }}'
+boot_encryption_keyfile_exists: False
+boot_encryption_keyfile_path: '{{ (ansible_local | default({})).provisioning.encryption.keyfile | default("") }}'

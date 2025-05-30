@@ -1,0 +1,8 @@
+---
+
+- name: "Apply override kernel parameters"
+  ansible.builtin.include_tasks: "parameters.yml"
+  vars:
+    parameters: "{{ base_kernel_parameters_overrides }}"
+    parameters_priority: "{{ base_kernel_parameters_overrides_priority }}"
+    parameters_name: "{{ base_kernel_parameters_overrides_name }}"

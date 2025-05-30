@@ -1,0 +1,12 @@
+galaxy_info:
+  author: Gregory Furlong
+  description: Install and configure a user's dotfiles from a public git repository
+  license: MIT
+  min_ansible_version: "2.12.0"
+  galaxy_tags: []
+  platforms:
+  - name: ArchLinux
+    versions:
+      - all
+
+dependencies: []

@@ -1,0 +1,46 @@
+---
+- name: Install grub
+  community.general.pacman:
+    state: present
+    name:
+      - grub
+      - efibootmgr
+  notify: update bootloader
+
+- name: Create grub boot configuration directory
+  ansible.builtin.file:
+    path: /boot/grub
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: Configure kernel parameters to decrypt root device
+  ansible.builtin.import_role:
+    name: "gnfzdz.base.kernel_cmdline"
+    tasks_from: "parameters.yml"
+  vars:
+    parameter:
+      name: cryptdevice
+      value: "{{ boot_encryption_device }}:{{ boot_encryption_dm_name }}"
+  when: boot_encryption_enabled
+
+- name: Refresh custom local facts
+  ansible.builtin.setup:
+    filter: ansible_local
+
+- name: Update grub default configuration
+  ansible.builtin.template:
+    src: grub_default.j2
+    dest: /etc/default/grub
+    owner: root
+    group: root
+    mode: '0644'
+  notify: update bootloader
+
+- name: Update grub configuration
+  ansible.builtin.command:
+    cmd: grub-mkconfig -o /boot/grub/grub.cfg
+    creates: "/boot/grub/grub.cfg"
+
+#- include_tasks: theme.yml

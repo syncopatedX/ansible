@@ -1,0 +1,12 @@
+galaxy_info:
+  author: Gregory Furlong
+  description: "Interactive prompt for configuration of a new ArchLinux installation"
+  license: MIT
+  min_ansible_version: "2.12.0"
+  galaxy_tags: []
+  platforms:
+  - name: ArchLinux
+    versions:
+      - all
+
+dependencies: []

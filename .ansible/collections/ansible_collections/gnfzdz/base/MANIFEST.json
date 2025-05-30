@@ -1,0 +1,32 @@
+{
+ "collection_info": {
+  "namespace": "gnfzdz",
+  "name": "base",
+  "version": "1.1.1",
+  "authors": [
+   "Gregory Furlong <gnfzdz@fzdz.io>"
+  ],
+  "readme": "README.md",
+  "tags": [],
+  "description": "A collection of roles providing system initialization as well as fundamental and/or cross cutting configuration",
+  "license": [
+   "GPL-2.0-or-later"
+  ],
+  "license_file": null,
+  "dependencies": {
+   "gnfzdz.archlinux": ">=1.4.1"
+  },
+  "repository": "https://gitlab.com/gnfzdz/gnfzdz.base",
+  "documentation": null,
+  "homepage": null,
+  "issues": "https://gitlab.com/gnfzdz/gnfzdz.base/-/issues"
+ },
+ "file_manifest_file": {
+  "name": "FILES.json",
+  "ftype": "file",
+  "chksum_type": "sha256",
+  "chksum_sha256": "60b422e3baec98420cdfac81deb8e31f3d8057ac601ad90226df9a6c82a8c3aa",
+  "format": 1
+ },
+ "format": 1
+}

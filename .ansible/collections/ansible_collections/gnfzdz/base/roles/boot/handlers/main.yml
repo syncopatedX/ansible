@@ -1,0 +1,19 @@
+---
+
+- name: Stub handler for - update bootloader
+  ansible.builtin.debug:
+    msg: "Stub handler"
+  loop: []
+  listen: update bootloader
+
+- name: Stub handler for - update initramfs
+  ansible.builtin.debug:
+    msg: "Stub handler"
+  loop: []
+  listen: update initramfs
+
+- name: Stub handler for - init daemon reload
+  ansible.builtin.debug:
+    msg: "Stub handler"
+  loop: []
+  listen: init daemon reload

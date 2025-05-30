@@ -1,0 +1,6 @@
+---
+- name: Update firewalld
+  ansible.builtin.service:
+    name: firewalld
+    state: reloaded
+  when: network_firewalld_service_can_reload

@@ -1,0 +1,16 @@
+---
+
+- name: Install grub theme -- Vimix
+  community.general.pacman:
+    name:
+      - grub-theme-vimix
+  notify: update bootloader
+
+## See https://github.com/vinceliuice/grub2-themes/blob/master/install.sh for an idea of the steps required
+## Parameterize resolution
+- name: Configure grub theme -- Vimix
+  ansible.builtin.lineinfile:
+    path: /etc/default/grub
+    regexp: '^#?GRUB_THEME='
+    line: GRUB_THEME=/usr/share/grub/themes/Vimix/theme.txt
+  notify: update bootloader

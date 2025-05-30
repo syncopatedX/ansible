@@ -1,0 +1,29 @@
+---
+- name: Install networking utilities
+  ansible.builtin.import_role:
+    name: gnfzdz.network.utilities
+
+- name: Configure ssh
+  ansible.builtin.import_role:
+    name: gnfzdz.network.openssh
+
+- name: Configure network firewall
+  ansible.builtin.import_tasks: firewall.yml
+
+- name: Configure wireless networking
+  ansible.builtin.import_tasks: wireless.yml
+
+- name: Configure network management
+  ansible.builtin.import_tasks: manager.yml
+
+- name: Configure DNS
+  ansible.builtin.import_tasks: dns.yml
+
+- name: Configure wireguard
+  ansible.builtin.import_role:
+    name: gnfzdz.network.wireguard
+
+- name: Configure bluetooth
+  ansible.builtin.import_role:
+    name: gnfzdz.network.bluetooth
+  when: network_autoconfigure_bluetooth

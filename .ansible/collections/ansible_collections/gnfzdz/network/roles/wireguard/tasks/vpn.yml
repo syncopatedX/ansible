@@ -1,0 +1,37 @@
+---
+
+- name: Create wireguard network device - {{ vpn.device_name }}
+  ansible.builtin.template:
+    src: wireguard.netdev.j2
+    dest: "/etc/systemd/network/99-{{ vpn.device_name }}-vpn.netdev"
+    owner: root
+    group: systemd-network
+    mode: '0640'
+  notify: update systemd networkd
+
+- name: Create wireguard network - {{ vpn.device_name }}
+  ansible.builtin.template:
+    src: wireguard.network.j2
+    dest: "/etc/systemd/network/99-{{ vpn.device_name }}-vpn.network"
+    owner: root
+    group: systemd-network
+    mode: '0640'
+  notify: update systemd networkd
+
+# TODO what other zones should have it exposed?
+- name: Permit traffic in default zone for wireguard service
+  ansible.posix.firewalld:
+    port: "{{ vpn.port }}/udp"
+    permanent: yes
+    state: enabled
+  notify:
+  - update firewalld
+
+- name: Add interface to the zone vpn
+  ansible.posix.firewalld:
+    permanent: yes
+    state: enabled
+    zone: vpn
+    interface: "{{ vpn.device_name }}"
+  notify:
+  - update firewalld

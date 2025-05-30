@@ -1,0 +1,58 @@
+---
+- name: Configure root encryption
+  block:
+  - name: Prompt if root should be encrypted
+    ansible.builtin.pause:
+      prompt: "Would you like to encrypt the system's root? (default: {{ archlinux_install_encrypt_root }})"
+    register: prompt_encrypt_root
+  - name: Set root encryption selection
+    ansible.builtin.set_fact:
+      archlinux_install_encrypt_root: "{{ prompt_encrypt_root.user_input | bool }}"
+    when: prompt_encrypt_root.user_input | trim | length > 0
+
+- name: Request root encryption password
+  block:
+  - name: Enter root encryption passphrase
+    ansible.builtin.pause:
+      prompt: "Please enter root encryption passphrase"
+      echo: False
+    register: prompt_encrypt_passphrase
+    run_once: True
+  - name: Ask for duplicate root encryption passphrase
+    ansible.builtin.pause:
+      prompt: "Please repeat root encryption passphrase"
+      echo: False
+    register: prompt_encrypt_passphrase_repeated
+    run_once: True
+  - name: Validate passwords match
+    ansible.builtin.assert:
+      that:
+        - (prompt_encrypt_passphrase.user_input | trim | length) > 0
+        - prompt_encrypt_passphrase.user_input == prompt_encrypt_passphrase_repeated.user_input
+  - name: Set root encryption passphrase selection
+    ansible.builtin.set_fact:
+      archlinux_install_encrypt_passphrase: "{{ prompt_encrypt_passphrase.user_input }}"
+
+- name: Configure boot encryption
+  block:
+  - name: Prompt if boot should be encrypted
+    ansible.builtin.pause:
+      prompt: "Would you like to place /boot inside the encrypted root container? (default: {{ archlinux_install_encrypt_boot }})"
+    register: prompt_encrypt_boot
+  - name: Set boot encryption selection
+    ansible.builtin.set_fact:
+      archlinux_install_encrypt_boot: "{{ prompt_encrypt_boot.user_input | bool }}"
+    when: prompt_encrypt_boot.user_input | trim | length > 0
+  when: archlinux_install_encrypt_root
+
+- name: Configure root autounlock
+  block:
+  - name: Prompt if a keyfile should be embedded in initramfs to automatically unlock the encrypted root
+    ansible.builtin.pause:
+      prompt: "Would you like to configure embed a keyfile in the initramfs to automatically unlock the system's root? This will prevent prompting for the root password by both the bootloader and again after booting the kernel. WARNING: if /boot is not encrypted, this will undermine the security of your system. (default: {{ archlinux_install_encrypt_autounlock }})"
+    register: prompt_encrypt_autounlock
+  - name: Set encryption autounlock selection
+    ansible.builtin.set_fact:
+      archlinux_install_encrypt_autounlock: "{{ prompt_encrypt_autounlock.user_input | bool }}"
+    when: prompt_encrypt_autounlock.user_input | trim | length > 0
+  when: archlinux_install_encrypt_root

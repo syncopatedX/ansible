@@ -1,0 +1,7 @@
+---
+network_bluetooth_packages_default:
+- bluez
+- bluez-utils
+
+network_bluetooth_gui_packages_default:
+- blueman

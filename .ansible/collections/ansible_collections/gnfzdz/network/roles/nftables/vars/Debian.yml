@@ -1,0 +1,5 @@
+---
+network_nftables_packages_default:
+- nftables
+# includes xtables versions using both iptables and nftables kernel apis. Newer versions by default symlink to nft variants.
+- iptables

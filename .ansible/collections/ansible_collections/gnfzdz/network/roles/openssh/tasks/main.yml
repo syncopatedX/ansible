@@ -1,0 +1,33 @@
+---
+- name: Gather os specific variables
+  ansible.builtin.include_vars: "{{ item }}"
+  with_first_found:
+  - '{{ ansible_distribution }}.yml'
+  - '{{ ansible_os_family }}.yml'
+  - 'main.yml'
+
+- name: Install openssh
+  ansible.builtin.package:
+    state: present
+    use: "{{ network_common_packages_use }}"
+    name: "{{ network_openssh_service_packages }}"
+
+- name: Update sshd configuration
+  ansible.builtin.template:
+    src: "{{ network_openssh_service_config_template }}"
+    dest: "/etc/ssh/sshd_config"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload sshd
+
+- name: Pause for a bit
+  ansible.builtin.pause:
+    seconds: 30
+
+- name: Enable sshd
+  ansible.builtin.service:
+    name: "{{ network_openssh_service_name }}"
+    enabled: "{{ network_openssh_service_enabled }}"
+  notify:
+  - network init daemon reload

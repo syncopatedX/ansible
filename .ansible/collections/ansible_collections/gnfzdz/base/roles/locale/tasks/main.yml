@@ -1,0 +1,23 @@
+---
+
+- name: Check requested locale configuration options are valid
+  ansible.builtin.assert:
+    that: item in base_locales_allowed
+  loop: "{{ base_locale | dict2items | map(attribute='key') | unique }}"
+
+- name: Ensure required locales exist
+  community.general.locale_gen:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ base_locale | dict2items | map(attribute='value') | unique }}"
+
+- name: Configure system default locale
+  ansible.builtin.lineinfile:
+    path: /etc/locale.conf
+    create: yes
+    owner: root
+    group: root
+    mode: 0644
+    regexp: '^{{ item.key }}='
+    line: "{{ item.key }}={{ item.value }}"
+  loop: "{{ base_locale | dict2items }}"

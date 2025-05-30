@@ -1,0 +1,5 @@
+---
+
+- name: Generate initramfs for all profiles
+  ansible.builtin.command: mkinitcpio -P
+  listen: update initramfs

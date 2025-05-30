@@ -1,0 +1,25 @@
+galaxy_info:
+  author: Gregory Furlong
+  description: Use systemd-network and wireguard to create and configure virtual private network(s)
+  license: MIT
+  min_ansible_version: "2.12.0"
+  galaxy_tags: []
+  platforms:
+  - name: ArchLinux
+    versions:
+      - all
+  - name: Debian
+    versions:
+      - bookworm
+  - name: Fedora
+    versions:
+      - 37
+      - 38
+  - name: Ubuntu
+    versions:
+      - jammy
+
+dependencies:
+  - role: gnfzdz.network.common
+  - role: gnfzdz.network.systemd_networkd
+  - role: gnfzdz.network.firewalld

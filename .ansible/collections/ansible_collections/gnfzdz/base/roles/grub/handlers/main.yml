@@ -1,0 +1,5 @@
+---
+
+- name: update grub
+  ansible.builtin.include_tasks: update_grub.yml
+  listen: update bootloader

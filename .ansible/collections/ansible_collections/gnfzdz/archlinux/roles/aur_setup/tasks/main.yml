@@ -1,0 +1,35 @@
+---
+
+- name: Validate aur helper configuration
+  ansible.builtin.assert:
+    that:
+      # pikaur is the only aur helper that may be run as root (through systemd temporary users)
+      - archlinux_aur_helper == 'pikaur' or (not archlinux_aur_dynamic_user)
+      # same check but with the derived become/become_user values
+      - (archlinux_aur_become and archlinux_aur_become_user != 'root') or archlinux_aur_helper == 'pikaur'
+      # don't touch root
+      - not (archlinux_aur_create_user and archlinux_aur_username == 'root')
+
+- name: Ensure dependencies for aur package management are installed
+  community.general.pacman:
+    name:
+      - base-devel
+      - git
+
+- name: Prepare for aur management with temporary users
+  ansible.builtin.include_tasks: pikaur_root.yml
+  when: archlinux_aur_dynamic_user
+
+- name: Prepare for aur management with permanent support user
+  block:
+  - name: Create AUR management user
+    ansible.builtin.include_tasks: create_user.yml
+    when: archlinux_aur_create_user
+  - name: Pre-install the aur helper
+    kewlfft.aur.aur:
+      name:
+        - "{{ archlinux_aur_helper }}"
+    become: "{{ archlinux_aur_become  }}"
+    become_user: "{{ archlinux_aur_become_user }}"
+    when: archlinux_aur_helper in archlinux_aur_installable_helpers
+  when: not archlinux_aur_dynamic_user

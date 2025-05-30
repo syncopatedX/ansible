@@ -1,0 +1,24 @@
+---
+
+- name: Check if the key is already trusted
+  ansible.builtin.command: "gpg {{ archlinux_aur_gpg_homedir_arg }} -k {{ keyid }}"
+  changed_when: False
+  register: reg_key_exists
+  ignore_errors: True
+  become: "{{ archlinux_aur_become }}"
+  become_user: "{{ archlinux_aur_become_user }}"
+
+- name: Trust key {{ keyid }}
+  block:
+    - name: Receive key {{ keyid }}
+      ansible.builtin.command: "gpg --keyserver '{{ archlinux_aur_install_keyserver }}' {{ archlinux_aur_gpg_homedir_arg }} --recv-keys {{ keyid }}"
+      changed_when: True
+    - name: Locally sign {{ keyid }}
+      ansible.builtin.command: "gpg {{ archlinux_aur_gpg_homedir_arg }} --quick-lsign-key {{ keyid }}"
+      changed_when: True
+    - name: Re-check if the key is already trusted
+      ansible.builtin.command: "gpg {{ archlinux_aur_gpg_homedir_arg }} -k {{ keyid }}"
+      changed_when: False
+  when: reg_key_exists.rc != 0
+  become: "{{ archlinux_aur_become  }}"
+  become_user: "{{ archlinux_aur_become_user }}"

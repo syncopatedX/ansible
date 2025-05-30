@@ -1,0 +1,24 @@
+---
+archlinux_pacman_upgrade: Yes
+archlinux_pacman_cache_timer_enabled: Yes
+archlinux_pacman_filesdb_timer_enabled: Yes
+archlinux_pacman_packages_auto: "{{ archlinux_pacman_packages_default }}"
+archlinux_pacman_packages_default:
+  - base
+  - base-devel
+  - git
+## Useful packages formerly in base
+  - vim
+  - nano
+  - less
+  - man-db
+  - man-pages
+  - which
+## Useful (formerly in base) but maybe shouldn't be defaults
+  - texinfo
+  # cmp / diff / diff3 / sdiff
+  - diffutils
+  # lsusb / usb-devices / usbhid-dump
+  - usbutils
+  # logrotate & autoconfigured to run once/day
+  - logrotate

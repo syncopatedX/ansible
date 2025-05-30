@@ -1,0 +1,6 @@
+---
+- name: Update iwd
+  ansible.builtin.service:
+    name: iwd
+    state: restarted
+  when: network_iwd_service_can_reload

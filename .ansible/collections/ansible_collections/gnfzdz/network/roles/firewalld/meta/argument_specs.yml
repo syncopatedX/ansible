@@ -1,0 +1,55 @@
+argument_specs:
+  # main.yml entry point
+  main:
+    short_description: "Install and configure FirewallD"
+    options:
+      network_firewalld_enabled:
+        type: "bool"
+        required: False
+        default: True
+        description: "Configures whether FirewallD should be started (and automatically started on reboot)"
+      network_firewalld_zones_auto:
+        type: "list"
+        elements: "dict"
+        required: False
+        description: "A list of wireless network configuration details. The network.yml entrypoint will be called for each item in the list."
+        options: &firewalld_zone
+          name:
+            type: "str"
+            required: True
+            description: "The zone's name"
+          target:
+            type: "str"
+            required: False
+            choices: [ "default", "ACCEPT", "DROP", "%%REJECT%%" ]
+          forward:
+            type: "bool"
+            required: False
+            description: "A flag indicating if forwarding is allowed across interfaces"
+          masquerade:
+            type: "bool"
+            required: False
+            description: "A flag indicating if masquerading is allowed for traffic through the zone"
+          description:
+            type: "str"
+            required: False
+            description: "A description of the zone for display purposes"
+
+  # disable.yml entry point
+  disable:
+    short_description: "Ensure Firewalld service is stopped."
+    options: {}
+
+  # gui.yml entry point
+  gui:
+    short_description: "Install and configure supporting graphical utilities for FirewallD."
+    options: {}
+
+  # zone.yml entry point
+  zone:
+    short_description: "Configure a single firewalld zone"
+    options:
+      zone:
+        type: "dict"
+        required: True
+        options: *firewalld_zone

@@ -1,0 +1,64 @@
+---
+
+- name: Gather os specific variables
+  ansible.builtin.include_vars: "{{ item }}"
+  with_first_found:
+  - '{{ ansible_distribution }}.yml'
+  - '{{ ansible_os_family }}.yml'
+  - 'main.yml'
+
+- name: Install iwd
+  ansible.builtin.package:
+    state: present
+    use: "{{ network_common_packages_use }}"
+    name: "{{ network_iwd_packages }}"
+
+# Double check permissions on directories where iwd will store credentials - /var/lib/{iwd,ead}
+- name: Create iwd network configuration directory
+  ansible.builtin.file:
+    path: /var/lib/iwd
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Create iwd ead configuration directory
+  ansible.builtin.file:
+    path: /var/lib/ead
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Create iwd configuration directory
+  ansible.builtin.file:
+    path: /etc/iwd
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Apply network settings
+  ansible.builtin.template:
+    src: "iwd.conf.j2"
+    dest: "/etc/iwd/main.conf"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  notify:
+    - Update iwd
+
+- name: Enable iNet Wireless Daemon
+  ansible.builtin.service:
+    name: iwd.service
+    enabled: "{{ network_iwd_enabled }}"
+  notify:
+  - network init daemon reload
+
+- name: Create network configuration files
+  ansible.builtin.include_role:
+      name: "{{ ansible_role_name }}"
+      tasks_from: "network"
+  loop: "{{ network_iwd_networks_auto }}"
+  loop_control:
+    loop_var: network

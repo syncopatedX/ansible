@@ -1,0 +1,53 @@
+---
+
+- name: Bootstrap the new system's root
+  ansible.builtin.command:
+    cmd: "pacstrap /mnt {{ archlinux_install_packages_pacstrap | join(' ') }}"
+  # TODO not actually idempotent
+  changed_when: False
+
+- name: Configure the new system's fstab
+  ansible.builtin.shell:
+    cmd: "genfstab -U -p /mnt >> /mnt/etc/fstab"
+  # TODO not actually idempotent
+  changed_when: False
+
+- name: Copy file with owner and permissions
+  ansible.builtin.copy:
+    src: "{{ archlinux_install_encrypt_keyfile_temppath }}"
+    dest: "/mnt/{{ archlinux_install_encrypt_keyfile_path }}"
+    owner: root
+    group: root
+    mode: "0000"
+    remote_src: "yes"
+  when: archlinux_install_encrypt_root and archlinux_install_encrypt_autounlock
+
+- name: Create directory for persistent local ansible facts
+  ansible.builtin.file:
+    path: "/mnt/etc/ansible/facts.d"
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: Persist provisioning variables as local facts - new
+  community.general.ini_file:
+    path: "/mnt/etc/ansible/facts.d/provisioning.fact"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+    section: "{{ item[0] }}"
+    option: "{{ item[1] }}"
+    value: "{{ item[2] }}"
+  loop: [
+          [ "boot", "mode", "{{ archlinux_install_boot_mode }}" ],
+          [ "encryption", "enabled", "{{ archlinux_install_encrypt_root }}" ],
+          [ "encryption", "dm_name", "{{ archlinux_install_cryptroot_name if archlinux_install_encrypt_root else '' }}" ],
+          [ "encryption", "device", "{{ 'UUID=' ~ archlinux_install_encrypt_deviceuuid if (archlinux_install_encrypt_root) else '' }}" ],
+          [ "encryption", "keyfile", "{{ archlinux_install_encrypt_keyfile_path }}" ],
+          [ "lvm", "enabled", "{{ archlinux_install_lvm }}" ],
+          [ "mbr", "device", "{{ archlinux_install_disk_path }}"],
+          [ "root", "device", "{{ archlinux_install_filesystem_root_path }}" ],
+          [ "root", "filesystem_type", "{{ archlinux_install_root_fstype }}" ],
+          [ "efi", "mount_path", "{{ archlinux_install_part_esp_mountpoint | default('') }}" ]
+        ]

@@ -1,0 +1,6 @@
+{% from 'ini.j2' import sections %}
+## {{ ansible_managed }}
+
+{% for s, v in ini.items() -%}
+{{ sections(s, v) }}
+{%- endfor %}

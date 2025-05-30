@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "Ansible-Gnfzdz-Archlinux"
+version = "1.4.1"
+description = "A collection of Ansible roles supporting the ArchLinux distribution (and derivatives)"
+authors = ["Gregory Furlong <gnfzdz@fzdz.io>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+ansible = "^5.5.0"
+# dev
+molecule = "3.5.2"
+molecule-vagrant = "^1.0.0"
+molecule-podman = "^1.1.0"
+python-vagrant = "^0.5.15"
+netaddr = "^0.8.0"
+ansible-lint = "^6.4.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

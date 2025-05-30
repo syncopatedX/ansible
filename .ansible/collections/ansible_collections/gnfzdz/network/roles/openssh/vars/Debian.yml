@@ -1,0 +1,4 @@
+---
+network_openssh_service_packages_default:
+- openssh-server
+network_openssh_service_name_default: "ssh.service"

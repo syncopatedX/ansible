@@ -1,0 +1,29 @@
+---
+
+- name: Gather os specific variables
+  ansible.builtin.include_vars: "{{ item }}"
+  with_first_found:
+  - '{{ ansible_distribution }}.yml'
+  - '{{ ansible_os_family }}.yml'
+  - 'main.yml'
+
+- name: Remove old iptables package
+  community.general.pacman:
+    state: absent
+    extra_args: -dd
+    name:
+      - iptables
+  when: ansible_os_family == 'Archlinux'
+
+- name: Install nftables packages
+  ansible.builtin.package:
+    state: present
+    use: "{{ network_common_packages_use }}"
+    name: "{{ network_nftables_packages }}"
+
+- name: Enable nftables service
+  ansible.builtin.service:
+    name: nftables.service
+    enabled: "{{ network_nftables_service_enabled }}"
+  notify:
+  - network init daemon reload

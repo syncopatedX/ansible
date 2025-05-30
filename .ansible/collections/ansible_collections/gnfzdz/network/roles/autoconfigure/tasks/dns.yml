@@ -1,0 +1,13 @@
+---
+
+- name: Validate dns selections
+  ansible.builtin.assert:
+    that:
+      - network_autoconfigure_dns in network_autoconfigure_dns_options
+
+- name: Configure Systemd Resolved
+  ansible.builtin.import_role:
+    name: gnfzdz.network.systemd_resolved
+  when: network_autoconfigure_dns == "systemd-resolved"
+
+# TODO disable systemd-resolved when network_autoconfigure_dns != "systemd-resolved" (disable service, remove resolvconf compatability)

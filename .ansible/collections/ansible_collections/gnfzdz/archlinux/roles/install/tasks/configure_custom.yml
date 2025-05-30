@@ -1,0 +1,60 @@
+---
+
+- name: Configure inventory
+  block:
+  - name: "Configure inventory from local path"
+    ansible.builtin.copy:
+      src: "{{ archlinux_install_configure_inventory }}"
+      dest: "{{ archlinux_install_provisioning_inventory_full_path }}"
+      owner: root
+      group: root
+      mode: '0600'
+    when: archlinux_install_configure_inventory is defined and archlinux_install_configure_inventory is not match('https?:')
+
+  - name: "Configure inventory from git checkout"
+    ansible.builtin.git:
+      repo: "{{ archlinux_install_configure_inventory }}"
+      dest: "{{ archlinux_install_provisioning_inventory_full_path }}"
+      version: "{{ archlinux_install_configure_inventory_version }}"
+    when: archlinux_install_configure_inventory is defined and archlinux_install_configure_inventory is match('https?:')
+
+  - name: "Configure inventory from additional provided vars"
+    ansible.builtin.template:
+      src: "{{ archlinux_install_configure_inventory_template }}"
+      dest: "/mnt/root/extra_vars.yml"
+      owner: root
+      group: root
+      mode: '0600'
+    when: archlinux_install_configure_inventory is not defined
+
+- name: Install pyproject configuration
+  ansible.builtin.template:
+    src: "{{ archlinux_install_configure_pyproject }}"
+    dest: "/mnt/root/pyproject.toml"
+    owner: root
+    group: root
+    mode: '0600'
+  when: archlinux_install_configure_remote_playbook is not defined
+
+- name: Install playbook
+  ansible.builtin.template:
+    src: "{{ archlinux_install_configure_local_playbook }}"
+    dest: "/mnt/root/playbook.yml"
+    owner: root
+    group: root
+    mode: '0600'
+  when: archlinux_install_configure_remote_playbook is not defined
+
+- name: Install provisioning script
+  ansible.builtin.template:
+    src: "configure_chroot.j2"
+    dest: "/mnt/root/provision.sh"
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Configure system within arch-chroot
+  ansible.builtin.command:
+    cmd: "arch-chroot /mnt /root/provision.sh"
+  when: archlinux_install_configure_execute
+  changed_when: True

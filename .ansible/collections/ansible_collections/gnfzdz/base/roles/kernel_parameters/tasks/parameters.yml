@@ -1,0 +1,11 @@
+---
+
+- name: "Update kernel parameters for {{ parameters_priority }}-{{ parameters_name }}"
+  ansible.builtin.template:
+    src: "parameters.conf.j2"
+    dest: "/etc/sysctl.d/{{ parameters_priority }}-{{ parameters_name }}.conf"
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+  - update kernel parameters

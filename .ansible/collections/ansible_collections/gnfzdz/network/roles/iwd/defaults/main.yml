@@ -1,0 +1,24 @@
+---
+
+# Enabled if any wifi devices are detected
+# See https://man.archlinux.org/man/systemd.net-naming-scheme.7
+network_iwd_packages: "{{ network_iwd_packages_default }}"
+
+network_iwd_enabled: "{{ (ansible_interfaces | default([]) | select('match', '^wl') | length) > 0 }}"
+network_iwd_service_can_reload: "{{ network_common_is_live }}"
+
+network_iwd_networks_auto: "{{ query('vars', *query('varnames', '^network_iwd_network_.*')) }}"
+
+network_iwd_config: "{{ network_iwd_default_config }}"
+
+network_iwd_default_config:
+  General:
+    EnableNetworkConfiguration: true
+    AddressRandomization: "network"
+    AddressRandomizationRange: "full"
+
+network_iwd_default_network_security_type: "psk"
+
+network_iwd_default_network_config:
+  Settings:
+    AlwaysRandomizeAddress: True
