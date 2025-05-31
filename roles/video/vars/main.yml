@@ -1,0 +1,13 @@
+---
+
+packages_video_mesa:
+  - mesa
+  - mesa-utils
+
+packages_video_intel:
+  - intel-media-driver
+  - libva-intel-driver
+
+packages_video_amd:
+  - libva-mesa-driver
+  - mesa-vdpau
