@@ -1,9 +1,19 @@
 ---
 
 - name: reload firewalld
-  shell: "firewall-cmd --reload"
-  ignore_errors: "{{ ansible_check_mode }}"
+  ansible.builtin.command: firewall-cmd --reload
+  register: reload_result
+  failed_when:
+    - reload_result.rc != 0
+    - not ansible_check_mode
+  changed_when: reload_result.rc == 0
+  # More precise than using ignore_errors - only considers it failed in normal mode
 
 - name: reload ufw
-  shell: "ufw reload"
-  ignore_errors: "{{ ansible_check_mode }}"
+  ansible.builtin.command: ufw reload
+  register: ufw_reload_result
+  failed_when:
+    - ufw_reload_result.rc != 0
+    - not ansible_check_mode
+  changed_when: ufw_reload_result.rc == 0
+  # More precise than using ignore_errors - only considers it failed in normal mode
