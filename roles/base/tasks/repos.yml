@@ -43,7 +43,7 @@
         id: 762AE5DB2B38786364BD81C4B9141BCC62D38EE5
         url: https://arch.osamc.de/proaudio/osamc.gpg
         state: present
-        local_signing: true
+        verify: true
       register: archaudio_key_import
       retries: 3
       delay: 5
@@ -82,10 +82,10 @@
     # Implement key import with multiple fallback key servers
     - name: Import Chaotic AUR key (primary key server)
       community.general.pacman_key:
-        id: 3056513887B78AEB
+        id: EF925EA60F33D0CB85C44AD13056513887B78AEB
         keyserver: keyserver.ubuntu.com
         state: present
-        local_signing: true
+        verify: true
       register: chaotic_key_import
       retries: 2
       delay: 5
@@ -95,10 +95,10 @@
 
     - name: Import Chaotic AUR key (fallback key server 1)
       community.general.pacman_key:
-        id: 3056513887B78AEB
+        id: EF925EA60F33D0CB85C44AD13056513887B78AEB
         keyserver: hkps://keys.openpgp.org
         state: present
-        local_signing: true
+        verify: true
       register: chaotic_key_import_fallback1
       retries: 2
       delay: 5
@@ -109,10 +109,10 @@
 
     - name: Import Chaotic AUR key (fallback key server 2)
       community.general.pacman_key:
-        id: 3056513887B78AEB
+        id: EF925EA60F33D0CB85C44AD13056513887B78AEB
         keyserver: hkps://keyserver.pgp.com
         state: present
-        local_signing: true
+        verify: true
       register: chaotic_key_import_fallback2
       retries: 2
       delay: 5
