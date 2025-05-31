@@ -20,18 +20,22 @@ This playbook provides a comprehensive workstation setup, including:
 * **📦 Containerization & Virtualization:**
   * Docker installation and configuration (including optional NVIDIA support).
   * Libvirt installation and configuration (with optional Vagrant support).
-* **🖥️ Desktop Environment (X11):**
-  * Xorg server, drivers, and utilities.
-  * i3 window manager setup (including i3status-rust, rofi).
-  * Picom compositor configuration.
-  * Dunst notification daemon setup.
-  * sxhkd (Simple X Hotkey Daemon).
+* **🖥️ Desktop Environment:**
+  * **X11:**
+    * Xorg server, drivers, and utilities.
+    * i3 window manager setup (including i3status-rust, rofi).
+    * Picom compositor configuration.
+    * Dunst notification daemon setup.
+    * sxhkd (Simple X Hotkey Daemon).
+  * **Wayland:**
+    * Sway window manager setup.
+    * XWayland for X11 application compatibility.
   * XDG Base Directory Specification compliance and user directories.
   * GRUB theme and configuration.
   * Font installation.
   * Optional LightDM setup (currently minimal).
 * **🛠️ Development Tools:**
-  * Ruby environment setup (system gems, optional RVM).
+  * Ruby environment setup (system gems, optional RVM) with comprehensive knowledge base documentation.
   * Go language environment setup.
   * Fabric (AI scripting tool) setup.
   * Custom tools installation (`code-packager`, `whisper-stream` via `tools` role).
@@ -54,6 +58,9 @@ This playbook provides a comprehensive workstation setup, including:
   * System tuning for low-latency audio performance.
   * Realtime privileges and CPU optimization for audio processing.
   * Audio normalization tools and utilities.
+* **🎬 Video:**
+  * Mesa graphics packages installation.
+  * Vendor-specific video drivers (Intel, AMD) configuration.
 * **🔍 Dynamic Inventory:**
   * Enhanced inventory management with group and host variable support.
   * Flexible group hierarchy and variable inheritance.
@@ -106,12 +113,14 @@ The playbook is organized into modular roles found in the `roles/` directory:
 | [nas](roles/nas/)              | NFS & Samba server configuration.                                                                                                      |
 | [network](roles/network/)           | Comprehensive network management supporting multiple backends (NetworkManager, systemd-networkd). Features automatic wireless interface detection, interactive Wi-Fi configuration using the pause module, and support for ethernet, Wi-Fi, bridges, static/DHCP configurations, and udev rules. |
 | [ntp](roles/ntp/)              | Time synchronization using `systemd-timesyncd`.                                                                                        |
-| [ruby](roles/ruby/)             | Ruby environment setup (System gems, optional RVM).                                                                                    |
+| [ruby](roles/ruby/)             | Ruby environment setup (System gems, optional RVM) with comprehensive knowledge base documentation.                                                                                    |
 | [shell](roles/shell/)            | Zsh, Oh My Zsh, aliases, functions, kitty, ranger configuration.                                                                       |
 | [ssh](roles/ssh/)              | OpenSSH server/client configuration and hardening.                                                                                     |
-| [sway](roles/sway/)             | Tiling Window Manager for Wayland                                                                                    |
+| [sway](roles/sway/)             | Tiling Window Manager for Wayland.                                                                                    |
 | [tools](roles/tools/)            | Installation of custom scripts/tools like `code-packager`, `whisper-stream`.                                                           |
+| [video](roles/video/)            | Video driver configuration including mesa packages and vendor-specific drivers (Intel, AMD).                                                           |
 | [x](roles/x/)                | X11 server, drivers, core X utilities, Picom, Dunst, sxhkd, XDG configuration.                                                         |
+| [xwayland](roles/xwayland/)          | XWayland configuration for running X11 applications on Wayland (Sway).                                                         |
 
 ## 🎨 Customization
 
@@ -156,6 +165,7 @@ The playbook's behavior can be customized through variables. Below are key varia
 | Variable                | Role(s)             | File Location                                | Description                                                                                             |
 | :---------------------- | :------------------ | :------------------------------------------- | :------------------------------------------------------------------------------------------------------ |
 | `zsh_theme`             | `shell`             | `roles/shell/defaults/main.yml`             | Specifies the Oh My Zsh theme to use.                                                                   |
+| `window_manager`        | Multiple            | `inventory/group_vars/workstation/desktop_environment.yml` | Determines which window manager to use. Set to "sway" for Wayland with XWayland support, or "i3" (default) for X11. |
 | `i3_*`                  | `i3`                | `roles/i3/defaults/main.yml`                | Collection of variables for i3 window manager configuration.                                            |
 | `x_*`                   | `x`                 | `roles/x/defaults/main.yml`                 | Variables controlling X11 environment settings.                                                         |
 
@@ -293,16 +303,19 @@ Run specific parts of the playbook using tags defined in playbooks (`main.yml`, 
 | `ssh` | Configure SSH server/client |
 | `sudo` | Configure sudo access |
 | `sudoers` | Manage sudoers configuration |
+| `sway` | Install and configure Sway window manager |
 | `sxhkd` | Configure Simple X Hotkey Daemon |
 | `systemd-mounts` | Configure systemd mount units |
 | `tools` | Install and configure custom tools |
 | `updatedb` | Configure and run updatedb for file indexing |
 | `user` | Manage user accounts |
 | `vagrant` | Install and configure Vagrant |
+| `video` | Configure video drivers and related packages |
 | `whisper-stream` | Install and configure whisper-stream tool |
 | `x` | Configure X11 environment |
 | `xdg` | Configure XDG Base Directory settings |
 | `xprofile` | Configure X11 profile settings |
+| `xwayland` | Configure XWayland for X11 application compatibility on Wayland |
 | `zprofile` | Configure Zsh profile |
 | `zsh` | Install and configure Zsh shell |
 | `zsh_functions` | Configure Zsh functions |
@@ -333,6 +346,12 @@ Run specific parts of the playbook using tags defined in playbooks (`main.yml`, 
     
     # Run everything EXCEPT X11 related configurations
     ansible-playbook -i inventory/inventory.ini playbooks/full.yml -b --skip-tags "x,i3,picom,dunst,sxhkd"
+    
+    # Run only Wayland-related configurations
+    ansible-playbook -i inventory/inventory.ini playbooks/full.yml -b --tags "sway,xwayland"
+    
+    # Run only video driver configuration
+    ansible-playbook -i inventory/inventory.ini playbooks/full.yml -b --tags "video"
     ```
 
 * **List Available Tags:**
@@ -349,6 +368,7 @@ Run specific parts of the playbook using tags defined in playbooks (`main.yml`, 
 * **Package Errors:** Check Ansible output for `pacman`/`paru` errors. Verify internet access and repository reachability. Ensure `aur_builder` user (if used) has necessary permissions.
 * **`ansible-pull` Failures:** Check permissions for cloning/writing in `/var/lib/ansible/local/` (or configured path). Ensure `git` and `ansible-core` are installed on the target. Check the repository URL and branch.
 * **Networking Issues:** Verify configurations applied by the `network` role. For NetworkManager-based setups, use `nmcli` on the target host for diagnostics. For systemd-networkd setups, check `networkctl` status. For wireless issues, examine `/var/lib/iwd/` configurations. Check `firewalld` status and rules.
+* **Display/Graphics Issues:** For video driver problems, check which packages were installed by the `video` role. For Wayland/XWayland issues, verify that the correct window manager is set in your variables (`window_manager: "sway"`) and that XWayland packages were properly installed.
 * **Idempotency Problems:** Review task `when` conditions and checks for existing states.
 * **Check Mode:** Use `ansible-playbook --check` to preview changes. Note that `--check` mode might not perfectly simulate all state changes, especially with shell commands or complex services.
 * **Variable Issues:** Use `-v`, `-vv`, or `-vvv` for verbose output. Check variable precedence and definitions in inventory, group/host vars, and role defaults. Verify `ansible.cfg` settings like `error_on_undefined_vars`.
