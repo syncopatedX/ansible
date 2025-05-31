@@ -1,0 +1,6 @@
+---
+network_openssh_service_config_template: "sshd_config.j2"
+network_openssh_service_enabled: True
+network_openssh_service_packages: "{{ network_openssh_service_packages_default }}"
+network_openssh_service_name: "{{ network_openssh_service_name_default }}"
+network_openssh_service_can_reload: "{{ network_common_is_live }}"

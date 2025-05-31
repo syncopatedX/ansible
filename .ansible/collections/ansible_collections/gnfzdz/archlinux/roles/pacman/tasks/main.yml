@@ -1,0 +1,47 @@
+---
+
+- name: Upgrade official ArchLinux packages
+  block:
+  - name: Update the package cache
+    community.general.pacman:
+      update_cache: "Yes"
+  # Occasionally pacman -Syu will fail because some signing keys are only trusted
+  # by the yet to be installed archlinux-keyring update. We update this first
+  # before proceeding with the next step.
+  - name: Force update archlinux keyring
+    community.general.pacman:
+      state: latest
+      update_cache: "Yes"
+      name:
+        - archlinux-keyring
+
+  - name: Initiate a full system update
+    community.general.pacman:
+      update_cache: "Yes"
+      upgrade: "Yes"
+    register: pacman_result
+  when: archlinux_pacman_upgrade
+  tags:
+    - molecule-idempotence-notest
+
+- name: Install default set of packages
+  community.general.pacman:
+    state: present
+    name: "{{ archlinux_pacman_packages_auto }}"
+
+- name: Install pacman contributed utilities
+  community.general.pacman:
+    state: present
+    name:
+      - pacman-contrib
+  when: archlinux_pacman_cache_timer_enabled or archlinux_pacman_filesdb_timer_enabled
+
+- name: Configure timer to prune the pacman package cache
+  ansible.builtin.service:
+    name: paccache.timer
+    enabled: "{{ archlinux_pacman_cache_timer_enabled }}"
+
+- name: Configure timer to update the pacman files database
+  ansible.builtin.service:
+    name: pacman-filesdb-refresh.timer
+    enabled: "{{ archlinux_pacman_filesdb_timer_enabled }}"

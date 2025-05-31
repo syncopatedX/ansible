@@ -4,6 +4,7 @@ packages__audio:
   tuning:
     - realtime-privileges
     - rtirq
+    - tuned
   pipewire:
     - pipewire-alsa
     - pipewire-audio

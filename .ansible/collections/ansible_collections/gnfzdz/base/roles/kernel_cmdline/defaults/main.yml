@@ -1,0 +1,9 @@
+---
+
+boot_cmdline_automatic: "{{ ansible_local.boot.cmdline | default({}) }}"
+boot_cmdline_custom:
+  quiet:
+  splash:
+  loglevel: 3
+
+boot_cmdline_full: "{{ boot_cmdline_automatic | combine(boot_cmdline_custom) | items | map('reject', 'none') | map('reject', 'equalto', '') | map('join', '=') | join(' ') }}"

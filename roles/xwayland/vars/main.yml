@@ -1,0 +1,7 @@
+---
+# vars file for xwayland
+
+packages_xwayland:
+  - wayland
+  - xorg-xwayland
+  - xorg-xeyes

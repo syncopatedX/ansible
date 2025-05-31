@@ -1,0 +1,14 @@
+---
+
+- name: Format root partition
+  community.general.filesystem:
+    dev: "{{ archlinux_install_filesystem_root_path }}"
+    fstype: "{{ archlinux_install_root_fstype }}"
+
+- name: Mount root
+  ansible.posix.mount:
+    path: /mnt
+    src: "{{ archlinux_install_filesystem_root_path }}"
+    fstype: "{{ archlinux_install_root_fstype }}"
+    opts: "noatime"
+    state: mounted

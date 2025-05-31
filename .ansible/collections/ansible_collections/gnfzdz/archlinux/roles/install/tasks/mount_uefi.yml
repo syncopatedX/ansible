@@ -1,0 +1,17 @@
+---
+- name: Prepare EFI System Partition
+  block:
+    - name: Create mountpoint for EFI System Partition
+      ansible.builtin.file:
+        state: directory
+        path: "/mnt/{{ archlinux_install_part_esp_mountpoint }}"
+        owner: "root"
+        group: "root"
+        mode: "0755"
+
+    - name: Mount EFI System Partition
+      ansible.posix.mount:
+        path: "/mnt/{{ archlinux_install_part_esp_mountpoint }}"
+        src: "{{ archlinux_install_part_esp_path }}"
+        fstype: vfat
+        state: mounted

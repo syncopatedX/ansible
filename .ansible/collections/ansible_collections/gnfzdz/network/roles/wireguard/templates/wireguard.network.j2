@@ -1,0 +1,14 @@
+# {{ ansible_managed }}
+
+[Match]
+Name={{ vpn.device_name }}
+
+[Link]
+ActivationPolicy={{ vpn.activation_policy | default("up") }}
+
+[Network]
+Address={{ vpn.address }}
+{% if 'forward' in vpn and (vpn.forward | bool) %}
+IPForward=ipv4
+IPMasquerade=ipv4
+{% endif %}

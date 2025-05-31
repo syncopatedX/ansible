@@ -1,0 +1,43 @@
+---
+
+archlinux_install_force: "Yes" # ignore warnings that data already exists on the disk
+archlinux_install_encrypt_boot: Yes
+archlinux_install_encrypt_root: Yes
+archlinux_install_encrypt_autounlock: "{{ archlinux_install_encrypt_boot }}"
+
+archlinux_install_lvm: Yes
+archlinux_install_lvm_lv_root_size: "100%FREE"
+
+archlinux_install_part_esp_end: "1024MiB"
+archlinux_install_part_boot_end: "512MiB"
+archlinux_install_part_root_end: "100%"
+
+archlinux_install_packages_dependencies:
+  - "arch-install-scripts"
+  - "parted"
+  - "dosfstools"
+  - "btrfs-progs"
+  - "cryptsetup"
+  - "lvm2"
+
+archlinux_install_packages_pacstrap:
+  - "base"
+  - "base-devel"
+  - "python"
+  - "python-poetry"
+
+archlinux_install_root_fstype: "btrfs"
+
+archlinux_install_configure_local_playbook: "local_playbook.j2"
+archlinux_install_configure_pyproject: "pyproject.j2"
+archlinux_install_configure_remote_roles: "{{ archlinux_install_configure_remote_roles_default if (archlinux_install_configure_remote_playbook is not defined) else [] }}"
+archlinux_install_configure_remote_roles_default:
+  - "gnfzdz.base.all"
+  - "gnfzdz.security.all"
+  - "gnfzdz.network.openssh"
+  - "gnfzdz.network.iwd"
+  - "gnfzdz.network.networkd"
+archlinux_install_configure_inventory_template: "inventory.yml.j2"
+archlinux_install_configure_inventory_vars:
+  archlinux_aur_enabled: False
+archlinux_install_configure_execute: False

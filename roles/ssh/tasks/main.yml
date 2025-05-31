@@ -1,9 +1,5 @@
 ---
 # tasks file for ssh
-- name: Install OpenSSH
-  community.general.pacman:
-    name: openssh
-    state: present
 
 - name: Push OpenSSH daemon configuration file
   ansible.builtin.template:

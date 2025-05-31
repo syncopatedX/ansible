@@ -12,3 +12,4 @@ installer.sh
 /.goose/
 ***/roles/desktop/files/nautilus-scripts/**
 *.jsx
+pyproject.toml

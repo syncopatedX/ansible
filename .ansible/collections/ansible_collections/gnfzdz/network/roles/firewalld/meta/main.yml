@@ -1,0 +1,23 @@
+galaxy_info:
+  author: Gregory Furlong
+  description: FirewallD installation and base configuration
+  license: MIT
+  min_ansible_version: "2.12.0"
+  galaxy_tags: []
+  platforms:
+  - name: ArchLinux
+    versions:
+      - all
+  - name: Debian
+    versions:
+      - bookworm
+  - name: Fedora
+    versions:
+      - 37
+      - 38
+  - name: Ubuntu
+    versions:
+      - jammy
+
+dependencies:
+  - role: gnfzdz.network.common

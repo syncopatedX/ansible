@@ -1,0 +1,9 @@
+---
+
+- name: Install grub (UEFI)
+  ansible.builtin.command: grub-install --target=x86_64-efi --efi-directory={{ boot_efi_mount_path }} --bootloader-id=GRUB
+  when: boot_mode == 'uefi' and (boot_efi_mount_path | length > 0)
+
+- name: Install grub (MBR)
+  ansible.builtin.command: grub-install --target=i386-pc {{ boot_mbr_device }}
+  when: boot_mode == 'bios' and (boot_mbr_device | length > 0)

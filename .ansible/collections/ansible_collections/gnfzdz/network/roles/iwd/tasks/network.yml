@@ -1,0 +1,21 @@
+---
+
+- name: "Format full path for network configuration file"
+  ansible.builtin.set_fact:
+    network_config_path: "{{
+    '/var/lib/iwd/'
+    ~ (network.ssid | gnfzdz.network.encode_iwd_network_name)
+    ~ '.'
+    ~ (network.security_type | default(network_iwd_default_network_security_type))
+  }}"
+
+- name: Apply network settings
+  community.general.ini_file:
+    path: "{{ network_config_path }}"
+    owner: "root"
+    group: "root"
+    mode: "0700"
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+  loop: "{{ network_iwd_default_network_config | default({}) | combine((network.config | default({})), recursive=True) | gnfzdz.base.dict2ini }}"

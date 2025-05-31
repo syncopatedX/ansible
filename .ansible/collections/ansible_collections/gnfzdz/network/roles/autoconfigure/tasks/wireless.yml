@@ -1,0 +1,18 @@
+---
+
+- name: Validate wireless networking selections
+  ansible.builtin.assert:
+    that:
+      - network_autoconfigure_wireless in network_autoconfigure_wireless_options
+
+- name: Configure iNet Wireless Daemon
+  ansible.builtin.import_role:
+    name: gnfzdz.network.iwd
+  vars:
+    network_iwd_enabled: "{{ network_autoconfigure_manager != 'network-manager' }}"
+  when: network_autoconfigure_wireless == 'iwd'
+
+- name: Configure WPA Supplicant
+  ansible.builtin.import_role:
+    name: gnfzdz.network.wpasupplicant
+  when: network_autoconfigure_wireless == 'wpa-supplicant'

@@ -1,0 +1,17 @@
+---
+
+- name: Format link filename
+  ansible.builtin.set_fact:
+    filename: "{{ link.priority | default('50') }}-{{ link.label }}.link"
+
+- name: 'Configure link {{ filename }}'
+  ansible.builtin.template:
+    src: networkd.j2
+    dest: "/etc/systemd/network/{{ filename }}"
+    owner: root
+    group: systemd-network
+    mode: '0640'
+  vars:
+    ini: "{{ link.ini }}"
+  notify:
+    - "update systemd networkd"

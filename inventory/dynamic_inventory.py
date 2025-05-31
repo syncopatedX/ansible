@@ -9,6 +9,14 @@ import configparser
 from pathlib import Path
 import yaml
 
+# Get the hostname
+hostname = socket.gethostname() 
+
+# Assign it to a variable (which we've already done in the previous step)
+
+# Now, 'hostname' variable holds the hostname of the system
+# print(f"The hostname of this machine is: {hostname}")  # Commented out to ensure valid JSON output for Ansible
+
 # Static hostnames that should always be attempted (with .local mDNS support)
 STATIC_HOSTS = [
     "soundbot",
@@ -44,11 +52,12 @@ GROUP_VARS = {
     }
 }
 
-# Host-specific overrides for variables
-HOST_VARS_OVERRIDE = {
-    "soundbot": {
-        "ansible_connection": "local"
-    }
+# Initialize the dictionary
+HOST_VARS_OVERRIDE = {}
+
+# Use the hostname as a key and assign the desired value
+HOST_VARS_OVERRIDE[hostname] = {
+    "ansible_connection": "local"
 }
 
 # Optional subnet to scan for fallback discovery (e.g., if mDNS fails)
@@ -114,7 +123,7 @@ def resolve_mdns_hosts(hosts):
         try:
             # Try to resolve with .local suffix first
             try:
-                ip = socket.gethostbyname(f"{host}.local")
+                ip = socket.gethostbyname(f"{host}")
             except socket.gaierror:
                 # Fall back to no suffix
                 ip = socket.gethostbyname(host)

@@ -1,0 +1,37 @@
+# {{ ansible_managed }}
+[NetDev]
+Name={{ vpn.device_name }}
+Kind=wireguard
+{% if "description" in vpn %}
+Description="{{ vpn.description }}"
+{% else %}
+Description="Wireguard device for {{ vpn.device_name }}"
+{% endif %}
+
+[WireGuard]
+ListenPort={{ vpn.port | default(51820) }}
+PrivateKey={{ vpn.private_key }}
+RouteTable=main
+RouteMetric={{ vpn.route_metric | default(0) }}
+
+{% for peer_name, peer in vpn.peers.items() %}
+{% if (peer_name != inventory_hostname) %}
+
+# {{ peer_name }}
+[WireGuardPeer]
+PublicKey={{ peer.public_key }}
+{% for ip in peer.allowed_ips %}
+AllowedIPs={{ ip }}
+{% endfor %}
+{% if 'endpoint' in peer %}
+Endpoint={{ peer.endpoint }}
+{% endif %}
+{# ensure same lookup key is used on both ends #}
+{% set psk_lookup = (peer_name~'_'~inventory_hostname if (inventory_hostname > peer_name) else inventory_hostname~'_'~peer_name ) %}
+{% if psk_lookup in vpn.preshared_keys %}
+PresharedKey={{ vpn.preshared_keys[psk_lookup] }}
+{% endif %}
+RouteMetric={{ vpn.route_metric | default(0) }}
+
+{% endif %}
+{% endfor %}

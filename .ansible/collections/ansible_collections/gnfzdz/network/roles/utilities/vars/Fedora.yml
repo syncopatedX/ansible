@@ -1,0 +1,12 @@
+---
+network_utilities_packages_default:
+# provides ip/ss/bridge and other critical cli tools
+- iproute
+# Various dns related utilities
+# better alternative to those provided by bind
+# notably drill instead of dig/nslookup
+- ldns-utils
+# TCP/IP swiss army knife
+- netcat
+- wget
+- curl

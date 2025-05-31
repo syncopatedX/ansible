@@ -1,0 +1,7 @@
+---
+
+users_auto: "{{ query('vars', *query('varnames', '^user_.*')) }}"
+users_default:
+  shell: "/bin/bash"
+  password_lock: No
+  system: No

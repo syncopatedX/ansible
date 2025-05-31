@@ -1,0 +1,4 @@
+---
+network_iwd_packages_default:
+- wireless-tools
+- iwd

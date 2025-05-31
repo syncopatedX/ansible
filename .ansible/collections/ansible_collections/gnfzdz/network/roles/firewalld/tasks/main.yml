@@ -1,0 +1,27 @@
+---
+
+- name: Gather os specific variables
+  ansible.builtin.include_vars: "{{ item }}"
+  with_first_found:
+  - '{{ ansible_distribution }}.yml'
+  - '{{ ansible_os_family }}.yml'
+  - 'main.yml'
+
+- name: Install firewalld
+  ansible.builtin.package:
+    state: present
+    use: "{{ network_common_packages_use }}"
+    name: "{{ network_firewalld_service_packages }}"
+
+- name: Enable firewalld
+  ansible.builtin.service:
+    name: firewalld
+    enabled: "{{ network_firewalld_service_enabled }}"
+  notify:
+  - network init daemon reload
+
+- name: Automatically create zones
+  ansible.builtin.include_tasks: zone.yml
+  loop: "{{ network_firewalld_zones_auto }}"
+  loop_control:
+    loop_var: zone

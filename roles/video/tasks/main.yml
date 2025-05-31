@@ -1,0 +1,11 @@
+---
+
+- name: Install mesa packages
+  community.general.pacman:
+    state: present
+    name: "{{ packages_video_mesa }}"
+
+- name: Install vendor specific driver packages
+  community.general.pacman:
+    state: present
+    name: "{{ packages_video_intel }}"

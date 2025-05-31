@@ -1,0 +1,4 @@
+---
+#boot_kernel: linux-hardened
+
+boot_kernel: linux

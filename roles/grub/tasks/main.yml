@@ -1,6 +1,22 @@
 ---
 # tasks file for grub
 
+- tags: ["packages", "grub_pkgs"]
+  become: false
+  block:
+    - name: Install grub pacman hook
+      aur:
+        use: auto
+        name: grub-hook
+        state: present
+      notify:
+        - Rebuild grub
+  rescue:
+    - name: Installing base packages failed
+      ansible.builtin.debug:
+        msg: "Failed to install base packages"
+
+
 - name: Set default kernel parameters
   ansible.builtin.lineinfile:
     dest: /etc/default/grub
@@ -47,18 +63,3 @@
     line: "GRUB_SAVEDEFAULT=true"
   notify:
     - Rebuild grub
-
-- tags: ["packages", "grub_pkgs"]
-  become: false
-  block:
-    - name: Install grub pacman hook
-      aur:
-        use: auto
-        name: grub-hook
-        state: present
-      notify:
-        - Rebuild grub
-  rescue:
-    - name: Installing base packages failed
-      ansible.builtin.debug:
-        msg: "Failed to install base packages"

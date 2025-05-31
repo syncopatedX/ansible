@@ -1,0 +1,13 @@
+archlinux_aur_installable_helpers:
+  - yay
+  - paru
+  - pacaur
+  - trizen
+  - pikaur
+  - aurman
+
+archlinux_aur_become: "{{ not archlinux_aur_dynamic_user }}"
+archlinux_aur_become_user: "{{ 'root' if archlinux_aur_dynamic_user else archlinux_aur_username }}"
+
+archlinux_aur_gpg_homedir_root: "{{ archlinux_pikaur_build_gpgdir | default('/etc/makepkg.d/gnupg') }}"
+archlinux_aur_gpg_homedir_arg: "{{ ('--homedir ' ~ archlinux_aur_gpg_homedir_root) if (archlinux_aur_become_user == 'root') else '' }}"

@@ -1,0 +1,35 @@
+{
+ "collection_info": {
+  "namespace": "gnfzdz",
+  "name": "network",
+  "version": "2.0.0",
+  "authors": [
+   "Gregory Furlong <gnfzdz@fzdz.io>"
+  ],
+  "readme": "README.md",
+  "tags": [
+   "networking",
+   "tools"
+  ],
+  "description": "An collection providing an opinionated set of configuration for a linux system's networking.",
+  "license": [
+   "GPL-2.0-or-later"
+  ],
+  "license_file": null,
+  "dependencies": {
+   "gnfzdz.base": ">=1.1.1"
+  },
+  "repository": "https://gitlab.com/gnfzdz/gnfzdz.network",
+  "documentation": null,
+  "homepage": null,
+  "issues": "https://gitlab.com/gnfzdz/gnfzdz.network/-/issues"
+ },
+ "file_manifest_file": {
+  "name": "FILES.json",
+  "ftype": "file",
+  "chksum_type": "sha256",
+  "chksum_sha256": "630ef0d27bbaf288c491e0bbe685915d52f8eb7438c2b892fafa12b0cdd7609a",
+  "format": 1
+ },
+ "format": 1
+}

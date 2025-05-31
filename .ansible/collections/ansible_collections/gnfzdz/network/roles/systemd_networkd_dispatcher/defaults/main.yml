@@ -1,0 +1,17 @@
+---
+network_systemd_networkd_dispatcher_packages: "{{ network_systemd_networkd_dispatcher_packages_default }}"
+network_systemd_networkd_dispatcher_packages_use: "{{ network_common_packages_use }}"
+network_systemd_networkd_dispatcher_packages_become: "{{ ansible_os_family == 'Archlinux' and (archlinux_aur_become | default(no)) }}"
+network_systemd_networkd_dispatcher_packages_become_user: "{{ (ternary(archlinux_aur_become_user | default(omit)) if ansible_os_family == 'Archlinux' else (never_defined | default(omit))) }}"
+
+network_systemd_networkd_dispatcher_service_enabled: True
+network_systemd_networkd_dispatcher_scripts_directories:
+  - /etc/networkd-dispatcher/
+  - /etc/networkd-dispatcher/routable.d
+  - /etc/networkd-dispatcher/dormant.d
+  - /etc/networkd-dispatcher/no-carrier.d
+  - /etc/networkd-dispatcher/off.d
+  - /etc/networkd-dispatcher/carrier.d
+  - /etc/networkd-dispatcher/degraded.d
+  - /etc/networkd-dispatcher/configuring.d
+  - /etc/networkd-dispatcher/configured.d

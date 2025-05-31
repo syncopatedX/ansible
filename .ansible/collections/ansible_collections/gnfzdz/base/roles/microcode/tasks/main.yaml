@@ -1,0 +1,20 @@
+---
+
+# ansible_processor is populated from /proc/cpuinfo
+# Manufacturer/vendor id strings from https://en.wikipedia.org/wiki/CPUID
+
+- name: Install Intel microcode
+  community.general.pacman:
+    state: "{{ 'present' if ('GenuineIntel' in ansible_processor) else 'absent' }}"
+    name:
+      - intel-ucode
+  when: (ansible_processor | default([]) | length) > 0
+  notify: update bootloader
+
+- name: Install AMD microcode
+  community.general.pacman:
+    state: "{{ 'present' if ('AuthenticAMD' in ansible_processor) else 'absent' }}"
+    name:
+      - amd-ucode
+  when: (ansible_processor | default([]) | length) > 0
+  notify: update bootloader

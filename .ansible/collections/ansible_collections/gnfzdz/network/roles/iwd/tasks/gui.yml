@@ -1,0 +1,9 @@
+---
+
+- name: Install iw gui and tray icon
+  kewlfft.aur.aur:
+    use: "{{ archlinux_aur_helper }}"
+    name:
+      - iwgtk
+  become: "{{ archlinux_aur_become }}"
+  become_user: "{{ archlinux_aur_become_user }}"

@@ -1,8 +1,8 @@
 ---
 - name: Configure Networked Storage
   hosts: all
-  gather_facts: true
   become: true
+  gather_facts: true
   vars:
     path:
       - "{{ lookup('env','HOME') }}/.local/bin"
@@ -10,5 +10,6 @@
     - "vars/main.yml"
   environment:
     PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path|join(':') }}"
+  
   roles:
     - { role: nas, tags: ["nas"] }

@@ -60,61 +60,71 @@ root_group: "{{ root_user }}"
 # Symlink binaries to system path
 rvm1_symlink: true
 
-gems:
-  - activesupport
-  - awesome_print
-  - bcrypt_pbkdf
-  - bundler
-  - childprocess
-  - clipboard
-  - colorize
-  - coltrane
-  - debug
-  - drydock
-  - ed25519
-  - eventmachine
-  - erb
-  - ffi
-  - fractional
-  - geo_coord
-  - highline
-  - i3ipc
-  - i18n
-  - irb
-  - json
-  - jsonl
-  - kramdown
-  - langchainrb
-  - logging
-  - minitest
-  - mocha
-  - multi_json
-  - nano-bots
-  - neovim
-  - net-ssh
-  - open3
-  - open4
-  - parallel
-  - pastel
-  - pry
-  - pry-doc
-  - psych
-  - rake
-  - rdoc
-  - rexml
-  - rouge
-  - ruby_llm
-  - ruby-lsp
-  - ruby-openai
-  - rugged
-  - ruport
-  - solargraph
-  - sync
-  - sys-proctable
-  - treetop
-  - tty-box
-  - tty-command
-  - tty-config
-  - tty-prompt
-  - tty-screen
-  - yaml
+# rbenv defaults
+
+rbenv_user:  "{{ user.name }}"
+rbenv_user_home: "{{ user.home }}"
+rbenv_root_path: "{{ rbenv_user_home }}/.rbenv"
+rbenv_repo_url: https://github.com/rbenv/rbenv.git
+rbenv_version: master
+ruby_build_repo_url: https://github.com/rbenv/ruby-build.git
+ruby_build_version: master
+ruby_version_global: 3.4.4
+rbenv_default_gems:
+  - { name: 'activesupport' }
+  - { name: 'awesome_print' }
+  - { name: 'bcrypt_pbkdf' }
+  - { name: 'bundler', version: '2.6.7' }
+  - { name: 'childprocess' }
+  - { name: 'clipboard' }
+  - { name: 'colorize' }
+  - { name: 'coltrane' }
+  - { name: 'debug' }
+  - { name: 'drydock' }
+  - { name: 'ed25519' }
+  - { name: 'eventmachine' }
+  - { name: 'erb' }
+  - { name: 'ffi' }
+  - { name: 'fractional' }
+  - { name: 'geo_coord' }
+  - { name: 'highline' }
+  - { name: 'i3ipc' }
+  - { name: 'i18n' }
+  - { name: 'irb' }
+  - { name: 'json' }
+  - { name: 'jsonl' }
+  - { name: 'kramdown' }
+  - { name: 'langchainrb' }
+  - { name: 'logging' }
+  - { name: 'minitest' }
+  - { name: 'mocha' }
+  - { name: 'multi_json' }
+  - { name: 'nano-bots' }
+  - { name: 'neovim' }
+  - { name: 'net-ssh' }
+  - { name: 'open3' }
+  - { name: 'open4' }
+  - { name: 'parallel' }
+  - { name: 'pastel' }
+  - { name: 'pry' }
+  - { name: 'pry-doc' }
+  - { name: 'psych' }
+  - { name: 'rake' }
+  - { name: 'rdoc' }
+  - { name: 'rexml' }
+  - { name: 'rouge' }
+  - { name: 'ruby_llm' }
+  - { name: 'ruby-lsp' }
+  - { name: 'ruby-openai' }
+  - { name: 'rugged' }
+  - { name: 'ruport' }
+  - { name: 'solargraph' }
+  - { name: 'sync' }
+  - { name: 'sys-proctable' }
+  - { name: 'treetop' }
+  - { name: 'tty-box' }
+  - { name: 'tty-command' }
+  - { name: 'tty-config' }
+  - { name: 'tty-prompt' }
+  - { name: 'tty-screen' }
+  - { name: 'yaml' }

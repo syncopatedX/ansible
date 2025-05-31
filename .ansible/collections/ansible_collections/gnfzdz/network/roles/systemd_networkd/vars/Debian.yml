@@ -1,0 +1,2 @@
+---
+network_systemd_networkd_service_packages_default: []

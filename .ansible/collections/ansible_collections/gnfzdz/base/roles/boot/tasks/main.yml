@@ -1,0 +1,47 @@
+---
+
+- name: Identify the boot mode
+  block:
+    - name: Check if efivars are available
+      ansible.builtin.stat:
+        path: "/sys/firmware/efi/efivars"
+      register: register_boot_efivars_mounted
+
+    - name: Save the identified boot mode
+      ansible.builtin.set_fact:
+        boot_mode: "{{ 'uefi' if (register_boot_efivars_mounted.stat.exists | default(False)) else 'bios' }}"
+  when: boot_mode is not defined
+
+- name: Check the configured keyfile
+  block:
+    - name: Check for the existence of the keyfile
+      ansible.builtin.stat:
+        path: "{{ boot_encryption_keyfile_path }}"
+      register: register_boot_encryption_keyfile
+
+    - name: Save the status of the keyfile
+      ansible.builtin.set_fact:
+        boot_encryption_keyfile_exists: "{{ register_boot_encryption_keyfile.stat.exists | default(False) }}"
+  when: boot_encryption_keyfile_path != ''
+
+- name: Install support packages for root on lvm
+  community.general.pacman:
+    state: present
+    name:
+      - device-mapper
+      - lvm2
+  when: boot_lvm_enabled
+
+- name: Install support packages for encrypted root
+  community.general.pacman:
+    state: present
+    name:
+      - cryptsetup
+  when: boot_encryption_enabled
+
+- name: Install support packages for btrfs root
+  community.general.pacman:
+    state: present
+    name:
+      - btrfs-progs
+  when: boot_root_fs_type == 'btrfs'

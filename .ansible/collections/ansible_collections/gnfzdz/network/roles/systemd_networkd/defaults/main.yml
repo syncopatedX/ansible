@@ -1,0 +1,4 @@
+---
+network_systemd_networkd_service_packages: "{{ network_systemd_networkd_service_packages_default }}"
+network_systemd_networkd_service_enabled: True
+network_systemd_networkd_service_can_reload: "{{ network_common_is_live }}"

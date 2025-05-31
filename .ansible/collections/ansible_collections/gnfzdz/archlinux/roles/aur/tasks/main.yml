@@ -1,0 +1,9 @@
+---
+
+- name: Install aur packages
+  ansible.builtin.include_role:
+    name: gnfzdz.archlinux.aur_install
+  vars:
+    archlinux_aur_install_packages: "{{ archlinux_aur_packages_auto }}"
+    archlinux_aur_install_trustedkeys: "{{ archlinux_aur_trustedkeys_auto }}"
+    archlinux_aur_upgrade: "{{ archlinux_aur_install_upgrade }}"

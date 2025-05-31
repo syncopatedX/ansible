@@ -1,0 +1,23 @@
+---
+
+- name: Validate configured device name
+  ansible.builtin.assert:
+    that:
+      - netdev.ini.NetDev.Name is defined
+      - netdev.ini.NetDev.Name is regex(network_systemd_networkd_device_pattern)
+
+- name: Format netdev filename
+  ansible.builtin.set_fact:
+    filename: "{{ netdev.priority | default('50') }}-{{ netdev.label }}.netdev"
+
+- name: 'Configure netdev {{ filename }}'
+  ansible.builtin.template:
+    src: networkd.j2
+    dest: "/etc/systemd/network/{{ filename }}"
+    owner: root
+    group: systemd-network
+    mode: '0640'
+  vars:
+    ini: "{{ netdev.ini }}"
+  notify:
+    - "update systemd networkd"

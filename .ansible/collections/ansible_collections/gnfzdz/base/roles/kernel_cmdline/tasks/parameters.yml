@@ -1,0 +1,13 @@
+---
+
+- name: Set kernel cmdline parameter as system fact
+  community.general.ini_file:
+    path: /etc/ansible/facts.d/boot.fact
+    section: cmdline
+    option: "{{ parameter.name }}"
+    value: "{{ parameter.value | default('') }}"
+    mode: '0600'
+    state: "{{ parameter.state | default('present') }}"
+    #
+    exclusive: "{{ not ( parameter.state is defined and parameter.state == 'absent' and parameter.value is not defined ) }}"
+  notify: update bootloader

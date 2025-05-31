@@ -1,0 +1,49 @@
+---
+
+- block:
+    - name: Install iwd & iwgtk
+      aur:
+        use: auto
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - iwd
+        - iwgtk
+      become: false
+  rescue:
+    - name: Installing packages failed
+      ansible.builtin.debug:
+        msg: "Failed to install iwd or iwgtk"
+
+- name: Enable and start iwd service
+  service:
+    name: iwd
+    state: started
+    enabled: yes
+
+- name: Enter the wireless SSID
+  pause:
+    prompt: "Enter the wireless SSID"
+  register: wifi_ssid
+
+- name: Enter the wireless passphrase
+  pause:
+    prompt: "Enter the wireless passphrase"
+    echo: no
+  register: wifi_passphrase
+
+- name: Configure WPA/WPA2 network
+  copy:
+    content: |
+      [Security]
+      Passphrase={{ wifi_passphrase }}
+    dest: "/var/lib/iwd/{{ wifi_ssid | urlencode }}.psk"
+  vars:
+    wifi_ssid: "{{ wifi_ssid }}"
+    wifi_passphrase: "{{ wifi_passphrase }}"
+
+- name: Set default iwd main.conf
+  copy:
+    src: etc/iwd/main.conf
+    dest: /etc/iwd/main.conf
+    mode: '0644'

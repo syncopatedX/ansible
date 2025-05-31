@@ -1,0 +1,5 @@
+---
+network_systemd_resolved_packages_default:
+# TODO consider tradeoffs before installing
+# If the daemon isn't running resolvectl won't actually work
+- systemd-resolvconf

@@ -66,3 +66,7 @@
       when:
         - not rvm_openssl.stat.exists
   when: use_openssl is defined
+
+
+- name: Install Ruby and Gems
+  ansible.builtin.import_tasks: "rvm/rubies.yml"

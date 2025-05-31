@@ -1,0 +1,4 @@
+---
+network_common_packages_use: "{{ 'community.general.rpm_ostree_pkg' if ansible_pkg_mgr == 'atomic_container' else 'auto' }}"
+network_common_is_live: "{{ not ((ansible_is_chroot | default(False)) or (ansible_virtualization_type | default('unknown')) in ['podman', 'docker']) }}"
+network_common_systemd_can_reload: "{{ network_common_is_live }}"

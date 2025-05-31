@@ -1,0 +1,6 @@
+---
+
+- ansible.builtin.include_tasks: dotfiles.yml
+  loop: "{{ users_auto }}"
+  loop_control:
+    loop_var: username

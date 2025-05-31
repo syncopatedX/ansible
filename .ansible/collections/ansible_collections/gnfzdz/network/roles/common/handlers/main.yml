@@ -1,0 +1,6 @@
+---
+- name: Network systemd reload
+  ansible.builtin.systemd:
+    daemon_reload: yes
+  when: network_common_systemd_can_reload
+  listen: network init daemon reload

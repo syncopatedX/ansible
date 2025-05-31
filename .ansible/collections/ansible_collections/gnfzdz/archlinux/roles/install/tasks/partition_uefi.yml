@@ -1,0 +1,34 @@
+---
+
+- name: Configure efi system partition
+  block:
+  - name: Create efi system partition
+    community.general.parted:
+      device: "{{ archlinux_install_disk_path }}"
+      label: "gpt"
+      number: "{{ archlinux_install_part_esp_number }}"
+      state: "present"
+      name: "ESP"
+      fs_type: fat32
+      part_start: "{{ archlinux_install_part_esp_start }}"
+      part_end: "{{ archlinux_install_part_esp_end }}"
+      flags: [ esp ]
+
+  - name: Format efi system partition
+    community.general.filesystem:
+      dev: "{{ archlinux_install_part_esp_path }}"
+      fstype: "vfat"
+      opts: -F 32
+      force: "{{ archlinux_install_force }}"
+
+- name: Configure root partition
+  block:
+  - name: Create root partition
+    community.general.parted:
+      device: "{{ archlinux_install_disk_path }}"
+      label: "gpt"
+      number: "{{ archlinux_install_part_root_number }}"
+      state: "present"
+      part_start: "{{ archlinux_install_part_root_start }}"
+      part_end: "{{ archlinux_install_part_root_end }}"
+      flags: []

@@ -1,0 +1,5 @@
+---
+network_iwd_packages_default:
+# TODO find another channel to install
+#- wireless_tools
+- iwd

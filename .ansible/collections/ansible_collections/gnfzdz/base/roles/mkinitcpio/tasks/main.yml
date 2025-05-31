@@ -1,0 +1,37 @@
+---
+
+- name: Install mkinitcpio
+  community.general.pacman:
+    state: present
+    name:
+      - mkinitcpio
+
+- name: Copy file with owner and permissions
+  ansible.builtin.template:
+    src: mkinitcpio.conf.j2
+    dest: /etc/mkinitcpio.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: update initramfs
+
+- name: Configure kernel parameters for encrypted root
+  block:
+  - name: Set kernel parameter identify device with encrypted root
+    ansible.builtin.import_role:
+      name: "gnfzdz.base.kernel_cmdline"
+      tasks_from: "parameters.yml"
+    vars:
+      parameter:
+        name: cryptdevice
+        value: "{{ boot_encryption_device }}:{{ boot_encryption_dm_name }}"
+  - name: Set kernel parameter providing location of decryption keyfile
+    ansible.builtin.import_role:
+      name: "gnfzdz.base.kernel_cmdline"
+      tasks_from: "parameters.yml"
+    vars:
+      parameter:
+        name: "cryptkey"
+        value: "rootfs:{{ boot_encryption_keyfile_path }}"
+    when: boot_encryption_keyfile_exists | default(False)
+  when: boot_encryption_enabled
