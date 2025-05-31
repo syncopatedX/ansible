@@ -1,6 +1,6 @@
 # Changelog
 
-## [unreleased]
+## [0.8.6] - 2025-05-30
 
 ### 🚀 Features
 
@@ -13,7 +13,7 @@
 ### 🐛 Bug Fixes
 
 - Resolved mDNS host resolution and reordered Ansible plugins
-- - Commented out the print statement to ensure valid JSON output for Ansible in dynamic_inventory.py
+- Commented out the print statement to ensure valid JSON output for Ansible in dynamic_inventory.py
 - Refactored playbook imports in full.yml
 - Renamed gem.yml to gems.yml in rbenv.yml
 

@@ -44,7 +44,7 @@
 #         ruby__gems: "{{ gems | difference(gemlist.stdout_lines | map('split', ' ') | map('first')) }}"
 
 #     - name: Install system Ruby gems
-#       ansible.builtin.command: "gem install --user-install {{ item }}"
+#       ansible.builtin.command: "gem install --user-install {{ item }} --conservative"
 #       with_items: 
 #         - "{{ ruby__gems }}"
 #       when: ruby__gems | length > 0
