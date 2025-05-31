@@ -1,12 +1,26 @@
 ---
-- name: Remove pipewire
-  community.general.pacman:
-    name: "{{ packages__audio.pipewire }}"
-    state: absent
-    force: true
-    extra_args: --noconfirm
-  become: true
-  ignore_errors: true
+- name: Ensure PipeWire is not installed (required for JACK/PulseAudio setup)
+  block:
+    - name: Check for installed PipeWire packages
+      ansible.builtin.shell: "pacman -Qi {{ item }} &>/dev/null"
+      register: pipewire_check
+      changed_when: false
+      failed_when: false
+      loop: "{{ packages__audio.pipewire }}"
+      
+    - name: Remove PipeWire packages
+      community.general.pacman:
+        name: "{{ packages__audio.pipewire }}"
+        state: absent
+        force: true
+        extra_args: --noconfirm
+      become: true
+      when: pipewire_check.results | selectattr('rc', 'eq', 0) | list | length > 0
+      
+    - name: Verify PipeWire removal
+      ansible.builtin.debug:
+        msg: "Warning: Some PipeWire packages may still be installed. This could conflict with JACK/PulseAudio."
+      when: pipewire_check.results | selectattr('rc', 'eq', 0) | list | length > 0
 
 # stderr: 'error: target not found: jack'
 - name: Remove jack in favor of jack2dbus

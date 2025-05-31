@@ -3,6 +3,22 @@
   ansible.builtin.debug:
     msg: "Starting pipewire tasks"
 
+- name: Check for conflicting JACK/PulseAudio setup
+  block:
+    - name: Check for installed JACK packages
+      ansible.builtin.shell: "pacman -Qi {{ item }} &>/dev/null"
+      register: jack_check
+      changed_when: false
+      failed_when: false
+      loop: "{{ packages__audio.jack }}"
+      
+    - name: Warn about conflicting JACK installation
+      ansible.builtin.debug:
+        msg: |
+          Warning: JACK packages are installed while configuring PipeWire.
+          This may cause conflicts. Consider removing JACK packages or switching to audio_system: 'pulseaudio_jack'.
+      when: jack_check.results | selectattr('rc', 'eq', 0) | list | length > 0
+
 - tags: ["packages", "pipewire_pkgs"]
   become: false
   block:
