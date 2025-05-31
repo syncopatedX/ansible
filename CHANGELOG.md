@@ -1,8 +1,29 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
-
 ## [unreleased]
+
+### 🚀 Features
+
+- Dynamically configured ansible_connection based on hostname
+- Refactored playbooks for modularity and added IWD support
+- Added gnfzdz.archlinux, gnfzdz.base and gnfzdz.network collections
+- Implemented rbenv for Ruby version management
+- Added video and xwayland roles
+
+### 🐛 Bug Fixes
+
+- Resolved mDNS host resolution and reordered Ansible plugins
+- - Commented out the print statement to ensure valid JSON output for Ansible in dynamic_inventory.py
+- Refactored playbook imports in full.yml
+- Renamed gem.yml to gems.yml in rbenv.yml
+
+### ⚙️ Miscellaneous Tasks
+
+- Updated README to reflect roles directory structure
+- Fixed typo in ruby_build_version variable
+- Updated shell executable to zsh
+
+## [0.8.5] - 2025-05-30
 
 ### 🚀 Features
 
