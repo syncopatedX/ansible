@@ -80,10 +80,11 @@
   always:
     - name: Verify pipewire service status
       ansible.builtin.service_facts:
-      when: alternative_install is not failed or pipewire_install is not failed
+      when: (alternative_install is defined and alternative_install.rc is defined and alternative_install.rc == 0) or
+            (pipewire_install is defined and pipewire_install.rc is defined and pipewire_install.rc == 0)
       # Only check services if one of the installation methods succeeded
 
     - name: Report on pipewire installation status
       ansible.builtin.debug:
-        msg: "Pipewire installation {{ 'succeeded' if (alternative_install is not failed or pipewire_install is not failed) else 'failed' }}. Please check the logs for details."
+        msg: "Pipewire installation {{ 'succeeded' if ((alternative_install is defined and alternative_install.rc is defined and alternative_install.rc == 0) or (pipewire_install is defined and pipewire_install.rc is defined and pipewire_install.rc == 0)) else 'failed' }}. Please check the logs for details."
       # Always report final status
