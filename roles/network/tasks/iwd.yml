@@ -37,6 +37,7 @@
     content: |
       [Security]
       Passphrase={{ wifi_passphrase }}
+    mode: '0600'
     dest: "/var/lib/iwd/{{ wifi_ssid | urlencode }}.psk"
   vars:
     wifi_ssid: "{{ wifi_ssid }}"
