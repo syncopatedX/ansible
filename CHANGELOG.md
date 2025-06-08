@@ -1,5 +1,26 @@
 # Changelog
 
+## [unreleased]
+
+### 🚀 Features
+
+- Added host-specific zsh config and miscellaneous updates
+- Add CLAUDE.md for AI guidance
+
+### 🐛 Bug Fixes
+
+- Use verify parameter for the pacman-key module & full length key strings
+- Set 0600 permissions for iwd wifi passphrase file
+
+### 📚 Documentation
+
+- Remove ansible-pull documentation and standardize playbook examples
+
+### ⚙️ Miscellaneous Tasks
+
+- Configured ninjabot network using systemd-network
+- Deleted main.yml Ansible playbook
+
 ## [0.8.6] - 2025-05-30
 
 ### 🚀 Features
