@@ -13,3 +13,5 @@ installer.sh
 ***/roles/desktop/files/nautilus-scripts/**
 *.jsx
 pyproject.toml
+.ruby-version
+.ruby-gemset
