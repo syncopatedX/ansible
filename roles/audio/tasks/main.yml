@@ -3,6 +3,27 @@
   ansible.builtin.debug:
     msg: "Starting audio tasks"
 
+# Ensure audio_system is valid and enforce mutual exclusivity
+- name: Validate audio system configuration
+  ansible.builtin.assert:
+    that:
+      - audio_system in ['pipewire', 'pulseaudio_jack']
+      - not (use_jack|bool and use_pipewire|bool)
+    fail_msg: >
+      Invalid audio configuration detected!
+      You cannot enable both JACK/PulseAudio and PipeWire simultaneously.
+      Please set audio_system to either 'pipewire' or 'pulseaudio_jack', but not both.
+      Current settings: audio_system={{ audio_system }}, use_jack={{ use_jack }}, use_pipewire={{ use_pipewire }}
+    success_msg: "Audio system configuration validated: {{ audio_system }}"
+  tags: ["always"]
+
+# Set derived variables based on audio_system
+- name: Set derived audio facts
+  ansible.builtin.set_fact:
+    use_jack: "{{ true if audio_system == 'pulseaudio_jack' else false }}"
+    use_pipewire: "{{ true if audio_system == 'pipewire' else false }}"
+  tags: ["always"]
+
 - ansible.builtin.import_tasks:
     file: packages.yml
   tags: ["packages"]
@@ -53,17 +74,17 @@
 
 - ansible.builtin.import_tasks:
     file: jack.yml
-  when: use_jack|bool
+  when: audio_system == 'pulseaudio_jack'
   tags: ["jack"]
 
 - ansible.builtin.import_tasks:
     file: pulseaudio.yml
-  when: use_jack|bool
+  when: audio_system == 'pulseaudio_jack'
   tags: ["pulseaudio"]
 
 - ansible.builtin.import_tasks:
     file: pipewire.yml
-  when: use_pipewire|bool
+  when: audio_system == 'pipewire'
   tags: ["pipewire"]
 
 - ansible.builtin.import_tasks:

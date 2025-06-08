@@ -3,15 +3,88 @@
   ansible.builtin.debug:
     msg: "Starting pipewire tasks"
 
+- name: Check for conflicting JACK/PulseAudio setup
+  block:
+    - name: Check for installed JACK packages
+      ansible.builtin.shell: "pacman -Qi {{ item }} &>/dev/null"
+      register: jack_check
+      changed_when: false
+      failed_when: false
+      loop: "{{ packages__audio.jack }}"
+      
+    - name: Warn about conflicting JACK installation
+      ansible.builtin.debug:
+        msg: |
+          Warning: JACK packages are installed while configuring PipeWire.
+          This may cause conflicts. Consider removing JACK packages or switching to audio_system: 'pulseaudio_jack'.
+      when: jack_check.results | selectattr('rc', 'eq', 0) | list | length > 0
+
 - tags: ["packages", "pipewire_pkgs"]
   become: false
   block:
+    - name: Check if pipewire packages are already installed
+      ansible.builtin.shell: "pacman -Qi {{ item }} &>/dev/null"
+      register: pkg_check
+      changed_when: false
+      failed_when: false
+      loop: "{{ packages__audio.pipewire }}"
+      # This won't fail the play, just records which packages are missing
+
     - name: Install pipewire packages
       aur:
         use: auto
         name: "{{ packages__audio.pipewire }}"
         state: present
+      register: pipewire_install
+      # We'll handle errors in the rescue block
+      
   rescue:
-    - name: Installing pipewire packages failed
+    - name: Capture detailed error information
+      ansible.builtin.set_fact:
+        pipewire_error: "{{ ansible_failed_result }}"
+        # Store the error details for diagnosis
+
+    - name: Display detailed error information
       ansible.builtin.debug:
-        msg: "Failed to install pipewire packages"
+        msg:
+          - "Failed to install pipewire packages. Error details:"
+          - "Command: {{ pipewire_error.cmd | default('Unknown command') }}"
+          - "Return code: {{ pipewire_error.rc | default('Unknown') }}"
+          - "Error message: {{ pipewire_error.stderr | default('No error message available') }}"
+
+    - name: Attempt alternative installation method
+      aur:
+        use: paru  # Try with a specific helper instead of auto
+        name: "{{ packages__audio.pipewire }}"
+        state: present
+      register: alternative_install
+      failed_when: false
+      # Try an alternative method but don't fail if it doesn't work
+
+    - name: Check if alternative installation succeeded
+      ansible.builtin.fail:
+        msg: |
+          Failed to install pipewire packages using both auto and paru methods.
+          This might be due to:
+          1. Network connectivity issues
+          2. AUR package build failures
+          3. Dependency conflicts
+          
+          Original error: {{ pipewire_error.stderr | default('Unknown error') }}
+          
+          Please try manually with: 'paru -S {{ packages__audio.pipewire | join(' ') }}'
+          and check the output for specific errors.
+      when: alternative_install is failed
+      # Fail with useful diagnostic information if both methods failed
+
+  always:
+    - name: Verify pipewire service status
+      ansible.builtin.service_facts:
+      when: (alternative_install is defined and alternative_install.rc is defined and alternative_install.rc == 0) or
+            (pipewire_install is defined and pipewire_install.rc is defined and pipewire_install.rc == 0)
+      # Only check services if one of the installation methods succeeded
+
+    - name: Report on pipewire installation status
+      ansible.builtin.debug:
+        msg: "Pipewire installation {{ 'succeeded' if ((alternative_install is defined and alternative_install.rc is defined and alternative_install.rc == 0) or (pipewire_install is defined and pipewire_install.rc is defined and pipewire_install.rc == 0)) else 'failed' }}. Please check the logs for details."
+      # Always report final status

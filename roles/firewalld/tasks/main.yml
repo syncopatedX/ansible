@@ -1,30 +1,50 @@
 ---
 # tasks file for firewalld
 
-- ignore_errors: "{{ ansible_check_mode }}"
-  block:
-    - name: Enable and start firewalld
-      ansible.builtin.systemd:
-        name: firewalld
-        state: started
-        enabled: true
+# Instead of using ignore_errors: "{{ ansible_check_mode }}" which masks all errors,
+# we use targeted error handling for better visibility and robustness
 
-    - name: Permit traffic to common services
-      ansible.posix.firewalld:
-        service: "{{ item }}"
-        state: enabled
-        permanent: true
-      with_items:
-        - ntp
-        - rsyncd
-        - ssh
-      notify: reload firewalld
-      tags: ["nfs", "ntp", "rsyncd", "ssh"]
+- name: Enable and start firewalld
+  ansible.builtin.systemd:
+    name: firewalld
+    state: started
+    enabled: true
+  register: firewalld_service
+  # No ignore_errors here - if firewalld can't be started, that's a genuine error
 
-    - name: Permit traffic to jacktrip, barrier and qmidinet
-      ansible.posix.firewalld:
-        port: "{{ item }}"
-        state: enabled
-        permanent: true
-      with_items: "{{ rules.allowed }}"
-      notify: reload firewalld
+- name: Check if firewalld is running
+  ansible.builtin.command: firewall-cmd --state
+  register: firewalld_state
+  changed_when: false
+  failed_when: false
+  # We use failed_when: false to prevent command failure, but we'll check the result
+
+- name: Verify firewalld is running
+  ansible.builtin.fail:
+    msg: "Firewalld is not running. Please ensure the service is installed and can be started."
+  when: firewalld_state.rc != 0 and not ansible_check_mode
+  # Only fail in normal mode, not in check mode
+
+- name: Permit traffic to common services
+  ansible.posix.firewalld:
+    service: "{{ item }}"
+    state: enabled
+    permanent: true
+  with_items:
+    - ntp
+    - rsyncd
+    - ssh
+  notify: reload firewalld
+  when: firewalld_state.rc == 0 or ansible_check_mode
+  # Only run if firewalld is active or we're in check mode
+  tags: ["nfs", "ntp", "rsyncd", "ssh"]
+
+- name: Permit traffic to jacktrip, barrier and qmidinet
+  ansible.posix.firewalld:
+    port: "{{ item }}"
+    state: enabled
+    permanent: true
+  with_items: "{{ rules.allowed }}"
+  notify: reload firewalld
+  when: firewalld_state.rc == 0 or ansible_check_mode
+  # Only run if firewalld is active or we're in check mode

@@ -16,29 +16,47 @@ This Ansible role is designed to set up and configure a Linux system (primarily 
 
 The role's behavior can be customized using the following variables. Default values are defined in `defaults/main.yml`.
 
-### Main Configuration Switches
+### Main Configuration
 
-These variables control which audio server and related components are set up.
+The primary configuration variable is:
+
+- `audio_system`: (String)
+
+  - Determines which audio server and related components to set up.
+  
+  - Options:
+    - `"pipewire"`: Install and configure PipeWire and its related components (ALSA, PulseAudio, and JACK compatibility layers).
+    - `"pulseaudio_jack"`: Install and configure the JACK Audio Connection Kit (specifically `jack2-dbus`) and set up PulseAudio to work alongside JACK.
+  
+  - Default: `"pipewire"`
+
+  - This is the recommended way to configure the audio system. The role enforces mutual exclusivity between different audio systems to prevent conflicts.
+
+### Legacy Configuration Variables
+
+These variables are maintained for backward compatibility but are now derived from `audio_system`:
 
 - `use_jack`: (Boolean)
 
   - If `true`, the role will install and configure the JACK Audio Connection Kit (specifically `jack2-dbus`). It will also set up PulseAudio to work alongside JACK.
 
-  - Default: `false`
+  - Default: `false` (derived from `audio_system`)
 
   - When `true`, tasks from `jack.yml` and `pulseaudio.yml` are executed.
 
-  - Note: Enabling `use_jack` will attempt to remove PipeWire packages to avoid conflicts.
+  - Note: Setting this directly is deprecated. Use `audio_system: "pulseaudio_jack"` instead.
 
 - `use_pipewire`: (Boolean)
 
   - If `true`, the role will install PipeWire and its related components (ALSA, PulseAudio, and JACK compatibility layers).
 
-  - Default: `true`
+  - Default: `true` (derived from `audio_system`)
 
   - When `true`, tasks from `pipewire.yml` are executed.
 
-  - Note: If both `use_jack` and `use_pipewire` are true, the behavior might be conflicting. It's generally recommended to choose one primary audio server. The role prioritizes `use_jack` by attempting to remove PipeWire if `use_jack` is true.
+  - Note: Setting this directly is deprecated. Use `audio_system: "pipewire"` instead.
+
+  - Important: The role now prevents both `use_jack` and `use_pipewire` from being true simultaneously to avoid conflicts.
 
 ### JACK Configuration (`jack`)
 
@@ -193,10 +211,14 @@ Here's an example of how to use this role in a playbook:
     #   group: your_group
 
     # --- Audio Role Configuration ---
-    use_pipewire: true # Use PipeWire as the primary audio server
-    use_jack: false    # Do not install and configure JACK separately
+    audio_system: "pipewire"  # Use PipeWire as the primary audio server
+    # Alternative: audio_system: "pulseaudio_jack"  # Use JACK with PulseAudio
 
-    # Example: Customize JACK settings if use_jack were true
+    # Legacy variables (not recommended, use audio_system instead):
+    # use_pipewire: true
+    # use_jack: false
+
+    # Example: Customize JACK settings if using pulseaudio_jack
     # jack:
     #   dps:
     #     device: hw:PCH # Use a specific sound card
@@ -233,13 +255,15 @@ Here's an example of how to use this role in a playbook:
 
 ## Customization Guide
 
-### Choosing Between JACK and PipeWire
+### Choosing Between Audio Systems
 
-- **PipeWire (`use_pipewire: true`):** Recommended for modern setups. PipeWire aims to be a unified audio and video server, providing compatibility layers for PulseAudio, ALSA, and JACK applications. It generally offers easier setup and better integration with desktop environments.
+- **PipeWire (`audio_system: "pipewire"`):** Recommended for modern setups. PipeWire aims to be a unified audio and video server, providing compatibility layers for PulseAudio, ALSA, and JACK applications. It generally offers easier setup and better integration with desktop environments.
 
-- **JACK (`use_jack: true`):** A low-latency audio server primarily for professional audio applications. If you choose JACK, this role also sets up PulseAudio to bridge desktop audio to JACK. This can be more complex to manage but offers fine-grained control for pro-audio workflows.
+- **JACK with PulseAudio (`audio_system: "pulseaudio_jack"`):** A low-latency audio server primarily for professional audio applications. This option sets up JACK and configures PulseAudio to bridge desktop audio to JACK. This can be more complex to manage but offers fine-grained control for pro-audio workflows.
 
-- It is generally advisable to set one of these to `true` and the other to `false`. If `use_jack` is `true`, the role will attempt to remove PipeWire packages.
+- The role now enforces mutual exclusivity between these audio systems to prevent conflicts. When selecting `audio_system: "pulseaudio_jack"`, the role will attempt to remove any installed PipeWire packages.
+
+- **Note on Legacy Variables:** While the legacy variables `use_jack` and `use_pipewire` are still supported for backward compatibility, they are now derived from the `audio_system` variable. It is recommended to use `audio_system` for a clearer and more reliable configuration.
 
 ### Customizing Package Installations
 
