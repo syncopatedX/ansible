@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Architecture
 
-This is an Ansible-based workstation automation system that provides a comprehensive setup for Arch Linux development environments. The project follows a modular role-based architecture with support for both traditional ansible-playbook execution and ansible-pull agent-based deployment.
+This is an Ansible-based workstation automation system that provides a comprehensive setup for Arch Linux development environments. The project follows a modular role-based architecture designed for ansible-playbook execution.
 
 ### Core Architecture
 
@@ -38,9 +38,6 @@ The system is organized into 25+ roles covering:
 #### Main Playbooks
 
 ```bash
-# Complete workstation setup (localhost)
-ansible-playbook main.yml
-
 # Full setup targeting all hosts
 ansible-playbook playbooks/full.yml
 
@@ -55,17 +52,17 @@ ansible-playbook playbooks/networking.yml
 
 ```bash
 # Base system setup only
-ansible-playbook main.yml --tags "base"
+ansible-playbook playbooks/full.yml --tags "base"
 
 # Audio configuration
-ansible-playbook main.yml --tags "audio"
+ansible-playbook playbooks/full.yml --tags "audio"
 
 # Desktop environment (X11 or Wayland)
-ansible-playbook main.yml --tags "x,i3" # For X11/i3
-ansible-playbook main.yml --tags "sway,xwayland" # For Wayland
+ansible-playbook playbooks/full.yml --tags "x,i3" # For X11/i3
+ansible-playbook playbooks/full.yml --tags "sway,xwayland" # For Wayland
 
 # Development tools
-ansible-playbook main.yml --tags "ruby,docker,libvirt"
+ansible-playbook playbooks/full.yml --tags "ruby,docker,libvirt"
 
 # Skip specific roles
 ansible-playbook playbooks/full.yml --skip-tags "docker,libvirt"
@@ -93,7 +90,7 @@ ANSIBLE_INVENTORY_DEBUG=true ./inventory/dynamic_inventory.py --list
 
 ```bash
 # Validate playbook syntax
-ansible-playbook main.yml --syntax-check
+ansible-playbook playbooks/full.yml --syntax-check
 
 # List available tags
 ansible-playbook playbooks/full.yml --list-tags
@@ -106,13 +103,13 @@ ansible-playbook playbooks/full.yml --list-hosts
 
 ```bash
 # Check mode (dry run)
-ansible-playbook main.yml --check
+ansible-playbook playbooks/full.yml --check
 
 # Diff mode (show changes)
-ansible-playbook main.yml --diff
+ansible-playbook playbooks/full.yml --diff
 
 # Combined check and diff
-ansible-playbook main.yml --check --diff
+ansible-playbook playbooks/full.yml --check --diff
 ```
 
 ### Variable Management
@@ -121,10 +118,10 @@ ansible-playbook main.yml --check --diff
 
 ```bash
 # Command line variable override
-ansible-playbook main.yml -e "use_docker=false" -e "window_manager=sway"
+ansible-playbook playbooks/full.yml -e "use_docker=false" -e "window_manager=sway"
 
 # Load extra variables file
-ansible-playbook main.yml -e "@custom_vars.yml"
+ansible-playbook playbooks/full.yml -e "@custom_vars.yml"
 ```
 
 #### Variable Precedence (highest to lowest)
@@ -134,18 +131,6 @@ ansible-playbook main.yml -e "@custom_vars.yml"
 3. Group variables (`inventory/group_vars/*.yml`)
 4. Role defaults (`roles/*/defaults/main.yml`)
 
-### Ansible Pull (Agent Mode)
-
-```bash
-# Initial setup for ansible-pull
-sudo pacman -S ansible-core git
-
-# Run ansible-pull
-ansible-pull -U https://github.com/user/syncopated-ansible.git main.yml
-
-# With specific inventory
-ansible-pull -U https://github.com/user/syncopated-ansible.git -i inventory/inventory.ini main.yml
-```
 
 ## Key Configuration Points
 
@@ -263,7 +248,7 @@ Hybrid inventory approach combining:
 
 ```bash
 # Verbose playbook execution
-ansible-playbook main.yml -vvv
+ansible-playbook playbooks/full.yml -vvv
 
 # Debug dynamic inventory
 ANSIBLE_INVENTORY_DEBUG=true ./inventory/dynamic_inventory.py --list
