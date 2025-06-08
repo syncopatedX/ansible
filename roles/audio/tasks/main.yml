@@ -18,7 +18,7 @@
   tags: ["always"]
 
 # Set derived variables based on audio_system
-- name: Set derived audio variables
+- name: Set derived audio facts
   ansible.builtin.set_fact:
     use_jack: "{{ true if audio_system == 'pulseaudio_jack' else false }}"
     use_pipewire: "{{ true if audio_system == 'pipewire' else false }}"
