@@ -1,104 +1,160 @@
 # -*- mode: ruby -*-
 ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
 
-#site specific vars
-# vm_box = "centos7_nginx_jun2017"
-hostname = "dev01.syncopated.dev"
-# domain_name = "syncopated.dev"
-
-ANSIBLE_HOME = File.join(ENV['HOME'], 'Workspace', 'Syncopated', 'syncopated-ansible')
+# Configuration variables
+ROCKY_HOSTNAME = "rocky-test.syncopated.dev"
+ARCH_HOSTNAME = "arch-test.syncopated.dev"
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "archlinux/archlinux"
-  config.vm.provider :libvirt do |libvirt|
-    libvirt.memory = 2048
-    libvirt.cpus = 2
-    libvirt.nested = true
-    libvirt.disk_bus = 'virtio'
-    libvirt.cpu_mode = "host-passthrough"
-    libvirt.nic_model_type = "virtio"
-    libvirt.disk_driver :cache => "writeback"
+  # Global SSH configuration
+  config.ssh.insert_key = false
+  config.ssh.forward_agent = true
+
+  # Rocky Linux 9 VM for testing
+  config.vm.define "rocky", primary: true do |rocky|
+    rocky.vm.box = "rockylinux/9"
+    rocky.vm.hostname = ROCKY_HOSTNAME
+    
+    rocky.vm.network :private_network,
+      ip: "192.168.122.10",
+      libvirt__network_name: "default"
+
+    rocky.vm.provider :libvirt do |libvirt|
+      libvirt.memory = 2048
+      libvirt.cpus = 2
+      libvirt.nested = true
+      libvirt.disk_bus = 'virtio'
+      libvirt.cpu_mode = "host-passthrough"
+      libvirt.nic_model_type = "virtio"
+      libvirt.disk_driver :cache => "writeback"
+    end
+
+    # Sync the entire project for testing
+    rocky.vm.synced_folder ".", "/vagrant",
+      type: "rsync",
+      rsync__exclude: [".git/", "*.swp", ".venv/", ".vagrant/"]
+
+    # Copy SSH key for testing
+    rocky.vm.provision "file", 
+      source: "~/.ssh/id_ed25519.pub", 
+      destination: "/tmp/id_ed25519.pub"
+
+    # Bootstrap system for testing
+    rocky.vm.provision "shell", inline: <<-SHELL
+      # Update system
+      dnf update -y
+      
+      # Install required packages
+      dnf install -y python3 python3-pip ansible git
+      
+      # Setup SSH key
+      mkdir -p /home/vagrant/.ssh
+      cat /tmp/id_ed25519.pub >> /home/vagrant/.ssh/authorized_keys
+      chmod 600 /home/vagrant/.ssh/authorized_keys
+      chown vagrant:vagrant /home/vagrant/.ssh/authorized_keys
+      
+      # Create test user that matches inventory
+      useradd -m -s /bin/bash testuser || true
+      echo "testuser ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/testuser
+    SHELL
+
+    # Run Ansible playbook for testing
+    rocky.vm.provision "ansible" do |ansible|
+      ansible.playbook = "playbooks/full.yml"
+      ansible.inventory_path = "inventory/inventory.ini"
+      ansible.limit = "all"
+      ansible.extra_vars = {
+        ansible_python_interpreter: "/usr/bin/python3",
+        ansible_user: "vagrant",
+        # Override variables for testing
+        use_docker: "false",
+        use_libvirt: "false",
+        window_manager: "i3",
+        rvm_install: false
+      }
+      ansible.tags = ENV['ANSIBLE_TAGS'] || "base,ssh,shell"
+      ansible.verbose = ENV['ANSIBLE_VERBOSE'] || false
+      ansible.raw_arguments = ["--check"] if ENV['ANSIBLE_CHECK']
+    end
   end
 
-  config.vm.hostname = "#{hostname}"
+  # Optional Arch Linux VM for comparison testing
+  config.vm.define "arch", autostart: false do |arch|
+    arch.vm.box = "archlinux/archlinux"
+    arch.vm.hostname = ARCH_HOSTNAME
+    
+    arch.vm.network :private_network,
+      ip: "192.168.122.11",
+      libvirt__network_name: "default"
 
-  config.vm.network :private_network,
-    ip: "192.168.122.10",
-    libvirt__network_name: "default"
+    arch.vm.provider :libvirt do |libvirt|
+      libvirt.memory = 2048
+      libvirt.cpus = 2
+      libvirt.nested = true
+      libvirt.disk_bus = 'virtio'
+      libvirt.cpu_mode = "host-passthrough"
+      libvirt.nic_model_type = "virtio"
+      libvirt.disk_driver :cache => "writeback"
+    end
 
-  config.vm.synced_folder ".", "/home/vagrant/collections",
-    type: "rsync",
-    rsync__exclude: [".git/", "*.swp", ".venv/"]
+    arch.vm.synced_folder ".", "/vagrant",
+      type: "rsync",
+      rsync__exclude: [".git/", "*.swp", ".venv/", ".vagrant/"]
 
-  config.vm.provision "file", source: "~/.ssh/id_ed25519", destination: "/home/vagrant/.ssh/id_ed25519"
+    arch.vm.provision "file", 
+      source: "~/.ssh/id_ed25519.pub", 
+      destination: "/tmp/id_ed25519.pub"
 
-  config.vm.provision "shell", inline: <<-SHELL
-    pacman -Syu --noconfirm
-    pacman -Sy --noconfirm python python-pip ansible pacman
-  SHELL
-  
-  # config.vm.provision "ansible" do |ansible|
-  #   ansible.playbook = "playbooks/setup.yml"
-  #   ansible.extra_vars = {
-  #     ansible_python_interpreter: "/usr/bin/python3",
-  #     collection_path: "/home/vagrant/collections"
-  #   }
-  #   ansible.inventory_path = "inventory/inventory.ini"
-  #   ansible.limit = "#{hostname}"
-  # end
+    arch.vm.provision "shell", inline: <<-SHELL
+      # Update system
+      pacman -Syu --noconfirm
+      
+      # Install required packages
+      pacman -Sy --noconfirm python python-pip ansible git
+      
+      # Setup SSH key
+      mkdir -p /home/vagrant/.ssh
+      cat /tmp/id_ed25519.pub >> /home/vagrant/.ssh/authorized_keys
+      chmod 600 /home/vagrant/.ssh/authorized_keys
+      chown vagrant:vagrant /home/vagrant/.ssh/authorized_keys
+    SHELL
 
+    # Run Ansible playbook
+    arch.vm.provision "ansible" do |ansible|
+      ansible.playbook = "playbooks/full.yml"
+      ansible.inventory_path = "inventory/inventory.ini"
+      ansible.limit = "all"
+      ansible.extra_vars = {
+        ansible_python_interpreter: "/usr/bin/python3",
+        ansible_user: "vagrant",
+        use_docker: "false",
+        use_libvirt: "false",
+        window_manager: "i3",
+        rvm_install: false
+      }
+      ansible.tags = ENV['ANSIBLE_TAGS'] || "base,ssh,shell"
+      ansible.verbose = ENV['ANSIBLE_VERBOSE'] || false
+      ansible.raw_arguments = ["--check"] if ENV['ANSIBLE_CHECK']
+    end
+  end
 end
 
-
-# Vagrant.configure("2") do |config|
-
-#   config.hostmanager.enabled = true
-#   config.hostmanager.manage_host = true
-#   config.hostmanager.manage_guest = true
-
-#   config.ssh.insert_key = false
-
-#   config.vm.provider :libvirt do |libvirt|
-#     libvirt.connect_via_ssh = false
-#     libvirt.username = "root"
-#     libvirt.storage_pool_name = "default"
-#   end
-
-#   # #run rsync-auto from cli
-#   # #https://github.com/guard/listen/wiki/Increasing-the-amount-of-inotify-watchers
-#   # config.vm.synced_folder ".", "/vagrant",
-#   #   owner: "vagrant", group: "vagrant", type: "rsync"
-
-#   config.vm.define "#{hostname}".to_sym do |website|
-#     website.vm.box = "#{vm_box}"
-
-#     website.vm.network "public_network",
-#       :dev => "virbr0",
-#       :mode => "bridge",
-#       :type => "bridge"
-    
-#     website.vm.network :forwarded_port, guest: 22, host: 40418, id: 'ssh'
-#     website.vm.hostname = "#{hostname}"
-#     website.hostmanager.aliases = "#{domain_name}"
-    
-#     website.vm.provider :libvirt do |setting|
-#       setting.memory = 2048
-#       setting.cpus = 2
-#       setting.random_hostname = true
-#     end
-    
-#     website.vm.provision :ansible do |ansible|
-#       ansible.inventory_path = "#{ANSIBLE_HOME}/inventory"
-#       ansible.playbook = "#{ANSIBLE_HOME}/playbooks/setup.yml"
-#       # ansible.tags = "ssl-certs,nginx_conf,nginx_vhost"
-#       ansible.limit = "#{hostname}"
-#       ansible.verbose = "v"
-#     end
-
-
-#   end
-
-# end
-
-# # this may come in handy for future dev stuff;
-# # http://stackoverflow.com/a/33269424
+# Usage Examples:
+#
+# Basic testing:
+#   vagrant up rocky
+#
+# Test with specific tags:
+#   ANSIBLE_TAGS="base,network" vagrant up rocky
+#
+# Run in check mode (dry-run):
+#   ANSIBLE_CHECK=true vagrant up rocky
+#
+# Enable verbose output:
+#   ANSIBLE_VERBOSE=true vagrant up rocky
+#
+# Test both distributions:
+#   vagrant up rocky arch
+#
+# Re-run provisioning after changes:
+#   vagrant provision rocky
