@@ -34,3 +34,27 @@ i3:
 
 terminal: kitty
 terminal_alt: urxvt
+
+networking: "systemd-network"
+
+systemd_network_netdevs:
+  br0:
+    NetDev:
+      Kind: bridge
+
+systemd_network_networks:
+  enp10s0:
+    Match:
+      Name: enp65s0u1
+      MACAddress: 00:50:b6:91:fc:4d
+    Network:
+      Bridge: br0
+
+  br0:
+    Network:
+      Address: 192.168.41.2/24
+      Gateway: 192.168.41.1
+      DNS: 192.168.41.4
+      Domains: syncopated.net
+      LinkLocalAddressing: no
+      IPv6AcceptRA: no
