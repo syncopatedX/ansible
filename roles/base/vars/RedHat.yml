@@ -4,29 +4,26 @@
 
 packages__base:
   # Download and network utilities
-  - aria2                          # aria2
+  - aria2                          # aria2 (EPEL)
   - wget                           # wget
   - curl                           # curl equivalent
   - rsync                          # rsync
   - bind-utils                     # bind (DNS utilities)
   - net-tools                      # net-tools
-  - inetutils                      # inetutils
+  # inetutils -> use individual tools (hostname, ping, etc. in coreutils)
   
   # Text processing and spell checking
   - aspell                         # aspell
   - aspell-en                      # aspell-en
-  - nuspell                        # nuspell
+  - hunspell                       # nuspell alternative
   - hspell                         # hspell
   
   # Archive and file utilities
-  - atool                          # atool (EPEL)
   - unzip                          # unzip
   - tree                           # tree
-  - fakeroot                       # fakeroot (EPEL)
   
   # Audio and multimedia libraries
   - audiofile-devel                # audiofile
-  - chromaprint                    # chromaprint
   - taglib                         # taglib
   - vorbis-tools                   # vorbis-tools
   - wavpack                        # wavpack
@@ -36,7 +33,6 @@ packages__base:
   - cmake                          # cmake
   - git                            # git
   - git-lfs                        # git-lfs
-  - gh                             # github-cli
   - debugedit                      # debugedit
   
   # System tools and monitoring
@@ -54,7 +50,6 @@ packages__base:
   # Graphics and image processing
   - ImageMagick                    # imagemagick
   - GraphicsMagick                 # graphicsmagick
-  - vips                           # libvips
   
   # Network and web browsers
   - elinks                         # elinks
@@ -84,7 +79,6 @@ packages__base:
   
   # Git and version control libraries
   - libgit2                        # libgit2
-  - libgit2-glib                   # libgit2-glib
   
   # PDF and document processing
   - poppler                        # poppler
@@ -110,11 +104,11 @@ packages__base:
   # Accessibility
   - speech-dispatcher              # speech-dispatcher
   
-  # Video utilities
-  - v4l-utils                      # v4l-utils
+  # Video utilities moved to EPEL section
 
 # Packages available in EPEL repository
 packages__epel:
+  - aria2                          # Download utility
   - atool                          # Archive tool wrapper
   - bat                            # Cat with syntax highlighting
   - fd-find                        # Find alternative
@@ -129,8 +123,8 @@ packages__epel:
   - rxvt-unicode                   # Terminal emulator
   - sshpass                        # SSH password authentication
   - mediainfo                      # Media file information
-  - yt-dlp                         # YouTube downloader
   - meld                           # File comparison
+  # - v4l-utils                      # Video4Linux utilities
   
 # Packages from RPM Fusion Free
 packages__rpmfusion_free:
@@ -156,6 +150,11 @@ packages__alternatives:
   - name: "choose"
     alternative: "cut"             # Field selection alternative
     
+  - name: "chromaprint"
+    source_build: "https://github.com/acoustid/chromaprint.git"
+    build_deps: ["cmake", "gcc-c++", "ffmpeg-devel"]
+    note: "Audio fingerprinting library - build from source"
+    
   - name: "curlie"
     alternative: "curl"            # HTTP client alternative
     
@@ -173,6 +172,12 @@ packages__alternatives:
     cargo: "eza"                   # Install via cargo
     alternative: "ls"
     
+  - name: "gh"
+    repo_setup: |
+      curl -fsSL https://cli.github.com/packages/rpm/gh-cli.repo | sudo tee /etc/yum.repos.d/github-cli.repo
+    package: "gh"
+    note: "GitHub CLI - requires adding official repository"
+    
   - name: "git-delta"
     cargo: "git-delta"             # Install via cargo
     
@@ -188,6 +193,19 @@ packages__alternatives:
   - name: "i7z"
     alternative: "cpupower"        # CPU monitor alternative
     
+  - name: "inetutils"
+    note: "Individual utilities available in coreutils, net-tools packages"
+    alternatives: ["hostname", "ping", "traceroute"]
+    
+  - name: "libgit2-glib"
+    alternative: "libgit2-devel"   # Use development version
+    package: "libgit2-devel"
+    
+  - name: "libvips"
+    source_build: "https://github.com/libvips/libvips.git"
+    build_deps: ["meson", "ninja-build", "glib2-devel", "expat-devel", "libjpeg-turbo-devel", "libpng-devel", "libtiff-devel", "libwebp-devel"]
+    note: "Image processing library - build from source"
+    
   - name: "mako"
     note: "Wayland notification daemon - GNOME has built-in notifications"
     
@@ -196,6 +214,10 @@ packages__alternatives:
     
   - name: "nano-syntax-highlighting"
     note: "Nano comes with basic syntax highlighting on Rocky Linux"
+    
+  - name: "nuspell"
+    alternative: "hunspell"        # Use hunspell instead
+    package: "hunspell"
     
   - name: "python-adblock"
     note: "Not available, consider browser-based ad blocking"
@@ -227,6 +249,15 @@ packages__alternatives:
     
   - name: "ueberzug"
     pip: "ueberzug"                # Install via pip
+    
+  # - name: "v4l-utils"
+  #   package: "v4l-utils"           # Should be available in EPEL
+  #   note: "Try installing from EPEL repository"
+    
+  - name: "vips"
+    source_build: "https://github.com/libvips/libvips.git"
+    build_deps: ["meson", "ninja-build", "glib2-devel", "expat-devel", "libjpeg-turbo-devel", "libpng-devel", "libtiff-devel", "libwebp-devel"]
+    note: "Same as libvips - image processing library"
 
 # Critical packages that must be available
 packages__critical:

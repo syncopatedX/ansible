@@ -60,6 +60,25 @@
         - ansible_os_family != 'Archlinux'
       become: yes
 
+- name: Setup repositories for packages that need them
+  ansible.builtin.shell: "{{ item.repo_setup }}"
+  loop: "{{ packages__alternatives }}"
+  when: 
+    - item.repo_setup is defined
+    - ansible_os_family != 'Archlinux'
+  become: yes
+
+- name: Install packages after repository setup
+  ansible.builtin.dnf:
+    name: "{{ item.package }}"
+    state: present
+  loop: "{{ packages__alternatives }}"
+  when: 
+    - item.repo_setup is defined
+    - item.package is defined
+    - ansible_os_family != 'Archlinux'
+  become: yes
+
 - name: Install Python packages via pip
   ansible.builtin.pip:
     name: "{{ item.pip }}"
@@ -68,6 +87,59 @@
   when: 
     - item.pip is defined
     - ansible_os_family != 'Archlinux'
+
+- name: Build packages from source
+  block:
+    - name: Install build dependencies for source packages
+      ansible.builtin.dnf:
+        name: "{{ item.build_deps }}"
+        state: present
+      loop: "{{ packages__alternatives }}"
+      when: 
+        - item.source_build is defined
+        - item.build_deps is defined
+        - ansible_os_family != 'Archlinux'
+      become: yes
+
+    - name: Clone source repositories
+      ansible.builtin.git:
+        repo: "{{ item.source_build }}"
+        dest: "/tmp/build-{{ item.name }}"
+        version: HEAD
+      loop: "{{ packages__alternatives }}"
+      when: 
+        - item.source_build is defined
+        - ansible_os_family != 'Archlinux'
+
+    - name: Build and install source packages (cmake-based)
+      ansible.builtin.shell: |
+        cd /tmp/build-{{ item.name }}
+        mkdir -p build && cd build
+        cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local
+        make -j{{ ansible_processor_vcpus }}
+        make install
+      loop: "{{ packages__alternatives }}"
+      when: 
+        - item.source_build is defined
+        - item.name in ['chromaprint']
+        - ansible_os_family != 'Archlinux'
+      become: yes
+
+    - name: Build and install source packages (meson-based)
+      ansible.builtin.shell: |
+        cd /tmp/build-{{ item.name }}
+        meson setup build --prefix=/usr/local
+        cd build
+        ninja
+        ninja install
+      loop: "{{ packages__alternatives }}"
+      when: 
+        - item.source_build is defined
+        - item.name in ['libvips', 'vips']
+        - ansible_os_family != 'Archlinux'
+      become: yes
+
+  when: ansible_os_family != 'Archlinux'
 
 - name: Install Flatpak alternatives
   block:

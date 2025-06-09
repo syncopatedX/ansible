@@ -1,5 +1,5 @@
 ---
-- name: ArchLinux Workstation
+- name: Workstation Full
   hosts: all
   gather_facts: true
   become: true
@@ -25,24 +25,44 @@
     - { role: base, tags: ["base"] }
     - { role: ssh, tags: ["ssh"] }
     - { role: firewalld, tags: ["firewalld"] }
-    - { role: network, tags: ["network", "networkd", "networkmanager", "dns"] }
+    - {
+        role: networking,
+        tags: ["networking", "networkd", "networkmanager", "dns"],
+      }
     - { role: ntp, tags: ["ntp"] }
-    - { role: grub, tags: ["grub"], when: "bootloader == 'grub' | default('grub')" }
+    - {
+        role: grub,
+        tags: ["grub"],
+        when: "bootloader == 'grub' | default('grub')",
+      }
     - { role: shell, tags: ["shell"] }
     - { role: ruby, tags: ["ruby"] }
-    # - { role: fabric, tags: ["fabric"] }
-    - { role: docker, tags: ["docker"], when: "use_docker == 'true' | default('false')" }
-    - { role: libvirt, tags: ["libvirt"], when: "use_libvirt == 'true' | default('false')" }
-    - { role: nas, tags: ["nas"], when: "nfs_host == 'true' or samba_host == 'true'" }
+    - {
+        role: docker,
+        tags: ["docker"],
+        when: "use_docker == 'true' | default('false')",
+      }
+    - {
+        role: libvirt,
+        tags: ["libvirt"],
+        when: "use_libvirt == 'true' | default('false')",
+      }
+    - {
+        role: nas,
+        tags: ["nas"],
+        when: "nfs_host == 'true' or samba_host == 'true'",
+      }
     - { role: x, tags: ["x"], when: "window_manager != 'sway'" }
     - { role: xwayland, tags: ["xwayland"], when: "window_manager == 'sway'" }
     - { role: rofi, tags: ["rofi"] }
     - { role: i3, tags: ["i3"], when: "window_manager == 'i3' | default('i3')" }
-    - { role: sway, tags: ["sway"], when: "window_manager == 'sway' | default('i3')" }
+    - {
+        role: sway,
+        tags: ["sway"],
+        when: "window_manager == 'sway' | default('i3')",
+      }
     - { role: login, tags: ["login"] }
     - { role: audio, tags: ["audio"] }
     - { role: video, tags: ["video"] }
-    - { role: input-remapper, tags: ["input-remapper"] }
     - { role: tools, tags: ["tools"] }
     - { role: media, tags: ["media"] }
-    - { role: homepage, tags: ["homepage"] }
