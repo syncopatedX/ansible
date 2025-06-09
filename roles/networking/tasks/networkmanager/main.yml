@@ -1,5 +1,4 @@
 ---
-
 # - name: populate /etc/resolv with local dns info
 #   template:
 #       src: etc/resolv.conf.j2
@@ -33,9 +32,9 @@
 
 - name: Enable and start NetworkManager dispatcher
   service:
-      name: NetworkManager-dispatcher.service
-      enabled: yes
-      state: started
+    name: NetworkManager-dispatcher.service
+    enabled: yes
+    state: started
 
 - import_tasks:
     file: interfaces.yml
