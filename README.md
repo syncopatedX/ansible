@@ -1,18 +1,27 @@
-# 🤖 Ansible Workstation Archlinux 🚀
+# 🤖 Syncopated Ansible Workstation Automation 🚀
 
-This Ansible playbook automates the configuration of a development-focused workstation, primarily targeting Arch Linux 🐧 and its derivatives. It leverages Ansible roles for modularity and maintainability, setting up everything from base system utilities to a complete development environment. It supports both standard `ansible-playbook` execution and `ansible-pull` for agent-based configuration management.
+This Ansible playbook automates the configuration of a development-focused workstation with **multi-distribution support**. Originally designed for Arch Linux 🐧, it now supports **Rocky Linux 9** and provides a unified automation framework for professional workstations. It leverages Ansible roles for modularity and maintainability, setting up everything from base system utilities to a complete development environment.
+
+## 🌟 **Multi-Distribution Support**
+
+* **✅ Arch Linux**: Full native support with AUR integration
+* **✅ Rocky Linux 9**: Complete RHEL family support with EPEL, PowerTools/CRB, and RPM Fusion
+* **🔄 Unified Package Management**: Automatic distribution detection and package mapping
+* **📦 Alternative Installation Methods**: Source builds, Cargo/Rust tools, binary downloads, Flatpak fallbacks
 
 ## ✨ Features
 
 This playbook provides a comprehensive workstation setup, including:
 
 * **🔧 Base System:**
-  * Package manager configuration (pacman, paru via custom `aur` module).
-  * Repository setup (`archaudio`, `chaotic-aur`).
-  * Essential system utilities (`mlocate`, `reflector`).
-  * Mirrorlist update automation.
-  * User account creation and sudo configuration.
-  * `rc.local` compatibility setup.
+  * **Multi-Distribution Package Management:**
+    * **Arch Linux**: pacman, paru via custom `aur` module, Chaotic AUR, ArchAudio repos
+    * **Rocky Linux 9**: dnf with EPEL, PowerTools/CRB, RPM Fusion repositories
+  * **Unified Package Installation**: Automatic distribution detection and package mapping
+  * **Alternative Methods**: Source builds (libvips, chromaprint), Cargo/Rust tools, binary downloads
+  * Essential system utilities and configuration
+  * User account creation and sudo configuration
+  * Distribution-specific optimizations
 * **🐚 Shell Environment:**
   * Shell customization (zsh, oh-my-zsh, aliases, functions).
   * Terminal emulator setup (kitty).
@@ -250,6 +259,61 @@ network_interfaces:
 ```bash
 ansible-playbook -i inventory/inventory.ini playbooks/full.yml -b -e "use_docker=false" -e "user_name=newuser"
 ```
+
+## 🐧 **Rocky Linux 9 Usage**
+
+The playbook now supports **Rocky Linux 9** with automatic distribution detection and package mapping. 
+
+### Prerequisites for Rocky Linux 9
+
+1. **Python 3**: Ensure Python 3 is available for Ansible
+   ```bash
+   sudo dnf install -y python3
+   ```
+
+2. **Set Python Interpreter**: Rocky Linux 9 uses Python 3.9, so specify the interpreter:
+   ```bash
+   ansible-playbook -i inventory/inventory.ini playbooks/full.yml \
+     -e "ansible_python_interpreter=/usr/bin/python3"
+   ```
+
+### Rocky Linux 9 Package Sources
+
+The automation automatically configures these repositories:
+
+* **BaseOS & AppStream**: Core Rocky Linux packages
+* **EPEL 9**: Extra Packages for Enterprise Linux (aria2, bat, fd-find, ripgrep, etc.)
+* **PowerTools/CRB**: Code Ready Builder for development headers
+* **RPM Fusion Free/Non-Free**: Multimedia packages (codecs, media tools)
+* **GitHub CLI**: Official repository for `gh` command
+
+### Rocky Linux 9 Example Usage
+
+```bash
+# Full workstation setup on Rocky Linux 9
+ansible-playbook -i inventory/inventory.ini playbooks/full.yml \
+  -e "ansible_python_interpreter=/usr/bin/python3" \
+  --ask-become-pass
+
+# Install only base system and development tools
+ansible-playbook -i inventory/inventory.ini playbooks/full.yml \
+  -e "ansible_python_interpreter=/usr/bin/python3" \
+  --tags "base,ruby,docker" --ask-become-pass
+
+# Test repository setup only
+ansible-playbook -i inventory/inventory.ini playbooks/full.yml \
+  -e "ansible_python_interpreter=/usr/bin/python3" \
+  --tags "repos" --check --diff
+```
+
+### Source Build Packages
+
+Some packages are built from source on Rocky Linux 9:
+
+* **libvips**: Image processing library (meson build)
+* **chromaprint**: Audio fingerprinting library (cmake build)
+
+Build dependencies are automatically installed and compilation happens in `/tmp/build-*` directories.
 
 ## 🏷️ Using Tags
 

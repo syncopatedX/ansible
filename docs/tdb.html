@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Guide: Ansible Source Installation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Slate & Amber -->
+    <!-- Application Structure Plan: A task-oriented, single-page dashboard designed for developers. The structure prioritizes quick access to actionable information. It's divided into four main sections: 1. **Header & Intro**: Quick summary. 2. **Prerequisites**: An interactive checklist/grid for setting up the build environment. 3. **Package Installation Hub**: A powerful, searchable, and filterable table of all packages, where each entry expands to show detailed, step-by-step compilation and installation instructions. This is the core of the app, designed for direct use. 4. **Reference Guides**: Tabbed content for understanding different build systems (Cargo, Go, Autotools, etc.) and an accordion for FAQs/troubleshooting. This structure was chosen because users will likely have different goals: some need to set up the environment, some need instructions for a specific tool, and others need to understand a build process. The design avoids a linear report format and instead provides immediate access to the required data through targeted interaction. -->
+    <!-- Visualization & Content Choices: 1. **Prerequisites**: Goal is to inform and guide setup. Using interactive cards with icons and code snippets is more engaging than a simple list. Interaction involves hover effects to reveal more info. 2. **Package Installation Hub**: Goal is to organize and compare a large set of data. A filterable/searchable table is the most efficient method. Each row represents a package (Report Info). Clicking a row (Interaction) expands it to show detailed build steps (Presentation Method: formatted code blocks and dependency lists). This is justified by the need to manage complexity and allow users to focus on one package at a time. 3. **Reference Guides**: Goal is to organize reference material. Tabs for build systems and an accordion for troubleshooting are standard, user-friendly patterns for segmenting large amounts of text-based information, making it less overwhelming. All code snippets are presented in pre-formatted blocks for clarity and copy-ability. All implemented with HTML/CSS/JS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+      body {
+        background-color: #f8fafc; /* slate-50 */
+        color: #1e293b; /* slate-800 */
+        font-family: "Inter", sans-serif;
+      }
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap");
+      .font-fira {
+        font-family: "Fira Code", monospace;
+      }
+      .tab-active {
+        border-color: #f59e0b; /* amber-500 */
+        background-color: #fffbeb; /* amber-50 */
+        color: #b45309; /* amber-700 */
+      }
+      .tab-inactive {
+        border-color: transparent;
+        background-color: #f1f5f9; /* slate-100 */
+        color: #475569; /* slate-600 */
+      }
+      .package-row:hover {
+        background-color: #f1f5f9; /* slate-100 */
+      }
+      .details-row {
+        display: none;
+      }
+      .details-row.active {
+        display: table-row;
+      }
+      .accordion-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-in-out;
+      }
+      .accordion-content.active {
+        max-height: 500px; /* Adjust as needed */
+      }
+      /* Scrollbar styles */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f5f9;
+      }
+      ::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 10px;
+        border: 2px solid #f1f5f9;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background-color: #94a3b8;
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <div class="container mx-auto p-4 sm:p-6 md:p-8">
+      <!-- Header -->
+      <header class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold text-slate-900">
+          Ansible Source Installation Guide
+        </h1>
+        <p class="mt-4 text-lg text-slate-600 max-w-3xl mx-auto">
+          An interactive dashboard to streamline the process of compiling and
+          installing packages from source on Red Hat family systems using
+          Ansible.
+        </p>
+      </header>
+
+      <!-- Prerequisites Section -->
+      <section id="prerequisites" class="mb-16">
+        <h2
+          class="text-3xl font-bold text-slate-800 mb-6 border-b-2 border-slate-200 pb-2"
+        >
+          1. Build Environment Setup
+        </h2>
+        <p class="text-slate-600 mb-8">
+          Before compiling packages, your system needs the right tools and
+          libraries. This section outlines the core components for a robust
+          build environment on Fedora/RHEL. These are the foundational steps to
+          ensure successful compilations.
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Card: Development Tools -->
+          <div
+            class="bg-white p-6 rounded-lg shadow-sm border border-slate-200"
+          >
+            <h3 class="font-bold text-xl mb-3 text-slate-800">
+              Core Development Tools
+            </h3>
+            <p class="text-slate-600 mb-4 text-sm">
+              Equivalent to `base-devel`, this group installs essential
+              compilers like GCC, G++, make, and other build utilities.
+            </p>
+            <pre
+              class="bg-slate-100 text-slate-800 p-3 rounded-md text-sm font-fira overflow-x-auto"
+            ><code>- name: Install Development Tools
+  ansible.builtin.dnf:
+    name: "@Development Tools"
+    state: present
+  become: true</code></pre>
+          </div>
+          <!-- Card: Essential Headers -->
+          <div
+            class="bg-white p-6 rounded-lg shadow-sm border border-slate-200"
+          >
+            <h3 class="font-bold text-xl mb-3 text-slate-800">
+              Essential Headers & Libraries
+            </h3>
+            <p class="text-slate-600 mb-4 text-sm">
+              Install key development headers and libraries required by a wide
+              range of C/C++ projects and build systems.
+            </p>
+            <pre
+              class="bg-slate-100 text-slate-800 p-3 rounded-md text-sm font-fira overflow-x-auto"
+            ><code>- name: Install Essential Headers
+  ansible.builtin.dnf:
+    name:
+      - kernel-devel
+      - openssl-devel
+      - cmake
+      - pkgconf
+      - zlib-devel
+  state: present
+  become: true</code></pre>
+          </div>
+          <!-- Card: Version Control -->
+          <div
+            class="bg-white p-6 rounded-lg shadow-sm border border-slate-200"
+          >
+            <h3 class="font-bold text-xl mb-3 text-slate-800">
+              Version Control: Git
+            </h3>
+            <p class="text-slate-600 mb-4 text-sm">
+              Git is required to clone source code repositories. This task
+              ensures it's available for all subsequent build steps.
+            </p>
+            <pre
+              class="bg-slate-100 text-slate-800 p-3 rounded-md text-sm font-fira overflow-x-auto"
+            ><code>- name: Install Git
+  ansible.builtin.dnf:
+    name: git
+    state: present
+  become: true</code></pre>
+          </div>
+          <!-- Card: Rust/Cargo -->
+          <div
+            class="bg-white p-6 rounded-lg shadow-sm border border-slate-200"
+          >
+            <h3 class="font-bold text-xl mb-3 text-slate-800">
+              Language: Rust & Cargo
+            </h3>
+            <p class="text-slate-600 mb-4 text-sm">
+              Installs the Rust toolchain via `rustup`, which is necessary for
+              building Rust-based CLI tools.
+            </p>
+            <pre
+              class="bg-slate-100 text-slate-800 p-3 rounded-md text-sm font-fira overflow-x-auto"
+            ><code># Installs rustup via script
+# Adds ~/.cargo/bin to PATH
+- name: Install rustup
+  ansible.builtin.shell: |
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
+  args:
+    creates: "{{ ansible_env.HOME }}/.cargo/bin/rustup"</code></pre>
+          </div>
+          <!-- Card: Go -->
+          <div
+            class="bg-white p-6 rounded-lg shadow-sm border border-slate-200"
+          >
+            <h3 class="font-bold text-xl mb-3 text-slate-800">Language: Go</h3>
+            <p class="text-slate-600 mb-4 text-sm">
+              Installs the Go toolchain from the official binary release,
+              required for compiling Go applications.
+            </p>
+            <pre
+              class="bg-slate-100 text-slate-800 p-3 rounded-md text-sm font-fira overflow-x-auto"
+            ><code># Downloads & extracts Go to /usr/local/go
+# Sets up PATH in /etc/profile.d/
+- name: Install Go
+  ansible.builtin.unarchive:
+    src: https://go.dev/dl/go1.22.3.linux-amd64.tar.gz
+    dest: /usr/local
+    remote_src: true
+  become: true
+  args:
+    creates: /usr/local/go/bin/go</code></pre>
+          </div>
+          <!-- Card: Node.js/npm -->
+          <div
+            class="bg-white p-6 rounded-lg shadow-sm border border-slate-200"
+          >
+            <h3 class="font-bold text-xl mb-3 text-slate-800">
+              Language: Node.js & npm
+            </h3>
+            <p class="text-slate-600 mb-4 text-sm">
+              Installs Node.js and its package manager, npm, required for
+              JavaScript-based tools.
+            </p>
+            <pre
+              class="bg-slate-100 text-slate-800 p-3 rounded-md text-sm font-fira overflow-x-auto"
+            ><code>- name: Install Node.js and npm
+  ansible.builtin.dnf:
+    name:
+      - nodejs
+      - npm
+    state: present
+  become: true</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- Package Installation Hub -->
+      <section id="packages">
+        <h2
+          class="text-3xl font-bold text-slate-800 mb-6 border-b-2 border-slate-200 pb-2"
+        >
+          2. Package Installation Hub
+        </h2>
+        <p class="text-slate-600 mb-8">
+          This hub contains detailed, step-by-step instructions for compiling
+          and installing each package from its source. Use the filters to narrow
+          down the list by build system or search for a specific package. Click
+          on any row to expand it and view the Ansible tasks.
+        </p>
+
+        <!-- Filters -->
+        <div
+          class="flex flex-wrap gap-4 mb-6 items-center bg-white p-4 rounded-lg shadow-sm border border-slate-200"
+        >
+          <div class="flex-grow">
+            <label for="search-input" class="sr-only">Search Packages</label>
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Search for a package..."
+              class="w-full px-4 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition"
+            />
+          </div>
+          <div class="flex-shrink-0">
+            <label for="filter-select" class="sr-only"
+              >Filter by Build System</label
+            >
+            <select
+              id="filter-select"
+              class="px-4 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition"
+            >
+              <option value="all">All Build Systems</option>
+              <option value="Cargo">Cargo (Rust)</option>
+              <option value="Go">Go</option>
+              <option value="Autotools">Autotools/Make</option>
+              <option value="CMake">CMake</option>
+              <option value="Meson">Meson</option>
+              <option value="Python">Python (pip/Maturin)</option>
+              <option value="npm">npm</option>
+              <option value="Other">Other/System</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Packages Table -->
+        <div
+          class="overflow-x-auto bg-white rounded-lg shadow-sm border border-slate-200"
+        >
+          <table class="w-full text-left" id="package-table">
+            <thead class="bg-slate-50 border-b border-slate-200">
+              <tr>
+                <th class="p-4 font-semibold text-slate-600">Package</th>
+                <th
+                  class="p-4 font-semibold text-slate-600 hidden md:table-cell"
+                >
+                  Description
+                </th>
+                <th class="p-4 font-semibold text-slate-600">Build System</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Package data will be injected here by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Reference Guides Section -->
+      <section id="reference" class="mt-16">
+        <h2
+          class="text-3xl font-bold text-slate-800 mb-6 border-b-2 border-slate-200 pb-2"
+        >
+          3. Reference Guides
+        </h2>
+        <p class="text-slate-600 mb-8">
+          Understand the underlying technologies and find solutions to common
+          problems. This section provides reference material on the various
+          build systems encountered and a list of frequently asked questions for
+          troubleshooting compilation issues.
+        </p>
+
+        <!-- Tabs for Build Systems -->
+        <div class="mb-12">
+          <div class="border-b border-slate-200">
+            <nav class="-mb-px flex space-x-4" aria-label="Tabs">
+              <button class="tab-btn tab-active" data-tab="cargo">Cargo</button>
+              <button class="tab-btn tab-inactive" data-tab="go">Go</button>
+              <button class="tab-btn tab-inactive" data-tab="autotools">
+                Autotools
+              </button>
+              <button class="tab-btn tab-inactive" data-tab="meson">
+                Meson
+              </button>
+            </nav>
+          </div>
+          <div class="mt-6">
+            <div id="tab-content-cargo" class="tab-content">
+              <h4 class="font-bold text-lg mb-2">
+                Compiling with Cargo (Rust)
+              </h4>
+              <p class="text-slate-600 mb-4">
+                Cargo is Rust's build system and package manager. The typical
+                workflow involves cloning a repository, running `cargo build
+                --release` to create an optimized binary, and then copying the
+                result from `target/release/` to a location in the system's
+                PATH.
+              </p>
+              <pre
+                class="bg-slate-800 text-white p-4 rounded-md text-sm font-fira overflow-x-auto"
+              ><code>- name: Clone Rust project
+  ansible.builtin.git:
+    repo: '...'
+    dest: "/usr/local/src/project"
+
+- name: Compile with Cargo
+  ansible.builtin.command:
+    cmd: "{{ ansible_env.HOME }}/.cargo/bin/cargo build --release"
+    chdir: "/usr/local/src/project"
+    creates: "/usr/local/src/project/target/release/binary_name"
+
+- name: Install binary
+  ansible.builtin.copy:
+    src: "/usr/local/src/project/target/release/binary_name"
+    dest: "/usr/local/bin/binary_name"
+    mode: '0755'
+    remote_src: true
+  become: true</code></pre>
+            </div>
+            <div id="tab-content-go" class="tab-content hidden">
+              <h4 class="font-bold text-lg mb-2">Compiling with Go</h4>
+              <p class="text-slate-600 mb-4">
+                Go projects are built using the `go` command. Often, a
+                `Makefile` provides a simpler interface (`make build`). The
+                process usually involves `go build` or `go install`, which
+                produces a self-contained, statically-linked binary.
+              </p>
+              <pre
+                class="bg-slate-800 text-white p-4 rounded-md text-sm font-fira overflow-x-auto"
+              ><code>- name: Clone Go project
+  ansible.builtin.git:
+    repo: '...'
+    dest: "/usr/local/src/project"
+
+- name: Compile with Go
+  ansible.builtin.command:
+    cmd: "go build -ldflags='-s -w' -o binary_name"
+    chdir: "/usr/local/src/project"
+    creates: "/usr/local/src/project/binary_name"
+  environment:
+    PATH: "/usr/local/go/bin:{{ ansible_env.PATH }}"
+
+- name: Install binary
+  ansible.builtin.copy:
+    src: "/usr/local/src/project/binary_name"
+    dest: "/usr/local/bin/binary_name"
+    mode: '0755'
+    remote_src: true
+  become: true</code></pre>
+            </div>
+            <div id="tab-content-autotools" class="tab-content hidden">
+              <h4 class="font-bold text-lg mb-2">
+                Compiling with Autotools/Make
+              </h4>
+              <p class="text-slate-600 mb-4">
+                The traditional build system on Unix-like systems. The
+                three-step `configure`, `make`, `make install` process checks
+                for dependencies, compiles the code, and installs the resulting
+                files into the system.
+              </p>
+              <pre
+                class="bg-slate-800 text-white p-4 rounded-md text-sm font-fira overflow-x-auto"
+              ><code>- name: Configure with Autotools
+  ansible.builtin.command:
+    cmd: "./configure --prefix=/usr/local"
+    chdir: "/usr/local/src/project"
+    creates: "/usr/local/src/project/config.status"
+
+- name: Compile with Make
+  ansible.builtin.make:
+    chdir: "/usr/local/src/project"
+
+- name: Install with Make
+  ansible.builtin.make:
+    chdir: "/usr/local/src/project"
+    target: install
+  become: true</code></pre>
+            </div>
+            <div id="tab-content-meson" class="tab-content hidden">
+              <h4 class="font-bold text-lg mb-2">
+                Compiling with Meson & Ninja
+              </h4>
+              <p class="text-slate-600 mb-4">
+                A modern and fast build system. The workflow involves `meson
+                setup` to configure the build in a separate directory, followed
+                by `ninja` to compile and `ninja install` to install the
+                software.
+              </p>
+              <pre
+                class="bg-slate-800 text-white p-4 rounded-md text-sm font-fira overflow-x-auto"
+              ><code>- name: Setup with Meson
+  ansible.builtin.command:
+    cmd: "meson setup build --prefix=/usr/local"
+    chdir: "/usr/local/src/project"
+    creates: "/usr/local/src/project/build/build.ninja"
+
+- name: Compile with Ninja
+  ansible.builtin.command:
+    cmd: "ninja -C build"
+    chdir: "/usr/local/src/project"
+
+- name: Install with Ninja
+  ansible.builtin.command:
+    cmd: "ninja -C build install"
+    chdir: "/usr/local/src/project"
+  become: true</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accordion for Troubleshooting -->
+        <div id="accordion-container">
+          <h3 class="text-2xl font-bold text-slate-800 mb-4">
+            Troubleshooting & FAQs
+          </h3>
+          <div class="space-y-3">
+            <div class="bg-white border border-slate-200 rounded-lg">
+              <button
+                class="accordion-btn w-full flex justify-between items-center text-left p-4 font-semibold text-slate-700"
+              >
+                <span
+                  >Error: "header file not found" or "undefined reference
+                  to"</span
+                >
+                <span
+                  class="transform transition-transform duration-200 text-amber-600"
+                  >▼</span
+                >
+              </button>
+              <div class="accordion-content px-4 pb-4">
+                <p class="text-slate-600">
+                  This is a classic sign of a missing development library. On
+                  Fedora/RHEL, you need to install the `-devel` package for the
+                  required library. For example, if you're missing
+                  `openssl/ssl.h`, you need to install `openssl-devel`.
+                </p>
+                <pre
+                  class="mt-2 bg-slate-100 text-slate-800 p-3 rounded-md text-sm font-fira"
+                ><code># Find which package provides a file
+dnf provides '*/filename.h'
+
+# Find which package provides a pkg-config library
+dnf provides 'pkgconfig(libraryname)'</code></pre>
+              </div>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-lg">
+              <button
+                class="accordion-btn w-full flex justify-between items-center text-left p-4 font-semibold text-slate-700"
+              >
+                <span
+                  >How do I ensure my source builds are idempotent in
+                  Ansible?</span
+                >
+                <span
+                  class="transform transition-transform duration-200 text-amber-600"
+                  >▼</span
+                >
+              </button>
+              <div class="accordion-content px-4 pb-4">
+                <p class="text-slate-600">
+                  Idempotency is key to good automation. Use the `creates`
+                  argument in `ansible.builtin.command`, `shell`, or `make`
+                  tasks. This tells Ansible to skip the task if the specified
+                  file already exists. Point it to a final artifact of the task,
+                  like the compiled binary or the installed executable.
+                </p>
+                <pre
+                  class="mt-2 bg-slate-100 text-slate-800 p-3 rounded-md text-sm font-fira"
+                ><code>- name: Compile some_tool
+  ansible.builtin.command:
+    cmd: "./configure && make"
+    chdir: "/usr/local/src/some_tool"
+    # This task will NOT run if the binary already exists
+    creates: "/usr/local/src/some_tool/some_tool"</code></pre>
+              </div>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-lg">
+              <button
+                class="accordion-btn w-full flex justify-between items-center text-left p-4 font-semibold text-slate-700"
+              >
+                <span>How do I update packages installed from source?</span>
+                <span
+                  class="transform transition-transform duration-200 text-amber-600"
+                  >▼</span
+                >
+              </button>
+              <div class="accordion-content px-4 pb-4">
+                <p class="text-slate-600">
+                  Source-built packages are not managed by `dnf`. You must
+                  update them manually or with a dedicated Ansible playbook. The
+                  general process is:
+                </p>
+                <ol
+                  class="list-decimal list-inside text-slate-600 mt-2 space-y-1"
+                >
+                  <li>
+                    Navigate to the source directory (e.g.,
+                    `/usr/local/src/packagename`).
+                  </li>
+                  <li>
+                    Pull the latest changes from the repository: `git pull`.
+                  </li>
+                  <li>
+                    Check out a new version tag if desired: `git checkout v2.0`.
+                  </li>
+                  <li>
+                    Re-run the compilation and installation steps (`make && make
+                    install`).
+                  </li>
+                </ol>
+                <p class="text-slate-600 mt-2">
+                  The best practice is to pin to specific version tags in your
+                  Ansible playbook for reproducible builds.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      const packageData = [
+        {
+          name: "bandwhich",
+          desc: "CLI for displaying current network utilization by process.",
+          buildSystem: "Cargo",
+          deps: ["rustc", "cargo", "libcap-ng-devel"],
+          instructions: `
+- name: Install dependencies for bandwhich
+  ansible.builtin.dnf:
+    name: libcap-ng-devel
+    state: present
+  become: true
+
+- name: Clone bandwhich repository
+  ansible.builtin.git:
+    repo: 'https://github.com/imsnif/bandwhich.git'
+    dest: "/usr/local/src/bandwhich"
+  become: true
+
+- name: Compile bandwhich
+  ansible.builtin.command:
+    cmd: "{{ ansible_env.HOME }}/.cargo/bin/cargo build --release"
+    chdir: "/usr/local/src/bandwhich"
+    creates: "/usr/local/src/bandwhich/target/release/bandwhich"
+
+- name: Install bandwhich
+  ansible.builtin.copy:
+    src: "/usr/local/src/bandwhich/target/release/bandwhich"
+    dest: "/usr/local/bin/bandwhich"
+    mode: '0755'
+    remote_src: true
+  become: true
+
+- name: Set capabilities for bandwhich
+  ansible.builtin.command:
+    cmd: "setcap cap_sys_ptrace,cap_dac_read_search,cap_net_raw,cap_net_admin+ep /usr/local/bin/bandwhich"
+  become: true`,
+        },
+        {
+          name: "bash-language-server",
+          desc: "Language Server for Bash.",
+          buildSystem: "npm",
+          deps: ["nodejs", "npm"],
+          instructions: `
+- name: Install bash-language-server via npm
+  ansible.builtin.npm:
+    name: bash-language-server
+    global: true
+    state: present
+  become: true`,
+        },
+        {
+          name: "bottom",
+          desc: "A cross-platform graphical process/system monitor.",
+          buildSystem: "Cargo",
+          deps: ["rustc", "cargo"],
+          instructions: `
+- name: Clone bottom repository
+  ansible.builtin.git:
+    repo: 'https://github.com/ClementTsang/bottom.git'
+    dest: "/usr/local/src/bottom"
+  become: true
+
+- name: Compile and install bottom with Cargo
+  ansible.builtin.command:
+    cmd: "{{ ansible_env.HOME }}/.cargo/bin/cargo install --path ."
+    chdir: "/usr/local/src/bottom"
+    creates: "{{ ansible_env.HOME }}/.cargo/bin/btm"`,
+        },
+        {
+          name: "eza",
+          desc: "A modern replacement for ls.",
+          buildSystem: "Cargo",
+          deps: ["rustc", "cargo", "zlib-devel"],
+          instructions: `
+- name: Install dependencies for eza
+  ansible.builtin.dnf:
+    name: zlib-devel
+    state: present
+  become: true
+
+- name: Clone eza repository
+  ansible.builtin.git:
+    repo: 'https://github.com/eza-community/eza.git'
+    dest: "/usr/local/src/eza"
+  become: true
+
+- name: Compile and install eza
+  ansible.builtin.command:
+    cmd: "{{ ansible_env.HOME }}/.cargo/bin/cargo install --path ."
+    chdir: "/usr/local/src/eza"
+    creates: "{{ ansible_env.HOME }}/.cargo/bin/eza"`,
+        },
+        {
+          name: "chromaprint",
+          desc: "Audio fingerprinting library.",
+          buildSystem: "CMake",
+          deps: ["cmake", "gcc-c++", "ffmpeg-devel", "fftw-devel"],
+          instructions: `
+- name: Install dependencies for chromaprint
+  ansible.builtin.dnf:
+    name:
+      - cmake
+      - gcc-c++
+      - ffmpeg-devel
+      - fftw-devel
+    state: present
+  become: true
+
+- name: Clone chromaprint repository
+  ansible.builtin.git:
+    repo: 'https://github.com/acoustid/chromaprint.git'
+    dest: "/usr/local/src/chromaprint"
+  become: true
+
+- name: Configure chromaprint with CMake
+  ansible.builtin.command:
+    cmd: "cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TOOLS=ON ."
+    chdir: "/usr/local/src/chromaprint"
+    creates: "/usr/local/src/chromaprint/CMakeCache.txt"
+
+- name: Compile and Install with Make
+  ansible.builtin.make:
+    chdir: "/usr/local/src/chromaprint"
+    target: install
+  become: true`,
+        },
+        {
+          name: "cpupower",
+          desc: "Kernel utility to manage CPU frequency and power states.",
+          buildSystem: "Other",
+          deps: ["kernel-tools"],
+          instructions: `
+- name: Ensure cpupower is installed
+  ansible.builtin.dnf:
+    name: kernel-tools
+    state: present
+  become: true`,
+        },
+        {
+          name: "github-cli",
+          desc: "GitHub’s official command-line tool.",
+          buildSystem: "Go",
+          deps: ["golang", "make"],
+          instructions: `
+- name: Install dependencies for gh-cli
+  ansible.builtin.dnf:
+    name: make
+    state: present
+  become: true
+
+- name: Clone GitHub CLI repository
+  ansible.builtin.git:
+    repo: 'https://github.com/cli/cli.git'
+    dest: "/usr/local/src/gh-cli"
+    version: 'v2.50.0'
+  become: true
+
+- name: Compile and install GitHub CLI with Make
+  ansible.builtin.make:
+    chdir: "/usr/local/src/gh-cli"
+    target: install
+    params:
+      prefix: /usr/local
+  become: true
+  creates: /usr/local/bin/gh`,
+        },
+        {
+          name: "imagemagick",
+          desc: "A feature-rich image manipulation tool.",
+          buildSystem: "Autotools",
+          deps: [
+            "gcc-c++",
+            "libjpeg-turbo-devel",
+            "libpng-devel",
+            "libtiff-devel",
+            "...",
+          ],
+          instructions: `
+- name: Install ImageMagick build dependencies
+  ansible.builtin.dnf:
+    name:
+      - libjpeg-turbo-devel
+      - libpng-devel
+      - libtiff-devel
+      - giflib-devel
+      - freetype-devel
+      - libxml2-devel
+    state: present
+  become: true
+
+- name: Clone ImageMagick repository
+  ansible.builtin.git:
+    repo: 'https://github.com/ImageMagick/ImageMagick.git'
+    dest: "/usr/local/src/ImageMagick"
+  become: true
+
+- name: Configure ImageMagick
+  ansible.builtin.command:
+    cmd: "./configure --with-modules"
+    chdir: "/usr/local/src/ImageMagick"
+    creates: "/usr/local/src/ImageMagick/config.status"
+
+- name: Compile and Install with Make
+  ansible.builtin.make:
+    chdir: "/usr/local/src/ImageMagick"
+    target: install
+  become: true
+  creates: /usr/local/bin/magick`,
+        },
+        {
+          name: "libvips",
+          desc: "A fast image processing library.",
+          buildSystem: "Meson",
+          deps: ["meson", "glib2-devel", "libjpeg-turbo-devel", "..."],
+          instructions: `
+- name: Install libvips build dependencies
+  ansible.builtin.dnf:
+    name:
+      - meson
+      - ninja-build
+      - gcc-c++
+      - glib2-devel
+      - expat-devel
+      - libjpeg-turbo-devel
+      - libpng-devel
+      - libtiff-devel
+    state: present
+  become: true
+
+- name: Clone libvips repository
+  ansible.builtin.git:
+    repo: 'https://github.com/libvips/libvips.git'
+    dest: "/usr/local/src/libvips"
+  become: true
+
+- name: Configure libvips with Meson
+  ansible.builtin.command:
+    cmd: "meson setup build --prefix=/usr/local"
+    chdir: "/usr/local/src/libvips"
+    creates: "/usr/local/src/libvips/build/build.ninja"
+
+- name: Compile and Install with Ninja
+  ansible.builtin.command:
+    cmd: "ninja -C build install"
+    chdir: "/usr/local/src/libvips"
+  become: true
+  creates: /usr/local/bin/vips`,
+        },
+        {
+          name: "yt-dlp",
+          desc: "A youtube-dl fork with additional features and fixes.",
+          buildSystem: "Python",
+          deps: ["python3-pip", "ffmpeg"],
+          instructions: `
+- name: Install yt-dlp runtime dependencies
+  ansible.builtin.dnf:
+    name: ffmpeg
+    state: present
+  become: true
+
+- name: Install yt-dlp using pip
+  ansible.builtin.pip:
+    name: yt-dlp
+    state: present
+  become: true`,
+        },
+        {
+          name: "ueberzug",
+          desc: "Display images in the terminal.",
+          buildSystem: "Python",
+          deps: ["meson", "python3-devel", "libX11-devel", "..."],
+          instructions: `
+- name: Install ueberzug build dependencies
+  ansible.builtin.dnf:
+    name:
+      - meson
+      - python3-pip
+      - python3-devel
+      - libX11-devel
+      - libXext-devel
+      - libXRes-devel
+    state: present
+  become: true
+
+- name: Install Python build tools
+  ansible.builtin.pip:
+    name:
+      - build
+      - meson-python
+    state: present
+  become: true
+
+- name: Clone ueberzug repository
+  ansible.builtin.git:
+    repo: 'https://github.com/ueber-devel/ueberzug.git'
+    dest: "/usr/local/src/ueberzug"
+
+- name: Install ueberzug from source
+  ansible.builtin.pip:
+    name: .
+    chdir: "/usr/local/src/ueberzug"
+  become: true`,
+        },
+      ];
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const tableBody = document.querySelector("#package-table tbody");
+        const searchInput = document.getElementById("search-input");
+        const filterSelect = document.getElementById("filter-select");
+
+        const renderTable = (filterText = "", filterSystem = "all") => {
+          tableBody.innerHTML = "";
+          const filteredData = packageData.filter((pkg) => {
+            const matchesText =
+              pkg.name.toLowerCase().includes(filterText.toLowerCase()) ||
+              pkg.desc.toLowerCase().includes(filterText.toLowerCase());
+            const matchesSystem =
+              filterSystem === "all" || pkg.buildSystem === filterSystem;
+            return matchesText && matchesSystem;
+          });
+
+          if (filteredData.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="3" class="text-center p-8 text-slate-500">No packages found.</td></tr>`;
+            return;
+          }
+
+          filteredData.forEach((pkg, index) => {
+            const row = document.createElement("tr");
+            row.className =
+              "package-row border-b border-slate-200 cursor-pointer transition-colors duration-200";
+            row.innerHTML = `
+                <td class="p-4 font-semibold text-slate-800">${pkg.name}</td>
+                <td class="p-4 text-slate-600 hidden md:table-cell">${pkg.desc}</td>
+                <td class="p-4"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-800">${pkg.buildSystem}</span></td>
+            `;
+
+            const detailsRow = document.createElement("tr");
+            detailsRow.className = "details-row bg-slate-50";
+            detailsRow.innerHTML = `
+                <td colspan="3" class="p-4">
+                    <div class="bg-white p-4 rounded-md border border-slate-200">
+                        <h4 class="font-bold mb-2 text-slate-700">Build Instructions for <span class="text-amber-700">${
+                          pkg.name
+                        }</span></h4>
+                        <p class="text-sm text-slate-500 mb-3"><strong>Dependencies:</strong> ${pkg.deps.join(
+                          ", "
+                        )}</p>
+                        <pre class="bg-slate-800 text-white p-4 rounded-md text-sm font-fira overflow-x-auto"><code>${pkg.instructions.trim()}</code></pre>
+                    </div>
+                </td>
+            `;
+
+            row.addEventListener("click", () => {
+              const wasActive = detailsRow.classList.contains("active");
+              document
+                .querySelectorAll(".details-row")
+                .forEach((r) => r.classList.remove("active"));
+              if (!wasActive) {
+                detailsRow.classList.add("active");
+              }
+            });
+
+            tableBody.appendChild(row);
+            tableBody.appendChild(detailsRow);
+          });
+        };
+
+        searchInput.addEventListener("input", () =>
+          renderTable(searchInput.value, filterSelect.value)
+        );
+        filterSelect.addEventListener("change", () =>
+          renderTable(searchInput.value, filterSelect.value)
+        );
+
+        renderTable();
+
+        // Tab functionality
+        const tabButtons = document.querySelectorAll(".tab-btn");
+        const tabContents = document.querySelectorAll(".tab-content");
+        tabButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            const tabId = button.dataset.tab;
+
+            tabButtons.forEach((btn) => {
+              btn.classList.remove("tab-active");
+              btn.classList.add("tab-inactive");
+            });
+            button.classList.add("tab-active");
+            button.classList.remove("tab-inactive");
+
+            tabContents.forEach((content) => {
+              content.classList.add("hidden");
+            });
+            document
+              .getElementById(`tab-content-${tabId}`)
+              .classList.remove("hidden");
+          });
+        });
+
+        // Accordion functionality
+        const accordionButtons = document.querySelectorAll(".accordion-btn");
+        accordionButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            const content = button.nextElementSibling;
+            const icon = button.querySelector("span:last-child");
+            const isActive = content.classList.contains("active");
+
+            // Optional: close other accordions
+            // document.querySelectorAll('.accordion-content').forEach(c => {
+            //     c.classList.remove('active');
+            //     c.previousElementSibling.querySelector('span:last-child').style.transform = '';
+            // });
+
+            if (isActive) {
+              content.classList.remove("active");
+              icon.style.transform = "";
+            } else {
+              content.classList.add("active");
+              icon.style.transform = "rotate(180deg)";
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

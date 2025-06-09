@@ -1,0 +1,45 @@
+---
+# - name: populate /etc/resolv with local dns info
+#   template:
+#       src: etc/resolv.conf.j2
+#       dest: /etc/resolv.conf
+
+- name: Disable systemd-networkd service
+  systemd:
+    name: systemd-networkd
+    enabled: no
+    state: stopped
+  ignore_errors: True
+
+# - name: Disable dhcpcd service
+#   service:
+#       name: dhcpcd.service
+#       enabled: no
+
+- name: Ensure networkmanager connection check is enabled
+  copy:
+    content: |
+      [connectivity]
+      enabled=true
+    dest: "/etc/NetworkManager/conf.d/20-connectivity.conf"
+    owner: root
+
+- name: Enable and start networkmanager
+  systemd:
+    name: NetworkManager
+    enabled: yes
+    state: started
+
+- name: Enable and start NetworkManager dispatcher
+  service:
+    name: NetworkManager-dispatcher.service
+    enabled: yes
+    state: started
+
+- import_tasks:
+    file: interfaces.yml
+  when: network_interfaces is defined
+
+- import_tasks:
+    file: bridge.yml
+  when: network_interface_bridge is defined

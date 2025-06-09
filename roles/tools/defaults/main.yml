@@ -1,2 +1,9 @@
 ---
 # defaults file for tools
+arm_binary: "https://github.com/danielmiessler/fabric/releases/latest/download/fabric-linux-arm64"
+source_dir: "{{ user.home }}/.local/src"
+fabric_home: "{{ user.home }}/.config/fabric"
+patterns: "{{ fabric_home }}/patterns"
+path:
+  - "{{ lookup('env','HOME') }}/.local/bin"
+  - "{{ lookup('env','HOME') }}/go/bin"

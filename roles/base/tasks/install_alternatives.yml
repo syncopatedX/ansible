@@ -1,0 +1,182 @@
+---
+# Install alternative packages using various methods
+
+- name: Create local bin directory
+  ansible.builtin.file:
+    path: /usr/local/bin
+    state: directory
+    mode: '0755'
+  become: yes
+
+- name: Install Rust packages via cargo
+  block:
+    - name: Check if cargo is available
+      ansible.builtin.command: which cargo
+      register: cargo_available
+      failed_when: false
+      changed_when: false
+
+    - name: Install cargo if not available
+      ansible.builtin.dnf:
+        name: cargo
+        state: present
+      when: 
+        - cargo_available.rc != 0
+        - ansible_os_family == 'RedHat'
+      become: yes
+
+    - name: Install alternative packages via cargo
+      ansible.builtin.shell: |
+        export PATH="$HOME/.cargo/bin:$PATH"
+        cargo install {{ item.cargo }}
+      loop: "{{ packages__alternatives }}"
+      when: 
+        - item.cargo is defined
+        - ansible_os_family != 'Archlinux'
+      environment:
+        PATH: "{{ ansible_env.PATH }}:{{ ansible_env.HOME }}/.cargo/bin"
+
+- name: Install binary packages from GitHub releases
+  block:
+    - name: Download and install binary tools
+      ansible.builtin.unarchive:
+        src: "{{ item.binary_url }}"
+        dest: /tmp
+        remote_src: yes
+        creates: "/usr/local/bin/{{ item.name }}"
+      loop: "{{ packages__alternatives }}"
+      when: 
+        - item.binary_url is defined
+        - ansible_os_family != 'Archlinux'
+      become: yes
+
+    - name: Make binary tools executable and move to PATH
+      ansible.builtin.shell: |
+        find /tmp -name "{{ item.name }}" -type f -executable -exec cp {} /usr/local/bin/ \;
+        chmod +x /usr/local/bin/{{ item.name }}
+      loop: "{{ packages__alternatives }}"
+      when: 
+        - item.binary_url is defined
+        - ansible_os_family != 'Archlinux'
+      become: yes
+
+- name: Setup repositories for packages that need them
+  ansible.builtin.shell: "{{ item.repo_setup }}"
+  loop: "{{ packages__alternatives }}"
+  when: 
+    - item.repo_setup is defined
+    - ansible_os_family != 'Archlinux'
+  become: yes
+
+- name: Install packages after repository setup
+  ansible.builtin.dnf:
+    name: "{{ item.package }}"
+    state: present
+  loop: "{{ packages__alternatives }}"
+  when: 
+    - item.repo_setup is defined
+    - item.package is defined
+    - ansible_os_family != 'Archlinux'
+  become: yes
+
+- name: Install Python packages via pip
+  ansible.builtin.pip:
+    name: "{{ item.pip }}"
+    state: present
+  loop: "{{ packages__alternatives }}"
+  when: 
+    - item.pip is defined
+    - ansible_os_family != 'Archlinux'
+
+- name: Build packages from source
+  block:
+    - name: Install build dependencies for source packages
+      ansible.builtin.dnf:
+        name: "{{ item.build_deps }}"
+        state: present
+      loop: "{{ packages__alternatives }}"
+      when: 
+        - item.source_build is defined
+        - item.build_deps is defined
+        - ansible_os_family != 'Archlinux'
+      become: yes
+
+    - name: Clone source repositories
+      ansible.builtin.git:
+        repo: "{{ item.source_build }}"
+        dest: "/tmp/build-{{ item.name }}"
+        version: HEAD
+      loop: "{{ packages__alternatives }}"
+      when: 
+        - item.source_build is defined
+        - ansible_os_family != 'Archlinux'
+
+    - name: Build and install source packages (cmake-based)
+      ansible.builtin.shell: |
+        cd /tmp/build-{{ item.name }}
+        mkdir -p build && cd build
+        cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local
+        make -j{{ ansible_processor_vcpus }}
+        make install
+      loop: "{{ packages__alternatives }}"
+      when: 
+        - item.source_build is defined
+        - item.name in ['chromaprint']
+        - ansible_os_family != 'Archlinux'
+      become: yes
+
+    - name: Build and install source packages (meson-based)
+      ansible.builtin.shell: |
+        cd /tmp/build-{{ item.name }}
+        meson setup build --prefix=/usr/local
+        cd build
+        ninja
+        ninja install
+      loop: "{{ packages__alternatives }}"
+      when: 
+        - item.source_build is defined
+        - item.name in ['libvips', 'vips']
+        - ansible_os_family != 'Archlinux'
+      become: yes
+
+  when: ansible_os_family != 'Archlinux'
+
+- name: Install Flatpak alternatives
+  block:
+    - name: Ensure Flatpak is installed
+      ansible.builtin.dnf:
+        name: flatpak
+        state: present
+      when: ansible_os_family == 'RedHat'
+      become: yes
+
+    - name: Add Flathub repository
+      ansible.builtin.shell: flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+      changed_when: false
+
+    - name: Install Flatpak applications
+      flatpak:
+        name: "{{ item.flatpak }}"
+        state: present
+      loop: "{{ packages__alternatives }}"
+      when: 
+        - item.flatpak is defined
+        - ansible_os_family != 'Archlinux'
+
+- name: Display information about unavailable packages
+  ansible.builtin.debug:
+    msg: |
+      Package '{{ item.name }}' is not available on {{ ansible_distribution }}.
+      {% if item.alternative is defined %}
+      Alternative: Use '{{ item.alternative }}' instead.
+      {% endif %}
+      {% if item.note is defined %}
+      Note: {{ item.note }}
+      {% endif %}
+  loop: "{{ packages__alternatives }}"
+  when: 
+    - ansible_os_family != 'Archlinux'
+    - item.cargo is not defined
+    - item.binary_url is not defined
+    - item.pip is not defined
+    - item.flatpak is not defined
