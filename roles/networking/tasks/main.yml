@@ -3,27 +3,23 @@
   debug:
     msg: "Starting networking tasks"
 
-- block:
+- name: Check for actual wireless devices
+  shell: "ls /sys/class/net/*/wireless 2>/dev/null | wc -l"
+  register: wireless_check
+  changed_when: false
+  failed_when: false
 
-    - name: Check for wireless interfaces
-      set_fact:
-        has_wireless: "{{ ansible_interfaces | select('match', '^wl') | list | length > 0 }}"
-      register: result
-      when: ansible_interfaces is defined
+- name: Set wireless fact
+  set_fact:
+    has_wireless: "{{ wireless_check.stdout | int > 0 }}"
 
-    - name: Debug has_wireless variable
-      debug:
-        msg: "Host has wireless interfaces: {{ has_wireless }}"
+- name: Debug wireless status
+  debug:
+    msg: "Host has wireless interfaces: {{ has_wireless }}"
 
-  rescue:
-    - name: If this errors...
-      debug:
-        msg: "{{ result }}"
-
-
-- import_tasks: 
+- import_tasks:
     file: iwd.yml
-  tags: ['iwd', 'wireless']
+  tags: ["iwd", "wireless"]
   when: has_wireless
 
 # https://gitlab.com/klaasjan/vagrant-ansible/-/blob/master/ansible/roles/configure_network/tasks/main.yml?ref_type=heads
@@ -42,7 +38,6 @@
 #     file: networkmanager.yml
 #   tags: ['networkmanager']
 
-
 # TODO: set interface config for .36 network cards betweeen soundbot|ninjabot
 # - include_tasks: interfaces.yml
 
@@ -57,16 +52,16 @@
 #   when: etc_hosts is defined
 #   tags: ['dns']
 
-- import_tasks: 
+- import_tasks:
     file: mdns.yml
-  tags: ['avahi', 'dns']
+  tags: ["avahi", "dns"]
 
 - block:
-    - import_tasks: 
+    - import_tasks:
         file: networkmanager/main.yml
-      tags: ['networkmanager']
+      tags: ["networkmanager"]
 
-  when: network_interfaces is defined
+  when: use_networkmanger is defined
 
 - block:
     - name: Create extra directories relevant for systemd-networkd
@@ -75,17 +70,16 @@
         state: directory
       loop: "{{ systemd_network_copy_files | map(attribute='dest') | list + ['/etc/systemd/networkd.conf.d/', '/etc/systemd/resolved.conf.d/', '/etc/network/'] }}"
 
-    - import_tasks: 
+    - import_tasks:
         file: networkd/main.yml
-      tags: ['systemd-network']
+      tags: ["systemd-network"]
 
-    - import_tasks: 
+    - import_tasks:
         file: networkd/resolve.yml
-      tags: ['systemd-resolve']
+      tags: ["systemd-resolve"]
 
-    - import_tasks: 
+    - import_tasks:
         file: networkd/mounts.yml
-      tags: ['systemd-mounts']
+      tags: ["systemd-mounts"]
 
-  when: systemd_network_networks is defined
-
+  when: use_systemd is defined

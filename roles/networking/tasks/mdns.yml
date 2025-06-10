@@ -1,20 +1,21 @@
 ---
+# mDNS/Avahi setup
 
-# roles/network/tasks/mdns.yml
-- name: Install Avahi and mDNS dependencies
-  pacman:
-    name:
-      - avahi
-      - nss-mdns
-    state: present
+- name: Install Avahi packages
+  include_role:
+    name: package-manager
+  vars:
+    packages:
+      - name: avahi
+      - name: nss-mdns
 
-- name: Enable and start avahi-daemon
+- name: Enable avahi-daemon
   systemd:
     name: avahi-daemon
     enabled: true
     state: started
 
-- name: Ensure nsswitch.conf contains mdns
+- name: Configure nsswitch for mDNS
   lineinfile:
     path: /etc/nsswitch.conf
     regexp: '^hosts:'

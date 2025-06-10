@@ -1,3 +1,8 @@
-#SPDX-License-Identifier: MIT-0
 ---
-# defaults file for video
+# Video role defaults
+
+video_packages:
+  - name: mesa
+  - name: xf86-video-intel
+  - name: vulkan-intel
+  - name: intel-media-driver

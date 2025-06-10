@@ -1,4 +1,13 @@
 ---
-- ansible.builtin.import_tasks:
-    file: zsh.yml
+# Shell configuration with zsh
+
+- name: Install shell packages
+  include_role:
+    name: package-manager
+  vars:
+    packages: "{{ shell_packages }}"
+  tags: ["packages"]
+
+- name: Install zsh configurations and plugins
+  import_tasks: zsh.yml
   tags: ["zsh"]

@@ -1,11 +1,8 @@
 ---
+# Video drivers and packages
 
-- name: Install mesa packages
-  community.general.pacman:
-    state: present
-    name: "{{ packages_video_mesa }}"
-
-- name: Install vendor specific driver packages
-  community.general.pacman:
-    state: present
-    name: "{{ packages_video_intel }}"
+- name: Install video packages
+  include_role:
+    name: package-manager
+  vars:
+    packages: "{{ video_packages }}"
