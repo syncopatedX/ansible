@@ -15,51 +15,111 @@
     - name: Installing base packages failed
       ansible.builtin.debug:
         msg: "Failed to install base packages"
+  when: ansible_distribution == 'Archlinux'
 
+- block:
+    # - name: symlink os-release
+    #   file:
+    #     src: /etc/os-release
+    #     dest: /etc/system-release
+    #     state: link
 
-- name: Set default kernel parameters
-  ansible.builtin.lineinfile:
-    dest: /etc/default/grub
-    regexp: "^GRUB_CMDLINE_LINUX_DEFAULT"
-    state: present
-    line: 'GRUB_CMDLINE_LINUX_DEFAULT="{{ kernel_parameters_default }}"'
-  when: kernel_parameters_default is defined
-  notify:
-    - Rebuild grub
+    # - name: install grub background
+    #   copy:
+    #     src: usr/share/backgrounds/syncopated
+    #     dest: /usr/share/backgrounds/
+    #     owner: root
+    #     group: root
+    #     mode: preserve
+    #   tags: ['theme']
 
-- name: Set default kernel parameters
-  ansible.builtin.lineinfile:
-    dest: /etc/default/grub
-    regexp: "^GRUB_CMDLINE_LINUX"
-    state: present
-    line: 'GRUB_CMDLINE_LINUX="{{ kernel_parameters }}"'
-  when: kernel_parameters is defined
-  notify:
-    - Rebuild grub
+    - name: set kernel cmdline params in grub
+      template:
+        src: etc/default/grub.j2
+        dest: /etc/default/grub
+        owner: root
+        group: root
+        mode: "644"
+        backup: yes
+      register: default_grub
 
-- name: Enable Grub submenus
-  ansible.builtin.lineinfile:
-    dest: /etc/default/grub
-    regexp: "^GRUB_DISABLE_SUBMENU"
-    state: present
-    line: "#GRUB_DISABLE_SUBMENU=y"
-  notify:
-    - Rebuild grub
+    - block:
+        - name: Remake grub if changes were made
+          ansible.builtin.command: "{{ grub_mkconfig_command }}"
+          # when:
+          #   - default_grub.changed
+          #   - reboot is not defined
 
-- name: Enable saved as default
-  ansible.builtin.lineinfile:
-    dest: /etc/default/grub
-    regexp: "^GRUB_DEFAULT"
-    state: present
-    line: "GRUB_DEFAULT=saved"
-  notify:
-    - Rebuild grub
+        # - name: reboot host if grub was modified
+        #   ansible.builtin.reboot:
+        #   async: 1
+        #   poll: 0
+        #   ignore_errors: True
 
-- name: Enable saved as default
-  ansible.builtin.lineinfile:
-    dest: /etc/default/grub
-    regexp: "^#GRUB_SAVEDEFAULT"
-    state: present
-    line: "GRUB_SAVEDEFAULT=true"
-  notify:
-    - Rebuild grub
+        # - name: wait for host to reboot
+        #   wait_for_connection:
+        #     connect_timeout: 20
+        #     sleep: 5
+        #     delay: 5
+        #     timeout: 120
+
+      when: default_grub.changed
+
+  become: True
+  vars:
+    grub_mkconfig_command: >-
+      {% set grub_command_map = {
+        'Debian': 'update-grub',
+        'AlmaLinux': 'grub2-mkconfig -o /boot/efi/EFI/almalinux/grub.cfg\ngrub2-mkconfig -o /boot/grub2/grub.cfg',
+        'Rocky': 'grub2-mkconfig -o /boot/grub2/grub.cfg',
+        'Archlinux': 'grub-mkconfig -o /boot/grub/grub.cfg'
+      } %}
+
+      {{ grub_command_map.get(ansible_distribution, '# Unsupported distribution') }}
+
+# - name: Set default kernel parameters
+#   ansible.builtin.lineinfile:
+#     dest: /etc/default/grub
+#     regexp: "^GRUB_CMDLINE_LINUX_DEFAULT"
+#     state: present
+#     line: 'GRUB_CMDLINE_LINUX_DEFAULT="{{ kernel_parameters_default }}"'
+#   when: kernel_parameters_default is defined
+#   notify:
+#     - Rebuild grub
+
+# - name: Set default kernel parameters
+#   ansible.builtin.lineinfile:
+#     dest: /etc/default/grub
+#     regexp: "^GRUB_CMDLINE_LINUX"
+#     state: present
+#     line: 'GRUB_CMDLINE_LINUX="{{ kernel_parameters }}"'
+#   when: kernel_parameters is defined
+#   notify:
+#     - Rebuild grub
+
+# - name: Enable Grub submenus
+#   ansible.builtin.lineinfile:
+#     dest: /etc/default/grub
+#     regexp: "^GRUB_DISABLE_SUBMENU"
+#     state: present
+#     line: "#GRUB_DISABLE_SUBMENU=y"
+#   notify:
+#     - Rebuild grub
+
+# - name: Enable saved as default
+#   ansible.builtin.lineinfile:
+#     dest: /etc/default/grub
+#     regexp: "^GRUB_DEFAULT"
+#     state: present
+#     line: "GRUB_DEFAULT=saved"
+#   notify:
+#     - Rebuild grub
+
+# - name: Enable saved as default
+#   ansible.builtin.lineinfile:
+#     dest: /etc/default/grub
+#     regexp: "^#GRUB_SAVEDEFAULT"
+#     state: present
+#     line: "GRUB_SAVEDEFAULT=true"
+#   notify:
+#     - Rebuild grub

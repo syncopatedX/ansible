@@ -25,10 +25,7 @@
     - { role: base, tags: ["base"] }
     - { role: ssh, tags: ["ssh"] }
     - { role: firewalld, tags: ["firewalld"] }
-    - {
-        role: networking,
-        tags: ["networking", "networkd", "networkmanager", "dns"],
-      }
+    - { role: networking, tags: ["networkd", "networkmanager", "dns"] }
     - { role: ntp, tags: ["ntp"] }
     - {
         role: grub,
