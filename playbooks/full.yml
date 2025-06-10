@@ -9,10 +9,6 @@
   environment:
     PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path|join(':') }}"
   pre_tasks:
-    - name: Set profile config directory fact
-      ansible.builtin.set_fact:
-        profile_config_dir: "{{ '/etc/skel' if use_etc_skel | bool else user.home }}"
-      tags: ["always"]
 
     - name: Display ansible_distribution
       ansible.builtin.debug:

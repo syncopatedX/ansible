@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: syncopated-ansible
-  description: Base system setup orchestrating core system configuration
+  description: User account management with sudo and polkit configuration
   license: MIT
   min_ansible_version: "2.9"
   
@@ -15,11 +15,8 @@ galaxy_info:
 
   galaxy_tags:
     - system
-    - base
-    - orchestration
+    - users
+    - sudo
+    - security
 
-dependencies:
-  - role: repository-manager
-  - role: system-base  
-  - role: user-manager
-  - role: package-manager
+dependencies: []

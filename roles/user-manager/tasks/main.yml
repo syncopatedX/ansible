@@ -1,0 +1,37 @@
+---
+# User Manager main tasks
+
+- name: User account and directory setup
+  become: true
+  block:
+    - name: Ensure user is present with proper shell and groups
+      ansible.builtin.user:
+        name: "{{ user.name }}"
+        shell: "{{ user.shell | default('/usr/bin/zsh') }}"
+        groups: "{{ user.groups | default(['wheel', 'audio', 'video']) }}"
+        append: true
+        state: present
+      tags: ["user"]
+
+    - name: Ensure ~/.local/bin exists
+      ansible.builtin.file:
+        path: "{{ user.home | default('/home/' + user.name) }}/.local/bin"
+        state: directory
+        mode: "0755"
+        owner: "{{ user.name }}"
+        group: "{{ user.group | default(user.name) }}"
+      tags: ["folders"]
+
+    - name: Ensure ~/.local/share exists
+      ansible.builtin.file:
+        path: "{{ user.home | default('/home/' + user.name) }}/.local/share"
+        state: directory
+        mode: "0755"
+        owner: "{{ user.name }}"
+        group: "{{ user.group | default(user.name) }}"
+      tags: ["folders"]
+
+- name: Configure sudo access
+  include_tasks: sudo.yml
+  when: user.sudoers | default(true)
+  tags: ["sudoers"]

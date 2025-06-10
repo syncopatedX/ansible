@@ -1,31 +1,31 @@
-# Base Role - Refactored
+# Base Role
 
-## Overview
+This role orchestrates the foundational system setup by coordinating multiple specialized roles for repository management, system configuration, user management, and package installation.
 
-The `base` role provides core system setup and package management for workstation automation. This role has been **refactored** to integrate with the new `package-manager` role, providing unified package management across Arch Linux and Rocky Linux 9.
+## Purpose
 
-## Key Changes
+The `base` role serves as an orchestration layer that:
+- Configures system repositories through `repository-manager`
+- Sets up core system settings through `system-base`
+- Manages user accounts through `user-manager`
+- Installs essential packages through `package-manager`
 
-### ✅ **Integrated Package Management**
-- **Unified interface** via the `package-manager` role
-- **Multi-method installation** (system, cargo, binary, pip, source)
-- **Intelligent fallbacks** when primary installation methods fail
-- **Backwards compatibility** with existing package definitions
+## Architecture
 
-### 🔄 **Migration Strategy**
-- **Legacy support** maintained for existing package variables
-- **Gradual transition** from old package installation methods
-- **Tag-based control** for selective package installation
+This role has been refactored to use a modular approach with the following decomposed roles:
+
+1. **repository-manager**: Handles distribution-specific repository setup
+2. **system-base**: Manages timezone, locale, and keymap configuration
+3. **user-manager**: Creates and configures user accounts with sudo access
+4. **package-manager**: Provides unified package installation across distributions
 
 ## Dependencies
 
-```yaml
-dependencies:
-  - role: package-manager
-    tags: ["packages"]
-```
-
-The base role now depends on the `package-manager` role for unified package installation.
+This role depends on the following roles which are automatically included:
+- `repository-manager`
+- `system-base`
+- `user-manager` 
+- `package-manager`
 
 ## Package Definition Format
 

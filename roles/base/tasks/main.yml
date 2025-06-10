@@ -1,42 +1,28 @@
 ---
-# Base system configuration - simplified
+# Base system configuration - refactored to use decomposed roles
 
-# Basic system setup
-- name: Set timezone
-  command: "timedatectl set-timezone {{ timezone }}"
-  changed_when: true
+# Repository setup
+- name: Configure system repositories
+  include_role:
+    name: repository-manager
+  tags: ["repos"]
 
-- name: Set locale
-  copy:
-    content: "LANG={{ locale }}\n"
-    dest: /etc/locale.conf
-    mode: "0644"
+# Core system configuration
+- name: Configure basic system settings
+  include_role:
+    name: system-base
+  tags: ["system"]
 
-- name: Set keymap
-  copy:
-    content: "KEYMAP={{ keymap }}\n" 
-    dest: /etc/vconsole.conf
-    mode: "0644"
+# User account management
+- name: Setup user accounts
+  include_role:
+    name: user-manager
+  tags: ["users"]
 
-# User setup
-- name: Create user
-  user:
-    name: "{{ user.name }}"
-    shell: "{{ user.shell | default('/bin/bash') }}"
-    groups: "wheel,audio,video"
-    append: true
-
-- name: Setup sudo without password
-  lineinfile:
-    path: /etc/sudoers.d/99-user
-    line: "{{ user.name }} ALL=(ALL:ALL) NOPASSWD: ALL"
-    create: true
-    mode: "0440"
-  when: user.name != 'root'
-
-# Install packages
-- name: Install packages
+# Install essential packages
+- name: Install base packages
   include_role:
     name: package-manager
   vars:
     packages: "{{ base_packages }}"
+  tags: ["packages"]
