@@ -30,10 +30,28 @@ packages__base:
   
   # Development tools and build system
   - "@Development Tools"           # base-devel equivalent
+  - autoconf
+  - automake
+  - cmake
   - cmake                          # cmake
+  - debugedit                      # debugedit
+  - elfutils-libelf-devel
+  - gettext-devel
   - git                            # git
   - git-lfs                        # git-lfs
-  - debugedit                      # debugedit
+  - kernel-devel
+  - kernel-headers
+  - libffi-devel  
+  - libtool
+  - openssl-devel
+  - patch
+  - pkgconf # Provides pkg-config
+  - python3-devel # For tools with Python bindings or build scripts
+  - python3-pip # For installing Python-based build tools or dependencies
+  - readline-devel
+  - sqlite-devel
+  - xz-devel
+  - zlib-devel
   
   # System tools and monitoring
   - bash-completion                # bash-completion
@@ -89,7 +107,6 @@ packages__base:
   # Python packages
   - python3-chardet                # python-chardet
   - python3-pillow                # python-pillow
-  - python3-pip                   # python-pip
   - python3-pygments              # python-pygments
   - python3-setuptools            # python-setuptools
   - python3-virtualenv            # python-virtualenv
@@ -105,7 +122,6 @@ packages__base:
   - speech-dispatcher              # speech-dispatcher
   
   # SSH
-  - openssh
   - sshfs
   - autossh
   - keychain
