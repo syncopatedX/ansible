@@ -1,0 +1,7 @@
+---
+# System Base role defaults
+
+# System configuration
+timezone: "America/New_York"
+locale: "en_US.UTF-8"
+keymap: "us"
