@@ -1,0 +1,110 @@
+---
+# Setup package repositories based on distribution
+
+- name: Setup Arch Linux repositories
+  block:
+    - name: Check if paru is installed
+      command: which paru
+      register: paru_check
+      failed_when: false
+      changed_when: false
+      become: false
+
+    - name: Install paru if not present
+      block:
+        - name: Clone paru repository
+          git:
+            repo: https://aur.archlinux.org/paru.git
+            dest: "{{ package_manager_temp_dir }}/paru"
+            force: true
+          become: false
+          become_user: "{{ arch_linux.aur_builder }}"
+
+        - name: Build and install paru
+          command:
+            cmd: "makepkg -si {{ arch_linux.makepkg_flags }}"
+            chdir: "{{ package_manager_temp_dir }}/paru"
+          become: false
+          become_user: "{{ arch_linux.aur_builder }}"
+          when: paru_check.rc != 0
+
+    - name: Update package database
+      pacman:
+        update_cache: true
+      become: true
+      
+  when: ansible_os_family == "Archlinux"
+  tags: ["repos", "archlinux"]
+
+- name: Setup Rocky Linux repositories
+  block:
+    - name: Enable EPEL repository
+      dnf:
+        name: epel-release
+        state: present
+      become: true
+      when: rocky_linux.epel_enabled | default(true)
+
+    - name: Enable PowerTools/CRB repository
+      command: dnf config-manager --set-enabled powertools
+      become: true
+      failed_when: false
+      when: rocky_linux.powertools_enabled | default(true)
+
+    - name: Install RPM Fusion repositories
+      dnf:
+        name:
+          - "https://download1.rpmfusion.org/free/el/rpmfusion-free-release-{{ ansible_distribution_major_version }}.noarch.rpm"
+          - "https://download1.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-{{ ansible_distribution_major_version }}.noarch.rpm"
+        state: present
+        disable_gpg_check: true
+      become: true
+      when: rocky_linux.rpmfusion_enabled | default(true)
+
+    - name: Configure DNF settings
+      ini_file:
+        path: /etc/dnf/dnf.conf
+        section: main
+        option: "{{ item.key }}"
+        value: "{{ item.value }}"
+        backup: true
+      loop: "{{ rocky_linux.dnf_config | default({}) | dict2items }}"
+      become: true
+      when: rocky_linux.dnf_config is defined
+
+    - name: Update package cache
+      dnf:
+        update_cache: true
+      become: true
+      
+  when: ansible_os_family == "RedHat"
+  tags: ["repos", "redhat"]
+
+- name: Setup special repositories
+  block:
+    - name: Setup GitHub CLI repository (Rocky Linux)
+      shell: |
+        curl -fsSL https://cli.github.com/packages/rpm/gh-cli.repo | sudo tee /etc/yum.repos.d/github-cli.repo
+      args:
+        creates: /etc/yum.repos.d/github-cli.repo
+      become: true
+      when: 
+        - ansible_os_family == "RedHat"
+        - "'gh' in (all_packages | map(attribute='name') | list)"
+
+  tags: ["repos", "special"]
+
+- name: Verify repository setup
+  debug:
+    msg: |
+      Repository setup completed for {{ ansible_os_family }}:
+      {% if ansible_os_family == "Archlinux" %}
+      - Pacman repositories configured
+      - AUR helper ({{ arch_linux.aur_helper }}) available
+      {% elif ansible_os_family == "RedHat" %}
+      - EPEL: {{ rocky_linux.epel_enabled | default(true) }}
+      - PowerTools: {{ rocky_linux.powertools_enabled | default(true) }}
+      - RPM Fusion: {{ rocky_linux.rpmfusion_enabled | default(true) }}
+      {% endif %}
+  when: package_manager.debug | default(false)
+  tags: ["repos", "debug"]

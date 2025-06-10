@@ -1,0 +1,150 @@
+---
+# Package Manager Role Default Configuration
+
+# Global package manager settings
+package_manager:
+  # Cleanup temporary files after installation
+  cleanup_temp: true
+  
+  # Validate packages after installation
+  validate_installs: true
+  
+  # Number of retry attempts for failed installations
+  retry_count: 3
+  
+  # Installation timeout in seconds
+  timeout: 300
+  
+  # Enable debug output
+  debug: false
+  
+  # Verbose output
+  verbose: false
+  
+  # Fallback strategy order (try methods in this order)
+  fallback_strategy:
+    - system
+    - cargo
+    - binary
+    - pip
+    - flatpak
+  
+  # Fail on any package installation failure
+  fail_on_error: false
+  
+  # Report installation results
+  generate_report: true
+
+# Arch Linux specific settings
+arch_linux:
+  # AUR helper to use (paru, yay, etc.)
+  aur_helper: paru
+  
+  # User account for AUR operations
+  aur_builder: "{{ user.name | default(ansible_user) }}"
+  
+  # Makepkg flags for AUR builds
+  makepkg_flags: "--noconfirm --needed"
+  
+  # Pacman flags
+  pacman_flags: "--noconfirm --needed"
+  
+  # Enable multilib repository
+  multilib_enabled: true
+
+# Rocky Linux specific settings
+rocky_linux:
+  # Enable EPEL repository
+  epel_enabled: true
+  
+  # Enable RPM Fusion repositories
+  rpmfusion_enabled: true
+  
+  # Enable PowerTools/CRB repository
+  powertools_enabled: true
+  
+  # DNF configuration
+  dnf_config:
+    fastestmirror: "1"
+    max_parallel_downloads: "10"
+    defaultyes: "False"
+    clean_requirements_on_remove: "True"
+  
+  # DNF flags
+  dnf_flags: "-y"
+
+# Installation method configuration
+installation_methods:
+  system:
+    enabled: true
+    priority: 1
+    timeout: 180
+  
+  cargo:
+    enabled: true
+    priority: 2
+    timeout: 600
+    install_path: "/usr/local/bin"
+  
+  binary:
+    enabled: true
+    priority: 3
+    timeout: 300
+    install_path: "/usr/local/bin"
+    temp_dir: "/tmp/package-manager"
+  
+  source:
+    enabled: true
+    priority: 4
+    timeout: 1200
+    temp_dir: "/tmp/package-manager-build"
+    install_prefix: "/usr/local"
+  
+  pip:
+    enabled: true
+    priority: 5
+    timeout: 300
+    user_install: false
+  
+  flatpak:
+    enabled: true
+    priority: 6
+    timeout: 300
+    remote: "flathub"
+
+# Package validation settings
+validation:
+  # Check if binary exists in PATH
+  check_binary: true
+  
+  # Check if package is installed via system package manager
+  check_system_package: true
+  
+  # Custom validation commands for specific packages
+  custom_checks: {}
+
+# Temporary directory settings
+temp_directories:
+  base: "/tmp/package-manager"
+  downloads: "/tmp/package-manager/downloads"
+  builds: "/tmp/package-manager/builds"
+  
+# Cleanup settings
+cleanup:
+  # Remove temporary directories after successful installation
+  on_success: true
+  
+  # Remove temporary directories after failed installation
+  on_failure: false
+  
+  # Maximum age of temporary files to keep (in hours)
+  max_age: 24
+
+# Package override settings (can be customized per deployment)
+package_overrides: {}
+
+# Default packages (empty - to be defined by calling roles)
+packages: []
+
+# Package groups (empty - to be defined by calling roles)
+package_groups: []

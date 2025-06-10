@@ -1,0 +1,85 @@
+---
+# Install packages via Flatpak
+
+- name: Check if Flatpak is available
+  command: which flatpak
+  register: flatpak_check
+  failed_when: false
+  changed_when: false
+
+- name: Install Flatpak if not available
+  package:
+    name: flatpak
+    state: present
+  become: true
+  when: flatpak_check.rc != 0
+
+- name: Setup Flathub repository
+  flatpak_remote:
+    name: flathub
+    state: present
+    flatpakrepo_url: https://flathub.org/repo/flathub.flatpakrepo
+    method: system
+  become: true
+  when: installation_methods.flatpak.remote | default('flathub') == 'flathub'
+
+- name: Install packages via Flatpak
+  block:
+    - name: Extract Flatpak package information
+      set_fact:
+        flatpak_packages_to_install: >-
+          {{
+            packages_to_install | map('combine', {'flatpak_info': flatpak_packages[item.name] | default({})}) | list
+          }}
+
+    - name: Install Flatpak packages
+      flatpak:
+        name: "{{ item.flatpak_info.id | default(item.source | default(item.name)) }}"
+        state: present
+        remote: "{{ item.flatpak_info.remote | default(installation_methods.flatpak.remote | default('flathub')) }}"
+        method: system
+      loop: "{{ flatpak_packages_to_install }}"
+      register: flatpak_install_result
+      ignore_errors: true
+      become: true
+      timeout: "{{ installation_methods.flatpak.timeout | default(300) }}"
+
+  when: 
+    - packages_to_install | length > 0
+    - flatpak_check.rc == 0 or flatpak_check is changed
+
+- name: Verify Flatpak installations
+  shell: flatpak list --app | grep "{{ item.flatpak_info.id | default(item.name) }}"
+  loop: "{{ flatpak_packages_to_install | default([]) }}"
+  register: flatpak_verify_result
+  failed_when: false
+  changed_when: false
+
+- name: Process Flatpak installation results
+  set_fact:
+    package_manager_success: >-
+      {{
+        package_manager_success + 
+        (packages_to_install | selectattr('name', 'in', 
+          flatpak_install_result.results | default([]) | selectattr('changed', 'equalto', true) | map(attribute='item') | map(attribute='name') | list
+        ) | list)
+      }}
+    package_manager_failed: >-
+      {{
+        package_manager_failed +
+        (packages_to_install | rejectattr('name', 'in', 
+          flatpak_install_result.results | default([]) | selectattr('changed', 'equalto', true) | map(attribute='item') | map(attribute='name') | list
+        ) | list)
+      }}
+  when: packages_to_install | length > 0
+
+- name: Display Flatpak installation results
+  debug:
+    msg: |
+      Flatpak package installation completed:
+      - Attempted: {{ packages_to_install | length }}
+      - Successful: {{ flatpak_install_result.results | default([]) | selectattr('changed', 'equalto', true) | list | length }}
+      - Failed: {{ flatpak_install_result.results | default([]) | rejectattr('changed', 'equalto', true) | list | length }}
+  when: 
+    - package_manager.debug | default(false)
+    - packages_to_install | length > 0

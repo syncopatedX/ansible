@@ -1,0 +1,105 @@
+---
+# Install packages using Rocky Linux system package manager (dnf)
+
+- name: Extract package names for system installation
+  set_fact:
+    system_package_names: >-
+      {{
+        packages_to_install | map(attribute='name') | list
+      }}
+  when: packages_to_install | length > 0
+
+- name: Separate package types
+  set_fact:
+    base_packages: >-
+      {{
+        system_package_names | intersect(system_packages.base | default([]))
+      }}
+    epel_packages: >-
+      {{
+        system_package_names | intersect(epel_packages | default([]))
+      }}
+    rpmfusion_free_packages: >-
+      {{
+        system_package_names | intersect(rpmfusion_free_packages | default([]))
+      }}
+    rpmfusion_nonfree_packages: >-
+      {{
+        system_package_names | intersect(rpmfusion_nonfree_packages | default([]))
+      }}
+  when: packages_to_install | length > 0
+
+- name: Install base packages
+  dnf:
+    name: "{{ base_packages }}"
+    state: present
+  become: true
+  register: base_result
+  ignore_errors: true
+  when: base_packages | length > 0
+
+- name: Install EPEL packages
+  dnf:
+    name: "{{ epel_packages }}"
+    state: present
+    enablerepo: epel
+  become: true
+  register: epel_result
+  ignore_errors: true
+  when: epel_packages | length > 0
+
+- name: Install RPM Fusion Free packages
+  dnf:
+    name: "{{ rpmfusion_free_packages }}"
+    state: present
+    enablerepo: rpmfusion-free
+  become: true
+  register: rpmfusion_free_result
+  ignore_errors: true
+  when: rpmfusion_free_packages | length > 0
+
+- name: Install RPM Fusion Non-Free packages
+  dnf:
+    name: "{{ rpmfusion_nonfree_packages }}"
+    state: present
+    enablerepo: rpmfusion-nonfree
+  become: true
+  register: rpmfusion_nonfree_result
+  ignore_errors: true
+  when: rpmfusion_nonfree_packages | length > 0
+
+# Process results and update tracking variables
+# - name: Process system installation results
+#   set_fact:
+#     package_manager_success: >-
+#       {{
+#         package_manager_success + 
+#         (packages_to_install | selectattr('name', 'in', 
+#           (base_result.results | default([]) | selectattr('changed', 'equalto', true) | map(attribute='name') | list) +
+#           (epel_result.results | default([]) | selectattr('changed', 'equalto', true) | map(attribute='name') | list) +
+#           (rpmfusion_free_result.results | default([]) | selectattr('changed', 'equalto', true) | map(attribute='name') | list) +
+#           (rpmfusion_nonfree_result.results | default([]) | selectattr('changed', 'equalto', true) | map(attribute='name') | list)
+#         ) | list)
+#       }}
+#     package_manager_failed: >-
+#       {{
+#         package_manager_failed +
+#         (packages_to_install | rejectattr('name', 'in', 
+#           (base_result.results | default([]) | selectattr('changed', 'equalto', true) | map(attribute='name') | list) +
+#           (epel_result.results | default([]) | selectattr('changed', 'equalto', true) | map(attribute='name') | list) +
+#           (rpmfusion_free_result.results | default([]) | selectattr('changed', 'equalto', true) | map(attribute='name') | list) +
+#           (rpmfusion_nonfree_result.results | default([]) | selectattr('changed', 'equalto', true) | map(attribute='name') | list)
+#         ) | list)
+#       }}
+#   when: packages_to_install | length > 0
+
+# - name: Display system installation results
+#   debug:
+#     msg: |
+#       Rocky Linux system package installation completed:
+#       - Attempted: {{ packages_to_install | length }}
+#       - Successful: {{ package_manager_success | length }}
+#       - Failed: {{ package_manager_failed | length }}
+#   when: 
+#     - package_manager.debug | default(false)
+#     - packages_to_install | length > 0

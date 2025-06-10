@@ -1,0 +1,268 @@
+---
+# Arch Linux Package Definitions
+# Migrated from roles/base/vars/Archlinux.yml
+
+# System package manager configuration
+system_package_manager: pacman
+aur_package_manager: "{{ arch_linux.aur_helper | default('paru') }}"
+
+# Mirror and GPG configuration (moved from base role)
+reflector_args: >-
+  --latest 200
+  --sort rate
+  --protocol http --protocol https
+  --threads {{ ansible_facts.processor_vcpus | default(4) }}
+  --save /etc/pacman.d/mirrorlist
+
+gpg_keyserver: keyserver.ubuntu.com
+gpg_conf: |
+  keyserver {{ gpg_keyserver }}
+
+# Core system packages available via pacman
+system_packages:
+  base:
+    - aria2
+    - aspell
+    - aspell-en
+    - atool
+    - audiofile
+    - base-devel
+    - bash-completion
+    - bash-language-server
+    - bat
+    - bind
+    - chromaprint
+    - cmake
+    - cpupower
+    - curlie
+    - debugedit
+    - dex
+    - downgrade
+    - duf
+    - elinks
+    - fakeroot
+    - fd
+    - figlet
+    - firewalld
+    - fsarchiver
+    - fuse-common
+    - fuse3
+    - git
+    - git-lfs
+    - github-cli
+    - glow
+    - gnome-keyring
+    - gnuplot
+    - gst-libav
+    - gstreamer
+    - gum
+    - highlight
+    - hspell
+    - htop
+    - i7z
+    - imagemagick
+    - inetutils
+    - inxi
+    - iotop
+    - jq
+    - libgit2
+    - libgit2-glib
+    - libvips
+    - libvoikko
+    - links
+    - lnav
+    - lynx
+    - mako
+    - mediainfo
+    - meld
+    - micro
+    - most
+    - nano-syntax-highlighting
+    - ncdu
+    - net-tools
+    - nodejs
+    - npm
+    - numlockx
+    - nuspell
+    - openssh
+    - pandoc
+    - playerctl
+    - poppler
+    - postgresql-libs
+    - python-chardet
+    - python-edge-tts
+    - python-j2cli
+    - python-pillow
+    - python-pip
+    - python-pygments
+    - python-setuptools
+    - python-sphinx-intl
+    - python-virtualenv
+    - ranger
+    - ripgrep
+    - ripgrep-all
+    - realtime-privileges
+    - rsync
+    - rxvt-unicode
+    - sd
+    - smartmontools
+    - socat
+    - speech-dispatcher
+    - sshpass
+    - stunnel
+    - sudo
+    - swappy
+    - sysstat
+    - taglib
+    - tldr
+    - tree
+    - ueberzug
+    - unrar
+    - unzip
+    - v4l-utils
+    - vorbis-tools
+    - wavpack
+    - wget
+    - x264
+    - x265
+    - xterm
+    - yt-dlp
+
+  multimedia:
+    - faac
+    - faad2
+    - x264
+    - x265
+    - gstreamer
+    - gst-libav
+
+  development:
+    - base-devel
+    - git
+    - git-lfs
+    - cmake
+    - nodejs
+    - npm
+    - python-pip
+    - python-setuptools
+
+  cli_tools:
+    - bat
+    - fd
+    - ripgrep
+    - ripgrep-all
+    - bottom
+    - dust
+    - eza
+    - git-delta
+    - gping
+    - bandwhich
+    - choose
+
+# AUR packages (available via AUR helpers like paru)
+aur_packages:
+  system_tools:
+    - bandwhich
+    - bottom
+    - choose
+    - dust
+    - eza
+    - git-delta
+    - gping
+
+# Packages available via alternative methods
+alternative_packages:
+  # Cargo/Rust packages
+  cargo:
+    - name: bandwhich
+      crate: bandwhich
+      features: []
+    - name: bottom
+      crate: bottom
+      features: []
+    - name: choose
+      crate: choose
+      features: []
+    - name: dust
+      crate: du-dust
+      features: []
+    - name: eza
+      crate: eza
+      features: []
+    - name: git-delta
+      crate: git-delta
+      features: []
+    - name: gping
+      crate: gping
+      features: []
+    - name: ripgrep
+      crate: ripgrep
+      features: []
+    - name: fd-find
+      crate: fd-find
+      features: []
+    - name: sd
+      crate: sd
+      features: []
+
+  # Binary downloads
+  binary:
+    - name: glow
+      url: "https://github.com/charmbracelet/glow/releases/latest/download/glow_Linux_x86_64.tar.gz"
+      binary_name: glow
+      extract: true
+    - name: gum
+      url: "https://github.com/charmbracelet/gum/releases/latest/download/gum_Linux_x86_64.tar.gz"
+      binary_name: gum
+      extract: true
+    - name: micro
+      url: "https://github.com/zyedidia/micro/releases/latest/download/micro-linux64.tar.gz"
+      binary_name: micro
+      extract: true
+
+  # Python packages
+  pip:
+    - name: edge-tts
+      package: edge-tts
+    - name: j2cli
+      package: j2cli
+    - name: tldr
+      package: tldr
+    - name: ueberzug
+      package: ueberzug
+
+# Package aliases (alternative names)
+package_aliases:
+  fd: fd-find
+  rg: ripgrep
+  delta: git-delta
+
+# Critical packages that must be available
+critical_packages:
+  - git
+  - sudo
+  - openssh
+  - base-devel
+  - pacman
+
+# Repository configuration
+repositories:
+  multilib:
+    enabled: "{{ arch_linux.multilib_enabled | default(true) }}"
+    
+  chaotic_aur:
+    enabled: false
+    keyring: chaotic-keyring
+    mirrorlist: chaotic-mirrorlist
+    
+  archlinuxcn:
+    enabled: false
+    server: "https://repo.archlinuxcn.org/$arch"
+
+# Package manager specific settings
+pacman:
+  flags: "{{ arch_linux.pacman_flags | default('--noconfirm --needed') }}"
+  
+makepkg:
+  flags: "{{ arch_linux.makepkg_flags | default('--noconfirm --needed') }}"
+  user: "{{ arch_linux.aur_builder | default(ansible_user) }}"

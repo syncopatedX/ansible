@@ -1,0 +1,118 @@
+---
+# Install packages via binary downloads
+
+- name: Install packages via binary downloads
+  block:
+    - name: Extract binary package information
+      set_fact:
+        binary_packages_to_install: >-
+          {{
+            packages_to_install | map('combine', {'binary_info': binary_packages[item.name] | default({})}) | list
+          }}
+
+    - name: Create download directory
+      file:
+        path: "{{ temp_directories.downloads }}"
+        state: directory
+        mode: '0755'
+      become: true
+
+    - name: Download binary packages
+      get_url:
+        url: "{{ item.source | default(item.binary_info.url_template | default('')) }}"
+        dest: "{{ temp_directories.downloads }}/{{ item.name }}_download"
+        mode: '0644'
+        timeout: "{{ installation_methods.binary.timeout | default(300) }}"
+      loop: "{{ binary_packages_to_install }}"
+      register: binary_download_result
+      ignore_errors: true
+      when: item.source | default(item.binary_info.url_template) | default('') != ''
+
+    - name: Extract downloaded archives
+      unarchive:
+        src: "{{ temp_directories.downloads }}/{{ item.item.name }}_download"
+        dest: "{{ temp_directories.downloads }}/{{ item.item.name }}_extracted"
+        remote_src: true
+        creates: "{{ temp_directories.downloads }}/{{ item.item.name }}_extracted"
+      loop: "{{ binary_download_result.results | default([]) }}"
+      register: binary_extract_result
+      ignore_errors: true
+      become: true
+      when: 
+        - item is succeeded
+        - item.item.binary_info.extract | default(true)
+
+    - name: Find binary files in extracted archives
+      find:
+        paths: "{{ temp_directories.downloads }}/{{ item.item.item.name }}_extracted"
+        patterns: "{{ item.item.item.binary_name | default(item.item.item.name) }}"
+        recurse: true
+        file_type: file
+      loop: "{{ binary_extract_result.results | default([]) }}"
+      register: binary_find_result
+      when: 
+        - item is succeeded
+        - item.item.item.binary_info.extract | default(true)
+
+    - name: Install binary files to system PATH
+      copy:
+        src: "{{ item.files[0].path }}"
+        dest: "{{ installation_methods.binary.install_path | default('/usr/local/bin') }}/{{ item.item.item.item.name }}"
+        mode: '0755'
+        remote_src: true
+      loop: "{{ binary_find_result.results | default([]) }}"
+      become: true
+      ignore_errors: true
+      when: 
+        - item.files | length > 0
+
+    - name: Install non-archive binary files directly
+      copy:
+        src: "{{ temp_directories.downloads }}/{{ item.item.name }}_download"
+        dest: "{{ installation_methods.binary.install_path | default('/usr/local/bin') }}/{{ item.item.binary_name | default(item.item.name) }}"
+        mode: '0755'
+        remote_src: true
+      loop: "{{ binary_download_result.results | default([]) }}"
+      become: true
+      ignore_errors: true
+      when: 
+        - item is succeeded
+        - not (item.item.binary_info.extract | default(true))
+
+  when: packages_to_install | length > 0
+
+- name: Verify binary installations
+  command: "which {{ item.name }}"
+  loop: "{{ packages_to_install }}"
+  register: binary_verify_result
+  failed_when: false
+  changed_when: false
+
+- name: Process binary installation results
+  set_fact:
+    package_manager_success: >-
+      {{
+        package_manager_success + 
+        (packages_to_install | selectattr('name', 'in', 
+          binary_verify_result.results | default([]) | selectattr('rc', 'equalto', 0) | map(attribute='item') | map(attribute='name') | list
+        ) | list)
+      }}
+    package_manager_failed: >-
+      {{
+        package_manager_failed +
+        (packages_to_install | rejectattr('name', 'in', 
+          binary_verify_result.results | default([]) | selectattr('rc', 'equalto', 0) | map(attribute='item') | map(attribute='name') | list
+        ) | list)
+      }}
+  when: packages_to_install | length > 0
+
+- name: Display binary installation results
+  debug:
+    msg: |
+      Binary package installation completed:
+      - Attempted: {{ packages_to_install | length }}
+      - Successful: {{ binary_verify_result.results | default([]) | selectattr('rc', 'equalto', 0) | list | length }}
+      - Failed: {{ binary_verify_result.results | default([]) | rejectattr('rc', 'equalto', 0) | list | length }}
+  when: 
+    - package_manager.debug | default(false)
+    - packages_to_install | length > 0

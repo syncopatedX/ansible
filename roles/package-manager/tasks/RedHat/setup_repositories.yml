@@ -1,0 +1,65 @@
+---
+# Setup Rocky Linux repositories
+
+- name: Enable EPEL repository
+  dnf:
+    name: epel-release
+    state: present
+  become: true
+  when: rocky_linux.epel_enabled | default(true)
+
+- name: Enable PowerTools/CRB repository
+  command: dnf config-manager --set-enabled powertools
+  become: true
+  failed_when: false
+  when: rocky_linux.powertools_enabled | default(true)
+
+- name: Install RPM Fusion repositories
+  dnf:
+    name:
+      - "https://download1.rpmfusion.org/free/el/rpmfusion-free-release-{{ ansible_distribution_major_version }}.noarch.rpm"
+      - "https://download1.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-{{ ansible_distribution_major_version }}.noarch.rpm"
+    state: present
+    disable_gpg_check: true
+  become: true
+  when: rocky_linux.rpmfusion_enabled | default(true)
+
+- name: Configure DNF settings
+  ini_file:
+    path: /etc/dnf/dnf.conf
+    section: main
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+    backup: true
+  loop: "{{ rocky_linux.dnf_config | default({}) | dict2items }}"
+  become: true
+  when: rocky_linux.dnf_config is defined
+
+- name: Update package cache
+  dnf:
+    update_cache: true
+  become: true
+
+- name: Setup GitHub CLI repository
+  shell: |
+    curl -fsSL https://cli.github.com/packages/rpm/gh-cli.repo | sudo tee /etc/yum.repos.d/github-cli.repo
+  args:
+    creates: /etc/yum.repos.d/github-cli.repo
+  become: true
+
+- name: Verify GitHub CLI repository is enabled
+  shell: dnf repolist | grep -i github
+  register: github_repo_check
+  failed_when: false
+  changed_when: false
+  become: true
+
+- name: Verify repository setup
+  debug:
+    msg: |
+      Rocky Linux repository setup completed:
+      - EPEL: {{ rocky_linux.epel_enabled | default(true) }}
+      - PowerTools: {{ rocky_linux.powertools_enabled | default(true) }}
+      - RPM Fusion: {{ rocky_linux.rpmfusion_enabled | default(true) }}
+      - GitHub CLI: {{ 'Available' if github_repo_check.rc == 0 else 'Not configured' }}
+  when: package_manager.debug | default(false)

@@ -1,0 +1,40 @@
+---
+# Setup Arch Linux repositories and AUR helpers
+
+- name: Check if paru is installed
+  command: which paru
+  register: paru_check
+  failed_when: false
+  changed_when: false
+  become: false
+
+- name: Install paru if not present
+  block:
+    - name: Clone paru repository
+      git:
+        repo: https://aur.archlinux.org/paru.git
+        dest: "{{ package_manager_temp_dir }}/paru"
+        force: true
+      become: false
+      become_user: "{{ arch_linux.aur_builder }}"
+
+    - name: Build and install paru
+      command:
+        cmd: "makepkg -si {{ arch_linux.makepkg_flags }}"
+        chdir: "{{ package_manager_temp_dir }}/paru"
+      become: false
+      become_user: "{{ arch_linux.aur_builder }}"
+      when: paru_check.rc != 0
+
+- name: Update package database
+  pacman:
+    update_cache: true
+  become: true
+
+- name: Verify repository setup
+  debug:
+    msg: |
+      Arch Linux repository setup completed:
+      - Pacman repositories configured
+      - AUR helper ({{ arch_linux.aur_helper }}) available
+  when: package_manager.debug | default(false)

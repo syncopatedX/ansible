@@ -1,0 +1,38 @@
+---
+galaxy_info:
+  role_name: package-manager
+  author: Syncopated Ansible Team
+  description: Unified, distribution-agnostic package management for Arch Linux and Rocky Linux 9
+  company: Syncopated
+  license: MIT
+  min_ansible_version: 2.9
+
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: EL
+      versions:
+        - 9
+
+  galaxy_tags:
+    - system
+    - packages
+    - package-management
+    - archlinux
+    - rocky-linux
+    - cargo
+    - rust
+    - pip
+    - python
+    - flatpak
+    - binary-packages
+    - source-builds
+    - multi-distribution
+    - automation
+
+dependencies: []
+
+collections:
+  - community.general
+  - ansible.posix
