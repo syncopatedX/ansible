@@ -1,82 +1,210 @@
-# Role Name: base
+# Base Role - Refactored
 
-## Description
+## Overview
 
-This role performs essential base system configuration tasks, primarily targeting Arch Linux systems. It handles:
+The `base` role provides core system setup and package management for workstation automation. This role has been **refactored** to integrate with the new `package-manager` role, providing unified package management across Arch Linux and Rocky Linux 9.
 
-* **User Setup:** Creates a primary user based on environment variables or specified parameters, configures groups, home directory, shell, and sudo access.
-* **Package Management:** Installs a comprehensive set of base packages (utilities, development tools, libraries, etc.) using the default package manager. It also configures `reflector` for optimizing mirror lists and sets up GPG keyservers. Includes tasks for `paru` (AUR helper).
-* **Repository Configuration:** Manages system repositories (details inferred from `repos.yml`).
-* **System Services:** Configures `sudo`, `updatedb`, and potentially `rc.local`.
-* **Theme Configuration:** Sets the Zsh theme.
+## Key Changes
 
-## Requirements
+### ✅ **Integrated Package Management**
+- **Unified interface** via the `package-manager` role
+- **Multi-method installation** (system, cargo, binary, pip, source)
+- **Intelligent fallbacks** when primary installation methods fail
+- **Backwards compatibility** with existing package definitions
 
-* **Ansible:** Version 2.1 or higher.
-* **Operating System:** Assumed to be Arch Linux or a derivative (due to `pacman`, `reflector`, `paru`).
-* **Privileges:** Requires root privileges to install packages and modify system configuration.
-
-## Role Variables
-
-### User Configuration (`defaults/main.yml`)
-
-These variables control the primary user setup. Defaults are often derived from the environment running Ansible.
-
-| Variable | Description | Default Value |
-|----------|-------------|---------------|
-| `user.name` | Username | `{{ lookup('env','USER') }}` |
-| `user.group` | Primary group | `{{ lookup('env','USER') }}` |
-| `user.uid` | User ID | `1000` |
-| `user.gid` | Group ID | `1000` |
-| `user.home` | Home directory path | `{{ lookup('env','HOME') }}` |
-| `user.shell` | Default shell | `{{ lookup('env','SHELL') }}` |
-| `user.secondary_groups` | Comma-separated list of secondary groups | `"video,audio,input"` |
-| `user.realname` | User's real name | `""` |
-| `user.sudoers` | Grant sudo privileges if `true` | `true` |
-| `user.workspace` | Path to user's workspace | `""` |
-| `user.email` | User's email address | `""` |
-| `user.gpg` | User's GPG key ID | `""` |
-| `use_etc_skel` | Whether to use `/etc/skel` when creating the user's home directory | `false` |
-| `zsh_theme` | The Zsh theme to apply | `strug` |
-
-### Package Configuration (`vars/main.yml`)
-
-These variables control package installation and related settings.
-
-| Variable | Description | Default Value |
-|----------|-------------|---------------|
-| `packages__reflector_args` | Arguments passed to the `reflector` command for mirror list generation | ```--latest 200 --sort rate --protocol http --protocol https --threads {{ ansible_facts.processor_vcpus }} --save /etc/pacman.d/mirrorlist``` |
-| `packages__gpg_keyserver` | The GPG keyserver to use | `keyserver.ubuntu.com` |
-| `packages__gpg_conf` | Configuration content for GPG | ```keyserver {{ packages__gpg_keyserver }}``` |
-| `packages__base` | A list of essential packages to be installed by the role | See `vars/main.yml` for the complete default list |
+### 🔄 **Migration Strategy**
+- **Legacy support** maintained for existing package variables
+- **Gradual transition** from old package installation methods
+- **Tag-based control** for selective package installation
 
 ## Dependencies
 
-None.
-
-## Example Playbook
-
 ```yaml
-- hosts: arch_servers
-  become: yes
-  roles:
-    - role: base
-      vars:
-        user:
-          name: johndoe
-          group: users
-          uid: 1001
-          gid: 100
-          realname: "John Doe"
-          email: "john.doe@example.com"
-          secondary_groups: "wheel,video,audio,storage"
-        zsh_theme: agnoster
+dependencies:
+  - role: package-manager
+    tags: ["packages"]
 ```
 
-## License
+The base role now depends on the `package-manager` role for unified package installation.
 
-BSD
+## Package Definition Format
 
-## Author Information
+### New Format (Recommended)
 
-An optional section for the role authors to include contact information, or a website.
+```yaml
+base_packages:
+  # Core system packages
+  - name: git
+    method: system
+    required: true
+  
+  # CLI tools with fallbacks
+  - name: ripgrep
+    method: auto
+    fallbacks: [system, cargo]
+  
+  # Binary downloads
+  - name: glow
+    method: auto
+    fallbacks: [system, binary]
+    source: "https://github.com/charmbracelet/glow/releases/latest/download/glow_Linux_x86_64.tar.gz"
+  
+  # Python packages
+  - name: tldr
+    method: pip
+```
+
+### Legacy Format (Still Supported)
+
+```yaml
+packages__base:
+  - git
+  - curl
+  - wget
+
+packages__alternatives:
+  - name: bottom
+    cargo: bottom
+```
+
+## Variables
+
+### Core Configuration
+
+```yaml
+# User configuration
+user:
+  name: "{{ lookup('env','USER') }}"
+  group: "{{ lookup('env','USER') }}"
+  shell: "{{ lookup('env','SHELL') }}"
+  sudoers: true
+
+# Package management
+package_manager:
+  debug: false
+  generate_report: true
+  validate_installs: true
+  cleanup_temp: true
+```
+
+### Package Groups
+
+```yaml
+# Core system packages (always installed)
+base_packages: [...]
+
+# Development tools (optional)
+development_packages: [...]
+
+# Multimedia packages (optional)  
+multimedia_packages: [...]
+```
+
+## Usage Examples
+
+### Basic Usage
+
+```yaml
+- name: Setup base system
+  include_role:
+    name: base
+```
+
+### Selective Installation
+
+```yaml
+# Install only core packages
+- name: Setup base system (core only)
+  include_role:
+    name: base
+  tags: ["core", "users"]
+
+# Install development packages
+- name: Setup development environment
+  include_role:
+    name: base
+  tags: ["development"]
+```
+
+### Custom Package Lists
+
+```yaml
+- name: Setup base system with custom packages
+  include_role:
+    name: base
+  vars:
+    base_packages:
+      - name: git
+        method: system
+        required: true
+      - name: custom-tool
+        method: binary
+        source: "https://example.com/tool.tar.gz"
+```
+
+## Migration Guide
+
+### From Legacy Package Variables
+
+**Before:**
+```yaml
+packages__base:
+  - git
+  - curl
+  - ripgrep
+
+packages__alternatives:
+  - name: bottom
+    cargo: bottom
+```
+
+**After:**
+```yaml
+base_packages:
+  - name: git
+    method: system
+    required: true
+  - name: curl
+    method: system
+  - name: ripgrep
+    method: auto
+    fallbacks: [system, cargo]
+  - name: bottom
+    method: auto
+    fallbacks: [cargo, binary]
+```
+
+### Migration Steps
+
+1. **Review existing package definitions** in `vars/Archlinux.yml` and `vars/RedHat.yml`
+2. **Convert to new format** using `base_packages`, `development_packages`, etc.
+3. **Test package installation** with new format
+4. **Remove legacy variables** once migration is complete
+
+## Architecture
+
+### Execution Flow
+
+```
+base role main.yml
+├── User and sudo setup
+├── Repository configuration (legacy)
+├── Package manager integration
+│   ├── Core packages (package-manager role)
+│   ├── Development packages (package-manager role)
+│   └── Multimedia packages (package-manager role)
+├── Legacy package support (backwards compatibility)
+└── System finalization
+```
+
+### Integration Points
+
+- **`package-manager` role**: Primary package installation
+- **Legacy tasks**: Backwards compatibility (`install_packages.yml`, `install_alternatives.yml`)
+- **Distribution-specific**: Repository and mirror management
+
+## Related Documentation
+
+- [Package Manager Role](../package-manager/README.md)
+- [Multi-Distribution Support](../../docs/unified-package-management.md)
+- [Source Installation Guide](../../docs/Ansible%20Playbook%20for%20Source%20Installation%20of%20Specified%20Packages%20on%20Red%20Hat%20Family%20Systems.md)

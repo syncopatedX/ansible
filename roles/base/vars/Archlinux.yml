@@ -130,3 +130,12 @@ packages__base:
   - x265
   - xterm
   - yt-dlp
+  - openssh
+  - sshfs
+  - autossh
+  - keychain
+  - x11-ssh-askpass
+  - mosh
+  - oh-my-zsh-git
+  - zsh-autocomplete
+  - zsh-completions  

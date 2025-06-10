@@ -1,108 +1,42 @@
 ---
-# tasks file for base role - multi-distribution support
+# Base system configuration - simplified
 
-- name: Include distribution-specific variables
-  include_vars: "{{ ansible_os_family }}.yml"
+# Basic system setup
+- name: Set timezone
+  command: "timedatectl set-timezone {{ timezone }}"
+  changed_when: true
 
-- ansible.builtin.import_tasks:
-    file: sudo.yml
-  tags: ["sudo"]
-
-- ansible.builtin.import_tasks:
-    file: user.yml
-  tags: ["user"]
-
-- name: Setup repositories
-  include_tasks: "repos_{{ ansible_os_family }}.yml"
-  when: ansible_architecture != "aarch64"
-  tags: ["repos"]
-
-- ansible.builtin.import_tasks:
-    file: paru.yml
-  when: 
-    - ansible_os_family == 'Archlinux'
-    - ansible_architecture != "aarch64"
-  tags: ["paru"]
-
-- name: Ensure local src packages folder exists
-  ansible.builtin.file:
-    path: /usr/local/src/packages
-    state: directory
-    owner: "{{ user.name }}"
-    group: "{{ user.group }}"
-    mode: "2755"
-
-- name: Set makepkg to use aria2 (Arch Linux)
-  ansible.builtin.template:
-    src: etc/makepkg.conf.j2
-    dest: /etc/makepkg.conf
+- name: Set locale
+  copy:
+    content: "LANG={{ locale }}\n"
+    dest: /etc/locale.conf
     mode: "0644"
-    backup: true
-  when: ansible_os_family == 'Archlinux'
-  tags: ["makepkg"]
 
-- name: Update package cache (Arch Linux)
-  community.general.pacman:
-    update_cache: true
-    upgrade: false
-  when: ansible_os_family == 'Archlinux'
+- name: Set keymap
+  copy:
+    content: "KEYMAP={{ keymap }}\n" 
+    dest: /etc/vconsole.conf
+    mode: "0644"
 
-- name: Install base packages
-  include_tasks: install_packages.yml
+# User setup
+- name: Create user
+  user:
+    name: "{{ user.name }}"
+    shell: "{{ user.shell | default('/bin/bash') }}"
+    groups: "wheel,audio,video"
+    append: true
+
+- name: Setup sudo without password
+  lineinfile:
+    path: /etc/sudoers.d/99-user
+    line: "{{ user.name }} ALL=(ALL:ALL) NOPASSWD: ALL"
+    create: true
+    mode: "0440"
+  when: user.name != 'root'
+
+# Install packages
+- name: Install packages
+  include_role:
+    name: package-manager
   vars:
-    package_list: "{{ packages__base }}"
-  tags: ["packages", "base_pkgs"]
-
-- name: Install EPEL packages (Red Hat family)
-  include_tasks: install_packages.yml
-  vars:
-    package_list: "{{ packages__epel }}"
-  when: 
-    - ansible_os_family == 'RedHat'
-    - packages__epel is defined
-  tags: ["packages", "epel"]
-
-- name: Install RPM Fusion packages (Red Hat family)
-  include_tasks: install_packages.yml
-  vars:
-    package_list: "{{ packages__rpmfusion_free + packages__rpmfusion_nonfree }}"
-  when: 
-    - ansible_os_family == 'RedHat'
-    - packages__rpmfusion_free is defined
-  tags: ["packages", "rpmfusion"]
-
-- name: Install alternative packages
-  include_tasks: install_alternatives.yml
-  when: packages__alternatives is defined
-  tags: ["packages", "alternatives"]
-
-- name: Check if mirrors have been updated within the past 24h (Arch Linux)
-  ansible.builtin.shell: |
-    fd --changed-within 24hours --search-path=/etc/pacman.d
-  register: mirror_status
-  when: ansible_os_family == 'Archlinux'
-  tags: ["mirrors"]
-
-- name: Print mirror file status (Arch Linux)
-  ansible.builtin.debug:
-    msg: "{{ mirror_status }}"
-  when:
-    - ansible_os_family == 'Archlinux'
-    - ( mirror_status.stdout_lines | length < 0 or update_mirrors is defined )
-    - debugging is defined
-  tags: ["mirrors"]
-
-- name: Update mirrorlist (Arch Linux)
-  ansible.builtin.shell: |
-    reflector --download-timeout 2 --protocol https --latest 20 \
-    --sort rate --score 15 --fastest 10 \
-    --save /etc/pacman.d/mirrorlist
-  when: 
-    - ansible_os_family == 'Archlinux'
-    - ( mirror_status.stdout_lines | length < 0 or update_mirrors is defined )
-  changed_when: false
-  tags: ["mirrors"]
-
-- ansible.builtin.import_tasks:
-    file: updatedb.yml
-  tags: ["updatedb"]
+    packages: "{{ base_packages }}"

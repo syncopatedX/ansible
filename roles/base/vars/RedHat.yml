@@ -97,13 +97,20 @@ packages__base:
   # File manager and terminal tools
   - ranger                         # ranger
   - xterm                          # xterm
-  
+  - zoxide
   # Socket and network utilities
   - socat                          # socat
   
   # Accessibility
   - speech-dispatcher              # speech-dispatcher
   
+  # SSH
+  - openssh
+  - sshfs
+  - autossh
+  - keychain
+  - openssh-askpass
+  - mosh
   # Video utilities moved to EPEL section
 
 # Packages available in EPEL repository
