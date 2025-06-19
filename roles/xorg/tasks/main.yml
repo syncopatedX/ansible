@@ -3,7 +3,7 @@
 - name: Install xorg packages
   aur:
     use: paru
-    name: "{{ packages__x11 }}"
+    name: "{{ packages__xorg }}"
     state: present
   become: false
   tags: ["packages"]
