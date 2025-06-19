@@ -29,7 +29,7 @@
     - { role: docker, tags: ["docker"], when: "use_docker == 'true' | default('false')" }
     - { role: libvirt, tags: ["libvirt"], when: "use_libvirt == 'true' | default('false')" }
     - { role: nas, tags: ["nas"], when: "nfs_host == 'true' or samba_host == 'true'" }
-    - { role: x, tags: ["x"], when: "window_manager != 'sway'" }
+    - { role: xorg, tags: ["xorg"], when: "window_manager != 'sway'" }
     - { role: xwayland, tags: ["xwayland"], when: "window_manager == 'sway'" }
     - { role: rofi, tags: ["rofi"] }
     - { role: i3, tags: ["i3"], when: "window_manager == 'i3' | default('i3')" }
