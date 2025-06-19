@@ -92,9 +92,10 @@ alias monitoroff="xset dpms force off"
 # shortcut for ranger
 alias ra="ranger"
 
-# download
 alias dl="aria2c"
-alias curl="curlie"
+if [ -x "$(command -v curlie)" ]; then
+  alias curl="curlie"
+fi
 
 alias duf="sudo duf"
 alias top="sudo btm --enable_cache_memory --enable_gpu_memory --process_command -n"
@@ -107,22 +108,15 @@ alias pgrep="pgrep -a"
 
 alias checkxlog='lnav ~/.xorg.log'
 
-alias wakebender="wol d8:d3:85:b2:dd:c5"
-
 alias xev="xev -event keyboard"
 
-alias dif="kitty +kitten diff"
-
-alias login="kitty +kitten ssh"
-
-alias mocp="mocp -T /usr/share/moc/themes/green_theme"
+alias kittydif="kitty +kitten diff"
+alias kittylogin="kitty +kitten ssh"
 
 alias jekyll="bundle exec jekyll"
 alias rake="bundle exec rake"
 
 alias lib="cd $HOME/Library"
-
-alias an="cd $PLAYBOOKS"
 
 alias dla="yt-dlp -o '%(title)s.%(ext)s' -x --audio-format wav --external-downloader aria2c"
 

@@ -10,4 +10,22 @@
 
 - name: Install zsh configurations and plugins
   import_tasks: zsh.yml
-  tags: ["zsh"]
+  tags: ["zsh", "profile"]
+
+- name: Push aliases template
+  ansible.builtin.template:
+    src: home/.aliases.j2
+    dest: "{{ user.home }}/.aliases"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+    mode: "0644"
+    backup: true
+  tags: ["aliases", "profile"]
+
+# - name: Push .profile template
+#   template:
+#     src: home/.profile.j2
+#     dest: "{{ profile_config_dir }}/.profile"
+#     mode: "0644"
+#     backup: True
+#   tags: ["profile"]

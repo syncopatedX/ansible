@@ -1,6 +1,8 @@
 ---
 # Zsh configuration and setup
 
+# - name: Install oh-my-zsh
+
 - name: Install oh-my-zsh plugins
   copy:
     src: "usr/share/oh-my-zsh/plugins/{{ item }}"
