@@ -19,5 +19,5 @@
   lineinfile:
     path: /etc/nsswitch.conf
     regexp: '^hosts:'
-    line: 'hosts: files mdns_minimal [NOTFOUND=return] dns myhostname'
+    line: 'hosts: files mdns_minimal [NOTFOUND=return] dns {{ inventory_hostname }}'
     backup: true
