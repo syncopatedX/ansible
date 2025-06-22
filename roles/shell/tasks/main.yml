@@ -1,4 +1,31 @@
 ---
-- ansible.builtin.import_tasks:
-    file: zsh.yml
-  tags: ["zsh"]
+# Shell configuration with zsh
+
+- name: Install shell packages
+  include_role:
+    name: package-manager
+  vars:
+    packages: "{{ shell_packages }}"
+  tags: ["packages"]
+
+- name: Install zsh configurations and plugins
+  import_tasks: zsh.yml
+  tags: ["zsh", "profile"]
+
+- name: Push aliases template
+  ansible.builtin.template:
+    src: home/.aliases.j2
+    dest: "{{ user.home }}/.aliases"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+    mode: "0644"
+    backup: true
+  tags: ["aliases", "profile"]
+
+# - name: Push .profile template
+#   template:
+#     src: home/.profile.j2
+#     dest: "{{ profile_config_dir }}/.profile"
+#     mode: "0644"
+#     backup: True
+#   tags: ["profile"]

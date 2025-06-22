@@ -15,14 +15,12 @@
       Please set audio_system to either 'pipewire' or 'pulseaudio_jack', but not both.
       Current settings: audio_system={{ audio_system }}, use_jack={{ use_jack }}, use_pipewire={{ use_pipewire }}
     success_msg: "Audio system configuration validated: {{ audio_system }}"
-  tags: ["always"]
 
 # Set derived variables based on audio_system
 - name: Set derived audio facts
   ansible.builtin.set_fact:
     use_jack: "{{ true if audio_system == 'pulseaudio_jack' else false }}"
     use_pipewire: "{{ true if audio_system == 'pipewire' else false }}"
-  tags: ["always"]
 
 - ansible.builtin.import_tasks:
     file: packages.yml

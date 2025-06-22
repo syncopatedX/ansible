@@ -1,5 +1,9 @@
 ---
 # defaults file for rofi
+
+# Rofi packages based on window manager
+rofi_packages:
+  - name: "{{ 'rofi-wayland' if window_manager == 'sway' else 'rofi' }}"
 rofi_directory_default_mode: "0750"
 
 # The default directory owner when creating directories using `i3_directory_definitions`

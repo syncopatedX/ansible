@@ -5,12 +5,14 @@ autologin: true
 zsh_theme: kphoen
 
 i3:
-  autostart:
-    - "sleep 1;barrierc -f --debug INFO --name crambot --disable-crypto [soundbot]:24800"
+  autostart: ""
+    # - "sleep 1;barrierc -f --debug INFO --name crambot --disable-crypto [soundbot]:24800"
   tray_output: "primary"
   assignments: "default"
   workspaces: "default"
   keybindings: "default"
+
+use_systemd: true
 
 systemd_network_netdevs:
   br0:
@@ -29,7 +31,7 @@ systemd_network_networks:
     Network:
       Address: 192.168.41.10/24
       Gateway: 192.168.41.1
-      DNS: 192.168.41.1
+      DNS: 192.168.41.4
       Domains: syncopated.net
 
 # systemd_network_networks:

@@ -1,0 +1,105 @@
+---
+# Handle failed packages with fallback installation methods
+
+- name: Process failed packages for fallback installation
+  block:
+    - name: Identify packages that need fallback methods
+      set_fact:
+        fallback_candidates: >-
+          {{
+            package_manager_failed | selectattr('method', 'equalto', 'auto') | list +
+            package_manager_failed | selectattr('fallbacks', 'defined') | list
+          }}
+
+    - name: Display fallback candidates
+      debug:
+        msg: |
+          Packages requiring fallback installation:
+          {{ fallback_candidates | map(attribute='name') | join(', ') }}
+      when: 
+        - package_manager.debug | default(false)
+        - fallback_candidates | length > 0
+
+    - name: Try Cargo fallback for failed packages
+      include_tasks: install_cargo.yml
+      vars:
+        packages_to_install: >-
+          {{
+            fallback_candidates | selectattr('fallbacks', 'defined') | selectattr('fallbacks', 'contains', 'cargo') | list +
+            fallback_candidates | selectattr('method', 'equalto', 'auto') | select('in', cargo_packages.keys()) | list
+          }}
+      when: 
+        - packages_to_install | length > 0
+        - installation_methods.cargo.enabled | default(true)
+
+    - name: Try binary fallback for failed packages
+      include_tasks: install_binary.yml
+      vars:
+        packages_to_install: >-
+          {{
+            fallback_candidates | selectattr('fallbacks', 'defined') | selectattr('fallbacks', 'contains', 'binary') | list +
+            fallback_candidates | selectattr('method', 'equalto', 'auto') | select('in', binary_packages.keys()) | list
+          }}
+      when: 
+        - packages_to_install | length > 0
+        - installation_methods.binary.enabled | default(true)
+
+    - name: Try source build fallback for failed packages
+      include_tasks: install_source.yml
+      vars:
+        packages_to_install: >-
+          {{
+            fallback_candidates | selectattr('fallbacks', 'defined') | selectattr('fallbacks', 'contains', 'source') | list +
+            fallback_candidates | selectattr('method', 'equalto', 'auto') | select('in', source_packages.keys()) | list
+          }}
+      when: 
+        - packages_to_install | length > 0
+        - installation_methods.source.enabled | default(true)
+
+    - name: Try pip fallback for failed packages
+      include_tasks: install_pip.yml
+      vars:
+        packages_to_install: >-
+          {{
+            fallback_candidates | selectattr('fallbacks', 'defined') | selectattr('fallbacks', 'contains', 'pip') | list +
+            fallback_candidates | selectattr('method', 'equalto', 'auto') | select('in', pip_packages.keys()) | list
+          }}
+      when: 
+        - packages_to_install | length > 0
+        - installation_methods.pip.enabled | default(true)
+
+    - name: Try Flatpak fallback for failed packages
+      include_tasks: install_flatpak.yml
+      vars:
+        packages_to_install: >-
+          {{
+            fallback_candidates | selectattr('fallbacks', 'defined') | selectattr('fallbacks', 'contains', 'flatpak') | list +
+            fallback_candidates | selectattr('method', 'equalto', 'auto') | select('in', flatpak_packages.keys()) | list
+          }}
+      when: 
+        - packages_to_install | length > 0
+        - installation_methods.flatpak.enabled | default(true)
+
+    # Suggest alternatives for completely failed packages
+    - name: Identify still-failed packages
+      set_fact:
+        still_failed_packages: >-
+          {{
+            package_manager_failed | rejectattr('name', 'in', package_manager_success | map(attribute='name') | list) | list
+          }}
+
+    - name: Suggest alternatives for failed packages
+      debug:
+        msg: |
+          Package {{ item.name }} could not be installed via any method.
+          {% if alternative_packages.cargo | selectattr('name', 'equalto', item.name) | first | default({}) | length > 0 %}
+          Alternative commands: {{ alternative_packages.cargo | selectattr('name', 'equalto', item.name) | first | default({}) | attribute('alternative_commands') | default([]) | join(', ') }}
+          {% elif alternative_packages.binary | selectattr('name', 'equalto', item.name) | first | default({}) | length > 0 %}
+          Alternative commands: {{ alternative_packages.binary | selectattr('name', 'equalto', item.name) | first | default({}) | attribute('alternative_commands') | default([]) | join(', ') }}
+          {% else %}
+          Consider installing manually or using an alternative package.
+          {% endif %}
+      loop: "{{ still_failed_packages }}"
+      when: still_failed_packages | length > 0
+
+  when: package_manager_failed | length > 0

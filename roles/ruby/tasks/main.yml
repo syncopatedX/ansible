@@ -1,71 +1,25 @@
 ---
-# tasks file for ruby
+# Ruby development environment
 
-- name: Load a variable file based on the OS type, or a default if not found.
-  ansible.builtin.include_vars: "{{ lookup('ansible.builtin.first_found', params) }}"
+- name: Install Ruby packages
+  include_role:
+    name: package-manager
   vars:
-    params:
-      files:
-        - "{{ ansible_os_family }}.yml"
-      paths:
-        - "vars"
+    packages: "{{ ruby_packages }}"
   tags: ["packages"]
 
-- name: Load the main vars
-  ansible.builtin.include_vars: main.yml
-  vars:
-    params:
-      paths:
-        - "vars"
+# - name: Update system bundler
+#   command: gem update --system
+#   become: true
 
-- ansible.builtin.setup:
-- ansible.builtin.debug:
-    msg: "{{ packages.ruby }}"
-  when: debug_vars is defined
-
-- name: Install Ruby dev packages
-  community.general.pacman:
-    name: "{{ packages.ruby }}"
-    state: present
-  tags: ["packages"]
-
-- name: Update system bundler
-  ansible.builtin.command: gem update --system
-
-# - become: false
-#   block:
-#     - name: Gather list of installed gems
-#       ansible.builtin.command: gem list --config-file ~/.gemrc
-#       register: gemlist
-#       ignore_errors: "{{ ansible_check_mode }}"
-
-#     - name: Set list of gems to install
-#       ansible.builtin.set_fact:
-#         ruby__gems: "{{ gems | difference(gemlist.stdout_lines | map('split', ' ') | map('first')) }}"
-
-#     - name: Install system Ruby gems
-#       ansible.builtin.command: "gem install --user-install {{ item }} --conservative"
-#       with_items: 
-#         - "{{ ruby__gems }}"
-#       when: ruby__gems | length > 0
-#   vars:
-#     ruby_version: "3.4.0"
-#     path:
-#       - "{{ lookup('env', 'HOME') }}/.gem/ruby/{{ ruby_version }}/bin"
-#       - "{{ lookup('env', 'HOME') }}/.local/share/gem/ruby/{{ ruby_version }}/bin"
-#   environment:
-#     PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path|join(':') }}"
-
-- when: rvm_install|default(false)|bool == true
+- name: Install RVM
+  import_tasks: "rvm.yml"
+  when: rvm_install | default(false)
   become: false
   tags: ["rvm"]
-  block:
-    - name: Install RVM
-      ansible.builtin.import_tasks: "rvm.yml"
 
-- when: rbenv_install|default(false)|bool == true
+- name: Install rbenv
+  import_tasks: "rbenv.yml"
+  when: rbenv_install | default(false)
   become: false
   tags: ["rbenv"]
-  block:
-    - name: Install rbenv
-      ansible.builtin.import_tasks: "rbenv.yml"

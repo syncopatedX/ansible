@@ -6,7 +6,7 @@
     path: /usr/local/bin
     state: directory
     mode: '0755'
-  become: yes
+  become: true
 
 - name: Install Rust packages via cargo
   block:
@@ -23,7 +23,7 @@
       when: 
         - cargo_available.rc != 0
         - ansible_os_family == 'RedHat'
-      become: yes
+      become: true
 
     - name: Install alternative packages via cargo
       ansible.builtin.shell: |
@@ -48,7 +48,7 @@
       when: 
         - item.binary_url is defined
         - ansible_os_family != 'Archlinux'
-      become: yes
+      become: true
 
     - name: Make binary tools executable and move to PATH
       ansible.builtin.shell: |
@@ -58,7 +58,7 @@
       when: 
         - item.binary_url is defined
         - ansible_os_family != 'Archlinux'
-      become: yes
+      become: true
 
 - name: Setup repositories for packages that need them
   ansible.builtin.shell: "{{ item.repo_setup }}"
@@ -66,7 +66,7 @@
   when: 
     - item.repo_setup is defined
     - ansible_os_family != 'Archlinux'
-  become: yes
+  become: true
 
 - name: Install packages after repository setup
   ansible.builtin.dnf:
@@ -77,7 +77,7 @@
     - item.repo_setup is defined
     - item.package is defined
     - ansible_os_family != 'Archlinux'
-  become: yes
+  become: true
 
 - name: Install Python packages via pip
   ansible.builtin.pip:
@@ -99,7 +99,7 @@
         - item.source_build is defined
         - item.build_deps is defined
         - ansible_os_family != 'Archlinux'
-      become: yes
+      become: true
 
     - name: Clone source repositories
       ansible.builtin.git:
@@ -123,7 +123,7 @@
         - item.source_build is defined
         - item.name in ['chromaprint']
         - ansible_os_family != 'Archlinux'
-      become: yes
+      become: true
 
     - name: Build and install source packages (meson-based)
       ansible.builtin.shell: |
@@ -137,7 +137,7 @@
         - item.source_build is defined
         - item.name in ['libvips', 'vips']
         - ansible_os_family != 'Archlinux'
-      become: yes
+      become: true
 
   when: ansible_os_family != 'Archlinux'
 
@@ -148,7 +148,7 @@
         name: flatpak
         state: present
       when: ansible_os_family == 'RedHat'
-      become: yes
+      become: true
 
     - name: Add Flathub repository
       ansible.builtin.shell: flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo

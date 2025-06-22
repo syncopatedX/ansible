@@ -1,14 +1,8 @@
 ---
-# tasks file for xwayland
-
-- name: Gather os specific variables
-  ansible.builtin.include_vars: "{{ item }}"
-  with_first_found:
-  - '{{ ansible_distribution }}.yml'
-  - '{{ ansible_os_family }}.yml'
-  - 'main.yml'
+# Xwayland compatibility layer
 
 - name: Install xwayland packages
-  ansible.builtin.pacman:
-    state: present
-    name: "{{ packages_xwayland }}"
+  include_role:
+    name: package-manager
+  vars:
+    packages: "{{ xwayland_packages }}"

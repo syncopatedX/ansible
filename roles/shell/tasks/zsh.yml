@@ -1,33 +1,22 @@
 ---
-- tags: ["packages", "shell_pkgs"]
-  block:
-    - name: Install zshell packages
-      aur:
-        use: auto
-        name: "{{ item }}"
-        state: present
-      with_items:
-        - "{{ packages__zsh }}"
-      become: false
-  rescue:
-    - name: Install zshell packages failed
-      ansible.builtin.debug:
-        msg: "Failed to install zshell packages"
+# Zsh configuration and setup
 
+# - name: Install oh-my-zsh
 
-- name: Install fd and ripgrep ohmyzsh plugins
-  ansible.builtin.copy:
+- name: Install oh-my-zsh plugins
+  copy:
     src: "usr/share/oh-my-zsh/plugins/{{ item }}"
     dest: "/usr/share/oh-my-zsh/plugins/"
     owner: root
     group: root
     backup: true
-  with_items:
+  loop:
     - fd
     - ripgrep
+  tags: ["plugins"]
 
-- name: Install zsh custom functions configs
-  ansible.posix.synchronize:
+- name: Install zsh custom functions
+  synchronize:
     src: home/.local/share/zsh/
     dest: "{{ user.home }}/.local/share/zsh/"
     recursive: true
@@ -38,23 +27,21 @@
     rsync_opts:
       - "--update"
       - "--omit-dir-times"
-      - "--progress"
-      - "--itemize-changes"
-      - "--chown={{ user.name }}:{{ user.group }}"
+      - "--chown={{ user.name }}:{{ user.name }}"
   ignore_errors: "{{ ansible_check_mode }}"
-  tags: ["zsh_functions"]
+  tags: ["functions"]
 
-- name: Set zsh profile configs
-  ansible.builtin.template:
+- name: Configure zsh profile files
+  template:
     src: "home/{{ item }}.j2"
-    dest: "{{ profile_config_dir }}/{{ item }}"
+    dest: "{{ user.home }}/{{ item }}"
     owner: "{{ user.name }}"
-    group: "{{ user.group }}"
+    group: "{{ user.name }}"
     mode: "0644"
     backup: true
-  with_items:
+  loop:
     - .zlogin
     - .zprofile
     - .zshenv
     - .zshrc
-  tags: ["env", "profile"]
+  tags: ["config"]

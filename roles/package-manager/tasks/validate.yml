@@ -1,0 +1,118 @@
+---
+# Validate package installations
+
+- name: Validate binary availability in PATH
+  command: "which {{ item.name }}"
+  loop: "{{ package_manager_success }}"
+  register: binary_validation_result
+  failed_when: false
+  changed_when: false
+  when: validation.check_binary | default(true)
+
+- name: Validate system package installation (Arch Linux)
+  shell: "pacman -Q {{ item.name }}"
+  loop: "{{ package_manager_success }}"
+  register: arch_package_validation_result
+  failed_when: false
+  changed_when: false
+  when: 
+    - ansible_os_family == "Archlinux"
+    - validation.check_system_package | default(true)
+
+- name: Validate system package installation (Rocky Linux)
+  shell: "rpm -q {{ item.name }}"
+  loop: "{{ package_manager_success }}"
+  register: redhat_package_validation_result
+  failed_when: false
+  changed_when: false
+  when: 
+    - ansible_os_family == "RedHat"
+    - validation.check_system_package | default(true)
+
+- name: Run custom validation checks
+  shell: "{{ validation.custom_checks[item.name] }}"
+  loop: "{{ package_manager_success }}"
+  register: custom_validation_result
+  failed_when: false
+  changed_when: false
+  when: 
+    - validation.custom_checks is defined
+    - item.name in validation.custom_checks
+
+- name: Validate Python package installations
+  shell: "python3 -c 'import {{ item.pip_info.package | default(item.name) }}'"
+  loop: "{{ package_manager_success | selectattr('method', 'equalto', 'pip') | list }}"
+  register: pip_validation_result
+  failed_when: false
+  changed_when: false
+
+- name: Validate Flatpak installations
+  shell: "flatpak info {{ item.flatpak_info.id | default(item.name) }}"
+  loop: "{{ package_manager_success | selectattr('method', 'equalto', 'flatpak') | list }}"
+  register: flatpak_validation_result
+  failed_when: false
+  changed_when: false
+
+- name: Compile validation results
+  set_fact:
+    validation_results:
+      binary_available: >-
+        {{
+          binary_validation_result.results | default([]) | selectattr('rc', 'equalto', 0) | map(attribute='item') | map(attribute='name') | list
+        }}
+      binary_missing: >-
+        {{
+          binary_validation_result.results | default([]) | rejectattr('rc', 'equalto', 0) | map(attribute='item') | map(attribute='name') | list
+        }}
+      system_installed: >-
+        {{
+          (arch_package_validation_result.results | default([]) | selectattr('rc', 'equalto', 0) | map(attribute='item') | map(attribute='name') | list) +
+          (redhat_package_validation_result.results | default([]) | selectattr('rc', 'equalto', 0) | map(attribute='item') | map(attribute='name') | list)
+        }}
+      system_missing: >-
+        {{
+          (arch_package_validation_result.results | default([]) | rejectattr('rc', 'equalto', 0) | map(attribute='item') | map(attribute='name') | list) +
+          (redhat_package_validation_result.results | default([]) | rejectattr('rc', 'equalto', 0) | map(attribute='item') | map(attribute='name') | list)
+        }}
+      custom_passed: >-
+        {{
+          custom_validation_result.results | default([]) | selectattr('rc', 'equalto', 0) | map(attribute='item') | map(attribute='name') | list
+        }}
+      custom_failed: >-
+        {{
+          custom_validation_result.results | default([]) | rejectattr('rc', 'equalto', 0) | map(attribute='item') | map(attribute='name') | list
+        }}
+
+- name: Update package success/failure lists based on validation
+  set_fact:
+    validated_success: >-
+      {{
+        package_manager_success | selectattr('name', 'in', 
+          validation_results.binary_available + validation_results.system_installed + validation_results.custom_passed
+        ) | list
+      }}
+    validated_failed: >-
+      {{
+        package_manager_success | rejectattr('name', 'in', 
+          validation_results.binary_available + validation_results.system_installed + validation_results.custom_passed
+        ) | list
+      }}
+
+- name: Display validation summary
+  debug:
+    msg: |
+      Package Validation Results:
+      - Binary available in PATH: {{ validation_results.binary_available | length }}
+      - System packages verified: {{ validation_results.system_installed | length }}
+      - Custom checks passed: {{ validation_results.custom_passed | length }}
+      - Validation failures: {{ validated_failed | length }}
+      {% if validated_failed | length > 0 %}
+      Failed validations: {{ validated_failed | map(attribute='name') | join(', ') }}
+      {% endif %}
+  when: package_manager.debug | default(false)
+
+# Update final success/failure counts
+- name: Update final package manager results
+  set_fact:
+    package_manager_success: "{{ validated_success }}"
+    package_manager_failed: "{{ package_manager_failed + validated_failed }}"

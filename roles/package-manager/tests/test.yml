@@ -1,0 +1,97 @@
+---
+# Test playbook for package-manager role
+
+- name: Test package-manager role
+  hosts: all
+  gather_facts: true
+  become: true
+  
+  vars:
+    # Test packages for different installation methods
+    test_packages:
+      - name: git
+        method: system
+        required: true
+      - name: curl
+        method: system
+        required: true
+      - name: bottom
+        method: auto
+        fallbacks: [cargo, binary]
+      - name: glow
+        method: binary
+        source: "https://github.com/charmbracelet/glow/releases/latest/download/glow_Linux_x86_64.tar.gz"
+      - name: j2cli
+        method: pip
+    
+    # Test package groups
+    test_package_groups:
+      - name: development
+        packages:
+          - name: make
+            method: system
+          - name: cmake
+            method: system
+      - name: cli_tools
+        packages:
+          - name: ripgrep
+            method: auto
+          - name: fd-find
+            method: auto
+    
+    # Enable debug mode for testing
+    package_manager:
+      debug: true
+      generate_report: true
+      validate_installs: true
+      cleanup_temp: false  # Keep temp files for inspection
+
+  pre_tasks:
+    - name: Display test information
+      debug:
+        msg: |
+          Testing package-manager role on:
+          - Distribution: {{ ansible_os_family }}
+          - Version: {{ ansible_distribution }} {{ ansible_distribution_version }}
+          - Architecture: {{ ansible_architecture }}
+
+  tasks:
+    - name: Test basic package installation
+      include_role:
+        name: package-manager
+      vars:
+        packages: "{{ test_packages }}"
+
+    - name: Test package groups
+      include_role:
+        name: package-manager
+      vars:
+        package_groups: "{{ test_package_groups }}"
+
+    - name: Test empty package list (should not fail)
+      include_role:
+        name: package-manager
+      vars:
+        packages: []
+
+  post_tasks:
+    - name: Verify core packages are available
+      command: "which {{ item }}"
+      loop:
+        - git
+        - curl
+      register: core_package_check
+      failed_when: core_package_check.rc != 0
+
+    - name: Display test results
+      debug:
+        msg: |
+          Package Manager Role Test Results:
+          {% for result in core_package_check.results %}
+          - {{ result.item }}: {{ 'PASS' if result.rc == 0 else 'FAIL' }}
+          {% endfor %}
+
+    - name: Show installation report location
+      debug:
+        msg: "Installation report available at: {{ package_manager_temp_dir | default('/tmp/package-manager') }}/installation_report.txt"
+      when: package_manager_temp_dir is defined

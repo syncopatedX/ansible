@@ -130,7 +130,7 @@ $exec "sleep 1; dex -a -s /etc/xdg/autostart/:~/.config/autostart/"
 ### placed here as for some reason did not execute in .xprofile
 $exec pactl -- set-sink-volume 0 55%
 
-$exec_always "~/Workspace/Tools/bin/reload-sxhkd.sh; sleep 1"
+$exec_always "reload-sxhkd.sh; sleep 1"
 
 {% if i3.autostart != 'default' %}
 {% for a in i3.autostart %}

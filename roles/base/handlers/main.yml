@@ -5,3 +5,11 @@
   community.general.pacman:
     update_cache: true
     upgrade: false
+
+- name: Generate locales
+  ansible.builtin.command: locale-gen
+  listen: "Generate locales" # Explicitly listen for clarity
+
+- name: Update hwclock
+  ansible.builtin.command: hwclock --systohc
+  listen: "Update hwclock"

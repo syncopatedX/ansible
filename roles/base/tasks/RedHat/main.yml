@@ -1,0 +1,25 @@
+---
+# Red Hat family specific setup
+
+- name: Setup package repositories
+  import_tasks: repos.yml
+  when: ansible_architecture != "aarch64"
+  tags: ["repos"]
+
+- name: Install legacy EPEL packages
+  import_tasks: ../install_packages.yml
+  vars:
+    package_list: "{{ packages__epel }}"
+  when:
+    - packages__epel is defined
+    - packages__epel | length > 0
+  tags: ["packages", "epel"]
+
+- name: Install legacy RPM Fusion packages
+  import_tasks: ../install_packages.yml
+  vars:
+    package_list: "{{ packages__rpmfusion_free + packages__rpmfusion_nonfree }}"
+  when:
+    - packages__rpmfusion_free is defined
+    - packages__rpmfusion_free | length > 0
+  tags: ["packages", "rpmfusion"]

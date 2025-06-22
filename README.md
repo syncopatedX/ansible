@@ -262,16 +262,18 @@ ansible-playbook -i inventory/inventory.ini playbooks/full.yml -b -e "use_docker
 
 ## 🐧 **Rocky Linux 9 Usage**
 
-The playbook now supports **Rocky Linux 9** with automatic distribution detection and package mapping. 
+The playbook now supports **Rocky Linux 9** with automatic distribution detection and package mapping.
 
 ### Prerequisites for Rocky Linux 9
 
 1. **Python 3**: Ensure Python 3 is available for Ansible
+
    ```bash
    sudo dnf install -y python3
    ```
 
 2. **Set Python Interpreter**: Rocky Linux 9 uses Python 3.9, so specify the interpreter:
+
    ```bash
    ansible-playbook -i inventory/inventory.ini playbooks/full.yml \
      -e "ansible_python_interpreter=/usr/bin/python3"

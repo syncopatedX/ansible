@@ -1,0 +1,60 @@
+---
+- name: Configure lapbot host
+  hosts: lapbot
+  become: yes
+  vars:
+    bootloader: grub
+    autologin: false
+    display_manager: "greetd"
+    window_manager: "sway"
+    use_libvirt: false
+    rbenv_install: true
+    networking: "systemd-network"
+    systemd_network_networks:
+      20-wired:
+        Match:
+          Name: eth*
+          MACAddress: f0:1d:bc:f2:63:99
+        Network:
+          Address: 192.168.41.29/24
+          Gateway: 192.168.41.1
+          DNS: 192.168.41.1
+          Domains: syncopated.net
+          LinkLocalAddressing: no
+          IPv6AcceptRA: no
+      25-wireless:
+        Match:
+          Name: wlan*
+          MACAddress: 9c:30:5b:d8:0c:1f
+        Network:
+          Address: 192.168.41.11/24
+          Gateway: 192.168.41.1
+          Domains: syncopated.net
+          LinkLocalAddressing: no
+          IPv6AcceptRA: no
+
+  tasks:
+    - name: Configure bootloader
+      include_role:
+        name: base
+      when: bootloader is defined
+
+    - name: Configure display manager
+      include_role:
+        name: display-manager
+      when: display_manager is defined
+
+    - name: Configure window manager
+      include_role:
+        name: wayland
+      when: window_manager == "sway"
+
+    - name: Configure Ruby environment
+      include_role:
+        name: ruby
+      when: rbenv_install is defined and rbenv_install
+
+    - name: Configure systemd networking
+      include_role:
+        name: networking
+      when: networking == "systemd-network"

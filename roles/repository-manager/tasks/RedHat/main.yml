@@ -1,0 +1,58 @@
+---
+# Repository setup for Red Hat family (Rocky Linux, RHEL, CentOS)
+
+- name: Install EPEL repository
+  ansible.builtin.dnf:
+    name: epel-release
+    state: present
+  become: yes
+
+- name: Enable PowerTools/CRB repository
+  ansible.builtin.shell: |
+    # Try PowerTools first (Rocky 8), then CRB (Rocky 9)
+    dnf config-manager --set-enabled powertools 2>/dev/null || 
+    dnf config-manager --set-enabled crb
+  changed_when: false
+  become: yes
+
+- name: Install RPM Fusion Free repository
+  ansible.builtin.dnf:
+    name: "https://download1.rpmfusion.org/free/el/rpmfusion-free-release-{{ ansible_distribution_major_version }}.noarch.rpm"
+    state: present
+    disable_gpg_check: yes
+  become: yes
+
+- name: Install RPM Fusion Non-Free repository
+  ansible.builtin.dnf:
+    name: "https://download1.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-{{ ansible_distribution_major_version }}.noarch.rpm"
+    state: present
+    disable_gpg_check: yes
+  become: yes
+
+- name: Configure DNF for better performance
+  ansible.builtin.lineinfile:
+    path: /etc/dnf/dnf.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    backup: yes
+  loop:
+    - { regexp: '^fastestmirror=', line: 'fastestmirror=1' }
+    - { regexp: '^max_parallel_downloads=', line: 'max_parallel_downloads=10' }
+    - { regexp: '^clean_requirements_on_remove=', line: 'clean_requirements_on_remove=True' }
+  become: yes
+
+- name: Set repository priorities
+  ansible.builtin.shell: |
+    dnf config-manager --save --setopt="baseos.priority=10"
+    dnf config-manager --save --setopt="appstream.priority=10"
+    dnf config-manager --save --setopt="epel.priority=20"
+    dnf config-manager --save --setopt="powertools.priority=30" 2>/dev/null || 
+    dnf config-manager --save --setopt="crb.priority=30"
+    dnf config-manager --save --setopt="rpmfusion-*.priority=40"
+  changed_when: false
+  become: yes
+
+- name: Update package cache
+  ansible.builtin.dnf:
+    update_cache: yes
+  become: yes

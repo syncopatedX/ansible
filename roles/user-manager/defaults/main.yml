@@ -1,0 +1,9 @@
+---
+# User Manager role defaults
+
+# User configuration defaults
+user:
+  name: "{{ lookup('env','USER') }}"
+  shell: "/bin/bash"
+  groups: ["wheel", "audio", "video"]
+  sudoers: true

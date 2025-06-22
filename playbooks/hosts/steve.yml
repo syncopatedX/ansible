@@ -1,0 +1,13 @@
+---
+- name: Configure steve host
+  hosts: steve
+  become: yes
+  vars:
+    docker:
+      storage: /LLMOS/docker
+
+  tasks:
+    - name: Configure Docker
+      include_role:
+        name: docker
+      when: docker is defined

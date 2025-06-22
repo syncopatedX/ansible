@@ -1,0 +1,63 @@
+---
+- name: Configure crambot host
+  hosts: crambot
+  become: yes
+  vars:
+    autologin: true
+    zsh_theme: kphoen
+    i3:
+      autostart: ""
+      tray_output: "primary"
+      assignments: "default"
+      workspaces: "default"
+      keybindings: "default"
+    use_systemd: true
+    systemd_network_netdevs:
+      br0:
+        NetDev:
+          Kind: bridge
+    systemd_network_networks:
+      eth0:
+        Match:
+          Name: eth0
+          MACAddress: b8:ca:3a:94:51:ca
+        Network:
+          Bridge: br0
+      br0:
+        Network:
+          Address: 192.168.41.10/24
+          Gateway: 192.168.41.1
+          DNS: 192.168.41.4
+          Domains: syncopated.net
+    share:
+      nfs:
+        parent: /home
+        exports:
+          - b08x
+    samba_host: False
+
+  tasks:
+    - name: Configure autologin
+      include_role:
+        name: display-manager
+      when: autologin is defined
+
+    - name: Configure zsh theme
+      include_role:
+        name: shell
+      when: zsh_theme is defined
+
+    - name: Configure i3 window manager
+      include_role:
+        name: xorg
+      when: i3 is defined
+
+    - name: Configure systemd networking
+      include_role:
+        name: networking
+      when: use_systemd is defined and use_systemd
+
+    - name: Configure NFS sharing
+      include_role:
+        name: nfs
+      when: share.nfs is defined

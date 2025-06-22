@@ -1,0 +1,18 @@
+---
+# Arch Linux specific package management tasks
+
+- name: Setup Arch Linux repositories
+  include_tasks: setup_repositories.yml
+  tags: ["repos", "archlinux"]
+
+- name: Install system packages (Arch Linux)
+  include_tasks: install_system.yml
+  vars:
+    packages_to_install: >-
+      {{
+        all_packages | selectattr('method', 'undefined') | list +
+        all_packages | selectattr('method', 'equalto', 'system') | list +
+        all_packages | selectattr('method', 'equalto', 'auto') | list
+      }}
+  when: packages_to_install | length > 0
+  tags: ["system", "archlinux"]

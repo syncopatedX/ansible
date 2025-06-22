@@ -1,0 +1,15 @@
+---
+# Repository Manager handlers
+
+- name: Update cache
+  community.general.pacman:
+    update_cache: true
+    upgrade: false
+  when: ansible_os_family == "Archlinux"
+  listen: "Update cache"
+
+- name: Update dnf cache
+  ansible.builtin.dnf:
+    update_cache: true
+  when: ansible_os_family == "RedHat"
+  listen: "Update cache"
