@@ -69,9 +69,9 @@
         name: xorg
       when: x is defined
 
-    - name: Configure i3 window manager
+    - name: Configure window manager
       include_role:
-        name: xorg
+        name: window-manager
       when: i3 is defined
 
     - name: Configure terminal applications

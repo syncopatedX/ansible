@@ -32,9 +32,8 @@
     - { role: xorg, tags: ["xorg"], when: "window_manager != 'sway'" }
     - { role: xwayland, tags: ["xwayland"], when: "window_manager == 'sway'" }
     - { role: rofi, tags: ["rofi"] }
-    - { role: i3, tags: ["i3"], when: "window_manager == 'i3' | default('i3')" }
-    - { role: sway, tags: ["sway"], when: "window_manager == 'sway' | default('i3')" }
-    - { role: login, tags: ["login"] }
+    - { role: window-manager, tags: ["window-manager", "i3", "sway"] }
+    - { role: display-manager, tags: ["display-manager"] }
     - { role: audio, tags: ["audio"] }
     - { role: video, tags: ["video"] }
     - { role: tools, tags: ["tools"] }

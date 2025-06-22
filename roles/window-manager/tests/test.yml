@@ -1,0 +1,12 @@
+---
+- hosts: localhost
+  remote_user: root
+  roles:
+    - window-manager
+  vars:
+    window_manager: i3
+    user:
+      name: test
+      group: test
+      home: /home/test
+      uid: 1000

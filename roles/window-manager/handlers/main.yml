@@ -1,0 +1,14 @@
+---
+# handlers file for window-manager
+
+- name: Reload i3
+  ansible.builtin.command: bash -lc "i3-msg -s /run/user/{{ user.uid }}/i3/ipc-socket.* reload"
+  become: false
+  ignore_errors: true
+  when: window_manager == 'i3'
+
+- name: Reload sway
+  ansible.builtin.command: bash -lc "swaymsg reload"
+  become: false
+  ignore_errors: true
+  when: window_manager == 'sway'
