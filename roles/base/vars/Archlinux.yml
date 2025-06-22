@@ -18,6 +18,7 @@ packages__base:
   - aspell-en
   - atool
   - audiofile
+  - autossh
   - bandwhich
   - base-devel
   - bash-completion
@@ -67,6 +68,7 @@ packages__base:
   - inxi
   - iotop
   - jq
+  - keychain
   - libgit2
   - libgit2-glib
   - libvips
@@ -78,6 +80,7 @@ packages__base:
   - mediainfo
   - meld
   - micro
+  - mosh
   - most
   - nano-syntax-highlighting
   - ncdu
@@ -86,6 +89,7 @@ packages__base:
   - npm
   - numlockx
   - nuspell
+  - oh-my-zsh-git
   - openssh
   - pandoc
   - playerctl
@@ -102,15 +106,16 @@ packages__base:
   - python-sphinx-intl
   - python-virtualenv
   - ranger
+  - realtime-privileges
   - ripgrep
   - ripgrep-all
-  - realtime-privileges
   - rsync
   - rxvt-unicode
   - sd
   - smartmontools
   - socat
   - speech-dispatcher
+  - sshfs
   - sshpass
   - stunnel
   - sudo
@@ -126,16 +131,10 @@ packages__base:
   - vorbis-tools
   - wavpack
   - wget
+  - x11-ssh-askpass
   - x264
   - x265
   - xterm
   - yt-dlp
-  - openssh
-  - sshfs
-  - autossh
-  - keychain
-  - x11-ssh-askpass
-  - mosh
-  - oh-my-zsh-git
   - zsh-autocomplete
   - zsh-completions  

@@ -1,6 +1,10 @@
 ---
 # Base system configuration - refactored to use decomposed roles
 
+- name: Load distribution-specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+  tags: ["packages"]
+
 # Repository setup
 - name: Configure system repositories
   include_role:

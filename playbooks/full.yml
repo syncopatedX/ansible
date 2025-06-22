@@ -21,7 +21,7 @@
     - { role: base, tags: ["base"] }
     - { role: ssh, tags: ["ssh"] }
     - { role: firewalld, tags: ["firewalld"] }
-    - { role: networking, tags: ["networkd", "networkmanager", "networking", "dns"] }
+    # - { role: networking, tags: ["networkd", "networkmanager", "networking", "dns"] }
     - { role: ntp, tags: ["ntp"] }
     - { role: grub, tags: ["grub"], when: "bootloader == 'grub' | default('grub')" }
     - { role: shell, tags: ["shell"] }
@@ -31,7 +31,6 @@
     - { role: nas, tags: ["nas"], when: "nfs_host == 'true' or samba_host == 'true'" }
     - { role: xorg, tags: ["xorg"], when: "window_manager != 'sway'" }
     - { role: xwayland, tags: ["xwayland"], when: "window_manager == 'sway'" }
-    - { role: rofi, tags: ["rofi"] }
     - { role: window-manager, tags: ["window-manager", "i3", "sway"] }
     - { role: display-manager, tags: ["display-manager"] }
     - { role: audio, tags: ["audio"] }
