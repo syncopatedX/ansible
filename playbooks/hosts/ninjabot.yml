@@ -1,0 +1,56 @@
+---
+- name: Configure ninjabot host
+  hosts: ninjabot
+  become: yes
+  vars:
+    share:
+      nfs:
+        parent: /
+        exports:
+          - storage
+    docker:
+      storage: /home/docker
+    use_libvirt: true
+    zsh_theme: strug
+    x:
+      autostart:
+        - bash ~/.screenlayout/ninjabot.sh
+    i3:
+      autostart:
+        - "sleep 1;barrierc -f --debug INFO --name ninjabot --disable-crypto [soundbot]:24800"
+        - "sleep 1;barrierc -f --debug INFO --name ninjabot --disable-crypto [lapbot]:24801"
+      tray_output: "primary"
+      assignments: "default"
+      workspaces: "default"
+      keybindings: "default"
+
+  tasks:
+    - name: Configure NFS sharing
+      include_role:
+        name: nfs
+      when: share.nfs is defined
+
+    - name: Configure Docker
+      include_role:
+        name: docker
+      when: docker is defined
+
+    - name: Configure libvirt
+      include_role:
+        name: libvirt
+      when: use_libvirt is defined and use_libvirt
+
+    - name: Configure zsh theme
+      include_role:
+        name: shell
+      when: zsh_theme is defined
+
+    - name: Configure X11 autostart
+      include_role:
+        name: xorg
+      when: x is defined
+
+    - name: Configure i3 window manager
+      include_role:
+        name: xorg
+      when: i3 is defined
