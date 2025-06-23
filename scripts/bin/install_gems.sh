@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
-sudo gem update --system 3.6.9
+sudo gem update --system
+
+echo $GEM_HOME | grep -q "$HOME/.local/share/gem/ruby/3.4.0" || export GEM_HOME="$HOME/.local/share/gem/ruby/3.4.0"
+
+echo $PATH | grep -q "$HOME/.local/share/gem/ruby/3.4.0/bin:" || export PATH="$PATH:$HOME/.local/share/gem/ruby/3.4.0/bin"
 
 INSTALLED_GEMS=$(gem list | awk '{ print $1 }')
 
@@ -95,5 +99,5 @@ mapfile -t DIFF < \
     )
 
 for gem in "${DIFF[@]}"; do
-  gem install --user-install "$gem" || continue
+  gem install --user-install "$gem" --conservative || continue
 done
