@@ -10,6 +10,13 @@
     PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path|join(':') }}"
   pre_tasks:
 
+    - name: Symlink os-release to system-release for compatibility
+      ansible.builtin.file:
+        src: /etc/os-release
+        dest: /etc/system-release
+        state: link
+      tags: ["always"]
+
     - name: Display ansible_distribution
       ansible.builtin.debug:
         msg: |
@@ -26,8 +33,8 @@
     - { role: grub, tags: ["grub"], when: "bootloader == 'grub' | default('grub')" }
     - { role: shell, tags: ["shell"] }
     - { role: ruby, tags: ["ruby"] }
-    - { role: docker, tags: ["docker"], when: "use_docker == 'true' | default('false')" }
-    - { role: libvirt, tags: ["libvirt"], when: "use_libvirt == 'true' | default('false')" }
+    - { role: docker, tags: ["docker"] }
+    - { role: libvirt, tags: ["libvirt"] }
     - { role: nas, tags: ["nas"], when: "nfs_host == 'true' or samba_host == 'true'" }
     - { role: xorg, tags: ["xorg"], when: "window_manager != 'sway'" }
     - { role: xwayland, tags: ["xwayland"], when: "window_manager == 'sway'" }
