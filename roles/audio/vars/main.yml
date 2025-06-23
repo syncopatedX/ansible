@@ -1,6 +1,6 @@
 ---
 
-audio_packages__audio:
+audio_packages:
   tuning:
     - realtime-privileges
     - rtirq

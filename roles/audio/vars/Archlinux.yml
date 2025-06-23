@@ -1,4 +1,131 @@
 ---
 # Arch Linux specific audio packages and configuration
-
-audio_packages: "{{ audio_packages__audio | default([]) }}"
+audio_packages:
+  tuning:
+    - realtime-privileges
+    - rtirq
+    - tuned
+  pipewire:
+    - pipewire-alsa
+    - pipewire-audio
+    - pipewire-jack
+    - pipewire-pulse
+    - wireplumber
+  alsa:
+    - a2jmidid
+    - alsa-lib
+    - alsa-plugins
+    - alsa-tools
+    - alsa-utils
+  jack:
+    - jack2-dbus
+    - jack-example-tools
+    - jack_capture
+    - jack_utils
+  pulseaudio:
+    - pulseaudio-alsa
+    - pulseaudio-bluetooth
+    - pulseaudio-jack
+    - pulsemixer
+  ambisonics:
+    - ambix-o1
+    - ambix-o3
+    - mcfx
+    - sparta-plugins
+  applications:
+    - sonic-pi-git
+    - jalv-select-git
+    # - raysession
+    # - sonic-visualiser-git
+    - bipscript
+    - bipscript-ide
+    - jacktrip
+    - baudline-bin
+    #   - carla
+    - fmit
+    - gigedit
+    #   - guitarix
+    - helm-synth
+    - jaaa
+    - jack-keyboard
+    - jack-rack
+    - jack_mixer
+    - jack_snapshot
+    - japa
+    - jconvolver
+    - jkmeter
+    - jmeters
+    - jnoisemeter
+    - linuxsampler
+    - mixxx
+    - non-sequencer
+    - ocenaudio-bin
+    - patchage
+    - pavucontrol
+    - qmidiarp
+    - qmidinet
+    - qsampler
+    - hydrogen
+    - polyphone
+    - ams
+    - audacity
+    #   - scala-music
+    #   - scala-music-scales
+    - sfizz
+    - sonic-visualiser
+    - sooperlooper-git
+    #   - stochas
+    #   - tonespace
+    #   - vital-synth
+    - spectmorph
+    - tuned
+    - vmpk
+    - wolf-shaper
+    - zita-dpl1
+    - zita-mu1
+    - zita-rev1
+    - linuxsampler
+    - qsampler
+    - ecasound
+    - espeak-ng
+    - gst-libav
+    - gst-plugins-bad
+    - ladspa
+    - lv2
+    - lv2file
+    - moc
+    - njconnect
+    - opus
+    - opusfile
+    - osc2midi
+    - qmidinet
+    - rtmidi
+    - sendmidi
+    - sound-gambit
+    - sox
+    - timidity++
+    - vamp-plugin-sdk
+    - vorbis-tools
+    - wavpack
+    - zita-ajbridge
+    - zita-alsa-pcmi
+    - zita-lrx
+  plugins:
+    - ams-lv2
+    - calf
+    - caps-lv2-git
+    - cmt
+    - distrho-ports
+    - dpf-plugins-vst3
+    - dragonfly-reverb
+    - iempluginsuite
+    - intersect.lv2-git
+    - ir.lv2
+    - jalv-select-git
+    - lsp-plugins
+    - lv2-c++-tools
+    - noise-repellent
+    - swh-lv2-git
+    - swh-plugins
+    - tap-plugins-lv2-git
+    - x42-plugins

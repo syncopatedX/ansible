@@ -6,11 +6,11 @@
       register: pipewire_check
       changed_when: false
       failed_when: false
-      loop: "{{ packages__audio.pipewire }}"
+      loop: "{{ audio_packages.pipewire }}"
 
     - name: Remove PipeWire packages
       community.general.pacman:
-        name: "{{ packages__audio.pipewire }}"
+        name: "{{ audio_packages.pipewire }}"
         state: absent
         force: true
         extra_args: --noconfirm
@@ -34,7 +34,7 @@
     - name: Install jack packages
       aur:
         use: auto
-        name: "{{ packages__audio.jack }}"
+        name: "{{ audio_packages.jack }}"
         state: present
   rescue:
     - name: Installing base packages failed

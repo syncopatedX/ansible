@@ -5,7 +5,7 @@
     - name: Install pulseaudio packages
       aur:
         use: auto
-        name: "{{ packages__audio.pulseaudio }}"
+        name: "{{ audio_packages.pulseaudio }}"
         state: present
   rescue:
     - name: Installing base packages failed

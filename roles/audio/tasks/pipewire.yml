@@ -10,7 +10,7 @@
       register: jack_check
       changed_when: false
       failed_when: false
-      loop: "{{ packages__audio.jack }}"
+      loop: "{{ audio_packages.jack }}"
 
     - name: Warn about conflicting JACK installation
       ansible.builtin.debug:
@@ -27,13 +27,13 @@
       register: pkg_check
       changed_when: false
       failed_when: false
-      loop: "{{ packages__audio.pipewire }}"
+      loop: "{{ audio_packages.pipewire }}"
       # This won't fail the play, just records which packages are missing
 
     - name: Install pipewire packages
       aur:
         use: auto
-        name: "{{ packages__audio.pipewire }}"
+        name: "{{ audio_packages.pipewire }}"
         state: present
       register: pipewire_install
       # We'll handle errors in the rescue block
@@ -55,7 +55,7 @@
     - name: Attempt alternative installation method
       aur:
         use: paru # Try with a specific helper instead of auto
-        name: "{{ packages__audio.pipewire }}"
+        name: "{{ audio_packages.pipewire }}"
         state: present
       register: alternative_install
       failed_when: false
@@ -72,7 +72,7 @@
 
           Original error: {{ pipewire_error.stderr | default('Unknown error') }}
 
-          Please try manually with: 'paru -S {{ packages__audio.pipewire | join(' ') }}'
+          Please try manually with: 'paru -S {{ audio_packages.pipewire | join(' ') }}'
           and check the output for specific errors.
       when: alternative_install is failed
       # Fail with useful diagnostic information if both methods failed
