@@ -109,26 +109,26 @@ The playbook is organized into modular roles found in the `roles/` directory:
 | :----------------- | :------------------------------------------------------------------------------------------------------------------------------------- |
 | [audio](roles/audio/)            | Professional Linux audio setup with configurable server selection (JACK, PulseAudio, PipeWire) via `use_jack` and `use_pipewire` variables. Includes comprehensive system tuning for low-latency performance, realtime privileges, CPU optimization, and audio normalization tools.                                                                         |
 | [base](roles/base/)             | Core system setup, package management (pacman/paru), repositories, base packages, user creation, sudoers, `rc.local`.                   |
-| [desktop](roles/desktop/)          | General desktop applications, fonts, and themes.                                                                                       |
+| [display-manager](roles/display-manager/) | Display manager configuration including greetd and getty autologin setup.                                                        |
 | [docker](roles/docker/)           | Docker Engine & Docker Compose installation and configuration (including optional NVIDIA support).                                       |
-| `fabric`           | Fabric AI scripting tool setup and configuration.                                                                                      |
 | [firewalld](roles/firewalld/)        | Firewall configuration using firewalld, opening necessary ports.                                                                       |
+| [gnome](roles/gnome/)           | GNOME desktop environment configuration.                                                                                               |
 | [grub](roles/grub/)             | GRUB bootloader configuration tweaks (kernel parameters, submenus, savedefault).                                                       |
-| [homepage](roles/homepage/)         | Simple static HTML homepage setup.                                                                                                     |
-| [i3](roles/i3/)               | i3 Window Manager, i3status-rust, Rofi configuration.                                                                                  |
-| [input-remapper](roles/input-remapper/)   | Input device mapping tool setup.                                                                                                       |
 | [libvirt](roles/libvirt/)          | Libvirt virtualization stack & optional Vagrant integration.                                                                           |
-| `media`            | Media-related configurations (e.g., Musikcube).                                                                                        |
+| [media](roles/media/)            | Media-related configurations (e.g., Musikcube).                                                                                        |
 | [nas](roles/nas/)              | NFS & Samba server configuration.                                                                                                      |
-| [network](roles/network/)           | Comprehensive network management supporting multiple backends (NetworkManager, systemd-networkd). Features automatic wireless interface detection, interactive Wi-Fi configuration using the pause module, and support for ethernet, Wi-Fi, bridges, static/DHCP configurations, and udev rules. |
+| [networking](roles/networking/)     | Comprehensive network management supporting multiple backends (NetworkManager, systemd-networkd). Features automatic wireless interface detection, interactive Wi-Fi configuration using the pause module, and support for ethernet, Wi-Fi, bridges, static/DHCP configurations, and udev rules. |
 | [ntp](roles/ntp/)              | Time synchronization using `systemd-timesyncd`.                                                                                        |
+| [repository-manager](roles/repository-manager/) | Multi-distribution repository management for Arch Linux and Rocky Linux package sources.                              |
 | [ruby](roles/ruby/)             | Ruby environment setup (System gems, optional RVM) with comprehensive knowledge base documentation.                                                                                    |
 | [shell](roles/shell/)            | Zsh, Oh My Zsh, aliases, functions, kitty, ranger configuration.                                                                       |
 | [ssh](roles/ssh/)              | OpenSSH server/client configuration and hardening.                                                                                     |
-| [sway](roles/sway/)             | Tiling Window Manager for Wayland.                                                                                    |
-| [tools](roles/tools/)            | Installation of custom scripts/tools like `code-packager`, `whisper-stream`.                                                           |
+| [system-base](roles/system-base/) | Base system configuration including timezone, locale, and keymap settings.                                                           |
+| [tools](roles/tools/)            | Installation of custom scripts/tools like `code-packager`, `whisper-stream`, fabric, and input-remapper.                               |
+| [user-manager](roles/user-manager/) | User account management, sudo configuration, and polkit access control.                                                            |
 | [video](roles/video/)            | Video driver configuration including mesa packages and vendor-specific drivers (Intel, AMD).                                                           |
-| [x](roles/x/)                | X11 server, drivers, core X utilities, Picom, Dunst, sxhkd, XDG configuration.                                                         |
+| [window-manager](roles/window-manager/) | Unified window manager configuration supporting both i3 (X11) and Sway (Wayland) with rofi launcher.                          |
+| [xorg](roles/xorg/)             | X11 server, drivers, core X utilities, Picom, Dunst, sxhkd, XDG configuration.                                                         |
 | [xwayland](roles/xwayland/)          | XWayland configuration for running X11 applications on Wayland (Sway).                                                         |
 
 ## 🎨 Customization
