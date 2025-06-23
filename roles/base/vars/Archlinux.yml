@@ -1,0 +1,137 @@
+---
+# Arch Linux specific package definitions
+
+packages__reflector_args: >-
+  --latest 200
+  --sort rate
+  --protocol http --protocol https
+  --threads {{ ansible_facts.processor_vcpus }}
+  --save /etc/pacman.d/mirrorlist
+
+packages__gpg_keyserver: keyserver.ubuntu.com
+packages__gpg_conf: |
+  keyserver {{ packages__gpg_keyserver }}
+
+packages__base:
+  - aria2
+  - aspell
+  - aspell-en
+  - atool
+  - audiofile
+  - autossh
+  - bandwhich
+  - base-devel
+  - bash-completion
+  - bash-language-server
+  - bat
+  - bind
+  - bottom
+  - choose
+  - chromaprint
+  - cmake
+  - cpupower
+  - curlie
+  - debugedit
+  - dex
+  - downgrade
+  - duf
+  - dust
+  - elinks
+  - eza
+  - faac
+  - faad2
+  - fakeroot
+  - fd
+  - figlet
+  - firewalld
+  - fsarchiver
+  - fuse-common
+  - fuse3
+  - git
+  - git-delta
+  - git-lfs
+  - github-cli
+  - glow
+  - gnome-keyring
+  - gnuplot
+  - gping
+  - graphicsmagick
+  - gst-libav
+  - gstreamer
+  - gum
+  - highlight
+  - hspell
+  - htop
+  - i7z
+  - imagemagick
+  - inetutils
+  - inxi
+  - iotop
+  - jq
+  - keychain
+  - libgit2
+  - libgit2-glib
+  - libvips
+  - libvoikko
+  - links
+  - lnav
+  - lynx
+  - mako
+  - mediainfo
+  - meld
+  - micro
+  - mosh
+  - most
+  - nano-syntax-highlighting
+  - ncdu
+  - net-tools
+  - nodejs
+  - npm
+  - numlockx
+  - nuspell
+  - oh-my-zsh-git
+  - openssh
+  - pandoc
+  - playerctl
+  - poppler
+  - postgresql-libs
+  - python-adblock
+  - python-chardet
+  - python-j2cli
+  - python-pillow
+  - python-pip
+  - python-pygments
+  - python-setuptools
+  - python-sphinx-intl
+  - python-virtualenv
+  - ranger
+  - realtime-privileges
+  - ripgrep
+  - ripgrep-all
+  - rsync
+  - rxvt-unicode
+  - sd
+  - smartmontools
+  - socat
+  - speech-dispatcher
+  - sshfs
+  - sshpass
+  - stunnel
+  - sudo
+  - swappy
+  - sysstat
+  - taglib
+  - tldr
+  - tree
+  - ueberzug
+  - unrar
+  - unzip
+  - v4l-utils
+  - vorbis-tools
+  - wavpack
+  - wget
+  - x11-ssh-askpass
+  - x264
+  - x265
+  - xterm
+  - yt-dlp

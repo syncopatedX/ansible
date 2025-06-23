@@ -1,4 +1,4 @@
-/.venv/**
+/.venv/
 .vscode
 .vagrant
 syncopated-ansible.code-workspace
@@ -13,3 +13,5 @@ installer.sh
 ***/roles/desktop/files/nautilus-scripts/**
 *.jsx
 pyproject.toml
+.ruby-version
+.ruby-gemset

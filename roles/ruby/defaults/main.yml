@@ -1,6 +1,16 @@
 ---
 # defaults file for ruby
 
+# Ruby system packages
+ruby_packages:
+  - cmake
+  - libgit2
+  - libvips
+  - openslide
+  - openssl
+  - postgresql-libs
+  - ruby-psych
+
 # Install 1 or more versions of ruby
 # The last ruby listed will be set as the default ruby
 rvm1_rubies:

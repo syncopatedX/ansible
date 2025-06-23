@@ -1,0 +1,46 @@
+{
+  "ansible_task_prompt": {
+    "name": "ansible_task_prompt",
+    "label": "production",
+    "type": "chat",
+    "version": "1",
+    "description": "Prompt for analyzing individual Ansible tasks within their collection context.",
+    "config": {
+      "model": "{{model}}",
+      "temperature": "{{temperature}}",
+      "max_tokens": "{{max_tokens}}"
+    },
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a helpful assistant and Ansible expert. Provide concise and actionable feedback."
+      },
+      {
+        "role": "user",
+        "content": "Review the following Ansible task code within its larger collection context.\nBelow, you will find relevant YAML: first, the full Ansible play to which this task belongs,\nthen the specific task itself. If applicable, additional role context (e.g., role defaults/vars) is also provided.\nAnalyze how this task fits within the play and the collection's overall goals.\nFocus on its function, adherence to Ansible best practices for **idempotency** and **robust error handling**,\npotential issues, and inefficiencies. Specifically, address:\n\n  - **Module Usage:** Is a `shell` or `command` module used where a native `ansible.builtin.<module>` would be more appropriate? Suggest the correct module.\n  - **Idempotency Checks:** Are `creates`, `removes`, or `changed_when` conditions correctly applied? If `changed_when: false` is present, evaluate if it truly hides no changes or if a more precise check is needed.\n  - **Error Handling:** Are there `ignore_errors` or simplistic `rescue` blocks? Suggest replacements with `failed_when`, or more comprehensive `block`/`rescue`/`always` structures.\n  - **Contextual Impact:** How might the task's state or actions impact subsequent tasks in the play or the role's overall objective?\n\n--- Ansible Play Context ---\n\n```yaml\n{{full_play_yaml}}\n```\n\n--- Current Task ---\n\n```yaml\n{{task_text}}\n```\n\n--- Role Context (if applicable) ---\n\n```yaml\n{{role_context_yaml}}\n```\n\n**Example Transformation:**\nCurrent Problematic Task:\n\n```yaml\n- name: Install 'vim' using shell\n  ansible.builtin.shell: apt-get update && apt-get install -y vim\n  changed_when: false\n```\n\nIMPROVED CODE:\n\n```yaml\n- name: Ensure 'vim' is installed idempotently\n  ansible.builtin.package:\n    name: vim\n    state: present\n    update_cache: yes\n```\n\nEXPLANATION:\nThe 'ansible.builtin.package' module is the native and idempotent way to manage packages. 'state: present' ensures the package is installed only if missing, and 'update_cache: yes' handles repository updates. This replaces the non-idempotent 'shell' command and provides clear state management.\n\nNow, provide your response for the given task in this format:\n\n1.  First explain the current task's purpose within its play's context and any identified issues (e.g., idempotency, error handling, contextual fit).\n2.  After 'IMPROVED CODE:', provide the complete improved version of the task code. Ensure it is fully idempotent and adheres to best practices.\n3.  After 'EXPLANATION:', explain your improvements, focusing on why they enhance idempotency, error handling, collection consistency, and adherence to best practices.\n\nConsider Ansible best practices and general programming principles (DRY, least astonishment)."
+      }
+    ]
+  },
+  "ansible_play_prompt": {
+    "name": "ansible_play_prompt",
+    "label": "production",
+    "type": "chat",
+    "version": "1",
+    "description": "Prompt for analyzing Ansible plays within their overall playbook context.",
+    "config": {
+      "model": "{{model}}",
+      "temperature": "{{temperature}}",
+      "max_tokens": "{{max_tokens}}"
+    },
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a helpful assistant and Ansible expert. Provide concise and actionable feedback."
+      },
+      {
+        "role": "user",
+        "content": "Review the following Ansible play within its entire playbook context.\nBelow, you will find the YAML for the full Ansible playbook, followed by the specific play being analyzed.\nConsider how this play contributes to the overall playbook goals and interacts with other plays or roles.\nAnalyze its overall purpose, adherence to Ansible best practices for **idempotency** and **reliability**,\nand potential architectural or configuration issues. Specifically, focus on:\n\n  - Play-level idempotency and predictability (e.g., proper use of `force_handlers`, consistent variable management across the play).\n  - Handling of conflicting configurations (e.g., mutually exclusive services like audio servers, ensuring only one is enabled).\n  - Overall error handling strategy within the play (e.g., consistent use of `block/rescue/always`).\n  - Opportunities for better module usage, clearer role responsibilities, or improved variable passing within the play's context.\n  - How this play's design impacts the entire playbook's execution flow and long-term maintainability.\n\n--- Full Playbook Context ---\n\n```yaml\n{{full_playbook_yaml}}\n```\n\n--- Current Play ---\n\n```yaml\n{{play_text}}\n```\n\nProvide your response in this format:\n\n1.  First explain the play's overall function within the playbook and any identified issues (e.g., idempotency, configuration conflicts, error handling, architectural concerns).\n2.  After 'IMPROVED CODE:', provide the complete improved version of the play's code, or relevant sections. Ensure it promotes idempotency and reliability for the entire collection.\n3.  After 'EXPLANATION:', explain your improvements, focusing on architectural changes, idempotency, conflict resolution, and error handling for the collection as a whole.\n\nIf no improvements are needed, write 'IMPROVED CODE: No improvements needed'. Consider Ansible best practices and system engineering principles for robust Ansible collection design."
+      }
+    ]
+  }
+}

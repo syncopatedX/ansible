@@ -1,0 +1,7 @@
+---
+# Arch Linux specific shell packages and configuration
+
+packages__zsh:
+  - zsh-completions
+  - zsh-autosuggestions
+  - zsh-syntax-highlighting

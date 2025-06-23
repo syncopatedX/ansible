@@ -1,66 +1,34 @@
 ---
-# tasks file for ssh
+# SSH role - simplified
 
-- name: Push OpenSSH daemon configuration file
-  ansible.builtin.template:
+- name: Configure SSH daemon
+  template:
     src: etc/sshd/sshd_config.j2
     dest: /etc/ssh/sshd_config
-  notify:
-    - Restart sshd
+  notify: Restart sshd
 
-- name: Enable and start OpenSSH
-  ansible.builtin.service:
-    name: sshd.service
+- name: Enable SSH service
+  service:
+    name: sshd
     enabled: true
     state: started
-  when: ssh.enable_sshd is defined and ssh.enable_sshd == True
+  when: ssh.enable_sshd | default(true)
 
-- name: Disable and stop OpenSSH
-  ansible.builtin.service:
-    name: sshd.service
-    enabled: false
-    state: stopped
-  when: ssh.enable_sshd is defined and ssh.enable_sshd == False
-
-- name: Install sshfs
-  community.general.pacman:
-    name: sshfs
-    state: present
-
-- name: Install autossh
-  community.general.pacman:
-    name: autossh
-    state: present
-
-- name: Copy fuse configuration file
-  ansible.builtin.copy:
+- name: Copy fuse configuration
+  copy:
     src: etc/fuse.conf
     dest: /etc/fuse.conf
 
-- name: Install keychain
-  community.general.pacman:
-    name: keychain
-    state: present
-
-- name: Install x11-ask-pass
-  community.general.pacman:
-    name: x11-ssh-askpass
-    state: present
-
-- name: Export SSH_ASKPASS environment variable
-  ansible.builtin.lineinfile:
+- name: Set SSH_ASKPASS environment variable
+  lineinfile:
     dest: /etc/profile
-    state: present
-    line: "export SSH_ASKPASS=\"/usr/lib/ssh/x11-ssh-askpass\""
+    line: 'export SSH_ASKPASS="{% if ansible_distribution == ''Rocky'' %}/usr/libexec/gcr-ssh-askpass{% else %}/usr/lib/ssh/x11-ssh-askpass{% endif %}"'
+    mode: "0644"
 
-- name: Make directory for user SSH key
-  ansible.builtin.file:
-    path: /home/{{ user.name }}/.ssh
+- name: Create user SSH directory
+  file:
+    path: "/home/{{ user.name }}/.ssh"
     state: directory
     owner: "{{ user.name }}"
-    group: "{{ user.group }}"
-
-- name: Install Mosh
-  community.general.pacman:
-    name: mosh
-    state: present
+    group: "{{ user.name }}"
+    mode: "0700"

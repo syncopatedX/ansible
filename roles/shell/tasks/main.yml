@@ -1,4 +1,48 @@
 ---
-- ansible.builtin.import_tasks:
-    file: zsh.yml
-  tags: ["zsh"]
+# Shell configuration with zsh
+
+- name: Load distribution-specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+  tags: ["packages"]
+
+- name: Install shell packages on Arch Linux
+  pacman:
+    name: "{{ packages__zsh }}"
+    state: present
+  become: true
+  when: 
+    - ansible_os_family == "Archlinux"
+    - shell_packages is defined
+  tags: ["packages"]
+
+- name: Install shell packages on Rocky Linux/RedHat
+  dnf:
+    name: "{{ shell_packages }}"
+    state: present
+  become: true
+  when: 
+    - ansible_os_family == "RedHat"
+    - shell_packages is defined
+  tags: ["packages"]
+
+- name: Install zsh configurations and plugins
+  import_tasks: zsh.yml
+  tags: ["zsh", "profile"]
+
+- name: Push aliases template
+  ansible.builtin.template:
+    src: home/.aliases.j2
+    dest: "{{ user.home }}/.aliases"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+    mode: "0644"
+    backup: true
+  tags: ["aliases", "profile"]
+
+# - name: Push .profile template
+#   template:
+#     src: home/.profile.j2
+#     dest: "{{ profile_config_dir }}/.profile"
+#     mode: "0644"
+#     backup: True
+#   tags: ["profile"]

@@ -3,7 +3,19 @@ export UU_ORDER="$UU_ORDER:~/.zshrc"
 # Path to your oh-my-zsh installation.
 export ZSH="/usr/share/oh-my-zsh"
 
-ZSH_THEME="{{ zsh_theme }}"
+hostname=$(hostname)
+
+if [[ $hostname == "ninjabot" ]]; then
+  ZSH_THEME="jaischeema"
+elif [[ $hostname == "soundbot" ]]; then
+  ZSH_THEME="strug"
+elif [[ $hostname == "crambot" ]]; then
+  ZSH_THEME="kphoen"
+elif [[ $hostname == "lapbot" ]]; then
+  ZSH_THEME="kphoen"
+else
+  ZSH_THEME="random"
+fi
 
 CASE_SENSITIVE="true"
 ENABLE_CORRECTION="false"
@@ -112,10 +124,11 @@ alias rip="expac --timefmt='%Y-%m-%d %T' '%l\t%n %v' | sort | tail -200 | nl"
 
 # completion; use cache if updated within 24h
 autoload -Uz compinit
-if [[ -n $HOME/.zcompdump(#qN.mh+24) ]]; then
- compinit -d $HOME/.zcompdump;
+# Use a simpler approach to check if the file is older than 24 hours
+if [ -f $HOME/.zcompdump ] && [ ! "$HOME/.zcompdump" -nt "$(date -d 'now - 24 hours' '+%Y%m%d%H%M.%S')" ]; then
+  compinit -d $HOME/.zcompdump;
 else
- compinit -C;
+  compinit -C;
 fi;
 
 setopt nobeep
@@ -158,20 +171,31 @@ if [[ -d $PYENV_ROOT/bin ]]; then
   eval "$(pyenv init -)"
   eval "$(pyenv virtualenv-init -)"
   export PATH="$(pyenv root)/shims:$PATH"
+  eval "$(pyenv init - zsh)"
 fi
 
 echo $PATH | grep -q "$HOME/.local/bin:" || export PATH="$HOME/.local/bin:$PATH"
 
-echo $PATH | grep -q "$HOME/.gem/ruby/3.4.0/bin:" || export PATH="$HOME/.gem/ruby/3.4.0/bin:$PATH"
-echo $PATH | grep -q "$HOME/.local/share/gem/ruby/3.4.0/bin:" || export PATH="$PATH:$HOME/.local/share/gem/ruby/3.4.0/bin"
-
-export GEM_HOME="$(gem env user_gemhome)"
-export PATH="$PATH:$GEM_HOME/bin"
-
-PATH="$HOME/Workspace/Tools/bin:$PATH"
+export GEM_HOME="$HOME/.local/share/gem/ruby/{{ ruby_version }}"
+echo $PATH | grep -q "$HOME/.local/share/gem/ruby/{{ ruby_version }}/bin:" || export PATH="$PATH:$HOME/.local/share/gem/ruby/{{ ruby_version }}/bin"
 
 {% if rvm_install|default(false)|bool == true %}
 if [ -d $HOME/.rvm/bin ]; then
   export PATH="$PATH:$HOME/.rvm/bin"
 fi
 {% endif %}
+
+if [[ $hostname == "ninjabot" ]]; then
+  export LIBVA_DRIVER_NAME=i965
+# elif [[ $hostname == "server2" ]]; then
+#   export MY_VAR="value_for_server2"
+# elif [[ $hostname == "laptop" ]]; then
+#   export MY_VAR="value_for_laptop"
+# else
+#   export MY_VAR="default_value"
+fi
+
+
+if [ -f "$HOME/.claude/local/claude" ]; then
+  alias claude="$HOME/.claude/local/claude"
+fi

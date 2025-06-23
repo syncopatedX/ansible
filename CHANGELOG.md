@@ -1,5 +1,44 @@
 # Changelog
 
+## [unreleased]
+
+### 🚀 Features
+
+- **🌟 Multi-Distribution Support**: Added comprehensive Rocky Linux 9 support
+  - Automatic distribution detection (`ansible_os_family`) and conditional package management
+  - Unified package management abstraction across Arch Linux and Rocky Linux 9
+  - Repository setup for EPEL, PowerTools/CRB, RPM Fusion on Rocky Linux
+  - Alternative installation methods: source builds, Cargo/Rust tools, binary downloads, Flatpak
+- **📦 Enhanced Package Management**:
+  - 137 Arch Linux packages mapped to Rocky Linux 9 equivalents
+  - Source build support for libvips and chromaprint libraries
+  - GitHub CLI repository integration for Rocky Linux
+  - Comprehensive EPEL and RPM Fusion package support
+- **🔧 Base Role Modernization**:
+  - Distribution-specific variable loading (`Archlinux.yml`, `RedHat.yml`)
+  - Multi-distribution task execution with proper conditionals
+  - Enhanced alternative package installation with build dependencies
+- Added host-specific zsh config and miscellaneous updates
+- Add CLAUDE.md for AI guidance and development roadmap
+
+### 🐛 Bug Fixes
+
+- Use verify parameter for the pacman-key module & full length key strings
+- Set 0600 permissions for iwd wifi passphrase file
+- Fixed package mapping issues for Rocky Linux 9 deployment
+
+### 📚 Documentation
+
+- **🐧 Rocky Linux 9 Documentation**: Comprehensive usage guide and prerequisites
+- Remove ansible-pull documentation and standardize playbook examples
+- Added multi-distribution support overview and examples
+- Updated README with distribution-specific features and repository setup
+
+### ⚙️ Miscellaneous Tasks
+
+- Deleted main.yml Ansible playbook
+- **🧪 Testing Infrastructure**: Rocky Linux 9 bare metal testing on ninjabot host
+
 ## [0.8.6] - 2025-05-30
 
 ### 🚀 Features

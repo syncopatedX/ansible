@@ -1,0 +1,8 @@
+---
+# RedHat/Rocky Linux specific libvirt packages and configuration
+
+libvirt_packages:
+  - libvirt
+  - qemu-kvm
+  - virt-manager
+  - virt-viewer

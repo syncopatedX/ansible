@@ -1,0 +1,10 @@
+---
+- name: Configure tinybot host
+  hosts: tinybot
+  become: yes
+  vars: {}
+
+  tasks:
+    - name: Apply base configuration
+      include_role:
+        name: base

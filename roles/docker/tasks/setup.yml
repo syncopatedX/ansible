@@ -41,7 +41,7 @@
 
         dest: "/etc/docker/daemon.json"
         owner: root
-      notify: reload systemd daemon
+      notify: Reload systemd daemon
 
 # - name: Set docker storage location
 #   lineinfile:

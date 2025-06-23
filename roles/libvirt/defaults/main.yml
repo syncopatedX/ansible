@@ -5,3 +5,12 @@ libvirt:
   service: "disabled"
 
 use_libvirt: false
+
+# Libvirt packages
+libvirt_packages:
+  - name: libvirt
+  - name: qemu-desktop
+  - name: virt-manager
+  - name: virt-viewer
+  - name: dnsmasq
+  - name: bridge-utils

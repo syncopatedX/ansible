@@ -1,0 +1,6 @@
+---
+# Arch Linux specific docker packages and configuration
+
+packages__docker:
+  - docker
+  - docker-compose

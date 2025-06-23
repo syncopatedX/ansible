@@ -1,0 +1,7 @@
+---
+# Repository Manager main tasks
+
+- name: Include distribution-specific repository tasks
+  include_tasks: "{{ ansible_os_family }}/main.yml"
+  when: enable_third_party_repos | default(true)
+  tags: ["repos"]

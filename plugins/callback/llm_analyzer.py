@@ -379,28 +379,37 @@ class AIProvider:
         if prompt_template_str is None:
             print(f"DEBUG: Fallback to local prompt generation for '{prompt_name}'.")
             if task_text:
+                # UPDATED PROMPT FOR TASKS
                 prompt_template_str = (
-                    "Review the following Ansible code: "
-                    # Using Jinja-like placeholder
-                    "\n```\n{{task_text}}\n```\n"
-                    "Analyze its function, adherence to best practices, potential issues, "
-                    "and inefficiencies. Then provide your response in this format:\n"
-                    "1. First explain the current code and any issues\n"
-                    "2. After 'IMPROVED CODE:', provide the complete improved version of the code\n"
-                    "3. After 'EXPLANATION:', explain your improvements\n\n"
-                    "Consider Ansible best practices and general programming principles (DRY, least astonishment)."
+                    "Review the following Ansible task code:\n"
+                    "\n```yaml\n{{task_text}}\n```\n"
+                    "Analyze its function, adherence to Ansible best practices for **idempotency**, "
+                    "potential issues, and inefficiencies. Specifically, look for:\n"
+                    "- Overuse of `shell` or `command` modules where native modules would be better.\n"
+                    "- Missing or incorrect `creates`, `removes`, or `changed_when` conditions.\n"
+                    "- Simplistic `ignore_errors` or `rescue` blocks that mask issues.\n"
+                    "Provide your response in this format:\n"
+                    "1. First explain the current task's purpose and any identified issues (idempotency, error handling).\n"
+                    "2. After 'IMPROVED CODE:', provide the complete improved version of the task code. Ensure it is fully idempotent.\n"
+                    "3. After 'EXPLANATION:', explain your improvements, focusing on why they enhance idempotency, error handling, and adherence to best practices.\n\n"
+                    "Consider Ansible best practices (e.g., 'Always use modules', 'Handle facts correctly', 'Idempotency') and general programming principles (DRY, least astonishment)."
                 )
             elif play_text:
+                # UPDATED PROMPT FOR PLAYBOOKS
                 prompt_template_str = (
-                    "Review the following Ansible playbook, "
-                    "focusing on overall purpose and effectiveness:"
-                    # Using Jinja-like placeholder
-                    "\n```\n{{play_text}}\n```\n"
+                    "Review the following Ansible playbook code:\n"
+                    "\n```yaml\n{{play_text}}\n```\n"
+                    "Analyze its overall purpose, adherence to Ansible best practices for **idempotency** and **reliability**, "
+                    "and potential architectural or configuration issues. Specifically, focus on:\n"
+                    "- Play-level idempotency and predictability.\n"
+                    "- Handling of conflicting configurations (ee.g., mutually exclusive services like audio servers).\n"
+                    "- Overall error handling strategy (e.g., consistent use of `block/rescue/always`).\n"
+                    "- Opportunities for better module usage or clearer role responsibilities.\n"
                     "Provide your response in this format:\n"
-                    "1. First explain the playbook's function\n"
-                    "2. After 'IMPROVED CODE:', provide the complete improved version of the playbook\n"
-                    "3. After 'EXPLANATION:', explain your improvements\n\n"
-                    "If no improvements are needed, write 'IMPROVED CODE: No improvements needed'"
+                    "1. First explain the playbook's overall function and any identified issues (e.g., idempotency, configuration conflicts, error handling).\n"
+                    "2. After 'IMPROVED CODE:', provide the complete improved version of the playbook code, or relevant sections. Ensure it promotes idempotency and reliability.\n"
+                    "3. After 'EXPLANATION:', explain your improvements, focusing on architectural changes, idempotency, conflict resolution, and error handling.\n\n"
+                    "If no improvements are needed, write 'IMPROVED CODE: No improvements needed'. Consider Ansible best practices and system engineering principles."
                 )
             else:
                 return ""

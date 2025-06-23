@@ -1,0 +1,8 @@
+---
+# Arch Linux specific X.org packages and configuration
+
+packages__xorg:
+  - xorg-server
+  - xorg-xinit
+  - xorg-xrandr
+  - xorg-xsetroot

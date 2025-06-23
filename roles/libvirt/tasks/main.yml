@@ -1,43 +1,44 @@
 ---
-# tasks file for libvirt
+# Libvirt virtualization
 
-- name: Libvirt Tasks
-  ansible.builtin.debug:
-    msg: "Starting libvirt tasks"
+- name: Load distribution-specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+  tags: ["packages"]
 
-- tags: ["packages"]
-  block:
-    # :: exfatprogs and exfat-utils are in conflict. Remove exfat-utils? [y/N]
-    - name: Remove conflicting packages
-      community.general.pacman:
-        name: exfat-utils
-        state: absent
-        force: true
-        extra_args: --noconfirm
+- name: Install libvirt packages on Arch Linux
+  pacman:
+    name: "{{ libvirt_packages }}"
+    state: present
+  become: true
+  when: 
+    - ansible_os_family == "Archlinux"
+    - libvirt_packages is defined
+  tags: ["packages"]
 
-    - name: Install libvirt packages
-      community.general.pacman:
-        name: "{{ item }}"
-        state: present
-        force: true
-        extra_args: --noconfirm --overwrite '*'
-      loop: "{{ packages__libvirt }}"
+- name: Install libvirt packages on Rocky Linux/RedHat
+  dnf:
+    name: "{{ libvirt_packages }}"
+    state: present
+  become: true
+  when: 
+    - ansible_os_family == "RedHat"
+    - libvirt_packages is defined
+  tags: ["packages"]
 
-
-- name: Set socket group and perms to allow for remote access
-  ansible.builtin.copy:
+- name: Configure libvirtd
+  copy:
     src: etc/libvirt/libvirtd.conf
     dest: /etc/libvirt/libvirtd.conf
     mode: "0644"
 
-- name: Allow br0 in the qemu bridge ACL
-  ansible.builtin.copy:
+- name: Configure qemu bridge
+  copy:
     src: etc/qemu/bridge.conf
     dest: /etc/qemu/bridge.conf
     mode: "0644"
 
-- name: Disable lvmetad for remote access reasons
-  ansible.builtin.lineinfile:
+- name: Disable lvmetad
+  lineinfile:
     dest: /etc/lvm/lvm.conf
     regexp: "^    use_lvmetad = 1"
     line: "    use_lvmetad = 0"
@@ -45,19 +46,18 @@
     backup: true
 
 - name: Add user to libvirt group
-  ansible.builtin.user:
+  user:
     name: "{{ user.name }}"
     groups: "libvirt,kvm"
     append: true
-  ignore_errors: "{{ ansible_check_mode }}"
 
-- name: Set libvirtd service preset
-  ansible.builtin.systemd:
+- name: Enable libvirtd service
+  systemd:
     name: libvirtd
     enabled: true
-  when: libvirt.service == 'enabled'
+  when: libvirt.service | default('enabled') == 'enabled'
 
-- ansible.builtin.import_tasks:
-    file: vagrant.yml
-  when: use_vagrant|default(false)|bool == True
+- name: Setup Vagrant
+  import_tasks: vagrant.yml
+  when: use_vagrant | default(false)
   tags: ["vagrant"]

@@ -1,0 +1,49 @@
+---
+
+window_manager: i3
+autologin: true
+
+use_libvirt: true
+use_docker: true
+
+share:
+  nfs:
+    parent: /home
+    exports:
+      - b08x
+
+samba_host: false
+
+rvm_install: true
+
+audio_system: pulseaudio_jack
+use_jack: true
+use_pipewire: false
+
+i3:
+  autostart: ''
+  tray_output: 'HDMI-1'
+  assignments: ''
+  keybindings: ''
+  workspaces:
+    - "$ws1 output HDMI-1"
+    - "$ws2 output HDMI-1"
+    - "$ws3 output HDMI-1"
+    - "$ws4 output HDMI-1"
+    - "$ws5 output HDMI-1"
+    - "$ws6 output DP-2"
+    - "$ws7 output DP-2"
+    - "$ws8 output DP-2"
+    - "$ws9 output DP-2"
+    - "$ws10 output DP-2"
+
+# --- Display Layout & Scaling Configuration ---
+# Names of the primary and secondary display outputs. Find with 'xrandr --query'.
+primary_display_output: "DP-2"
+secondary_display_output: "HDMI-1"
+
+# The desired final scaling factor (e.g., "1.5" for 150%).
+desired_scale: 1.5
+# The integer scaling factor set in the desktop environment's settings
+# (e.g., "2" for 200%).
+toolkit_scale: 2

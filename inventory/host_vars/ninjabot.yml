@@ -3,7 +3,6 @@ share:
   nfs:
     parent: /
     exports:
-      - usb_storage
       - storage
 
 docker:
@@ -25,3 +24,25 @@ i3:
   assignments: "default"
   workspaces: "default"
   keybindings: "default"
+
+# systemd_network_netdevs:
+#   br0:
+#     NetDev:
+#       Kind: bridge
+
+# systemd_network_networks:
+#   enp10s0:
+#     Match:
+#       Name: enp10s0
+#       MACAddress: bc:5f:f4:0e:bb:b5
+#     Network:
+#       Bridge: br0
+
+#   br0:
+#     Network:
+#       Address: 192.168.41.31/24
+#       Gateway: 192.168.41.1
+#       DNS: 192.168.41.4
+#       Domains: syncopated.net
+#       LinkLocalAddressing: no
+#       IPv6AcceptRA: no

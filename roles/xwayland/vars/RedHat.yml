@@ -1,0 +1,5 @@
+---
+# RedHat/Rocky Linux specific Xwayland packages and configuration
+
+xwayland_packages:
+  - xorg-x11-server-Xwayland

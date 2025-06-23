@@ -11,6 +11,6 @@
     PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path|join(':') }}"
 
   roles:
-    - { role: network, tags: ["network", "networkd", "networkmanager", "dns"] }
+    - { role: networking, tags: ["networking", "networkd", "networkmanager", "dns"] }
     - { role: ntp, tags: ["ntp"] }
     - { role: firewalld, tags: ["firewalld"] }

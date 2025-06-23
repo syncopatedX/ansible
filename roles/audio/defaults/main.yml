@@ -1,7 +1,23 @@
 ---
 
+# Primary audio system selection - must be one of:
+# - "pipewire" (default, modern audio server with compatibility layers)
+# - "pulseaudio_jack" (traditional setup with JACK and PulseAudio)
+audio_system: "pipewire"
+
+# Legacy variables (kept for backward compatibility)
+# These are now derived from audio_system and should not be set directly
 use_jack: false
 use_pipewire: true
+
+# Audio packages to install
+audio_packages:
+  - name: alsa-utils
+  - name: pipewire
+  - name: pipewire-alsa
+  - name: pipewire-pulse
+  - name: pipewire-jack
+  - name: realtime-privileges
 
 jack:
   dps:

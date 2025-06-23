@@ -1,0 +1,74 @@
+---
+# Rofi launcher
+
+# - name: Install rofi packages on Arch Linux
+#   pacman:
+#     name: "{{ rofi_packages }}"
+#     state: present
+#   become: true
+#   when: 
+#     - ansible_os_family == "Archlinux"
+#     - rofi_packages is defined
+#   tags: ["packages"]
+
+# - name: Install rofi packages on Rocky Linux/RedHat
+#   dnf:
+#     name: "{{ rofi_packages }}"
+#     state: present
+#   become: true
+#   when: 
+#     - ansible_os_family == "RedHat"
+#     - rofi_packages is defined
+#   tags: ["packages"]
+
+- name: Create rofi directories
+  file:
+    dest: "{{ user.home }}/.config/rofi/{{ item }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0755"
+  loop:
+    - ""
+    - "colors"
+    - "scripts"
+    - "launchers/type-1/shared"
+    - "launchers/type-4/shared"
+  become: false
+
+
+- block:
+    - name: Copy rofi configuration files
+      template:
+        src: "home/.config/rofi/{{ item }}.j2"
+        dest: "{{ user.home }}/.config/rofi/{{ item }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0644"
+      loop:
+        - config.rasi
+        - gruvbox-common.rasi
+        - gruvbox-dark-hard.rasi
+        - colors/onedark.rasi
+        - launchers/type-1/shared/colors.rasi
+        - launchers/type-1/shared/fonts.rasi
+        - launchers/type-1/style-8.rasi
+        - launchers/type-1/style-10.rasi
+        - launchers/type-4/shared/colors.rasi
+        - launchers/type-4/shared/fonts.rasi
+        - launchers/type-4/style-6.rasi
+    
+    - name: Copy rofi laumcher scripts
+      template:
+        src: "home/.config/rofi/{{ item }}.j2"
+        dest: "{{ user.home }}/.config/rofi/{{ item }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0755"
+      loop:
+        - scripts/launcher_main.sh
+        - scripts/launcher_t1.sh
+        - scripts/launcher_t4.sh
+  
+  become: false
+  tags: ["config"]
