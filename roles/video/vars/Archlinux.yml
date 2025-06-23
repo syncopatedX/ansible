@@ -1,0 +1,9 @@
+---
+# Arch Linux specific video packages and configuration
+
+video_packages:
+  - mesa
+  - vulkan-mesa-layers
+  # - xf86-video-intel
+  # - nvidia
+  # - nvidia-utils

@@ -1,0 +1,5 @@
+---
+# Arch Linux specific Xwayland packages and configuration
+
+xwayland_packages:
+  - xorg-xwayland

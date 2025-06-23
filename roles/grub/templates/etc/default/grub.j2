@@ -12,15 +12,8 @@ GRUB_CMDLINE_LINUX="{{kernel_parameters}} crashkernel=1G-4G:192M,4G-64G:256M,64G
 GRUB_CMDLINE_LINUX="{{kernel_parameters}}"
 {% endif %}
 
+GRUB_PRELOAD_MODULES="part_gpt part_msdos"
 
-# Preload both GPT and MBR modules so that they are not missed
-# {% if btrfs_exists|default(false)|bool == true %}
-# GRUB_PRELOAD_MODULES="btrfs zstd part_gpt part_msdos"
-# {% else %}
-# GRUB_PRELOAD_MODULES="part_gpt part_msdos"
-# {% endif %}
-
-# Uncomment to enable booting from LUKS encrypted devices
 #GRUB_ENABLE_CRYPTODISK=y
 
 GRUB_ENABLE_BLSCFG=true
@@ -54,7 +47,7 @@ GRUB_DISABLE_RECOVERY=true
 # modes only.  Entries specified as foreground/background.
 # GRUB_COLOR_NORMAL="white/black"
 # GRUB_COLOR_HIGHLIGHT="blue/black"
-# GRUB_BACKGROUND="/usr/share/backgrounds/syncopated/str_01.png"
+GRUB_BACKGROUND="/usr/share/backgrounds/syncopated/syncopated016.png"
 
 # Uncomment one of them for the gfx desired, a image background or a gfxtheme
 #GRUB_BACKGROUND="/path/to/wallpaper"

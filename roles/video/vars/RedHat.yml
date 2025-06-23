@@ -1,0 +1,9 @@
+---
+# RedHat/Rocky Linux specific video packages and configuration
+
+video_packages:
+  - mesa-dri-drivers
+  - mesa-vulkan-drivers
+  - xorg-x11-drv-intel
+  - nvidia-driver
+  - nvidia-driver-libs

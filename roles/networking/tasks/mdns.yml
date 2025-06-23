@@ -1,13 +1,25 @@
 ---
 # mDNS/Avahi setup
 
-- name: Install Avahi packages
-  include_role:
-    name: package-manager
-  vars:
-    packages:
-      - name: avahi
-      - name: nss-mdns
+- name: Install Avahi packages on Arch Linux
+  pacman:
+    name:
+      - avahi
+      - nss-mdns
+    state: present
+  become: true
+  when: ansible_os_family == "Archlinux"
+  tags: ["packages"]
+
+- name: Install Avahi packages on Rocky Linux/RedHat
+  dnf:
+    name:
+      - avahi
+      - nss-mdns
+    state: present
+  become: true
+  when: ansible_os_family == "RedHat"
+  tags: ["packages"]
 
 - name: Enable avahi-daemon
   systemd:

@@ -1,8 +1,20 @@
 ---
 # Video role defaults
 
-video_packages:
-  - name: mesa
-  - name: xf86-video-intel
-  - name: vulkan-intel
-  - name: intel-media-driver
+# Package manager specific package names. This playbook assumes pacman (Arch).
+# Adapt for other managers (e.g., apt for Debian/Ubuntu).
+required_packages:
+  - "mesa"
+  - "vulkan-intel"
+  - "intel-media-driver" # Modern video acceleration driver
+  - "libva-utils"
+  - "xorg-xrandr"
+legacy_intel_driver: "xf86-video-intel"
+
+# The playbook calculates the required xrandr --scale factor automatically.
+# Formula: toolkit_scale / desired_scale
+xrandr_scale_factor: "{{ '%.4f' | format(toolkit_scale | float / desired_scale | float) }}"
+
+# Monitor resolution and refresh rate.
+monitor_resolution: "3840x2160"
+monitor_rate: "60.00"

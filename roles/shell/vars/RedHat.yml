@@ -1,0 +1,6 @@
+---
+# RedHat/Rocky Linux specific shell packages and configuration
+
+packages__zsh:
+  - zsh
+  - zsh-syntax-highlighting

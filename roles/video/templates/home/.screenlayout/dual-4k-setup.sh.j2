@@ -1,0 +1,20 @@
+#!/bin/sh
+# This script is managed by Ansible.
+# It configures a dual 4K monitor setup for an Intel Iris Xe system.
+
+sleep 2
+
+xrandr \
+    --output "{{ primary_display_output }}" \
+        --primary \
+        --mode {{ monitor_resolution }} \
+        --rate {{ monitor_rate }} \
+        --pos 0x0 \
+        --scale {{ xrandr_scale_factor }}x{{ xrandr_scale_factor }} \
+        --set "Broadcast RGB" "Full" \
+    --output "{{ secondary_display_output }}" \
+        --mode {{ monitor_resolution }} \
+        --rate {{ monitor_rate }} \
+        --right-of "{{ primary_display_output }}" \
+        --scale {{ xrandr_scale_factor }}x{{ xrandr_scale_factor }} \
+        --set "Broadcast RGB" "Full"

@@ -22,4 +22,3 @@ dependencies:
   - role: repository-manager
   - role: system-base  
   - role: user-manager
-  - role: package-manager

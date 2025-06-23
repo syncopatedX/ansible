@@ -1,11 +1,28 @@
 ---
 # Shell configuration with zsh
 
-- name: Install shell packages
-  include_role:
-    name: package-manager
-  vars:
-    packages: "{{ shell_packages }}"
+- name: Load distribution-specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+  tags: ["packages"]
+
+- name: Install shell packages on Arch Linux
+  pacman:
+    name: "{{ packages__zsh }}"
+    state: present
+  become: true
+  when: 
+    - ansible_os_family == "Archlinux"
+    - shell_packages is defined
+  tags: ["packages"]
+
+- name: Install shell packages on Rocky Linux/RedHat
+  dnf:
+    name: "{{ shell_packages }}"
+    state: present
+  become: true
+  when: 
+    - ansible_os_family == "RedHat"
+    - shell_packages is defined
   tags: ["packages"]
 
 - name: Install zsh configurations and plugins

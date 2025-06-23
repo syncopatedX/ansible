@@ -1,4 +1,8 @@
 ---
+- name: Load distribution-specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+  tags: ["packages"]
+
 - name: Starting audio role tasks
   ansible.builtin.debug:
     msg: "Starting audio tasks"
@@ -22,9 +26,9 @@
     use_jack: "{{ true if audio_system == 'pulseaudio_jack' else false }}"
     use_pipewire: "{{ true if audio_system == 'pipewire' else false }}"
 
-- ansible.builtin.import_tasks:
-    file: packages.yml
-  tags: ["packages"]
+# - ansible.builtin.import_tasks:
+#     file: packages.yml
+#   tags: ["packages"]
 
 # - block:
 #     - name: install lsmi

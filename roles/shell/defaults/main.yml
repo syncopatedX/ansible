@@ -4,8 +4,3 @@
 profile_config_dir: "{{ user.home }}"
 window_manager: "i3"
 
-# Shell packages
-shell_packages:
-  - name: zsh
-  - name: zoxide
-  - name: zsh-syntax-highlighting

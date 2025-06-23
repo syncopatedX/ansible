@@ -5,28 +5,26 @@
   include_vars: "{{ ansible_os_family }}.yml"
   tags: ["packages"]
 
-# Repository setup
-- name: Configure system repositories
-  include_role:
-    name: repository-manager
-  tags: ["repos"]
-
-# Core system configuration
-- name: Configure basic system settings
-  include_role:
-    name: system-base
-  tags: ["system"]
-
-# User account management
-- name: Setup user accounts
-  include_role:
-    name: user-manager
-  tags: ["users"]
+# Note: repository-manager, system-base, and user-manager roles 
+# are executed via meta dependencies in meta/main.yml
 
 # Install essential packages
-- name: Install base packages
-  include_role:
-    name: package-manager
-  vars:
-    packages: "{{ base_packages }}"
+- name: Install base packages on Arch Linux
+  pacman:
+    name: "{{ packages__base }}"
+    state: present
+  become: true
+  when: 
+    - ansible_os_family == "Archlinux"
+    - packages__base is defined
+  tags: ["packages"]
+
+- name: Install base packages on Rocky Linux/RedHat
+  dnf:
+    name: "{{ packages__base }}"
+    state: present
+  become: true
+  when: 
+    - ansible_os_family == "RedHat"
+    - packages__base is defined
   tags: ["packages"]

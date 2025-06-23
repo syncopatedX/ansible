@@ -1,11 +1,28 @@
 ---
 # Ruby development environment
 
-- name: Install Ruby packages
-  include_role:
-    name: package-manager
-  vars:
-    packages: "{{ ruby_packages }}"
+- name: Load distribution-specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+  tags: ["packages"]
+
+- name: Install Ruby packages on Arch Linux
+  pacman:
+    name: "{{ ruby_packages }}"
+    state: present
+  become: true
+  when: 
+    - ansible_os_family == "Archlinux"
+    - ruby_packages is defined
+  tags: ["packages"]
+
+- name: Install Ruby packages on Rocky Linux/RedHat
+  dnf:
+    name: "{{ ruby_packages }}"
+    state: present
+  become: true
+  when: 
+    - ansible_os_family == "RedHat"
+    - ruby_packages is defined
   tags: ["packages"]
 
 # - name: Update system bundler

@@ -1,0 +1,8 @@
+---
+# Arch Linux specific libvirt packages and configuration
+
+libvirt_packages:
+  - libvirt
+  - qemu-desktop
+  - virt-manager
+  - virt-viewer

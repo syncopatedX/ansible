@@ -1,11 +1,28 @@
 ---
 # Libvirt virtualization
 
-- name: Install libvirt packages
-  include_role:
-    name: package-manager
-  vars:
-    packages: "{{ libvirt_packages }}"
+- name: Load distribution-specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+  tags: ["packages"]
+
+- name: Install libvirt packages on Arch Linux
+  pacman:
+    name: "{{ libvirt_packages }}"
+    state: present
+  become: true
+  when: 
+    - ansible_os_family == "Archlinux"
+    - libvirt_packages is defined
+  tags: ["packages"]
+
+- name: Install libvirt packages on Rocky Linux/RedHat
+  dnf:
+    name: "{{ libvirt_packages }}"
+    state: present
+  become: true
+  when: 
+    - ansible_os_family == "RedHat"
+    - libvirt_packages is defined
   tags: ["packages"]
 
 - name: Configure libvirtd

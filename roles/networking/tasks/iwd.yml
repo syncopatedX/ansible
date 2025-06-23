@@ -1,13 +1,25 @@
 ---
 # Wireless networking with iwd
 
-- name: Install wireless packages
-  include_role:
-    name: package-manager
-  vars:
-    packages:
-      - name: iwd
-      - name: iwgtk
+- name: Install wireless packages on Arch Linux
+  pacman:
+    name:
+      - iwd
+      - iwgtk
+    state: present
+  become: true
+  when: ansible_os_family == "Archlinux"
+  tags: ["packages"]
+
+- name: Install wireless packages on Rocky Linux/RedHat
+  dnf:
+    name:
+      - iwd
+      - iwgtk
+    state: present
+  become: true
+  when: ansible_os_family == "RedHat"
+  tags: ["packages"]
 
 - name: Enable iwd service
   service:
