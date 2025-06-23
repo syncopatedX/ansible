@@ -2,7 +2,7 @@
 # Video drivers and packages
 
 - name: Load distribution-specific variables
-  include_vars: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
   tags: ["packages"]
 
 # - name: Install video packages on Arch Linux
@@ -10,7 +10,7 @@
 #     name: "{{ video_packages }}"
 #     state: present
 #   become: true
-#   when: 
+#   when:
 #     - ansible_os_family == "Archlinux"
 #     - video_packages is defined
 #   tags: ["packages"]
@@ -20,7 +20,7 @@
 #     name: "{{ video_packages }}"
 #     state: present
 #   become: true
-#   when: 
+#   when:
 #     - ansible_os_family == "RedHat"
 #     - video_packages is defined
 #   tags: ["packages"]
@@ -40,7 +40,7 @@
         state: absent
 
     - name: Create /etc/X11/xorg.conf.d/ directory if it doesn't exist
-      ansible.builtin.file:
+      file:
         path: /etc/X11/xorg.conf.d/
         state: directory
         mode: '0755'
@@ -68,7 +68,7 @@
 - name: Block for user-specific display configuration
   block:
     - name: Create user screenlayout directory
-      ansible.builtin.file:
+      file:
         path: "{{ user.home }}/.screenlayout"
         state: directory
         owner: "{{ user.name }}"
@@ -77,14 +77,14 @@
 
     - name: Deploy xrandr startup script for dual 4K layout and scaling
       ansible.builtin.template:
-        src: "home/.screenlayout/dual-4k-setup.sh.j2"      
+        src: "home/.screenlayout/dual-4k-setup.sh.j2"
         dest: "{{ user.home }}/.screenlayout/dual-4k-setup.sh"
         owner: "{{ user.name }}"
         group: "{{ user.group }}"
         mode: '0755' # Must be executable
 
     - name: Create user autostart directory
-      ansible.builtin.file:
+      file:
         path: "{{ user.home }}/.config/autostart"
         state: directory
         owner: "{{ user.name }}"
@@ -103,7 +103,7 @@
           Type=Application
           Name=Apply Screen Layout
           Comment=Sets up dual 4K monitors with xrandr
-          Exec={{ user.home }}/.screenlayout/dual-4k-setup.sh
+          Exec={{ user.home }}/.screenlayout/{{ inventory_hostname }}.sh
           Terminal=false
           X-GNOME-Autostart-enabled=true
   become: false # These tasks run as the user, not root. But playbook runs as root, so we use become: false and specify owner/group.

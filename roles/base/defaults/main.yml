@@ -4,7 +4,7 @@
 # User configuration
 user:
   name: "{{ lookup('env','USER') }}"
-  shell: "/bin/bash"
+  ansible.builtin.shell: "/bin/bash"
 
 # System configuration
 timezone: "America/New_York"

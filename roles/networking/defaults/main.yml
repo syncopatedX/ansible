@@ -8,7 +8,7 @@ packages__network:
     - network-manager-applet
 
 conn_check:
-    uri: "http://steve/admin"
+    ansible.builtin.uri: "http://steve/admin"
     interval: 120
 
 ansible_service_mgr: "systemd"

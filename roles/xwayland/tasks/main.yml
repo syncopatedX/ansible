@@ -2,7 +2,7 @@
 # Xwayland compatibility layer
 
 - name: Load distribution-specific variables
-  include_vars: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
   tags: ["packages"]
 
 - name: Install xwayland packages on Arch Linux
@@ -10,17 +10,17 @@
     name: "{{ xwayland_packages }}"
     state: present
   become: true
-  when: 
+  when:
     - ansible_os_family == "Archlinux"
     - xwayland_packages is defined
   tags: ["packages"]
 
 - name: Install xwayland packages on Rocky Linux/RedHat
-  dnf:
+  ansible.builtin.dnf:
     name: "{{ xwayland_packages }}"
     state: present
   become: true
-  when: 
+  when:
     - ansible_os_family == "RedHat"
     - xwayland_packages is defined
   tags: ["packages"]

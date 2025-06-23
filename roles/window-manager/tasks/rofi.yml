@@ -6,7 +6,7 @@
 #     name: "{{ rofi_packages }}"
 #     state: present
 #   become: true
-#   when: 
+#   when:
 #     - ansible_os_family == "Archlinux"
 #     - rofi_packages is defined
 #   tags: ["packages"]
@@ -16,13 +16,13 @@
 #     name: "{{ rofi_packages }}"
 #     state: present
 #   become: true
-#   when: 
+#   when:
 #     - ansible_os_family == "RedHat"
 #     - rofi_packages is defined
 #   tags: ["packages"]
 
 - name: Create rofi directories
-  file:
+  ansible.builtin.file:
     dest: "{{ user.home }}/.config/rofi/{{ item }}"
     state: directory
     owner: "{{ user.name }}"
@@ -57,7 +57,7 @@
         - launchers/type-4/shared/colors.rasi
         - launchers/type-4/shared/fonts.rasi
         - launchers/type-4/style-6.rasi
-    
+
     - name: Copy rofi laumcher scripts
       template:
         src: "home/.config/rofi/{{ item }}.j2"
@@ -69,6 +69,6 @@
         - scripts/launcher_main.sh
         - scripts/launcher_t1.sh
         - scripts/launcher_t4.sh
-  
+
   become: false
   tags: ["config"]

@@ -4,10 +4,10 @@
   ansible.builtin.setup:
 
 - name: Reload udev rules
-  shell: "/sbin/udevadm control --reload-rules"
+  ansible.builtin.shell: "/sbin/udevadm control --reload-rules"
 
 - name: Restart NetworkManager
-  service:
+  ansible.builtin.service:
     name: NetworkManager
     state: restarted
 

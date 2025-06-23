@@ -7,7 +7,7 @@
         append: true
 
     - name: Ensure /etc/security/limits.d directory exists
-      ansible.builtin.file:
+      file:
         path: /etc/security/limits.d
         state: directory
         owner: root
@@ -58,7 +58,7 @@
         #   changed_when: tuned_profile.rc != 0
 
         - name: Create tuned profile folder
-          ansible.builtin.file:
+          file:
             path: /etc/tuned/realtime-modified
             state: directory
             owner: root
@@ -121,7 +121,7 @@
       tags: ["cpupower"]
 
     - name: Enable cpupower service
-      ansible.builtin.service:
+      service:
         name: cpupower
         enabled: true
       ignore_errors: "{{ ansible_check_mode }}"
@@ -130,7 +130,7 @@
     # Do not use the irqbalance daemon, or do so carefully [4].
     # https://wiki.archlinux.org/title/Professional_audio#Tips_and_tricks
     - name: Disable irqbalance service
-      ansible.builtin.service:
+      service:
         name: irqbalance
         enabled: true
       ignore_errors: true

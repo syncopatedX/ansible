@@ -23,7 +23,7 @@
 
   block:
     - name: Ensure group nobody exists
-      ansible.builtin.group:
+      group:
         name: nobody
         gid: 65534
         non_unique: true
@@ -49,7 +49,7 @@
         - nfs.conf
 
     - name: Ensure nfs/rpc services are enabled and started
-      ansible.builtin.service:
+      service:
         name: "{{ item }}"
         state: restarted
         enabled: true
@@ -173,7 +173,7 @@
   when: bind_share_exports|bool
 
 - name: Set the exports
-  template:
+  ansible.builtin.template:
     src: etc/exports.j2
     dest: /etc/exports
     owner: root
@@ -183,5 +183,5 @@
   register: exportsra
 
 - name: Reload exports
-  shell: exportfs -rv
+  ansible.builtin.shell: exportfs -rv
   when: exportsra.changed

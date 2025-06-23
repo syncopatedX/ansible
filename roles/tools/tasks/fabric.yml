@@ -53,7 +53,7 @@
 #       args:
 #         chdir: "{{ source_dir }}/fabric"
 #       become: true
-  
+
 #   when: ansible_architecture != "aarch64"
 
 # - name: Install release binary for pi4
@@ -91,10 +91,10 @@
 #           GEMINI_API_KEY=
 #           OPENROUTER_API_KEY=
 #           OPENROUTER_API_BASE_URL=https://openrouter.ai/api/v1
-  
+
 #   tags: ["env"]
 
-# - name: update patterns 
+# - name: update patterns
 #   shell: |
 #     fabric -U
 

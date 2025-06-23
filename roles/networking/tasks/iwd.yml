@@ -12,7 +12,7 @@
   tags: ["packages"]
 
 - name: Install wireless packages on Rocky Linux/RedHat
-  dnf:
+  ansible.builtin.dnf:
     name:
       - iwd
       - iwgtk
@@ -22,13 +22,13 @@
   tags: ["packages"]
 
 - name: Enable iwd service
-  service:
+  ansible.builtin.service:
     name: iwd
     state: started
     enabled: true
 
 - name: Configure iwd
-  copy:
+  ansible.builtin.copy:
     src: etc/iwd/main.conf
     dest: /etc/iwd/main.conf
     mode: '0644'

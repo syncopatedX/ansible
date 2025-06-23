@@ -2,10 +2,10 @@
 # Base system configuration - refactored to use decomposed roles
 
 - name: Load distribution-specific variables
-  include_vars: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
   tags: ["packages"]
 
-# Note: repository-manager, system-base, and user-manager roles 
+# Note: repository-manager, system-base, and user-manager roles
 # are executed via meta dependencies in meta/main.yml
 
 # Install essential packages
@@ -14,17 +14,17 @@
     name: "{{ packages__base }}"
     state: present
   become: true
-  when: 
+  when:
     - ansible_os_family == "Archlinux"
     - packages__base is defined
   tags: ["packages"]
 
 - name: Install base packages on Rocky Linux/RedHat
-  dnf:
+  ansible.builtin.dnf:
     name: "{{ packages__base }}"
     state: present
   become: true
-  when: 
+  when:
     - ansible_os_family == "RedHat"
     - packages__base is defined
   tags: ["packages"]

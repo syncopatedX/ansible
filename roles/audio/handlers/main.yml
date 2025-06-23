@@ -23,13 +23,13 @@
     - pulseaudio.socket
   environment:
     XDG_RUNTIME_DIR: "/run/user/{{ user.uid }}"
-  become_user: "{{ user.name }}"
+  become: false
   ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Reload user systemd
   ansible.builtin.systemd:
     daemon_reload: true
-  become_user: "{{ user.name }}"
+  become: false
 
 - name: Reload systemd
   ansible.builtin.systemd:

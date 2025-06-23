@@ -4,7 +4,7 @@
 # - name: Install oh-my-zsh
 
 - name: Install oh-my-zsh plugins
-  copy:
+  ansible.builtin.copy:
     src: "usr/share/oh-my-zsh/plugins/{{ item }}"
     dest: "/usr/share/oh-my-zsh/plugins/"
     owner: root
@@ -32,7 +32,7 @@
   tags: ["functions"]
 
 - name: Configure zsh profile files
-  template:
+  ansible.builtin.template:
     src: "home/{{ item }}.j2"
     dest: "{{ user.home }}/{{ item }}"
     owner: "{{ user.name }}"

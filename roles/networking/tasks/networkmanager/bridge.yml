@@ -14,7 +14,7 @@
   when: bridge_name is undefined
 
 - name: Get available network interfaces
-  set_fact:
+  ansible.builtin.set_fact:
     available_interfaces: "{{ ansible_interfaces | select('match', '^(en|br)') | list }}"
 
 - name: Prompt for bridge slave interface
@@ -24,7 +24,7 @@
   when: bridge_slave is undefined
 
 - name: Get current IP address of slave interface
-  shell: "ip address | grep '{{ bridge_slave_reg.user_input | default(bridge_slave) }}' | grep inet | awk '{print $2}'"
+  ansible.builtin.shell: "ip address | grep '{{ bridge_slave_reg.user_input | default(bridge_slave) }}' | grep inet | awk '{print $2}'"
   register: current_ip
   ignore_errors: true
   when: ipaddr is undefined
@@ -149,7 +149,7 @@
         msg: "Host back up"
 
   when: confirmation.user_input | default('yes') | lower == 'yes'
-  
+
   rescue:
     - name: Inform user of cancellation
       debug:

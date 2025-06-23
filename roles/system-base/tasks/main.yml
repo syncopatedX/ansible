@@ -20,7 +20,7 @@
 
 - name: Set keymap
   ansible.builtin.copy:
-    content: "KEYMAP={{ keymap }}\n" 
+    content: "KEYMAP={{ keymap }}\n"
     dest: /etc/vconsole.conf
     mode: "0644"
     owner: root

@@ -5,7 +5,7 @@
 #       dest: /etc/resolv.conf
 
 - name: Disable systemd-networkd service
-  systemd:
+  ansible.builtin.systemd:
     name: systemd-networkd
     enabled: no
     state: stopped
@@ -17,7 +17,7 @@
 #       enabled: no
 
 - name: Ensure networkmanager connection check is enabled
-  copy:
+  ansible.builtin.copy:
     content: |
       [connectivity]
       enabled=true
@@ -25,13 +25,13 @@
     owner: root
 
 - name: Enable and start networkmanager
-  systemd:
+  ansible.builtin.systemd:
     name: NetworkManager
     enabled: yes
     state: started
 
 - name: Enable and start NetworkManager dispatcher
-  service:
+  ansible.builtin.service:
     name: NetworkManager-dispatcher.service
     enabled: yes
     state: started

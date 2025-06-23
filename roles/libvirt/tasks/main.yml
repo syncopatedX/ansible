@@ -2,7 +2,7 @@
 # Libvirt virtualization
 
 - name: Load distribution-specific variables
-  include_vars: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
   tags: ["packages"]
 
 - name: Install libvirt packages on Arch Linux
@@ -10,35 +10,35 @@
     name: "{{ libvirt_packages }}"
     state: present
   become: true
-  when: 
+  when:
     - ansible_os_family == "Archlinux"
     - libvirt_packages is defined
   tags: ["packages"]
 
 - name: Install libvirt packages on Rocky Linux/RedHat
-  dnf:
+  ansible.builtin.dnf:
     name: "{{ libvirt_packages }}"
     state: present
   become: true
-  when: 
+  when:
     - ansible_os_family == "RedHat"
     - libvirt_packages is defined
   tags: ["packages"]
 
 - name: Configure libvirtd
-  copy:
+  ansible.builtin.copy:
     src: etc/libvirt/libvirtd.conf
     dest: /etc/libvirt/libvirtd.conf
     mode: "0644"
 
 - name: Configure qemu bridge
-  copy:
+  ansible.builtin.copy:
     src: etc/qemu/bridge.conf
     dest: /etc/qemu/bridge.conf
     mode: "0644"
 
 - name: Disable lvmetad
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: /etc/lvm/lvm.conf
     regexp: "^    use_lvmetad = 1"
     line: "    use_lvmetad = 0"
@@ -46,13 +46,13 @@
     backup: true
 
 - name: Add user to libvirt group
-  user:
+  ansible.builtin.user:
     name: "{{ user.name }}"
     groups: "libvirt,kvm"
     append: true
 
 - name: Enable libvirtd service
-  systemd:
+  ansible.builtin.systemd:
     name: libvirtd
     enabled: true
   when: libvirt.service | default('enabled') == 'enabled'

@@ -11,7 +11,7 @@
       changed_when: false
       failed_when: false
       loop: "{{ packages__audio.jack }}"
-      
+
     - name: Warn about conflicting JACK installation
       ansible.builtin.debug:
         msg: |
@@ -37,7 +37,7 @@
         state: present
       register: pipewire_install
       # We'll handle errors in the rescue block
-      
+
   rescue:
     - name: Capture detailed error information
       ansible.builtin.set_fact:
@@ -69,9 +69,9 @@
           1. Network connectivity issues
           2. AUR package build failures
           3. Dependency conflicts
-          
+
           Original error: {{ pipewire_error.stderr | default('Unknown error') }}
-          
+
           Please try manually with: 'paru -S {{ packages__audio.pipewire | join(' ') }}'
           and check the output for specific errors.
       when: alternative_install is failed

@@ -2,7 +2,7 @@
 - when: "autologin == 'true' | default('false')"
   block:
     - name: Create getty@tty1.service.d directory
-      ansible.builtin.file:
+      file:
         path: "/etc/systemd/system/getty@tty1.service.d"
         state: directory
         owner: root

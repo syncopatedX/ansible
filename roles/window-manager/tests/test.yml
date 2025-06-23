@@ -5,7 +5,7 @@
     - window-manager
   vars:
     window_manager: i3
-    user:
+    ansible.builtin.user:
       name: test
       group: test
       home: /home/test

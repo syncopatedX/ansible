@@ -4,7 +4,7 @@ galaxy_info:
   description: Core system configuration (timezone, locale, keymap)
   license: MIT
   min_ansible_version: "2.9"
-  
+
   platforms:
     - name: ArchLinux
       versions:

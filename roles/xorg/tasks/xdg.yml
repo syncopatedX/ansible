@@ -14,7 +14,7 @@
 
 - block:
     - name: Ensure /etc/xdg exists
-      ansible.builtin.file:
+      file:
         path: /etc/xdg
         state: directory
         owner: root
@@ -37,7 +37,7 @@
       tags: ["env"]
 
     - name: Create /etc/xdg/menus and /usr/share/desktop-entries
-      ansible.builtin.file:
+      file:
         path: "{{ item }}"
         state: directory
         mode: "0755"

@@ -2,31 +2,31 @@
 # SSH role - simplified
 
 - name: Configure SSH daemon
-  template:
+  ansible.builtin.template:
     src: etc/sshd/sshd_config.j2
     dest: /etc/ssh/sshd_config
   notify: Restart sshd
 
 - name: Enable SSH service
-  service:
+  ansible.builtin.service:
     name: sshd
     enabled: true
     state: started
   when: ssh.enable_sshd | default(true)
 
 - name: Copy fuse configuration
-  copy:
+  ansible.builtin.copy:
     src: etc/fuse.conf
     dest: /etc/fuse.conf
 
 - name: Set SSH_ASKPASS environment variable
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: /etc/profile
     line: 'export SSH_ASKPASS="{% if ansible_distribution == ''Rocky'' %}/usr/libexec/gcr-ssh-askpass{% else %}/usr/lib/ssh/x11-ssh-askpass{% endif %}"'
     mode: "0644"
 
 - name: Create user SSH directory
-  file:
+  ansible.builtin.file:
     path: "/home/{{ user.name }}/.ssh"
     state: directory
     owner: "{{ user.name }}"

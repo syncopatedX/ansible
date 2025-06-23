@@ -4,7 +4,7 @@ galaxy_info:
   description: User account management with sudo and polkit configuration
   license: MIT
   min_ansible_version: "2.9"
-  
+
   platforms:
     - name: ArchLinux
       versions:

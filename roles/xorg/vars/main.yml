@@ -1,6 +1,6 @@
 ---
 
-packages__xorg:
+xorg_packages__xorg:
   - dunst
   - picom
   - xarchiver

@@ -10,7 +10,7 @@
 - name: Enable PowerTools/CRB repository
   ansible.builtin.shell: |
     # Try PowerTools first (Rocky 8), then CRB (Rocky 9)
-    dnf config-manager --set-enabled powertools 2>/dev/null || 
+    dnf config-manager --set-enabled powertools 2>/dev/null ||
     dnf config-manager --set-enabled crb
   changed_when: false
   become: yes
@@ -46,7 +46,7 @@
     dnf config-manager --save --setopt="baseos.priority=10"
     dnf config-manager --save --setopt="appstream.priority=10"
     dnf config-manager --save --setopt="epel.priority=20"
-    dnf config-manager --save --setopt="powertools.priority=30" 2>/dev/null || 
+    dnf config-manager --save --setopt="powertools.priority=30" 2>/dev/null ||
     dnf config-manager --save --setopt="crb.priority=30"
     dnf config-manager --save --setopt="rpmfusion-*.priority=40"
   changed_when: false

@@ -1,6 +1,6 @@
 ---
 - name: Ensure group "docker" exists
-  ansible.builtin.group:
+  group:
     name: docker
     state: present
   tags: ["groups"]
@@ -18,7 +18,7 @@
 
 - block:
     - name: Create docker config directory
-      ansible.builtin.file:
+      file:
         path: /etc/docker
         state: directory
         owner: root
@@ -26,7 +26,7 @@
         mode: "0755"
 
     - name: Ensure docker data directory exists
-      ansible.builtin.file:
+      file:
         path: "{{ docker.storage }}"
         state: directory
         owner: root

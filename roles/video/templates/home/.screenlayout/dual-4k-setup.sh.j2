@@ -11,10 +11,8 @@ xrandr \
         --rate {{ monitor_rate }} \
         --pos 0x0 \
         --scale {{ xrandr_scale_factor }}x{{ xrandr_scale_factor }} \
-        --set "Broadcast RGB" "Full" \
     --output "{{ secondary_display_output }}" \
         --mode {{ monitor_resolution }} \
         --rate {{ monitor_rate }} \
         --right-of "{{ primary_display_output }}" \
-        --scale {{ xrandr_scale_factor }}x{{ xrandr_scale_factor }} \
-        --set "Broadcast RGB" "Full"
+        --scale {{ xrandr_scale_factor }}x{{ xrandr_scale_factor }}

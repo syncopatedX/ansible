@@ -62,15 +62,15 @@
       register: archaudio_repo_added
       notify: Update cache
       tags: ["archaudio"]
-      
+
   rescue:
     - name: ArchAudio Repository Setup Failed
       ansible.builtin.debug:
         msg: >
-          Failed to set up ArchAudio repository. 
+          Failed to set up ArchAudio repository.
           Error details: {{ ansible_failed_result | default('Unknown error') }}
       tags: ["archaudio"]
-      
+
     - name: Set ArchAudio setup status
       ansible.builtin.set_fact:
         archaudio_setup_failed: true
@@ -117,7 +117,7 @@
       retries: 2
       delay: 5
       until: chaotic_key_import_fallback2 is success
-      when: 
+      when:
         - chaotic_key_import is failed
         - chaotic_key_import_fallback1 is failed
       tags: ["chaotic_aur"]
@@ -125,10 +125,10 @@
     - name: Set key import status
       ansible.builtin.set_fact:
         chaotic_key_imported: >-
-          {{ 
-            chaotic_key_import is success or 
-            chaotic_key_import_fallback1 is success or 
-            chaotic_key_import_fallback2 is success 
+          {{
+            chaotic_key_import is success or
+            chaotic_key_import_fallback1 is success or
+            chaotic_key_import_fallback2 is success
           }}
       tags: ["chaotic_aur"]
 
@@ -140,7 +140,7 @@
 
     # Ensure mirrorlist is present
     - name: Ensure chaotic-mirrorlist directory exists
-      ansible.builtin.file:
+      file:
         path: /etc/pacman.d
         state: directory
         mode: '0755'
@@ -188,7 +188,7 @@
     - name: Chaotic AUR Repository Setup Failed
       ansible.builtin.debug:
         msg: >
-          Failed to set up Chaotic AUR repository. 
+          Failed to set up Chaotic AUR repository.
           Error details: {{ ansible_failed_result | default('Unknown error') }}
           This might be due to network connectivity issues or IPv6 configuration problems.
       tags: ["chaotic_aur"]
@@ -196,8 +196,8 @@
     - name: Provide IPv6 troubleshooting information
       ansible.builtin.debug:
         msg: >
-          If you're experiencing IPv6-related issues, try adding 'AddressFamily=inet' 
-          to your SSH configuration or disabling IPv6 temporarily with 
+          If you're experiencing IPv6-related issues, try adding 'AddressFamily=inet'
+          to your SSH configuration or disabling IPv6 temporarily with
           'sysctl -w net.ipv6.conf.all.disable_ipv6=1'
       when: "'ipv6' in (ansible_failed_result | default('')) | lower"
       tags: ["chaotic_aur"]

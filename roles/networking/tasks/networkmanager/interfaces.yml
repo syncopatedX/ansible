@@ -1,13 +1,13 @@
 ---
 
 - name: Print host network vars
-  debug:
+  ansible.builtin.debug:
     msg: "{{ item.ifname }}"
   with_items: "{{ network_interfaces }}"
   tags: ['udev']
 
 - name: Set udev rules for wired NIC names
-  template:
+  ansible.builtin.template:
     src: etc/udev/rules.d/10-network.rules.j2
     dest: /etc/udev/rules.d/10-network.rules
     owner: root
@@ -187,7 +187,7 @@
     - item.method4 == 'disabled'
 
 - name: Ensure NetworkManager is enabled and restart service
-  systemd:
+  ansible.builtin.systemd:
     name: NetworkManager
     enabled: yes
     state: restarted

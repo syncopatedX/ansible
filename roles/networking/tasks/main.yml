@@ -1,20 +1,20 @@
 ---
 - name: Networking Tasks
-  debug:
+  ansible.builtin.debug:
     msg: "Starting networking tasks"
 
 - name: Check for actual wireless devices
-  shell: "ls /sys/class/net/*/wireless 2>/dev/null | wc -l"
+  ansible.builtin.shell: "ls /sys/class/net/*/wireless 2>/dev/null | wc -l"
   register: wireless_check
   changed_when: false
   failed_when: false
 
 - name: Set wireless fact
-  set_fact:
+  ansible.builtin.set_fact:
     has_wireless: "{{ wireless_check.stdout | int > 0 }}"
 
 - name: Debug wireless status
-  debug:
+  ansible.builtin.debug:
     msg: "Host has wireless interfaces: {{ has_wireless }}"
 
 - import_tasks:
@@ -33,7 +33,7 @@
 #   when: network_interfaces is defined
 #   notify: Reload udev rules
 
-#TODO: convert to systemd-networkd
+# TODO: convert to systemd-networkd
 # - import_tasks:
 #     file: networkmanager.yml
 #   tags: ['networkmanager']
@@ -65,7 +65,7 @@
 
 - block:
     - name: Create extra directories relevant for systemd-networkd
-      ansible.builtin.file:
+      file:
         path: "{{ item | dirname }}"
         state: directory
       loop: "{{ systemd_network_copy_files | map(attribute='dest') | list + ['/etc/systemd/networkd.conf.d/', '/etc/systemd/resolved.conf.d/', '/etc/network/'] }}"

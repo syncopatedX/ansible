@@ -2,7 +2,7 @@
 # Shell configuration with zsh
 
 - name: Load distribution-specific variables
-  include_vars: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
   tags: ["packages"]
 
 - name: Install shell packages on Arch Linux
@@ -10,17 +10,17 @@
     name: "{{ packages__zsh }}"
     state: present
   become: true
-  when: 
+  when:
     - ansible_os_family == "Archlinux"
     - shell_packages is defined
   tags: ["packages"]
 
 - name: Install shell packages on Rocky Linux/RedHat
-  dnf:
+  ansible.builtin.dnf:
     name: "{{ shell_packages }}"
     state: present
   become: true
-  when: 
+  when:
     - ansible_os_family == "RedHat"
     - shell_packages is defined
   tags: ["packages"]

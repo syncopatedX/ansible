@@ -2,12 +2,12 @@
 # tasks file for x
 
 - name: Load distribution-specific variables
-  include_vars: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
   tags: ["packages"]
 - name: Install xorg packages
   aur:
     use: paru
-    name: "{{ packages__xorg }}"
+    name: "{{ xorg_packages__xorg }}"
     state: present
   become: false
   tags: ["packages"]

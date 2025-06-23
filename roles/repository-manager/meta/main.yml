@@ -4,7 +4,7 @@ galaxy_info:
   description: Repository management for multiple Linux distributions
   license: MIT
   min_ansible_version: "2.9"
-  
+
   platforms:
     - name: ArchLinux
       versions:

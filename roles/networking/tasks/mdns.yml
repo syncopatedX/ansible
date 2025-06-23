@@ -12,7 +12,7 @@
   tags: ["packages"]
 
 - name: Install Avahi packages on Rocky Linux/RedHat
-  dnf:
+  ansible.builtin.dnf:
     name:
       - avahi
       - nss-mdns
@@ -22,13 +22,13 @@
   tags: ["packages"]
 
 - name: Enable avahi-daemon
-  systemd:
+  ansible.builtin.systemd:
     name: avahi-daemon
     enabled: true
     state: started
 
 - name: Configure nsswitch for mDNS
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/nsswitch.conf
     regexp: '^hosts:'
     line: 'hosts: files mdns_minimal [NOTFOUND=return] dns {{ inventory_hostname }}'

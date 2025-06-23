@@ -1,4 +1,5 @@
 ---
+
 - name: Configure Chrome for Constant Recording Volume on Arch Linux
   hosts: all # Or specify your target Arch Linux host(s)
   vars:
@@ -28,7 +29,7 @@
         state: present
 
     - name: Ensure target directory for user applications exists
-      ansible.builtin.file:
+      file:
         path: "{{ target_user_home }}/.local/share/applications"
         state: directory
         mode: "0755"

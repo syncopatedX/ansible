@@ -2,6 +2,8 @@
 
 This Ansible playbook automates the configuration of a development-focused workstation with **multi-distribution support**. Originally designed for Arch Linux 🐧, it now supports **Rocky Linux 9** and provides a unified automation framework for professional workstations. It leverages Ansible roles for modularity and maintainability, setting up everything from base system utilities to a complete development environment.
 
+**Current Version**: v0.9.0 - Enhanced Ruby development environment with RVM support and improved role management.
+
 ## 🌟 **Multi-Distribution Support**
 
 * **✅ Arch Linux**: Full native support with AUR integration
@@ -94,12 +96,14 @@ This playbook provides a comprehensive workstation setup, including:
     cd syncopated-ansible
     ```
 
-2. **(Optional) Install Ansible Roles via Galaxy:**
-    If the playbook utilized external roles defined in `requirements.yml` (not currently present), you would run:
+2. **Install Ansible Roles via Galaxy:**
+    The playbook utilizes external roles for RVM Ruby support. Install required dependencies:
 
     ```bash
-    # ansible-galaxy install -r requirements.yml
+    ansible-galaxy install -r requirements.yml
     ```
+
+    Note: The roles path has been configured in `ansible.cfg` to automatically locate both local and Galaxy-installed roles.
 
 ## 🧩 Roles Overview
 
@@ -120,7 +124,7 @@ The playbook is organized into modular roles found in the `roles/` directory:
 | [networking](roles/networking/)     | Comprehensive network management supporting multiple backends (NetworkManager, systemd-networkd). Features automatic wireless interface detection, interactive Wi-Fi configuration using the pause module, and support for ethernet, Wi-Fi, bridges, static/DHCP configurations, and udev rules. |
 | [ntp](roles/ntp/)              | Time synchronization using `systemd-timesyncd`.                                                                                        |
 | [repository-manager](roles/repository-manager/) | Multi-distribution repository management for Arch Linux and Rocky Linux package sources.                              |
-| [ruby](roles/ruby/)             | Ruby environment setup (System gems, optional RVM) with comprehensive knowledge base documentation.                                                                                    |
+| [ruby](roles/ruby/)             | Ruby environment setup with RVM support via Ansible Galaxy roles. Includes GPG configuration for secure RVM installation and comprehensive knowledge base documentation.                                                                                    |
 | [shell](roles/shell/)            | Zsh, Oh My Zsh, aliases, functions, kitty, ranger configuration.                                                                       |
 | [ssh](roles/ssh/)              | OpenSSH server/client configuration and hardening.                                                                                     |
 | [system-base](roles/system-base/) | Base system configuration including timezone, locale, and keymap settings.                                                           |
