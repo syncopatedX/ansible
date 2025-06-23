@@ -33,7 +33,6 @@ packages__base:
   - autoconf
   - automake
   - cmake
-  - cmake                          # cmake
   - debugedit                      # debugedit
   - elfutils-libelf-devel
   - gettext-devel
@@ -128,6 +127,17 @@ packages__base:
   - openssh-askpass
   - mosh
   # Video utilities moved to EPEL section
+  # Ruby 
+  - libgit2-devel
+  - openslide-devel
+  - readline-devel
+  - openssl-devel
+  - vips-devel
+  - libyaml-devel
+  - openssl
+  # - postgresql-server-devel
+  - libpq-devel
+  - ruby-devel
 
 # Packages available in EPEL repository
 packages__epel:

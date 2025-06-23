@@ -23,7 +23,7 @@ rvm1_install_flags: '--auto-dotfiles --user-install'
 rvm1_ruby_install_flags:
 
 # Set the owner for the rvm directory
-rvm1_user: 'ubuntu'
+rvm1_user: '{{ user.name  }}'
 
 # URL for the latest installer script
 rvm1_rvm_latest_installer: 'https://raw.githubusercontent.com/rvm/rvm/master/binscripts/rvm-installer'
@@ -33,23 +33,18 @@ rvm1_rvm_version: 'stable'
 
 # Check and update rvm, disabling this will force rvm to never update
 rvm1_rvm_check_for_updates: True
-
 # GPG key verification, use an empty string if you want to skip this
 # Note: Unless you know what you're doing, just keep it as is
 #           Identity proof: https://keybase.io/mpapis
 #           PGP message: https://rvm.io/mpapis.asc
-rvm1_gpg_keys: '409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB'
-
+rvm1_gpg_keys: "409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB"
 # The GPG key server
-rvm1_gpg_key_server: 'hkp://pool.sks-keyservers.net'
-
+rvm1_gpg_key_server: "keyserver.ubuntu.com"
+# keyserver.ubuntu.com
 # The GPG alternative key servers
 rvm1_gpg_key_servers:
-  - '{{ rvm1_gpg_key_server }}'
-  - hkp://ipv4.pool.sks-keyservers.net
-  - hkp://pgp.mit.edu
-  - hkp://keyserver.pgp.com
-
+  - hkps://keyserver.ubuntu.com
+  - hkp://keyserver.ubuntu.com
 # autolib mode, see https://rvm.io/rvm/autolibs
 rvm1_autolib_mode: 3
 
