@@ -32,7 +32,7 @@
     - { role: ntp, tags: ["ntp"] }
     - { role: grub, tags: ["grub"], when: "bootloader == 'grub' | default('grub')" }
     - { role: shell, tags: ["shell"] }
-    - { role: ruby, tags: ["ruby"] }
+    - { role: rvm.ruby, tags: ["ruby"] }
     - { role: docker, tags: ["docker"] }
     - { role: libvirt, tags: ["libvirt"] }
     - { role: nas, tags: ["nas"], when: "nfs_host == 'true' or samba_host == 'true'" }

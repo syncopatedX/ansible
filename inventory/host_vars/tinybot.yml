@@ -14,11 +14,9 @@ share:
 
 samba_host: false
 
-rvm_install: true
-
 audio_system: pulseaudio_jack
-use_jack: true
-use_pipewire: false
+
+rvm_install: true
 
 i3:
   autostart: ''
