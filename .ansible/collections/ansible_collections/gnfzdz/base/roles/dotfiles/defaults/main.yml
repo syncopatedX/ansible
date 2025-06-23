@@ -1,8 +1,0 @@
----
-
-users_dotfiles_auto: "{{ users_auto }}"
-users_dotfiles_command: 'make'
-users_dotfiles_dependencies:
-  - make
-users_dotfiles_install_path: '.dotfiles'
-users_dotfiles_source_repository_version: 'main'

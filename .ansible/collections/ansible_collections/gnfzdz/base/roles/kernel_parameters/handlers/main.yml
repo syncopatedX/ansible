@@ -1,4 +1,0 @@
----
-
-- name: update kernel parameters
-  ansible.builtin.command: sysctl --system

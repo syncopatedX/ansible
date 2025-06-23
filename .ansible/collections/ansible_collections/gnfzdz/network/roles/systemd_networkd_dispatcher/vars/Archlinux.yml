@@ -1,6 +1,0 @@
----
-# TODO fixme
-network_systemd_networkd_dispatcher_packages_default: []
-#- "networkd-dispatcher"
-
-network_systemd_networkd_dispatcher_packages_use: "{{ archlinux_aur_helper | default(network_common_packages_use) }}"

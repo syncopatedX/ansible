@@ -1,6 +1,0 @@
----
-- name: Reload sshd
-  ansible.builtin.service:
-    name: "{{ network_openssh_service_name }}"
-    state: reloaded
-  when: network_openssh_service_can_reload

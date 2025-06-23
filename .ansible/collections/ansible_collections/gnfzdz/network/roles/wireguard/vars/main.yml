@@ -1,3 +1,0 @@
----
-network_wireguard_packages_default:
-- wireguard-tools

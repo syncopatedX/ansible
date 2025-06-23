@@ -1,3 +1,0 @@
----
-network_systemd_networkd_dispatcher_packages_default:
-- "networkd-dispatcher"

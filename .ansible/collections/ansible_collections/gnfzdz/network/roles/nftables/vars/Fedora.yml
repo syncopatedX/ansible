@@ -1,4 +1,0 @@
----
-network_nftables_packages_default:
-- nftables
-- iptables-nft

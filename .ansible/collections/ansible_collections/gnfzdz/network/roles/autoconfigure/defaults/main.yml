@@ -1,7 +1,0 @@
----
-network_autoconfigure_bluetooth: False
-
-network_autoconfigure_manager: "systemd-networkd"
-network_autoconfigure_firewall: "firewalld"
-network_autoconfigure_wireless: "iwd"
-network_autoconfigure_dns: "systemd-resolved"

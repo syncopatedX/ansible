@@ -1,7 +1,0 @@
----
-- name: "Arch-chroot provisioning"
-  hosts: "localhost"
-  roles:
-{% for role in archlinux_install_configure_remote_roles %}
-   - {{ role }}
-{% endfor %}

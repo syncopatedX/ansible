@@ -1,3 +1,0 @@
----
-network_wireguard_packages: "{{ network_wireguard_packages_default }}"
-network_wireguard_vpns_auto: "{{ query('vars', *query('varnames', '^network_wireguard_vpn_.*')) }}"

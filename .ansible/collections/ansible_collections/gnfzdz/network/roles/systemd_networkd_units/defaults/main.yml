@@ -1,6 +1,0 @@
----
-
-network_systemd_networkd_device_pattern: '^[A-Za-z0-9]{1,15}$'
-network_systemd_networkd_links_auto: "{{ query('vars', *query('varnames', '^network_systemd_networkd_link_.*')) }}"
-network_systemd_networkd_netdevs_auto: "{{ query('vars', *query('varnames', '^network_systemd_networkd_netdev_.*')) }}"
-network_systemd_networkd_networks_auto: "{{ query('vars', *query('varnames', '^network_systemd_networkd_network_.*')) }}"
