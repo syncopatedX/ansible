@@ -28,6 +28,11 @@
 # Task Block: System-Level Graphics Driver Configuration
 #
 - name: Block for system-wide graphics configuration
+  become: true
+
+  #
+  # Task Block: Per-User Display Layout and Scaling Configuration
+  #
   block:
     - name: Ensure modern graphics packages are installed (Arch/pacman)
       community.general.pacman:
@@ -40,17 +45,17 @@
         state: absent
 
     - name: Create /etc/X11/xorg.conf.d/ directory if it doesn't exist
-      file:
+      ansible.builtin.file:
         path: /etc/X11/xorg.conf.d/
         state: directory
-        mode: '0755'
+        mode: "0755"
 
     - name: Create Xorg configuration for modesetting driver
       ansible.builtin.copy:
         dest: "/etc/X11/xorg.conf.d/20-intel-modesetting.conf"
         owner: root
         group: root
-        mode: '0644'
+        mode: "0644"
         content: |
           # This file is managed by Ansible.
           # Ensures the modern 'modesetting' driver is used for the Intel Iris Xe GPU.
@@ -60,52 +65,7 @@
               Option      "TearFree" "true"
               Option      "DRI"      "3"
           EndSection
-  become: true
-
-#
-# Task Block: Per-User Display Layout and Scaling Configuration
-#
 - name: Block for user-specific display configuration
-  block:
-    - name: Create user screenlayout directory
-      file:
-        path: "{{ user.home }}/.screenlayout"
-        state: directory
-        owner: "{{ user.name }}"
-        group: "{{ user.group }}" # Use the user's primary group
-        mode: '0755'
-
-    - name: Deploy xrandr startup script for dual 4K layout and scaling
-      ansible.builtin.template:
-        src: "home/.screenlayout/dual-4k-setup.sh.j2"
-        dest: "{{ user.home }}/.screenlayout/dual-4k-setup.sh"
-        owner: "{{ user.name }}"
-        group: "{{ user.group }}"
-        mode: '0755' # Must be executable
-
-    - name: Create user autostart directory
-      file:
-        path: "{{ user.home }}/.config/autostart"
-        state: directory
-        owner: "{{ user.name }}"
-        group: "{{ user.group }}"
-        mode: '0755'
-
-    - name: Create .desktop file to autostart the xrandr script
-      ansible.builtin.copy:
-        dest: "{{ user.home }}/.config/autostart/apply-screen-layout.desktop"
-        owner: "{{ user.name }}"
-        group: "{{ user.group }}"
-        mode: '0644'
-        content: |
-          [Desktop Entry]
-          # This file is managed by Ansible.
-          Type=Application
-          Name=Apply Screen Layout
-          Comment=Sets up dual 4K monitors with xrandr
-          Exec={{ user.home }}/.screenlayout/{{ inventory_hostname }}.sh
-          Terminal=false
-          X-GNOME-Autostart-enabled=true
   become: false # These tasks run as the user, not root. But playbook runs as root, so we use become: false and specify owner/group.
   # To run as the actual user, connection method would need to change.
   # For local connection, setting owner/group is sufficient and simpler.
@@ -118,3 +78,43 @@
   #         Please reboot or restart your display manager (e.g., 'sudo systemctl restart sddm')
   #         for the changes to take full effect.
   #     listen: "Handler Restart Display Manager"
+  block:
+    - name: Create user screenlayout directory
+      ansible.builtin.file:
+        path: "{{ user.home }}/.screenlayout"
+        state: directory
+        owner: "{{ user.name }}"
+        group: "{{ user.group }}" # Use the user's primary group
+        mode: "0755"
+
+    - name: Deploy xrandr startup script for dual 4K layout and scaling
+      ansible.builtin.template:
+        src: "home/.screenlayout/dual-4k-setup.sh.j2"
+        dest: "{{ user.home }}/.screenlayout/dual-4k-setup.sh"
+        owner: "{{ user.name }}"
+        group: "{{ user.group }}"
+        mode: "0755" # Must be executable
+
+    - name: Create user autostart directory
+      ansible.builtin.file:
+        path: "{{ user.home }}/.config/autostart"
+        state: directory
+        owner: "{{ user.name }}"
+        group: "{{ user.group }}"
+        mode: "0755"
+
+    - name: Create .desktop file to autostart the xrandr script
+      ansible.builtin.copy:
+        dest: "{{ user.home }}/.config/autostart/apply-screen-layout.desktop"
+        owner: "{{ user.name }}"
+        group: "{{ user.group }}"
+        mode: "0644"
+        content: |
+          [Desktop Entry]
+          # This file is managed by Ansible.
+          Type=Application
+          Name=Apply Screen Layout
+          Comment=Sets up dual 4K monitors with xrandr
+          Exec={{ user.home }}/.screenlayout/{{ inventory_hostname }}.sh
+          Terminal=false
+          X-GNOME-Autostart-enabled=true

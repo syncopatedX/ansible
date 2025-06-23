@@ -6,7 +6,7 @@
   tags: ["packages"]
 
 - name: Install shell packages on Arch Linux
-  pacman:
+  community.general.pacman:
     name: "{{ packages__zsh }}"
     state: present
   become: true
@@ -26,7 +26,7 @@
   tags: ["packages"]
 
 - name: Install zsh configurations and plugins
-  import_tasks: zsh.yml
+  ansible.builtin.import_tasks: zsh.yml
   tags: ["zsh", "profile"]
 
 - name: Push aliases template

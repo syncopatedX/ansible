@@ -8,7 +8,7 @@
 - when: timesyncd_service.stat.exists
   block:
     - name: Create timesyncd.conf.d directory
-      file:
+      ansible.builtin.file:
         path: /etc/systemd/timesyncd.conf.d
         state: directory
 

@@ -16,7 +16,7 @@
   tags: ["plugins"]
 
 - name: Install zsh custom functions
-  synchronize:
+  ansible.posix.synchronize:
     src: home/.local/share/zsh/
     dest: "{{ user.home }}/.local/share/zsh/"
     recursive: true

@@ -2,7 +2,7 @@
 # Audio packages installation
 
 - name: Install audio packages on Arch Linux
-  pacman:
+  community.general.pacman:
     name: "{{ audio_packages }}"
     state: present
   become: true

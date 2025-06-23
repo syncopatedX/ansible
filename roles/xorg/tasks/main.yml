@@ -86,7 +86,6 @@
         mode: "0755"
         backup: true
 
-
 - ansible.builtin.import_tasks:
     file: sxhkd.yml
   tags: ["sxhkd"]

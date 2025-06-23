@@ -54,7 +54,7 @@
 
     - name: Attempt alternative installation method
       aur:
-        use: paru  # Try with a specific helper instead of auto
+        use: paru # Try with a specific helper instead of auto
         name: "{{ packages__audio.pipewire }}"
         state: present
       register: alternative_install
@@ -80,11 +80,12 @@
   always:
     - name: Verify pipewire service status
       ansible.builtin.service_facts:
-      when: (alternative_install is defined and alternative_install.rc is defined and alternative_install.rc == 0) or
-            (pipewire_install is defined and pipewire_install.rc is defined and pipewire_install.rc == 0)
+      when: (alternative_install is defined and alternative_install.rc is defined and alternative_install.rc == 0) or (pipewire_install is defined and pipewire_install.rc
+        is defined and pipewire_install.rc == 0)
       # Only check services if one of the installation methods succeeded
 
     - name: Report on pipewire installation status
       ansible.builtin.debug:
-        msg: "Pipewire installation {{ 'succeeded' if ((alternative_install is defined and alternative_install.rc is defined and alternative_install.rc == 0) or (pipewire_install is defined and pipewire_install.rc is defined and pipewire_install.rc == 0)) else 'failed' }}. Please check the logs for details."
+        msg: "Pipewire installation {{ 'succeeded' if ((alternative_install is defined and alternative_install.rc is defined and alternative_install.rc == 0) or (pipewire_install
+          is defined and pipewire_install.rc is defined and pipewire_install.rc == 0)) else 'failed' }}. Please check the logs for details."
       # Always report final status

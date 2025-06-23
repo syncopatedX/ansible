@@ -6,7 +6,7 @@ zsh_theme: kphoen
 
 i3:
   autostart: ""
-    # - "sleep 1;barrierc -f --debug INFO --name crambot --disable-crypto [soundbot]:24800"
+  # - "sleep 1;barrierc -f --debug INFO --name crambot --disable-crypto [soundbot]:24800"
   tray_output: "primary"
   assignments: "default"
   workspaces: "default"
@@ -51,10 +51,4 @@ share:
     exports:
       - b08x
 
-samba_host: False
-
-
-
-
-
-
+samba_host: false

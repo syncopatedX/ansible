@@ -1,10 +1,9 @@
 ---
-
 - name: Print host network vars
   ansible.builtin.debug:
     msg: "{{ item.ifname }}"
   with_items: "{{ network_interfaces }}"
-  tags: ['udev']
+  tags: ["udev"]
 
 - name: Set udev rules for wired NIC names
   ansible.builtin.template:
@@ -12,11 +11,11 @@
     dest: /etc/udev/rules.d/10-network.rules
     owner: root
     group: root
-    mode: '0644'
-    backup: no
+    mode: "0644"
+    backup: false
   with_items: "{{ network_interfaces }}"
   # when: item.type == 'ethernet' or item.type == 'wifi'
-  tags: ['udev']
+  tags: ["udev"]
 
 # - name: Set udev rule to set network interface names
 #   copy:
@@ -87,7 +86,7 @@
     - item.type == 'wifi'
     - item.method4 != 'disabled'
     - item.ip4 is defined
-  tags: ['wireless']
+  tags: ["wireless"]
 
 - name: Add dhcp wifi device
   community.general.nmcli:
@@ -108,7 +107,7 @@
   when:
     - item.type == 'wifi'
     - item.method4 != 'disabled'
-  tags: ['wireless']
+  tags: ["wireless"]
 
 - name: Add audio subnet device
   community.general.nmcli:
@@ -189,5 +188,5 @@
 - name: Ensure NetworkManager is enabled and restart service
   ansible.builtin.systemd:
     name: NetworkManager
-    enabled: yes
+    enabled: true
     state: restarted

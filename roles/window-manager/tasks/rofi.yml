@@ -36,10 +36,11 @@
     - "launchers/type-4/shared"
   become: false
 
-
-- block:
+- become: false
+  tags: ["config"]
+  block:
     - name: Copy rofi configuration files
-      template:
+      ansible.builtin.template:
         src: "home/.config/rofi/{{ item }}.j2"
         dest: "{{ user.home }}/.config/rofi/{{ item }}"
         owner: "{{ user.name }}"
@@ -59,7 +60,7 @@
         - launchers/type-4/style-6.rasi
 
     - name: Copy rofi laumcher scripts
-      template:
+      ansible.builtin.template:
         src: "home/.config/rofi/{{ item }}.j2"
         dest: "{{ user.home }}/.config/rofi/{{ item }}"
         owner: "{{ user.name }}"
@@ -69,6 +70,3 @@
         - scripts/launcher_main.sh
         - scripts/launcher_t1.sh
         - scripts/launcher_t4.sh
-
-  become: false
-  tags: ["config"]

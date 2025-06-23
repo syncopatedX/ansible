@@ -19,7 +19,7 @@
 
   always:
     - name: Ensure sway directories exist
-      file:
+      ansible.builtin.file:
         dest: "{{ wm_directory_default_location }}/{{ item.dest }}"
         state: directory
         owner: "{{ item.owner | default(wm_directory_default_owner) }}"

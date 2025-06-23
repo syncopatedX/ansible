@@ -9,7 +9,6 @@
   environment:
     PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path|join(':') }}"
   pre_tasks:
-
     - name: Symlink os-release to system-release for compatibility
       ansible.builtin.file:
         src: /etc/os-release

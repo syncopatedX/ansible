@@ -19,10 +19,10 @@ audio_system: pulseaudio_jack
 rvm_install: true
 
 i3:
-  autostart: ''
-  tray_output: 'HDMI-1'
-  assignments: ''
-  keybindings: ''
+  autostart: ""
+  tray_output: "HDMI-1"
+  assignments: ""
+  keybindings: ""
   workspaces:
     - "$ws1 output HDMI-1"
     - "$ws2 output HDMI-1"

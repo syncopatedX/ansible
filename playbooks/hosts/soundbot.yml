@@ -1,7 +1,7 @@
 ---
 - name: Configure soundbot host
   hosts: soundbot
-  become: yes
+  become: true
   vars:
     share:
       nfs:
@@ -9,16 +9,16 @@
         exports:
           - Notebooks
           - Workspace
-    samba_host: False
+    samba_host: false
     zsh_theme: kphoen
     x:
       autostart:
         - bash ~/.screenlayout/soundbot.sh
     i3:
-      autostart: ''
+      autostart: ""
       tray_output: "DP-2-2"
-      assignments: ''
-      keybindings: ''
+      assignments: ""
+      keybindings: ""
       workspaces:
         - "$ws1 output eDP-1"
         - "$ws2 output DP-2-2"
@@ -50,36 +50,36 @@
           Gateway: 192.168.41.1
           DNS: 192.168.41.4
           Domains: syncopated.net
-          LinkLocalAddressing: no
-          IPv6AcceptRA: no
+          LinkLocalAddressing: false
+          IPv6AcceptRA: false
 
   tasks:
     - name: Configure NFS sharing
-      include_role:
+      ansible.builtin.include_role:
         name: nfs
       when: share.nfs is defined
 
     - name: Configure zsh theme
-      include_role:
+      ansible.builtin.include_role:
         name: shell
       when: zsh_theme is defined
 
     - name: Configure X11 autostart
-      include_role:
+      ansible.builtin.include_role:
         name: xorg
       when: x is defined
 
     - name: Configure window manager
-      include_role:
+      ansible.builtin.include_role:
         name: window-manager
       when: i3 is defined
 
     - name: Configure terminal applications
-      include_role:
+      ansible.builtin.include_role:
         name: terminal
       when: terminal is defined
 
     - name: Configure systemd networking
-      include_role:
+      ansible.builtin.include_role:
         name: networking
       when: networking == "systemd-network"

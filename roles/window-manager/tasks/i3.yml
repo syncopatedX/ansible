@@ -2,8 +2,7 @@
 # i3 specific tasks
 
 - name: Include window manager specific tasks
-  include_tasks: rofi.yml
-
+  ansible.builtin.include_tasks: rofi.yml
 - tags: ["packages"]
   block:
     - name: Install i3-wm packages

@@ -36,9 +36,9 @@
     line: "{{ item.line }}"
     backup: yes
   loop:
-    - { regexp: '^fastestmirror=', line: 'fastestmirror=1' }
-    - { regexp: '^max_parallel_downloads=', line: 'max_parallel_downloads=10' }
-    - { regexp: '^clean_requirements_on_remove=', line: 'clean_requirements_on_remove=True' }
+    - { regexp: "^fastestmirror=", line: "fastestmirror=1" }
+    - { regexp: "^max_parallel_downloads=", line: "max_parallel_downloads=10" }
+    - { regexp: "^clean_requirements_on_remove=", line: "clean_requirements_on_remove=True" }
   become: yes
 
 - name: Set repository priorities

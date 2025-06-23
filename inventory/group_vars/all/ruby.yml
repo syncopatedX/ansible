@@ -1,9 +1,9 @@
 ---
 
 rvm1_rubies:
-  - 'ruby-3.4.4'
+  - "ruby-3.4.4"
 
 rvm1_default_ruby_version: 3.4.4
 
 # Set the owner for the rvm directory
-rvm1_user: '{{ user.name }}'
+rvm1_user: "{{ user.name }}"

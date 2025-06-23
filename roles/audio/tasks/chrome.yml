@@ -1,5 +1,4 @@
 ---
-
 - name: Configure Chrome for Constant Recording Volume on Arch Linux
   hosts: all # Or specify your target Arch Linux host(s)
   vars:

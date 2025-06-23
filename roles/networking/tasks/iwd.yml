@@ -2,7 +2,7 @@
 # Wireless networking with iwd
 
 - name: Install wireless packages on Arch Linux
-  pacman:
+  community.general.pacman:
     name:
       - iwd
       - iwgtk
@@ -31,4 +31,4 @@
   ansible.builtin.copy:
     src: etc/iwd/main.conf
     dest: /etc/iwd/main.conf
-    mode: '0644'
+    mode: "0644"

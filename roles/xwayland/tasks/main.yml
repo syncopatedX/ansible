@@ -6,7 +6,7 @@
   tags: ["packages"]
 
 - name: Install xwayland packages on Arch Linux
-  pacman:
+  community.general.pacman:
     name: "{{ xwayland_packages }}"
     state: present
   become: true

@@ -7,9 +7,9 @@
 - name: Disable systemd-networkd service
   ansible.builtin.systemd:
     name: systemd-networkd
-    enabled: no
+    enabled: false
     state: stopped
-  ignore_errors: True
+  ignore_errors: true
 
 # - name: Disable dhcpcd service
 #   service:
@@ -27,19 +27,19 @@
 - name: Enable and start networkmanager
   ansible.builtin.systemd:
     name: NetworkManager
-    enabled: yes
+    enabled: true
     state: started
 
 - name: Enable and start NetworkManager dispatcher
   ansible.builtin.service:
     name: NetworkManager-dispatcher.service
-    enabled: yes
+    enabled: true
     state: started
 
-- import_tasks:
+- ansible.builtin.import_tasks:
     file: interfaces.yml
   when: network_interfaces is defined
 
-- import_tasks:
+- ansible.builtin.import_tasks:
     file: bridge.yml
   when: network_interface_bridge is defined

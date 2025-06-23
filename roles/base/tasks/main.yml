@@ -10,7 +10,7 @@
 
 # Install essential packages
 - name: Install base packages on Arch Linux
-  pacman:
+  community.general.pacman:
     name: "{{ packages__base }}"
     state: present
   become: true

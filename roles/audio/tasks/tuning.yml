@@ -7,7 +7,7 @@
         append: true
 
     - name: Ensure /etc/security/limits.d directory exists
-      file:
+      ansible.builtin.file:
         path: /etc/security/limits.d
         state: directory
         owner: root
@@ -35,14 +35,30 @@
       tags: ["sysctl"]
       block:
         - name: Set vm.swappiness to 10 to ensure swap isn't overly used
-          ansible.posix.sysctl: name=vm.swappiness value=10 state=present reload=yes
+          ansible.posix.sysctl:
+            name: vm.swappiness
+            value: "10"
+            state: present
+            reload: "yes"
         - name: Set vm.dirty_background_bytes to 100000000
-          ansible.posix.sysctl: name=vm.dirty_background_bytes value=100000000 state=present reload=yes
+          ansible.posix.sysctl:
+            name: vm.dirty_background_bytes
+            value: "100000000"
+            state: present
+            reload: "yes"
         - name: Set fs.inotify.max_user_watches
-          ansible.posix.sysctl: name=fs.inotify.max_user_watches value=524288 state=present reload=yes
+          ansible.posix.sysctl:
+            name: fs.inotify.max_user_watches
+            value: "524288"
+            state: present
+            reload: "yes"
         - name: Set dev.hpet.max-user-freq=3072
-          ansible.posix.sysctl: name=dev.hpet.max-user-freq value=3072 state=present reload=yes
+          ansible.posix.sysctl:
 
+            name: dev.hpet.max-user-freq
+            value: "3072"
+            state: present
+            reload: "yes"
     - tags: ["tuned"]
       block:
         - name: Enable tuned service
@@ -58,7 +74,7 @@
         #   changed_when: tuned_profile.rc != 0
 
         - name: Create tuned profile folder
-          file:
+          ansible.builtin.file:
             path: /etc/tuned/realtime-modified
             state: directory
             owner: root
@@ -72,8 +88,6 @@
             owner: root
             group: root
             mode: "0644"
-
-
 
     - tags: ["rtirq", "rtkit"]
       notify:
@@ -121,7 +135,7 @@
       tags: ["cpupower"]
 
     - name: Enable cpupower service
-      service:
+      ansible.builtin.service:
         name: cpupower
         enabled: true
       ignore_errors: "{{ ansible_check_mode }}"
@@ -130,7 +144,7 @@
     # Do not use the irqbalance daemon, or do so carefully [4].
     # https://wiki.archlinux.org/title/Professional_audio#Tips_and_tricks
     - name: Disable irqbalance service
-      service:
+      ansible.builtin.service:
         name: irqbalance
         enabled: true
       ignore_errors: true

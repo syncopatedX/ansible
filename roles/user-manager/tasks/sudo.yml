@@ -5,7 +5,7 @@
   become: true
   block:
     - name: Ensure /etc/sudoers.d exists
-      file:
+      ansible.builtin.file:
         path: /etc/sudoers.d/
         state: directory
         owner: root
@@ -26,7 +26,7 @@
       when: user.name != 'root'
 
     - name: Ensure rules.d directory exists
-      file:
+      ansible.builtin.file:
         path: /etc/polkit-1/rules.d/
         state: directory
         owner: root

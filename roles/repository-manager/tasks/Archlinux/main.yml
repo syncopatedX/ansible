@@ -143,7 +143,7 @@
       file:
         path: /etc/pacman.d
         state: directory
-        mode: '0755'
+        mode: "0755"
         owner: root
         group: root
       tags: ["chaotic_aur"]
@@ -154,7 +154,7 @@
         dest: /etc/pacman.d/chaotic-mirrorlist
         owner: root
         group: root
-        mode: '0644'
+        mode: "0644"
       register: mirrorlist_copied
       tags: ["chaotic_aur"]
 

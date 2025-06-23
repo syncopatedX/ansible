@@ -17,7 +17,7 @@
   ansible.builtin.debug:
     msg: "Host has wireless interfaces: {{ has_wireless }}"
 
-- import_tasks:
+- ansible.builtin.import_tasks:
     file: iwd.yml
   tags: ["iwd", "wireless"]
   when: has_wireless
@@ -52,34 +52,33 @@
 #   when: etc_hosts is defined
 #   tags: ['dns']
 
-- import_tasks:
+- ansible.builtin.import_tasks:
     file: mdns.yml
   tags: ["avahi", "dns"]
 
-- block:
-    - import_tasks:
+- when: use_networkmanger is defined
+
+  block:
+    - ansible.builtin.import_tasks:
         file: networkmanager/main.yml
       tags: ["networkmanager"]
 
-  when: use_networkmanger is defined
-
-- block:
+- when: use_systemd is defined
+  block:
     - name: Create extra directories relevant for systemd-networkd
-      file:
+      ansible.builtin.file:
         path: "{{ item | dirname }}"
         state: directory
       loop: "{{ systemd_network_copy_files | map(attribute='dest') | list + ['/etc/systemd/networkd.conf.d/', '/etc/systemd/resolved.conf.d/', '/etc/network/'] }}"
 
-    - import_tasks:
+    - ansible.builtin.import_tasks:
         file: networkd/main.yml
       tags: ["systemd-network"]
 
-    - import_tasks:
+    - ansible.builtin.import_tasks:
         file: networkd/resolve.yml
       tags: ["systemd-resolve"]
 
-    - import_tasks:
+    - ansible.builtin.import_tasks:
         file: networkd/mounts.yml
       tags: ["systemd-mounts"]
-
-  when: use_systemd is defined

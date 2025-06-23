@@ -1,11 +1,9 @@
 ---
-
 - name: Refresh host facts
   ansible.builtin.setup:
 
 - name: Reload udev rules
-  ansible.builtin.shell: "/sbin/udevadm control --reload-rules"
-
+  ansible.builtin.command: "/sbin/udevadm control --reload-rules"
 - name: Restart NetworkManager
   ansible.builtin.service:
     name: NetworkManager

@@ -14,7 +14,7 @@
       tags: ["user"]
 
     - name: Ensure ~/.local/bin exists
-      file:
+      ansible.builtin.file:
         path: "{{ user.home | default('/home/' + user.name) }}/.local/bin"
         state: directory
         mode: "0755"
@@ -23,7 +23,7 @@
       tags: ["folders"]
 
     - name: Ensure ~/.local/share exists
-      file:
+      ansible.builtin.file:
         path: "{{ user.home | default('/home/' + user.name) }}/.local/share"
         state: directory
         mode: "0755"
@@ -32,6 +32,6 @@
       tags: ["folders"]
 
 - name: Configure sudo access
-  include_tasks: sudo.yml
+  ansible.builtin.include_tasks: sudo.yml
   when: user.sudoers | default(true)
   tags: ["sudoers"]

@@ -6,7 +6,7 @@
   tags: ["packages"]
 
 - name: Install libvirt packages on Arch Linux
-  pacman:
+  community.general.pacman:
     name: "{{ libvirt_packages }}"
     state: present
   become: true
@@ -58,6 +58,6 @@
   when: libvirt.service | default('enabled') == 'enabled'
 
 - name: Setup Vagrant
-  import_tasks: vagrant.yml
+  ansible.builtin.import_tasks: vagrant.yml
   when: use_vagrant | default(false)
   tags: ["vagrant"]

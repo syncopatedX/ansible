@@ -1,6 +1,6 @@
 ---
 - name: Ensure group storage exists
-  group:
+  ansible.builtin.group:
     name: storage
     gid: 1036
 

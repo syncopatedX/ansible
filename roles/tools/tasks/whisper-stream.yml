@@ -20,7 +20,6 @@
       ansible.builtin.debug:
         msg: "Failed to install packages"
 
-
 - name: Clone whisper-stream repository
   ansible.builtin.git:
     repo: https://github.com/b08x/whisper-stream.git

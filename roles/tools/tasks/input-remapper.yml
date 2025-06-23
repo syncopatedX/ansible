@@ -16,7 +16,7 @@
 - name: Ensure input-remapper preset synchronization
   block:
     - name: Ensure destination directory exists
-      file:
+      ansible.builtin.file:
         path: "{{ user.home }}/.config/input-remapper-2/presets/"
         state: directory
         mode: "0755"

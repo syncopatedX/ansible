@@ -13,7 +13,6 @@
       ansible.builtin.debug:
         msg: "Failed to install shell packages"
 
-
 - name: Install sxhkd reload function
   ansible.builtin.copy:
     content: |

@@ -2,7 +2,7 @@
 # mDNS/Avahi setup
 
 - name: Install Avahi packages on Arch Linux
-  pacman:
+  community.general.pacman:
     name:
       - avahi
       - nss-mdns
@@ -30,6 +30,6 @@
 - name: Configure nsswitch for mDNS
   ansible.builtin.lineinfile:
     path: /etc/nsswitch.conf
-    regexp: '^hosts:'
-    line: 'hosts: files mdns_minimal [NOTFOUND=return] dns {{ inventory_hostname }}'
+    regexp: "^hosts:"
+    line: "hosts: files mdns_minimal [NOTFOUND=return] dns {{ inventory_hostname }}"
     backup: true

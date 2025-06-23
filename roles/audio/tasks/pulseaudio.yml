@@ -36,7 +36,7 @@
 
   block:
     - name: Ensure /etc/pulse/default.pa.d exists
-      file:
+      ansible.builtin.file:
         path: /etc/pulse/default.pa.d
         state: directory
 
