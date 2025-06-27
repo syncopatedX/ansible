@@ -67,11 +67,12 @@
             enabled: true
           ignore_errors: "{{ ansible_check_mode }}"
 
-        # - name: set tuned profile to laptop-battery-powersave
-        #   shell: |
-        #     tuned-adm profile laptop-battery-powersave
-        #   register: tuned_profile
-        #   changed_when: tuned_profile.rc != 0
+        - name: set tuned profile
+          shell: |
+            tuned-adm profile {{ tuned_profile }}
+          register: tuned_profile
+          changed_when: tuned_profile.rc != 0
+          when: tuned_profile is defined
 
         - name: Create tuned profile folder
           ansible.builtin.file:

@@ -8,3 +8,7 @@
 # - ansible.builtin.import_tasks:
 #     file: whisper-stream.yml
 #   tags: ["whisper-stream"]
+
+- ansible.builtin.import_tasks:
+    file: input-remapper.yml
+  tags: ["input-remapper"]
