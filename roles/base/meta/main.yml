@@ -19,6 +19,4 @@ galaxy_info:
     - orchestration
 
 dependencies:
-  - role: repository-manager
-  - role: system-base
   - role: user-manager

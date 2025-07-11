@@ -19,12 +19,12 @@
     - name: Display ansible_distribution
       ansible.builtin.debug:
         msg: |
-          The host {{ inventory_hostname }} has {{ ansible_distribution }} installed,
+          The host {{ inventory_hostname }} has {{ ansible_distribution }} {{ ansible_distribution_major_version }} installed,
           which belongs to the {{ ansible_os_family }} OS family
       tags: ["always"]
 
-  # roles:
-  #   - { role: base, tags: ["base"] }
+  roles:
+    - { role: base, tags: ["base"] }
   #   - { role: ssh, tags: ["ssh"] }
   #   - { role: firewalld, tags: ["firewalld"], when: "ansible_os_family == 'RedHat'" }
   #   - { role: networking, tags: ["networking", "networkmanager", "networkd", "avahi", "ntp"] }

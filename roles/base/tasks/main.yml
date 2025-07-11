@@ -1,30 +1,69 @@
 ---
 # Base system configuration - refactored to use decomposed roles
 
+- name: Set timezone
+  ansible.builtin.command: "timedatectl set-timezone {{ timezone }}"
+  register: timezone_result
+  changed_when: timezone_result.rc == 0
+  failed_when: timezone_result.rc != 0
+  tags: ["timezone"]
+
+- name: Set locale
+  ansible.builtin.copy:
+    content: 'LANG="{{ locale }}"\n'
+    dest: /etc/locale.conf
+    mode: "0644"
+    owner: root
+    group: root
+    backup: true
+  tags: ["locale"]
+
+- name: Set keymap
+  ansible.builtin.copy:
+    content: 'KEYMAP="{{ keymap }}"\n'
+    dest: /etc/vconsole.conf
+    mode: "0644"
+    owner: root
+    group: root
+    backup: true
+  tags: ["keymap"]
+
 - name: Load distribution-specific variables
-  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_distribution }}.yml"
   tags: ["packages"]
 
-# Note: repository-manager, system-base, and user-manager roles
-# are executed via meta dependencies in meta/main.yml
+- name: Include distribution-specific repository tasks
+  ansible.builtin.include_tasks: "distro/{{ ansible_distribution }}/main.yml"
+  when: enable_third_party_repos | default(true)
+  tags: ["repos"]
 
 # Install essential packages
-- name: Install base packages on Arch Linux
-  community.general.pacman:
-    name: "{{ packages__base }}"
-    state: present
-  become: true
-  when:
-    - ansible_os_family == "Archlinux"
-    - packages__base is defined
-  tags: ["packages"]
+- name: Install base packages
+  block:
+    - name: Install base packages on Arch Linux
+      community.general.pacman:
+        name: "{{ packages__base }}"
+        state: present
+      when:
+        - ansible_distribution == "Archlinux"
+        - packages__base is defined
 
-- name: Install base packages on Rocky Linux/RedHat
-  ansible.builtin.dnf:
-    name: "{{ packages__base }}"
-    state: present
-  become: true
-  when:
-    - ansible_os_family == "RedHat"
-    - packages__base is defined
+    - name: Install base packages on Rocky Linux/RedHat
+      ansible.builtin.dnf:
+        name: "{{ packages__base }}"
+        state: present
+      when:
+        - ansible_distribution == "RedHat"
+        - packages__base is defined
+
+    - name: Install base packages on Fedora
+      ansible.builtin.dnf:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ packages__base }}"
+      loop_control:
+        label: "{{ item }}"
+      when:
+        - ansible_distribution == "Fedora"
+        - packages__base is defined
   tags: ["packages"]
