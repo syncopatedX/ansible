@@ -1,20 +1,129 @@
 ---
-# Video role defaults
+# Video role defaults - comprehensive fallback configuration
 
-# Package manager specific package names. This playbook assumes pacman (Arch).
-# Adapt for other managers (e.g., apt for Debian/Ubuntu).
-required_packages:
-  - "mesa"
-  - "vulkan-intel"
-  - "intel-media-driver" # Modern video acceleration driver
-  - "libva-utils"
-  - "xorg-xrandr"
-legacy_intel_driver: "xf86-video-intel"
+# =============================================================================
+# GPU Configuration
+# =============================================================================
+video:
+  # GPU vendor and model configuration
+  gpu:
+    vendor: "intel"           # intel, nvidia, amd
+    model: "generic"          # specific model for optimization
+    driver: "modesetting"     # X11 driver to use
+    
+  # Hybrid GPU configuration (for laptops with dual GPUs)
+  hybrid:
+    enabled: false            # Enable hybrid GPU support
+    primary_gpu: "intel"      # GPU handling displays (intel, nvidia, amd)
+    secondary_gpu: "nvidia"   # Secondary GPU for compute/gaming
+    nvidia_offload: false     # Enable NVIDIA Prime offload
+    power_management: false   # Enable dynamic GPU switching
+    
+  # X11 configuration options
+  x11:
+    config_file: "20-gpu-config.conf"
+    options:
+      TearFree: "true"
+      DRI: "3"
+      # Additional options can be added per host
+    
+  # Monitor configuration
+  monitors:
+    # Primary monitor (always required)
+    primary:
+      output: "eDP-1"
+      resolution: "1920x1080"
+      refresh_rate: "60.00"
+      position: "0x0"
+      scaling: 1.0
+      
+    # Secondary monitor (optional)
+    secondary:
+      enabled: false
+      output: "HDMI-1"
+      resolution: "1920x1080"
+      refresh_rate: "60.00"
+      position: "right-of-primary"
+      scaling: 1.0
+      
+  # Package configuration
+  packages:
+    # Additional packages specific to this host
+    additional: []
+    # Packages to exclude from distribution defaults
+    exclude: []
 
-# The playbook calculates the required xrandr --scale factor automatically.
-# Formula: toolkit_scale / desired_scale
+# =============================================================================
+# Legacy compatibility variables (deprecated but maintained for backward compatibility)
+# =============================================================================
+# These will be calculated from the video configuration above
+monitor_resolution: "{{ video.monitors.primary.resolution }}"
+monitor_rate: "{{ video.monitors.primary.refresh_rate }}"
+primary_display_output: "{{ video.monitors.primary.output }}"
+secondary_display_output: "{{ video.monitors.secondary.output }}"
+
+# Scaling calculations
+toolkit_scale: 1.0
+desired_scale: "{{ video.monitors.primary.scaling }}"
 xrandr_scale_factor: "{{ '%.4f' | format(toolkit_scale | float / desired_scale | float) }}"
 
-# Monitor resolution and refresh rate.
-monitor_resolution: "3840x2160"
-monitor_rate: "60.00"
+# =============================================================================
+# GPU-specific package mappings
+# =============================================================================
+# Base packages required for all GPU types
+base_video_packages:
+  - mesa
+  - mesa-utils
+  - xorg-xrandr
+
+# Intel-specific packages
+intel_video_packages:
+  - intel-media-driver
+  - libva-intel-driver
+  - vulkan-intel
+
+# NVIDIA-specific packages  
+nvidia_video_packages:
+  - nvidia
+  - nvidia-utils
+  - nvidia-settings
+
+# AMD-specific packages
+amd_video_packages:
+  - libva-mesa-driver
+  - mesa-vdpau
+  - vulkan-radeon
+
+# =============================================================================
+# X11 driver configurations per GPU vendor
+# =============================================================================
+gpu_driver_configs:
+  intel:
+    driver: "modesetting"
+    identifier: "Intel Graphics"
+    options:
+      TearFree: "true"
+      DRI: "3"
+      AccelMethod: "glamor"
+      
+  nvidia:
+    driver: "nvidia"
+    identifier: "NVIDIA Graphics"
+    options:
+      NoLogo: "true"
+      UseEDID: "false"
+      ConnectedMonitor: "DFP"
+      
+  amd:
+    driver: "amdgpu"
+    identifier: "AMD Graphics"
+    options:
+      TearFree: "true"
+      DRI: "3"
+      AccelMethod: "glamor"
+
+# =============================================================================
+# Legacy variables (to be removed in future versions)
+# =============================================================================
+legacy_intel_driver: "xf86-video-intel"
+required_packages: "{{ base_video_packages + lookup('vars', video.gpu.vendor + '_video_packages', default=[]) }}"

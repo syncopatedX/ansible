@@ -1,5 +1,5 @@
 ---
-# RedHat/Rocky Linux specific video packages and configuration
+# Fedora specific video packages and configuration
 
 # Base video packages for all GPU types
 base_video_packages:
@@ -16,9 +16,9 @@ intel_video_packages:
 
 # NVIDIA-specific packages
 nvidia_video_packages:
-  - nvidia-driver
-  - nvidia-driver-libs
-  - nvidia-driver-cuda
+  - akmod-nvidia
+  - xorg-x11-drv-nvidia-cuda
+  - xorg-x11-drv-nvidia-power
   - nvidia-vaapi-driver
 
 # AMD-specific packages

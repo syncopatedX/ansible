@@ -1,0 +1,73 @@
+# This file is managed by Ansible.
+{% if video.hybrid.enabled | default(false) %}
+# Hybrid GPU configuration: {{ video.hybrid.primary_gpu | upper }} (primary) + {{ video.hybrid.secondary_gpu | upper }} (secondary)
+{% else %}
+# GPU configuration for {{ video.gpu.vendor | upper }} {{ video.gpu.model | upper }}
+{% endif %}
+# Generated on {{ ansible_date_time.iso8601 }}
+
+{% if video.hybrid.enabled | default(false) %}
+# Primary GPU Device (handles displays)
+Section "Device"
+    Identifier  "{{ gpu_driver_configs[video.hybrid.primary_gpu].identifier }}"
+    Driver      "{{ video.x11.driver | default(gpu_driver_configs[video.hybrid.primary_gpu].driver) }}"
+    BusID       "PCI:0:2:0"  # Typically Intel integrated GPU
+{% for option, value in (video.x11.options | default({})).items() %}
+    Option      "{{ option }}" "{{ value }}"
+{% endfor %}
+{% for option, value in gpu_driver_configs[video.hybrid.primary_gpu].options.items() %}
+{% if option not in (video.x11.options | default({})).keys() %}
+    Option      "{{ option }}" "{{ value }}"
+{% endif %}
+{% endfor %}
+EndSection
+
+# Secondary GPU Device (for compute/offload)
+Section "Device"
+    Identifier  "{{ gpu_driver_configs[video.hybrid.secondary_gpu].identifier }}"
+    Driver      "{{ gpu_driver_configs[video.hybrid.secondary_gpu].driver }}"
+    BusID       "PCI:1:0:0"  # Typically discrete GPU
+{% if video.hybrid.secondary_gpu == "nvidia" %}
+    Option      "AllowEmptyInitialConfiguration" "true"
+{% endif %}
+EndSection
+
+{% else %}
+# Single GPU Device
+Section "Device"
+    Identifier  "{{ gpu_driver_configs[video.gpu.vendor].identifier }}"
+    Driver      "{{ video.x11.driver | default(gpu_driver_configs[video.gpu.vendor].driver) }}"
+{% for option, value in (video.x11.options | default({})).items() %}
+    Option      "{{ option }}" "{{ value }}"
+{% endfor %}
+{% for option, value in gpu_driver_configs[video.gpu.vendor].options.items() %}
+{% if option not in (video.x11.options | default({})).keys() %}
+    Option      "{{ option }}" "{{ value }}"
+{% endif %}
+{% endfor %}
+EndSection
+{% endif %}
+
+{% if video.gpu.vendor == 'nvidia' %}
+# NVIDIA-specific configuration
+Section "Screen"
+    Identifier  "Screen0"
+    Device      "{{ gpu_driver_configs[video.gpu.vendor].identifier }}"
+    Monitor     "Monitor0"
+    DefaultDepth 24
+    SubSection "Display"
+        Depth       24
+    EndSubSection
+EndSection
+{% endif %}
+
+{% if video.monitors.secondary.enabled | default(false) %}
+# Multi-monitor configuration
+Section "ServerLayout"
+    Identifier  "Layout0"
+    Screen      0 "Screen0" 0 0
+{% if video.gpu.vendor == 'nvidia' %}
+    Screen      1 "Screen1" RightOf "Screen0"
+{% endif %}
+EndSection
+{% endif %}

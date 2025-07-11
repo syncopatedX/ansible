@@ -1,0 +1,126 @@
+---
+# Test playbook for video role configuration validation
+
+- name: Video Role Configuration Test
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  vars:
+    # Test configuration
+    video:
+      gpu:
+        vendor: "intel"
+        model: "iris_xe"
+      x11:
+        config_file: "20-test-config.conf"
+        options:
+          TearFree: "true"
+          DRI: "3"
+      monitors:
+        primary:
+          output: "eDP-1"
+          resolution: "1920x1080"
+          refresh_rate: "60.00"
+          position: "0x0"
+          scaling: 1.0
+        secondary:
+          enabled: false
+      packages:
+        additional: ["intel-gpu-tools"]
+        exclude: ["xf86-video-intel"]
+        
+    user:
+      name: "testuser"
+      group: "testuser"
+      home: "/home/testuser"
+
+  tasks:
+    - name: Include video role defaults
+      ansible.builtin.include_vars: "../defaults/main.yml"
+      
+    - name: Include distribution vars (simulate Arch Linux)
+      ansible.builtin.include_vars: "../vars/Archlinux.yml"
+      
+    - name: Test variable calculations
+      ansible.builtin.set_fact:
+        test_final_packages: >-
+          {{
+            (base_video_packages | default([])) +
+            (lookup('vars', video.gpu.vendor + '_video_packages', default=[]) | list) +
+            (video.packages.additional | default([]))
+          }}
+        test_gpu_config: "{{ gpu_driver_configs[video.gpu.vendor] }}"
+        
+    - name: Display test results
+      ansible.builtin.debug:
+        msg:
+          - "=== Video Role Configuration Test Results ==="
+          - "GPU Vendor: {{ video.gpu.vendor }}"
+          - "GPU Model: {{ video.gpu.model }}"
+          - "X11 Driver: {{ video.x11.driver | default(gpu_driver_configs[video.gpu.vendor].driver) }}"
+          - "Config File: {{ video.x11.config_file }}"
+          - "Primary Monitor: {{ video.monitors.primary.output }} ({{ video.monitors.primary.resolution }})"
+          - "Secondary Monitor: {{ 'Enabled' if video.monitors.secondary.enabled else 'Disabled' }}"
+          - "Final Packages: {{ test_final_packages }}"
+          - "GPU Driver Config: {{ test_gpu_config }}"
+          - "Legacy Packages to Remove: {{ legacy_packages | default([]) }}"
+          
+    - name: Validate required variables exist
+      ansible.builtin.assert:
+        that:
+          - video.gpu.vendor is defined
+          - video.gpu.vendor in ['intel', 'nvidia', 'amd']
+          - gpu_driver_configs[video.gpu.vendor] is defined
+          - base_video_packages is defined
+          - test_final_packages | length > 0
+        fail_msg: "Required video configuration variables are missing or invalid"
+        success_msg: "All required video configuration variables are present and valid"
+        
+    - name: Test template rendering (X11 config)
+      ansible.builtin.template:
+        src: "../templates/etc/X11/xorg.conf.d/gpu-config.conf.j2"
+        dest: "/tmp/test-gpu-config.conf"
+      register: x11_template_test
+      
+    - name: Test template rendering (monitor script)
+      ansible.builtin.template:
+        src: "../templates/home/.screenlayout/monitor-setup.sh.j2"
+        dest: "/tmp/test-monitor-setup.sh"
+        mode: "0755"
+      register: monitor_template_test
+      
+    - name: Display template test results
+      ansible.builtin.debug:
+        msg:
+          - "=== Template Rendering Test Results ==="
+          - "X11 Config Template: {{ 'SUCCESS' if x11_template_test is succeeded else 'FAILED' }}"
+          - "Monitor Script Template: {{ 'SUCCESS' if monitor_template_test is succeeded else 'FAILED' }}"
+          
+    - name: Show generated X11 config content
+      ansible.builtin.command:
+        cmd: "cat /tmp/test-gpu-config.conf"
+      register: x11_content
+      changed_when: false
+      
+    - name: Show generated monitor script content
+      ansible.builtin.command:
+        cmd: "cat /tmp/test-monitor-setup.sh"
+      register: monitor_content
+      changed_when: false
+      
+    - name: Display generated configurations
+      ansible.builtin.debug:
+        msg:
+          - "=== Generated X11 Configuration ==="
+          - "{{ x11_content.stdout_lines }}"
+          - ""
+          - "=== Generated Monitor Script ==="
+          - "{{ monitor_content.stdout_lines }}"
+          
+    - name: Cleanup test files
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "/tmp/test-gpu-config.conf"
+        - "/tmp/test-monitor-setup.sh"

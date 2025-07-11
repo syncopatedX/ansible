@@ -1,0 +1,66 @@
+---
+# NVIDIA GPU specific tasks
+
+- name: NVIDIA GPU configuration
+  ansible.builtin.debug:
+    msg:
+      - "Configuring NVIDIA GPU: {{ video.gpu.model }}"
+      - "Driver: {{ video.x11.driver | default(gpu_driver_configs.nvidia.driver) }}"
+
+- name: Configure NVIDIA kernel module parameters
+  ansible.builtin.lineinfile:
+    path: /etc/modprobe.d/nvidia.conf
+    line: "options nvidia NVreg_PreserveVideoMemoryAllocations=1"
+    create: true
+    mode: "0644"
+  become: true
+  tags: ["nvidia", "power"]
+
+- name: Enable NVIDIA persistence daemon
+  ansible.builtin.systemd:
+    name: nvidia-persistenced
+    enabled: true
+    state: started
+  become: true
+  when: ansible_os_family in ["RedHat", "Archlinux"]
+  tags: ["nvidia", "service"]
+
+- name: Configure NVIDIA power management
+  ansible.builtin.copy:
+    dest: /etc/udev/rules.d/80-nvidia-pm.rules
+    content: |
+      # Enable runtime PM for NVIDIA VGA/3D controller devices on driver bind
+      ACTION=="bind", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x030000", TEST=="power/control", ATTR{power/control}="auto"
+      ACTION=="bind", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x030200", TEST=="power/control", ATTR{power/control}="auto"
+      
+      # Disable runtime PM for NVIDIA VGA/3D controller devices on driver unbind
+      ACTION=="unbind", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x030000", TEST=="power/control", ATTR{power/control}="on"
+      ACTION=="unbind", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x030200", TEST=="power/control", ATTR{power/control}="on"
+    mode: "0644"
+  become: true
+  tags: ["nvidia", "power"]
+
+- name: Verify NVIDIA driver loading
+  ansible.builtin.command:
+    cmd: "nvidia-smi --query-gpu=name --format=csv,noheader"
+  register: nvidia_driver_check
+  failed_when: false
+  changed_when: false
+  tags: ["nvidia", "validation"]
+
+- name: Display NVIDIA driver status
+  ansible.builtin.debug:
+    msg:
+      - "NVIDIA driver status:"
+      - "{{ 'GPU detected: ' + nvidia_driver_check.stdout if nvidia_driver_check.rc == 0 else 'Driver not loaded or GPU not detected' }}"
+  tags: ["nvidia", "validation"]
+
+- name: Configure NVIDIA settings for multi-monitor
+  ansible.builtin.template:
+    src: "home/.nvidia-settings-rc.j2"
+    dest: "{{ user.home }}/.nvidia-settings-rc"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+    mode: "0644"
+  when: video.monitors.secondary.enabled | default(false)
+  tags: ["nvidia", "monitors"]
