@@ -88,6 +88,7 @@ None. This role is self-contained.
 ## Example Host Configurations
 
 ### Intel Laptop with 4K Display
+
 ```yaml
 # inventory/host_vars/laptop.yml
 video:
@@ -105,6 +106,7 @@ video:
 ```
 
 ### NVIDIA Desktop with Dual Monitors
+
 ```yaml
 # inventory/host_vars/desktop.yml
 video:
@@ -130,6 +132,7 @@ video:
 ```
 
 ### AMD Workstation
+
 ```yaml
 # inventory/host_vars/workstation.yml
 video:
@@ -152,18 +155,21 @@ video:
 ## Features
 
 ### Package Management
+
 - Automatic selection of GPU-specific packages
 - Distribution-aware package installation (Arch, Fedora, RedHat)
 - Legacy package removal
 - Host-specific package additions and exclusions
 
 ### X11 Configuration
+
 - Dynamic X11 configuration generation
 - GPU vendor-specific driver options
 - Customizable per-host settings
 - Automatic cleanup of old configurations
 
 ### Monitor Management
+
 - Flexible monitor layout configuration
 - Support for single and multi-monitor setups
 - Custom scaling and positioning
@@ -171,6 +177,7 @@ video:
 - Desktop environment integration
 
 ### GPU-Specific Optimizations
+
 - Intel: Power management and GuC firmware
 - NVIDIA: Persistence daemon and power management
 - AMD: Performance profiles and frequency scaling

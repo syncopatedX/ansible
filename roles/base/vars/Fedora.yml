@@ -84,6 +84,7 @@ packages__base:
   - tree
   - unrar
   - unzip
+  - uv
   - vips
   - vorbis-tools
   - wavpack
@@ -92,3 +93,5 @@ packages__base:
   - x265
   - xterm
   - yt-dlp
+  - zoxide
+  - zsh

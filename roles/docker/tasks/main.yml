@@ -2,7 +2,7 @@
 # tasks file for docker
 
 - name: Load distribution-specific variables
-  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_distribution }}.yml"
   tags: ["packages"]
 
 - name: Check if Docker is installed

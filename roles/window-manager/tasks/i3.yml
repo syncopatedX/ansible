@@ -3,6 +3,7 @@
 
 - name: Include window manager specific tasks
   ansible.builtin.include_tasks: rofi.yml
+
 - tags: ["packages"]
   block:
     - name: Install i3-wm packages
@@ -14,6 +15,23 @@
       loop_control:
         loop_var: i3_package_item
       become: false
+      when: ansible_distribution == "Archlinux"
+  rescue:
+    - name: Installing packages failed
+      ansible.builtin.debug:
+        msg: "Failed to install i3-wm packages"
+
+- tags: ["packages"]
+  block:
+    - name: Install i3-wm packages
+      dnf:
+        name: "{{ i3_package_item }}"
+        state: present
+      loop: "{{ packages__i3 }}"
+      loop_control:
+        loop_var: i3_package_item
+      become: true
+  when: ansible_distribution == "Fedora"
   rescue:
     - name: Installing packages failed
       ansible.builtin.debug:

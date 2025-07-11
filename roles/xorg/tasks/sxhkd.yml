@@ -6,12 +6,28 @@
         use: paru
         name: sxhkd
         state: present
+      when: ansible_distribution == "Archlinux"
       become: false
 
   rescue:
     - name: Installing packages failed
       ansible.builtin.debug:
         msg: "Failed to install shell packages"
+
+- tags: ["packages"]
+  block:
+    - name: Install SXHKD on Arch Linux
+      dnf:
+        name: sxhkd
+        state: present
+      when: ansible_distribution == "Fedora"
+      become: true
+
+  rescue:
+    - name: Installing packages failed
+      ansible.builtin.debug:
+        msg: "Failed to install shell packages"
+
 
 - name: Install sxhkd reload function
   ansible.builtin.copy:

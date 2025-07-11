@@ -1,5 +1,9 @@
 export UU_ORDER="$UU_ORDER:~/.zshrc"
 
+if [ -d $HOME/.cargo/bin ]; then
+  export PATH="$HOME/.cargo/bin:$PATH"
+fi
+
 # Path to your oh-my-zsh installation.
 export ZSH="/usr/share/oh-my-zsh"
 
@@ -199,5 +203,3 @@ fi
 if [ -f "$HOME/.config/claude/local/claude" ]; then
   alias claude="$HOME/.config/claude/local/claude"
 fi
-
-export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"

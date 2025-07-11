@@ -10,7 +10,7 @@
 
 - name: Set locale
   ansible.builtin.copy:
-    content: 'LANG="{{ locale }}"\n'
+    content: "LANG={{ locale }}\n"
     dest: /etc/locale.conf
     mode: "0644"
     owner: root
@@ -20,7 +20,7 @@
 
 - name: Set keymap
   ansible.builtin.copy:
-    content: 'KEYMAP="{{ keymap }}"\n'
+    content: "KEYMAP={{ keymap }}\n"
     dest: /etc/vconsole.conf
     mode: "0644"
     owner: root
@@ -39,6 +39,7 @@
 
 # Install essential packages
 - name: Install base packages
+  tags: ["packages"]
   block:
     - name: Install base packages on Arch Linux
       community.general.pacman:
@@ -66,4 +67,3 @@
       when:
         - ansible_distribution == "Fedora"
         - packages__base is defined
-  tags: ["packages"]

@@ -2,15 +2,33 @@
 # tasks file for x
 
 - name: Load distribution-specific variables
-  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_distribution }}.yml"
   tags: ["packages"]
+
 - name: Install xorg packages
   aur:
     use: paru
     name: "{{ xorg_packages__xorg }}"
     state: present
   become: false
+  when: ansible_distribution == "Archlinux"
   tags: ["packages"]
+
+- tags: ["packages"]
+  block:
+    - name: Install xorg packages
+      dnf:
+        name: "{{ xorg_package_item }}"
+        state: present
+      loop: "{{ xorg_packages__xorg }}"
+      loop_control:
+        loop_var: xorg_package_item
+      become: true
+  when: ansible_distribution == "Fedora"
+  rescue:
+    - name: Installing packages failed
+      ansible.builtin.debug:
+        msg: "Failed to install i3-wm packages"
 
 # - block:
 #     - name: Set xorg.conf
@@ -41,50 +59,50 @@
 #     - ansible_os_family == 'Archlinux'
 #   tags: ['video', 'mkinitcpio']
 
-- name: Disable vblank
-  ansible.builtin.copy:
-    content: |
-      <device screen="0" driver="dri2">
-          <application name="Default">
-              <option name="vblank_mode" value="0"/>
-          </application>
-      </device>
+# - name: Disable vblank
+#   ansible.builtin.copy:
+#     content: |
+#       <device screen="0" driver="dri2">
+#           <application name="Default">
+#               <option name="vblank_mode" value="0"/>
+#           </application>
+#       </device>
 
-    dest: "{{ user.home }}/.drirc"
-    owner: "{{ user.name }}"
-    group: "{{ user.group }}"
-  when: disable_vblank is defined
+#     dest: "{{ user.home }}/.drirc"
+#     owner: "{{ user.name }}"
+#     group: "{{ user.group }}"
+#   when: disable_vblank is defined
 
-- tags: ["env", "profile", "xprofile"]
-  block:
-    - name: Display x vars
-      ansible.builtin.debug:
-        msg: "{{ x }}"
-      when: debug_vars is defined
+# - tags: ["env", "profile", "xprofile"]
+#   block:
+#     - name: Display x vars
+#       ansible.builtin.debug:
+#         msg: "{{ x }}"
+#       when: debug_vars is defined
 
-    - name: Set xserver configs
-      ansible.builtin.template:
-        src: "home/{{ item }}.j2"
-        dest: "{{ user.home }}/{{ item }}"
-        owner: "{{ user.name }}"
-        group: "{{ user.group }}"
-        mode: "0644"
-        backup: true
-      with_items:
-        - .xprofile
-        - .xserverrc
-        - .Xresources
-      # register: xconfig
-      # changed_when: (xconfig.msg is defined and not 'All items completed' in xconfig.msg)
+#     - name: Set xserver configs
+#       ansible.builtin.template:
+#         src: "home/{{ item }}.j2"
+#         dest: "{{ user.home }}/{{ item }}"
+#         owner: "{{ user.name }}"
+#         group: "{{ user.group }}"
+#         mode: "0644"
+#         backup: true
+#       with_items:
+#         - .xprofile
+#         - .xserverrc
+#         - .Xresources
+#       # register: xconfig
+#       # changed_when: (xconfig.msg is defined and not 'All items completed' in xconfig.msg)
 
-    - name: Set xinitrc config
-      ansible.builtin.template:
-        src: home/.xinitrc.j2
-        dest: "{{ user.home }}/.xinitrc"
-        owner: "{{ user.name }}"
-        group: "{{ user.group }}"
-        mode: "0755"
-        backup: true
+#     - name: Set xinitrc config
+#       ansible.builtin.template:
+#         src: home/.xinitrc.j2
+#         dest: "{{ user.home }}/.xinitrc"
+#         owner: "{{ user.name }}"
+#         group: "{{ user.group }}"
+#         mode: "0755"
+#         backup: true
 
 - ansible.builtin.import_tasks:
     file: sxhkd.yml

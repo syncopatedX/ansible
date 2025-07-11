@@ -3,23 +3,10 @@
 
 rules:
   allowed:
+    - 11434/tcp
+    - 12101/udp
     - 1900/udp
     - 1935/tcp
-    - 4000/tcp
-    - 5000/tcp
-    - 8008/tcp
-    - 4464/udp
-    - 4560/udp
-    - 5432/tcp
-    - 6379/tcp
-    - 6666/tcp
-    - 7777/udp
-    - 7905/tcp
-    - 7906/tcp
-    - 8000/udp
-    - 8324/tcp
-    - 8384/tcp
-    - 12101/udp
     - 21027/udp
     - 21928/udp
     - 21929/udp
@@ -33,5 +20,20 @@ rules:
     - 32413/udp
     - 32414/udp
     - 32469/tcp
+    - 4000/tcp
+    - 4464/udp
+    - 4560/udp
+    - 5000/tcp
     - 50924/udp
+    - 5432/tcp
     - 55311/udp
+    - 6379/tcp
+    - 6666/tcp
+    - 7777/udp
+    - 7905/tcp
+    - 7906/tcp
+    - 8000/udp
+    - 8008/tcp
+    - 8324/tcp
+    - 8384/tcp
+    - 9090/tcp

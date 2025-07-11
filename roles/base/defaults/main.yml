@@ -22,8 +22,6 @@ enable_archaudio: true
 
 # RHEL distro specific repositories
 enable_epel: true
-enable_rpmfusion: true
 enable_powertools: true
 
-# Fedora distro specific repositories
 enable_rpmfusion: true

@@ -28,7 +28,7 @@
       packages:
         additional: ["intel-gpu-tools"]
         exclude: ["xf86-video-intel"]
-        
+
     user:
       name: "testuser"
       group: "testuser"
@@ -37,10 +37,10 @@
   tasks:
     - name: Include video role defaults
       ansible.builtin.include_vars: "../defaults/main.yml"
-      
+
     - name: Include distribution vars (simulate Arch Linux)
       ansible.builtin.include_vars: "../vars/Archlinux.yml"
-      
+
     - name: Test variable calculations
       ansible.builtin.set_fact:
         test_final_packages: >-
@@ -64,7 +64,7 @@
           - "Final Packages: {{ test_final_packages }}"
           - "GPU Driver Config: {{ test_gpu_config }}"
           - "Legacy Packages to Remove: {{ legacy_packages | default([]) }}"
-          
+
     - name: Validate required variables exist
       ansible.builtin.assert:
         that:
@@ -75,39 +75,39 @@
           - test_final_packages | length > 0
         fail_msg: "Required video configuration variables are missing or invalid"
         success_msg: "All required video configuration variables are present and valid"
-        
+
     - name: Test template rendering (X11 config)
       ansible.builtin.template:
-        src: "../templates/etc/X11/xorg.conf.d/gpu-config.conf.j2"
+        src: "etc/X11/xorg.conf.d/gpu-config.conf.j2"
         dest: "/tmp/test-gpu-config.conf"
       register: x11_template_test
-      
+
     - name: Test template rendering (monitor script)
       ansible.builtin.template:
-        src: "../templates/home/.screenlayout/monitor-setup.sh.j2"
+        src: "home/.screenlayout/monitor-setup.sh.j2"
         dest: "/tmp/test-monitor-setup.sh"
         mode: "0755"
       register: monitor_template_test
-      
+
     - name: Display template test results
       ansible.builtin.debug:
         msg:
           - "=== Template Rendering Test Results ==="
           - "X11 Config Template: {{ 'SUCCESS' if x11_template_test is succeeded else 'FAILED' }}"
           - "Monitor Script Template: {{ 'SUCCESS' if monitor_template_test is succeeded else 'FAILED' }}"
-          
+
     - name: Show generated X11 config content
       ansible.builtin.command:
         cmd: "cat /tmp/test-gpu-config.conf"
       register: x11_content
       changed_when: false
-      
+
     - name: Show generated monitor script content
       ansible.builtin.command:
         cmd: "cat /tmp/test-monitor-setup.sh"
       register: monitor_content
       changed_when: false
-      
+
     - name: Display generated configurations
       ansible.builtin.debug:
         msg:
@@ -116,7 +116,7 @@
           - ""
           - "=== Generated Monitor Script ==="
           - "{{ monitor_content.stdout_lines }}"
-          
+
     - name: Cleanup test files
       ansible.builtin.file:
         path: "{{ item }}"

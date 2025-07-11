@@ -5,6 +5,8 @@
   ansible.builtin.template:
     src: etc/sshd/sshd_config.j2
     dest: /etc/ssh/sshd_config
+    mode: '0644'
+    backup: true
   notify: Restart sshd
 
 - name: Enable SSH service
@@ -18,17 +20,20 @@
   ansible.builtin.copy:
     src: etc/fuse.conf
     dest: /etc/fuse.conf
+    mode: '0644'
+    backup: true
 
-- name: Set SSH_ASKPASS environment variable
-  ansible.builtin.lineinfile:
-    dest: /etc/profile
-    line: 'export SSH_ASKPASS="{% if ansible_distribution == ''Rocky'' %}/usr/libexec/gcr-ssh-askpass{% else %}/usr/lib/ssh/x11-ssh-askpass{% endif %}"'
-    mode: "0644"
+# - name: Set SSH_ASKPASS environment variable
+#   ansible.builtin.lineinfile:
+#     dest: /etc/profile
+#     line: 'export SSH_ASKPASS="{% if ansible_distribution == ''Rocky'' %}/usr/libexec/gcr-ssh-askpass{% else %}/usr/lib/ssh/x11-ssh-askpass{% endif %}"'
+#     mode: '0644'
+#     backup: true
 
-- name: Create user SSH directory
-  ansible.builtin.file:
-    path: "/home/{{ user.name }}/.ssh"
-    state: directory
-    owner: "{{ user.name }}"
-    group: "{{ user.name }}"
-    mode: "0700"
+# - name: Create user SSH directory
+#   ansible.builtin.file:
+#     path: "/home/{{ user.name }}/.ssh"
+#     state: directory
+#     owner: "{{ user.name }}"
+#     group: "{{ user.name }}"
+#     mode: "0700"
