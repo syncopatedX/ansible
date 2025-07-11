@@ -16,6 +16,19 @@
 #   become: True
 #   tags: ['modprobe']
 
+- tags: ["packages", "alsa_pkgs"]
+  become: false
+  block:
+    - name: Install alsa packages
+      aur:
+        use: auto
+        name: "{{ audio_packages.alsa }}"
+        state: present
+  rescue:
+    - name: Installing base packages failed
+      ansible.builtin.debug:
+        msg: "Failed to install base packages"
+
 - ansible.builtin.import_tasks:
     file: jack.yml
   when: audio_system == 'pulseaudio_jack'

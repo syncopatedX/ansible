@@ -85,3 +85,16 @@
       loop_control:
         loop_var: i3_config_template_item
       notify: Reload i3
+
+    - name: Set i3 keybindings
+      ansible.builtin.template:
+        src: "home/.config/i3/keybindings.j2"
+        dest: "{{ user.home }}/.config/i3/keybindings"
+        owner: "{{ user.name }}"
+        group: "{{ user.group }}"
+        mode: "0644"
+        backup: true
+      register: wmconfig_keybindings
+      notify: Reload i3
+      tags: ["keybindings"]
+

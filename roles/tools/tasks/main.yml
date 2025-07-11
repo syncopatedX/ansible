@@ -1,6 +1,32 @@
 ---
 # tasks file for tools
 
+- name: Load distribution-specific variables
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+  tags: ["packages"]
+
+- name: Install packages on Arch Linux
+  aur:
+    use: auto
+    name: "{{ packages.tools }}"
+    state: present
+  become: true
+  when:
+    - ansible_os_family == "Archlinux"
+    - packages.tools is defined
+  tags: ["packages"]
+
+- name: Install packages on Rocky Linux/RedHat
+  ansible.builtin.dnf:
+    name: "{{ packages.tools }}"
+    state: present
+  become: true
+  when:
+    - ansible_os_family == "RedHat"
+    - packages.tools is defined
+  tags: ["packages"]
+
+
 # - ansible.builtin.import_tasks:
 #     file: code-packager.yml
 #   tags: ["code-packager"]

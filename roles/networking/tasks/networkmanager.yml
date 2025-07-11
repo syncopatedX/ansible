@@ -1,9 +1,54 @@
+#SPDX-License-Identifier: MIT-0
 ---
-- name: Print host network vars
-  ansible.builtin.debug:
-    msg: "{{ item.ifname }}"
-  with_items: "{{ network_interfaces }}"
-  tags: ["udev"]
+# NetworkManager configuration tasks
+
+# Install essential packages
+- name: Install NetworkManager packages on Arch Linux
+  community.general.pacman:
+    name: "{{ packages.networkmanager }}"
+    state: present
+  become: true
+  when:
+    - ansible_os_family == "Archlinux"
+    - packages.networkmanager is defined
+  tags: ["packages"]
+
+- name: Install NetworkManager packages on Rocky Linux/RedHat
+  ansible.builtin.dnf:
+    name: "{{ packages.networkmanager }}"
+    state: present
+  become: true
+  when:
+    - ansible_os_family == "RedHat"
+    - packages.networkmanager is defined
+  tags: ["packages"]
+
+- name: Disable systemd-networkd service
+  ansible.builtin.systemd:
+    name: systemd-networkd
+    enabled: false
+    state: stopped
+  failed_when: false
+
+- name: Ensure networkmanager connection check is enabled
+  ansible.builtin.copy:
+    content: |
+      [connectivity]
+      enabled=true
+    dest: "/etc/NetworkManager/conf.d/20-connectivity.conf"
+    owner: root
+
+- name: Enable and start networkmanager
+  ansible.builtin.systemd:
+    name: NetworkManager
+    enabled: true
+    state: started
+
+- name: Enable and start NetworkManager dispatcher
+  ansible.builtin.service:
+    name: NetworkManager-dispatcher.service
+    enabled: true
+    state: started
 
 - name: Set udev rules for wired NIC names
   ansible.builtin.template:
@@ -12,35 +57,28 @@
     owner: root
     group: root
     mode: "0644"
-    backup: false
-  with_items: "{{ network_interfaces }}"
-  # when: item.type == 'ethernet' or item.type == 'wifi'
+    backup: true
+  notify: Reload udev rules
   tags: ["udev"]
 
-# - name: Set udev rule to set network interface names
-#   copy:
-#     content: |
-#       SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="{{ item.mac|lower }}", NAME="{{ item.ifname }}"
-#     dest: "/etc/udev/rules.d/10-network.rules"
-#     owner: root
-#   with_items: "{{ network_interfaces }}"
-#   when: network_interfaces is defined
-#   notify: Reload udev rules
-#   tags: ['udev']
+- name: Configure NetworkManager connectivity check
+  ansible.builtin.template:
+    src: etc/NetworkManager/conf.d/connectivity.conf.j2
+    dest: /etc/NetworkManager/conf.d/connectivity.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart NetworkManager
+  when: conn_check is defined
 
-# - name: Set udev rules for wireless NIC names
-#   template:
-#     src: etc/udev/rules.d/10-network.rules.j2
-#     dest: /etc/udev/rules.d/10-network.rules
-#     owner: root
-#     group: root
-#     mode: '0644'
-#     backup: yes
-#   with_items: "{{ network_interfaces }}"
-#   when:
-#     - item.type == 'wifi'
-#     - item.method4 != 'disabled'
-#   tags: ['udev']
+- name: Copy NetworkManager WiFi backend configuration
+  ansible.builtin.copy:
+    src: etc/NetworkManager/conf.d/wifi_backend.conf
+    dest: /etc/NetworkManager/conf.d/wifi_backend.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart NetworkManager
 
 - name: Add ethernet device
   community.general.nmcli:
@@ -55,7 +93,7 @@
     autoconnect: "{{ item.autoconnect }}"
     state: "{{ item.state }}"
     method4: "{{ item.method4 }}"
-  with_items: "{{ network_interfaces }}"
+  with_items: "{{ network_interfaces | default([]) }}"
   when:
     - item.type == 'ethernet'
     - item.conn_name == item.ifname
@@ -78,10 +116,7 @@
       mac-address: "{{ item.mac }}"
       cloned-mac-address: "{{ item.assigned_address }}"
     ssid: "{{ item.ssid }}"
-    # wifi_sec:
-    #   key-mgmt: "{{ item.wifi_sec.key_mgmt }}"
-    #   psk: "{{ item.wifi_sec.psk }}"
-  with_items: "{{ network_interfaces }}"
+  with_items: "{{ network_interfaces | default([]) }}"
   when:
     - item.type == 'wifi'
     - item.method4 != 'disabled'
@@ -100,29 +135,11 @@
       mac-address: "{{ item.mac }}"
       cloned-mac-address: "{{ item.assigned_address }}"
     ssid: "{{ item.ssid }}"
-    # wifi_sec:
-    #   key-mgmt: "{{ item.wifi_sec.key_mgmt }}"
-    #   psk: "{{ item.wifi_sec.psk }}"
-  with_items: "{{ network_interfaces }}"
+  with_items: "{{ network_interfaces | default([]) }}"
   when:
     - item.type == 'wifi'
     - item.method4 != 'disabled'
   tags: ["wireless"]
-
-- name: Add audio subnet device
-  community.general.nmcli:
-    type: "{{ item.type }}"
-    ifname: "{{ item.ifname }}"
-    conn_name: "{{ item.conn_name }}"
-    mac: "{{ item.mac }}"
-    ip4: "{{ item.ip4 }}"
-    autoconnect: "{{ item.autoconnect }}"
-    state: "{{ item.state }}"
-    method4: "{{ item.method4 }}"
-  with_items: "{{ network_interfaces }}"
-  when:
-    - item.gw4 is not defined
-    - item.method4 != 'disabled'
 
 - name: Add bridge device
   community.general.nmcli:
@@ -135,7 +152,8 @@
     autoconnect: "{{ item.autoconnect }}"
     state: "{{ item.state }}"
     method4: "{{ item.method4 }}"
-  with_items: "{{ network_interfaces }}"
+    stp: false
+  with_items: "{{ network_interfaces | default([]) }}"
   when:
     - item.type == 'bridge'
     - item.method4 != 'disabled'
@@ -145,14 +163,14 @@
     type: "{{ item.type }}"
     ifname: "{{ item.ifname }}"
     conn_name: "{{ item.conn_name }}"
-    master: "{{ item.bridge }}"
+    master: "{{ item.master }}"
     autoconnect: "{{ item.autoconnect }}"
     state: "{{ item.state }}"
     method4: "{{ item.method4 }}"
-  with_items: "{{ network_interfaces }}"
+  with_items: "{{ network_interfaces | default([]) }}"
   when:
     - item.type == 'ethernet'
-    - item.bridge is defined
+    - item.master is defined
     - item.method4 != 'disabled'
 
 - name: Deactive ethernet device
@@ -164,7 +182,7 @@
     autoconnect: "{{ item.autoconnect }}"
     state: "{{ item.state }}"
     method4: "{{ item.method4 }}"
-  with_items: "{{ network_interfaces }}"
+  with_items: "{{ network_interfaces | default([]) }}"
   when:
     - item.type == 'ethernet'
     - item.method4 == 'disabled'
@@ -180,13 +198,7 @@
     ssid: "{{ item.ssid }}"
     wifi:
       mac-address: "{{ item.mac }}"
-  with_items: "{{ network_interfaces }}"
+  with_items: "{{ network_interfaces | default([]) }}"
   when:
     - item.type == 'wifi'
     - item.method4 == 'disabled'
-
-- name: Ensure NetworkManager is enabled and restart service
-  ansible.builtin.systemd:
-    name: NetworkManager
-    enabled: true
-    state: restarted

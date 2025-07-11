@@ -25,6 +25,7 @@
     masked: true
     state: stopped
   when: resolvconf_service_list.rc == 0
+  ignore_errors: true
 
 - name: Instantiate systemd-resolved resolved.conf drop-ins
   ansible.builtin.template:
@@ -69,6 +70,7 @@
     loop_var: path
 
 - ansible.builtin.meta: flush_handlers
+
 - name: Enable systemd-resolved
   ansible.builtin.service:
     name: systemd-resolved

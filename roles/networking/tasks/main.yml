@@ -1,84 +1,32 @@
+#SPDX-License-Identifier: MIT-0
 ---
-- name: Networking Tasks
-  ansible.builtin.debug:
-    msg: "Starting networking tasks"
+# tasks file for networking
 
-- name: Check for actual wireless devices
-  ansible.builtin.shell: "ls /sys/class/net/*/wireless 2>/dev/null | wc -l"
-  register: wireless_check
-  changed_when: false
-  failed_when: false
+- name: Load distribution-specific variables
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+  tags: ["packages"]
 
-- name: Set wireless fact
-  ansible.builtin.set_fact:
-    has_wireless: "{{ wireless_check.stdout | int > 0 }}"
+# iwd backend
+- name: Include iwd tasks
+  ansible.builtin.include_tasks: iwd.yml
+  when: wifi_backend == "iwd"
 
-- name: Debug wireless status
-  ansible.builtin.debug:
-    msg: "Host has wireless interfaces: {{ has_wireless }}"
+# NetworkManager backend
+- name: Include NetworkManager tasks
+  ansible.builtin.include_tasks: networkmanager.yml
+  when: network_interfaces is defined
 
-- ansible.builtin.import_tasks:
-    file: iwd.yml
-  tags: ["iwd", "wireless"]
-  when: has_wireless
+# systemd-networkd backend 
+- name: Include networkd tasks
+  ansible.builtin.include_tasks: networkd.yml
+  when: systemd_network_networks is defined
 
-# https://gitlab.com/klaasjan/vagrant-ansible/-/blob/master/ansible/roles/configure_network/tasks/main.yml?ref_type=heads
+# Avahi/mDNS support
+- name: Include avahi tasks
+  ansible.builtin.include_tasks: avahi.yml
+  when: enable_mdns | default(true)
 
-# - name: Setup udev for network devices
-#   replace:
-#     dest: /etc/udev/rules.d/10-network.rules
-#     regexp: 'ATTR.*{{ item.ifname }}'
-#     replace: 'ATTR{address}=="{{ item.mac|lower }}", ATTR{type}=="1", NAME="{{ item.ifname }}'
-#   with_items: "{{ network_interfaces }}"
-#   when: network_interfaces is defined
-#   notify: Reload udev rules
-
-# TODO: convert to systemd-networkd
-# - import_tasks:
-#     file: networkmanager.yml
-#   tags: ['networkmanager']
-
-# TODO: set interface config for .36 network cards betweeen soundbot|ninjabot
-# - include_tasks: interfaces.yml
-
-# - name: Set hosts files
-#   template:
-#     src: etc/hosts.j2
-#     dest: /etc/hosts
-#     owner: root
-#     group: root
-#     mode: '0644'
-#     backup: True
-#   when: etc_hosts is defined
-#   tags: ['dns']
-
-- ansible.builtin.import_tasks:
-    file: mdns.yml
-  tags: ["avahi", "dns"]
-
-- when: use_networkmanger is defined
-
-  block:
-    - ansible.builtin.import_tasks:
-        file: networkmanager/main.yml
-      tags: ["networkmanager"]
-
-- when: use_systemd is defined
-  block:
-    - name: Create extra directories relevant for systemd-networkd
-      ansible.builtin.file:
-        path: "{{ item | dirname }}"
-        state: directory
-      loop: "{{ systemd_network_copy_files | map(attribute='dest') | list + ['/etc/systemd/networkd.conf.d/', '/etc/systemd/resolved.conf.d/', '/etc/network/'] }}"
-
-    - ansible.builtin.import_tasks:
-        file: networkd/main.yml
-      tags: ["systemd-network"]
-
-    - ansible.builtin.import_tasks:
-        file: networkd/resolve.yml
-      tags: ["systemd-resolve"]
-
-    - ansible.builtin.import_tasks:
-        file: networkd/mounts.yml
-      tags: ["systemd-mounts"]
+# NTP/time synchronization
+- name: Include NTP tasks
+  ansible.builtin.include_tasks: ntp.yml
+  when: enable_ntp | default(true)

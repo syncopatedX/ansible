@@ -6,3 +6,4 @@ xorg_packages__xorg:
   - xorg-xinit
   - xorg-xrandr
   - xorg-xsetroot
+  - xbindkeys

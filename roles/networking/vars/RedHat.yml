@@ -1,0 +1,12 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Variables for Red Hat/Rocky Linux
+
+packages:
+  networkmanager:
+    - network-manager-applet
+  networkd:
+    - iwd
+  avahi:
+    - avahi
+    - nss-mdns

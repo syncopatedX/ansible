@@ -116,6 +116,7 @@ packages__base:
   - sd
   - smartmontools
   - socat
+  - sox
   - speech-dispatcher
   - sshfs
   - sshpass

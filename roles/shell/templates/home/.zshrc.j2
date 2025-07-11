@@ -176,8 +176,8 @@ fi
 
 echo $PATH | grep -q "$HOME/.local/bin:" || export PATH="$HOME/.local/bin:$PATH"
 
-export GEM_HOME="$HOME/.local/share/gem/ruby/{{ ruby_version }}"
-echo $PATH | grep -q "$HOME/.local/share/gem/ruby/{{ ruby_version }}/bin:" || export PATH="$PATH:$HOME/.local/share/gem/ruby/{{ ruby_version }}/bin"
+#export GEM_HOME="$HOME/.local/share/gem/ruby/{{ ruby_version }}"
+#echo $PATH | grep -q "$HOME/.local/share/gem/ruby/{{ ruby_version }}/bin:" || export PATH="$PATH:$HOME/.local/share/gem/ruby/{{ ruby_version }}/bin"
 
 {% if rvm_install|default(false)|bool == true %}
 if [ -d $HOME/.rvm/bin ]; then
@@ -196,6 +196,8 @@ if [[ $hostname == "ninjabot" ]]; then
 fi
 
 
-if [ -f "$HOME/.claude/local/claude" ]; then
-  alias claude="$HOME/.claude/local/claude"
+if [ -f "$HOME/.config/claude/local/claude" ]; then
+  alias claude="$HOME/.config/claude/local/claude"
 fi
+
+export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
