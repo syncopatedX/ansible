@@ -1,5 +1,0 @@
----
-archlinux_aur_dynamic_user: "{{ not ((ansible_is_chroot | default(False)) or archlinux_aur_helper != 'pikaur' or (ansible_virtualization_type | default('unknown')) in ['podman', 'docker'] ) }}"
-archlinux_aur_username: "aurbuilder"
-archlinux_aur_create_user: "{{ not archlinux_aur_dynamic_user }}"
-archlinux_aur_helper: "pikaur"

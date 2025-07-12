@@ -7,7 +7,7 @@ share:
       - Notebooks
       - Workspace
 
-samba_host: False
+samba_host: false
 
 zsh_theme: kphoen
 
@@ -16,10 +16,10 @@ x:
     - bash ~/.screenlayout/soundbot.sh
 
 i3:
-  autostart: ''
+  autostart: ""
   tray_output: "DP-2-2"
-  assignments: ''
-  keybindings: ''
+  assignments: ""
+  keybindings: ""
   workspaces:
     - "$ws1 output eDP-1"
     - "$ws2 output DP-2-2"

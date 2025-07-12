@@ -1,2 +1,0 @@
----
-network_utilities_packages: "{{ network_utilities_packages_default }}"

@@ -1,7 +1,7 @@
 ---
 - name: Configure ninjabot host
   hosts: ninjabot
-  become: yes
+  become: true
   vars:
     share:
       nfs:
@@ -26,31 +26,31 @@
 
   tasks:
     - name: Configure NFS sharing
-      include_role:
+      ansible.builtin.include_role:
         name: nfs
       when: share.nfs is defined
 
     - name: Configure Docker
-      include_role:
+      ansible.builtin.include_role:
         name: docker
       when: docker is defined
 
     - name: Configure libvirt
-      include_role:
+      ansible.builtin.include_role:
         name: libvirt
       when: use_libvirt is defined and use_libvirt
 
     - name: Configure zsh theme
-      include_role:
+      ansible.builtin.include_role:
         name: shell
       when: zsh_theme is defined
 
     - name: Configure X11 autostart
-      include_role:
+      ansible.builtin.include_role:
         name: xorg
       when: x is defined
 
     - name: Configure window manager
-      include_role:
+      ansible.builtin.include_role:
         name: window-manager
       when: i3 is defined

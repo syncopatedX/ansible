@@ -1,0 +1,4 @@
+
+EDITOR=micro
+VISUAL=micro
+QT_QPA_PLATFORMTHEME=qt5ct

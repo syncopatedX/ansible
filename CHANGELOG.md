@@ -1,45 +1,55 @@
 # Changelog
 
-## [unreleased]
+All notable changes to this project will be documented in this file.
+
+## [0.8.7] - 2025-07-12
 
 ### 🚀 Features
 
-- **🌟 Multi-Distribution Support**: Added comprehensive Rocky Linux 9 support
-  - Automatic distribution detection (`ansible_os_family`) and conditional package management
-  - Unified package management abstraction across Arch Linux and Rocky Linux 9
-  - Repository setup for EPEL, PowerTools/CRB, RPM Fusion on Rocky Linux
-  - Alternative installation methods: source builds, Cargo/Rust tools, binary downloads, Flatpak
-- **📦 Enhanced Package Management**:
-  - 137 Arch Linux packages mapped to Rocky Linux 9 equivalents
-  - Source build support for libvips and chromaprint libraries
-  - GitHub CLI repository integration for Rocky Linux
-  - Comprehensive EPEL and RPM Fusion package support
-- **🔧 Base Role Modernization**:
-  - Distribution-specific variable loading (`Archlinux.yml`, `RedHat.yml`)
-  - Multi-distribution task execution with proper conditionals
-  - Enhanced alternative package installation with build dependencies
 - Added host-specific zsh config and miscellaneous updates
-- Add CLAUDE.md for AI guidance and development roadmap
+- Add CLAUDE.md for AI guidance
+- Add systemd-network configuration for soundbot
+- *(package-manager)* Introduced multi-distribution package management role
+- Implement users role and refactor grub configuration
+- Expand multi-distribution support with Fedora integration
 
 ### 🐛 Bug Fixes
 
 - Use verify parameter for the pacman-key module & full length key strings
 - Set 0600 permissions for iwd wifi passphrase file
-- Fixed package mapping issues for Rocky Linux 9 deployment
+
+### 💼 Other
+
+- *(playbooks,inventory)* Added host-specific playbooks and documentation
+
+### 🚜 Refactor
+
+- Consolidate i3 and sway roles into unified window-manager role
+- Replace package-manager role with distribution-specific tasks
+- Major ansible-lint compliance improvements
+- Major networking role restructure and multi-distribution support
+- Consolidate repository-manager and system-base roles into base role
+- Comprehensive video role restructure with multi-GPU support
 
 ### 📚 Documentation
 
-- **🐧 Rocky Linux 9 Documentation**: Comprehensive usage guide and prerequisites
 - Remove ansible-pull documentation and standardize playbook examples
-- Added multi-distribution support overview and examples
-- Updated README with distribution-specific features and repository setup
+- Restructured CLAUDE.md and updated README.md role list
 
 ### ⚙️ Miscellaneous Tasks
 
+- Configured ninjabot network using systemd-network
 - Deleted main.yml Ansible playbook
-- **🧪 Testing Infrastructure**: Rocky Linux 9 bare metal testing on ninjabot host
+- Refactored zcompdump age check in .zshrc template
+- Added Ruby version and gemset files to gitignore
+- Renamed network role directory to networking
+- *(ansible)* Consolidated package installation across roles
+- Refactored inventory configuration, updated host variables, and renamed x role to xorg
+- Update various configurations and add micro task placeholder
+- Renamed login role to display-manager
+- Refactor: Consolidate WM roles and restructure base
 
-## [0.8.6] - 2025-05-30
+## [0.8.6] - 2025-05-31
 
 ### 🚀 Features
 
@@ -52,9 +62,10 @@
 ### 🐛 Bug Fixes
 
 - Resolved mDNS host resolution and reordered Ansible plugins
-- Commented out the print statement to ensure valid JSON output for Ansible in dynamic_inventory.py
+- - Commented out the print statement to ensure valid JSON output for Ansible in dynamic_inventory.py
 - Refactored playbook imports in full.yml
 - Renamed gem.yml to gems.yml in rbenv.yml
+- Added `--conservative` flag to gem install commands
 
 ### ⚙️ Miscellaneous Tasks
 
@@ -66,17 +77,20 @@
 
 ### 🚀 Features
 
+- Implement polybar configuration with audio, bars, modules, and user modules
 - Enable autologin for virtual console
 - Add llm_analyzer callback plugin for AI-powered Ansible analysis
 - Integrate Langfuse for prompt management in llm_analyzer.py
 - Enhance homepage with AI search portal and tabbed AI assistants
 - Implemented audio role with JACK, PulseAudio, PipeWire support
-- Added Sway role for configuring the Sway window manager
+- Added sway role for configuring the Sway window manager
 - Moved rofi role out of i3 role
 - Implemented login role with greetd and getty support
-- Updated Sway configuration and added new features
+- Updated sway configuration and added new features
+- Updated Sway role README
 - Implemented dynamic inventory script and updated Ansible configuration
 - Enhanced dynamic inventory with group and host variable support
+- Added homepageV2
 
 ### 🐛 Bug Fixes
 

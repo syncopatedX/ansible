@@ -1,0 +1,7 @@
+---
+- name: Themes
+  hosts: all
+  gather_facts: true
+  become: false
+  roles:
+    - { role: theme, tags: ["gtk"] }

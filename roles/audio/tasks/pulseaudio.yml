@@ -5,7 +5,7 @@
     - name: Install pulseaudio packages
       aur:
         use: auto
-        name: "{{ packages__audio.pulseaudio }}"
+        name: "{{ audio_packages.pulseaudio }}"
         state: present
   rescue:
     - name: Installing base packages failed
@@ -16,6 +16,9 @@
   ansible.builtin.file:
     path: "{{ user.home }}/.config/pulse"
     state: directory
+    mode: "0755"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
   become: false
 
 - name: Update pulseaudio configs
@@ -33,12 +36,12 @@
     - system.pa
 
 - become: true
-
   block:
     - name: Ensure /etc/pulse/default.pa.d exists
       ansible.builtin.file:
         path: /etc/pulse/default.pa.d
         state: directory
+        mode: "0755"
 
     - name: Install bluetooth config
       ansible.builtin.copy:

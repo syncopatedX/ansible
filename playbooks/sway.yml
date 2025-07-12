@@ -1,0 +1,13 @@
+---
+- name: Sway Workstation
+  hosts: all
+  gather_facts: true
+  become: true
+  roles:
+    - { role: base, tags: ["base"] }
+    - { role: ssh, tags: ["ssh"] }
+    - { role: firewalld, tags: ["firewalld"] }
+    - { role: networking, tags: ["networkmanager", "networkd", "resolved"] }
+    - { role: ntp, tags: ["ntp"] }
+    - { role: shell, tags: ["shell"] }
+    - { role: sway, tags: ["sway"] }

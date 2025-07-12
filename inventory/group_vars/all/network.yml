@@ -2,3 +2,7 @@
 lan:
   dns:
     search: syncopated.net
+
+dns:
+  nameserver: 192.168.41.4
+  search: syncopated.net

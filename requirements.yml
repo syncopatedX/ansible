@@ -1,6 +1,3 @@
 ---
-collections:
-  # Install a collection from Ansible Galaxy.
-  - name: gnfzdz.network
-    version: ">=2.0.0"
-    source: https://galaxy.ansible.com
+roles:
+  - name: rvm.ruby

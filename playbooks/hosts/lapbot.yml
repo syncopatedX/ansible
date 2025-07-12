@@ -1,7 +1,7 @@
 ---
 - name: Configure lapbot host
   hosts: lapbot
-  become: yes
+  become: true
   vars:
     bootloader: grub
     autologin: false
@@ -20,8 +20,8 @@
           Gateway: 192.168.41.1
           DNS: 192.168.41.1
           Domains: syncopated.net
-          LinkLocalAddressing: no
-          IPv6AcceptRA: no
+          LinkLocalAddressing: false
+          IPv6AcceptRA: false
       25-wireless:
         Match:
           Name: wlan*
@@ -30,31 +30,31 @@
           Address: 192.168.41.11/24
           Gateway: 192.168.41.1
           Domains: syncopated.net
-          LinkLocalAddressing: no
-          IPv6AcceptRA: no
+          LinkLocalAddressing: false
+          IPv6AcceptRA: false
 
   tasks:
     - name: Configure bootloader
-      include_role:
+      ansible.builtin.include_role:
         name: base
       when: bootloader is defined
 
     - name: Configure display manager
-      include_role:
+      ansible.builtin.include_role:
         name: display-manager
       when: display_manager is defined
 
     - name: Configure window manager
-      include_role:
+      ansible.builtin.include_role:
         name: wayland
       when: window_manager == "sway"
 
     - name: Configure Ruby environment
-      include_role:
+      ansible.builtin.include_role:
         name: ruby
       when: rbenv_install is defined and rbenv_install
 
     - name: Configure systemd networking
-      include_role:
+      ansible.builtin.include_role:
         name: networking
       when: networking == "systemd-network"

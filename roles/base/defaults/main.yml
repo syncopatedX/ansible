@@ -4,17 +4,24 @@
 # User configuration
 user:
   name: "{{ lookup('env','USER') }}"
-  shell: "/bin/bash"
+  ansible.builtin.shell: "/bin/bash"
 
 # System configuration
 timezone: "America/New_York"
 locale: "en_US.UTF-8"
 keymap: "us"
 
-# Essential packages only
-base_packages:
-  - name: git
-  - name: curl
-  - name: wget
-  - name: htop
-  - name: sudo
+# General repository configuration
+enable_third_party_repos: true
+network_timeout: 30
+retry_count: 3
+
+# Arch Linux specific repositories
+enable_chaotic_aur: true
+enable_archaudio: true
+
+# RHEL distro specific repositories
+enable_epel: true
+enable_powertools: true
+
+enable_rpmfusion: true

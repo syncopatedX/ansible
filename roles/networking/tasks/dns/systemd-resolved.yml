@@ -1,0 +1,78 @@
+---
+- name: Install systemd-resolved
+  community.general.pacman:
+    name: systemd-resolvconf
+  when: ansible_distribution == 'Archlinux'
+
+- name: Configure resolv.conf
+  ansible.builtin.file:
+    dest: /etc/resolv.conf
+    state: link
+    src: /run/systemd/resolve/resolv.conf
+    force: true
+    follow: false
+
+- name: Check if resolvconf service exists
+  ansible.builtin.command: systemctl cat resolvconf.service
+  failed_when: resolvconf_service_list.rc not in [0, 1]
+  changed_when: false
+  register: resolvconf_service_list
+
+- name: Stop, disable, and mask resolvconf
+  ansible.builtin.systemd:
+    name: resolvconf
+    enabled: false
+    masked: true
+    state: stopped
+  when: resolvconf_service_list.rc == 0
+  ignore_errors: true
+
+- name: Instantiate systemd-resolved resolved.conf drop-ins
+  ansible.builtin.template:
+    src: conf.j2
+    dest: /etc/systemd/resolved.conf.d/{{ conf.key }}.conf
+    owner: systemd-resolve
+    mode: "0640"
+  loop: "{{ systemd_resolve_confs | combine | dict2items }}"
+  loop_control:
+    loop_var: conf
+    label: "{{ conf.key }}"
+  notify:
+    - Reload systemd configuration
+    - Restart systemd-resolved service
+
+- name: Capture unwanted resolved conf files
+  ansible.builtin.find:
+    paths:
+      - /etc/systemd/resolved.conf.d/
+    patterns:
+      - "*.conf"
+    excludes: >-
+      {{
+        (systemd_resolve_confs | combine).keys() | map('regex_replace', '$', '.conf')
+      }}
+  register: systemd_resolve_unwanted_resolve_conf_files
+
+- name: Delete unwanted systemd-resolved config files
+  ansible.builtin.file:
+    state: absent
+    path: "{{ path }}"
+  notify:
+    - Reload systemd configuration
+    - Restart systemd-resolved service
+  loop: >-
+    {{
+      (
+        systemd_resolve_unwanted_resolve_conf_files.files
+      ) | map(attribute='path')
+    }}
+  loop_control:
+    loop_var: path
+
+- ansible.builtin.meta: flush_handlers
+
+- name: Enable systemd-resolved
+  ansible.builtin.service:
+    name: systemd-resolved
+    enabled: true
+    state: started

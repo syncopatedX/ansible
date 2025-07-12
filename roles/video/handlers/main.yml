@@ -1,3 +1,17 @@
-#SPDX-License-Identifier: MIT-0
 ---
-# handlers file for video
+# Video role handlers
+
+- name: restart display manager
+  ansible.builtin.systemd:
+    name: "{{ display_manager | default('lightdm') }}"
+    state: restarted
+  become: true
+  listen: "restart display manager"
+
+- name: reload x11
+  ansible.builtin.debug:
+    msg: |
+      X11 configuration has been updated.
+      Please log out and log back in, or restart your display manager
+      to apply the new video configuration.
+  listen: "restart display manager"

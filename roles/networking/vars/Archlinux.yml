@@ -1,0 +1,14 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Variables for Arch Linux
+
+packages:
+  networkmanager:
+    - network-manager-applet
+  networkd:
+    - iwd
+    - android-tethering
+    - systemd-resolvconf
+  avahi:
+    - avahi
+    - nss-mdns

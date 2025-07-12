@@ -1,0 +1,4 @@
+---
+# vars file for rofi on Archlinux
+packages__rofi:
+  - rofi

@@ -1,8 +1,0 @@
----
-network_firewalld_gui_packages_default:
-- firewall-applet
-
-network_firewalld_service_packages_default:
-- firewalld
-# optional dependency providing support to drop capabilities
-- libcap-ng-python3

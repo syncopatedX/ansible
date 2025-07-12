@@ -1,0 +1,4 @@
+---
+# vars file for rofi on Fedora
+packages__rofi:
+  - rofi

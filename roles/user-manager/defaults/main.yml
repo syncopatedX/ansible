@@ -4,6 +4,6 @@
 # User configuration defaults
 user:
   name: "{{ lookup('env','USER') }}"
-  shell: "/bin/bash"
+  ansible.builtin.shell: "/bin/bash"
   groups: ["wheel", "audio", "video"]
   sudoers: true

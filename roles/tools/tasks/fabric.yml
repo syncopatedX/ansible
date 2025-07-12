@@ -1,6 +1,7 @@
 ---
 # tasks file for fabric
-- block:
+- tags: ["packages"]
+  block:
     - name: Install dependencies
       aur:
         use: auto
@@ -10,11 +11,9 @@
         - go
 
   rescue:
-    - name: installing packages failed
-      debug:
+    - name: Installing packages failed
+      ansible.builtin.debug:
         msg: "Failed to install packages"
-
-  tags: ["packages"]
 
 # - name: Add go bin to path
 #   lineinfile:
@@ -53,7 +52,7 @@
 #       args:
 #         chdir: "{{ source_dir }}/fabric"
 #       become: true
-  
+
 #   when: ansible_architecture != "aarch64"
 
 # - name: Install release binary for pi4
@@ -91,10 +90,10 @@
 #           GEMINI_API_KEY=
 #           OPENROUTER_API_KEY=
 #           OPENROUTER_API_BASE_URL=https://openrouter.ai/api/v1
-  
+
 #   tags: ["env"]
 
-# - name: update patterns 
+# - name: update patterns
 #   shell: |
 #     fabric -U
 
@@ -102,15 +101,20 @@
 #   shell: |
 #     rsync -avP {{ source_dir }}/fabric/patterns {{ fabric_home }}
 
-- block:
+- vars:
+    patterns: "{{ user.home }}/.config/fabric/patterns"
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path | join(':') }}"
+  tags: ["aliases"]
+  block:
     - name: Check if folder exists (with error handling)
-      stat:
+      ansible.builtin.stat:
         path: "{{ user.home }}/.config/fabric/patterns"
       register: folder_info
       ignore_errors: true
 
     - name: Add fabric aliases to .aliases
-      shell: |
+      ansible.builtin.shell: |
         for pattern_file in {{ patterns }}/*; do
           pattern_name=$(basename "$pattern_file")
           alias_command="alias $pattern_name='fabric --pattern $pattern_name'"
@@ -119,10 +123,3 @@
           fi
         done
       when: folder_info.stat.exists
-  vars:
-    patterns: "{{ user.home }}/.config/fabric/patterns"
-  environment:
-    PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path|join(':') }}"
-  tags: ["aliases"]
-
-

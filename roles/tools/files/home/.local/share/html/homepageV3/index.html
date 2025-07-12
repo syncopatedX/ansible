@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Syncopated Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      .iframe-container {
+        position: relative;
+        overflow: hidden;
+        padding-top: 56.25%;
+        border-radius: 0.5rem;
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+
+      .iframe-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .nav-tab:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .nav-tab.active {
+        border-bottom: 2px solid #3b82f6;
+      }
+
+      .dashboard-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .dashboard-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900 text-gray-200 min-h-screen">
+    <div class="container mx-auto px-4 py-6">
+      <!-- Header -->
+      <header class="flex justify-between items-center mb-8">
+        <div class="flex items-center space-x-4">
+          <div
+            class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center"
+          >
+            <i class="fas fa-building text-white"></i>
+          </div>
+          <h1 class="text-2xl font-bold text-white">Enterprise Dashboard</h1>
+        </div>
+        <div class="flex items-center space-x-4">
+          <form id="meta-search-form" class="relative">
+            <input
+              type="text"
+              id="search-input"
+              name="q"
+              placeholder="Meta Search..."
+              class="bg-gray-800 rounded-full py-2 px-4 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
+            />
+            <button type="submit" class="absolute left-3 top-2.5 text-gray-400">
+              <i class="fas fa-search"></i>
+            </button>
+          </form>
+          <form id="rubygems-search-form" class="relative">
+            <input
+              type="text"
+              id="rubygems-search-input"
+              name="q"
+              placeholder="Search RubyGems..."
+              class="bg-gray-800 rounded-full py-2 px-4 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 w-64"
+            />
+            <button type="submit" class="absolute left-3 top-2.5 text-gray-400">
+              <i class="fas fa-gem text-red-400"></i>
+            </button>
+          </form>
+          <div
+            class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center cursor-pointer"
+          >
+            <i class="fas fa-user text-gray-300"></i>
+          </div>
+        </div>
+      </header>
+
+      <!-- Navigation Tabs -->
+      <div class="bg-gray-800 rounded-lg p-1 mb-8">
+        <nav class="flex space-x-1">
+          <button
+            class="nav-tab active px-4 py-2 rounded-md text-sm font-medium flex items-center space-x-2"
+            data-tab="dashboard"
+          >
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+          </button>
+          <button
+            class="nav-tab px-4 py-2 rounded-md text-sm font-medium flex items-center space-x-2"
+            data-tab="documents"
+          >
+            <i class="fas fa-file-alt"></i>
+            <span>Documents</span>
+          </button>
+          <button
+            class="nav-tab px-4 py-2 rounded-md text-sm font-medium flex items-center space-x-2"
+            data-tab="chats"
+          >
+            <i class="fas fa-comments"></i>
+            <span>Chats</span>
+          </button>
+          <button
+            class="nav-tab px-4 py-2 rounded-md text-sm font-medium flex items-center space-x-2"
+            data-tab="generate"
+          >
+            <i class="fas fa-robot"></i>
+            <span>Generate</span>
+          </button>
+          <button
+            class="nav-tab px-4 py-2 rounded-md text-sm font-medium flex items-center space-x-2"
+            data-tab="settings"
+          >
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Dashboard Tab Content -->
+      <div id="dashboard" class="tab-content active">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Left Column: Link Boxes -->
+          <div class="lg:col-span-1 flex flex-col gap-6">
+            <!-- Quick Links -->
+            <div
+              id="quick-card"
+              class="dashboard-card bg-gray-800 rounded-xl p-4"
+            >
+              <div class="flex justify-between items-center mb-4">
+                <h3 id="quick-title" class="font-semibold text-white">
+                  Quick Links
+                </h3>
+                <button class="text-blue-400 text-sm" data-category="quick">
+                  <i class="fas fa-cog"></i> Edit
+                </button>
+              </div>
+              <div id="quick-links-container" class="space-y-2">
+                <!-- Links will be dynamically loaded here -->
+              </div>
+            </div>
+
+            <!-- Company Resources -->
+            <div
+              id="resources-card"
+              class="dashboard-card bg-gray-800 rounded-xl p-4"
+            >
+              <div class="flex justify-between items-center mb-4">
+                <h3 id="resources-title" class="font-semibold text-white">
+                  Company Resources
+                </h3>
+                <button class="text-blue-400 text-sm" data-category="resources">
+                  <i class="fas fa-cog"></i> Edit
+                </button>
+              </div>
+              <div id="resources-links-container" class="space-y-2">
+                <!-- Links will be dynamically loaded here -->
+              </div>
+            </div>
+
+            <!-- Support -->
+            <div
+              id="support-card"
+              class="dashboard-card bg-gray-800 rounded-xl p-4"
+            >
+              <div class="flex justify-between items-center mb-4">
+                <h3 id="support-title" class="font-semibold text-white">
+                  Support
+                </h3>
+                <button class="text-blue-400 text-sm" data-category="support">
+                  <i class="fas fa-cog"></i> Edit
+                </button>
+              </div>
+              <div id="support-links-container" class="space-y-2">
+                <!-- Links will be dynamically loaded here -->
+              </div>
+            </div>
+            <!-- Project Links -->
+            <div
+              id="projects-card"
+              class="dashboard-card bg-gray-800 rounded-xl p-4"
+            >
+              <div class="flex justify-between items-center mb-4">
+                <h3 id="projects-title" class="font-semibold text-white">
+                  Project Links
+                </h3>
+                <button class="text-blue-400 text-sm" data-category="projects">
+                  <i class="fas fa-cog"></i> Edit
+                </button>
+              </div>
+              <div id="projects-links-container" class="space-y-2">
+                <!-- Links will be dynamically loaded here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Iframe -->
+          <div
+            class="lg:col-span-2 dashboard-card bg-gray-800 rounded-xl p-4 flex flex-col"
+          >
+            <div class="flex justify-between items-center mb-4 flex-shrink-0">
+              <h3 class="font-semibold text-white">Main View</h3>
+            </div>
+            <div class="iframe-container flex-grow" style="padding-top: 0">
+              <iframe
+                src="https://example.com"
+                style="height: 100%; width: 100%"
+                allowfullscreen
+              ></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chats Tab Content -->
+      <div id="chats" class="tab-content">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Financial Reports -->
+          <div class="dashboard-card bg-gray-800 rounded-xl p-4">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="font-semibold text-white">General Assistant</h3>
+              <div class="flex space-x-2">
+                <button
+                  class="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center"
+                >
+                  <i class="fas fa-expand text-xs text-gray-300"></i>
+                </button>
+                <button
+                  class="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center"
+                >
+                  <i class="fas fa-cog text-xs text-gray-300"></i>
+                </button>
+              </div>
+            </div>
+            <div class="iframe-container">
+              <iframe
+                src="https://reports.example.com/finance"
+                allowfullscreen
+              ></iframe>
+            </div>
+          </div>
+
+          <!-- Sales Performance -->
+          <div class="dashboard-card bg-gray-800 rounded-xl p-4">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="font-semibold text-white">Technical Support</h3>
+              <div class="flex space-x-2">
+                <button
+                  class="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center"
+                >
+                  <i class="fas fa-expand text-xs text-gray-300"></i>
+                </button>
+                <button
+                  class="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center"
+                >
+                  <i class="fas fa-cog text-xs text-gray-300"></i>
+                </button>
+              </div>
+            </div>
+            <div class="iframe-container">
+              <iframe
+                src="https://reports.example.com/sales"
+                allowfullscreen
+              ></iframe>
+            </div>
+          </div>
+
+          <!-- Marketing Analytics -->
+          <div class="dashboard-card bg-gray-800 rounded-xl p-4">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="font-semibold text-white">Document Analysis</h3>
+              <div class="flex space-x-2">
+                <button
+                  class="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center"
+                >
+                  <i class="fas fa-expand text-xs text-gray-300"></i>
+                </button>
+                <button
+                  class="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center"
+                >
+                  <i class="fas fa-cog text-xs text-gray-300"></i>
+                </button>
+              </div>
+            </div>
+            <div class="iframe-container">
+              <iframe
+                src="https://reports.example.com/marketing"
+                allowfullscreen
+              ></iframe>
+            </div>
+          </div>
+
+          <!-- HR Metrics -->
+          <div class="dashboard-card bg-gray-800 rounded-xl p-4">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="font-semibold text-white">Code Assistant</h3>
+              <div class="flex space-x-2">
+                <button
+                  class="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center"
+                >
+                  <i class="fas fa-expand text-xs text-gray-300"></i>
+                </button>
+                <button
+                  class="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center"
+                >
+                  <i class="fas fa-cog text-xs text-gray-300"></i>
+                </button>
+              </div>
+            </div>
+            <div class="iframe-container">
+              <iframe
+                src="https://reports.example.com/hr"
+                allowfullscreen
+              ></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Documents Tab Content -->
+      <div id="documents" class="tab-content">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Document Management -->
+          <div class="dashboard-card bg-gray-800 rounded-xl p-4">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="font-semibold text-white">Document Management</h3>
+              <div class="flex space-x-2">
+                <button
+                  class="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center"
+                >
+                  <i class="fas fa-expand text-xs text-gray-300"></i>
+                </button>
+                <button
+                  class="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center"
+                >
+                  <i class="fas fa-cog text-xs text-gray-300"></i>
+                </button>
+              </div>
+            </div>
+            <div class="iframe-container">
+              <iframe
+                src="https://docs.example.com/browse"
+                allowfullscreen
+              ></iframe>
+            </div>
+          </div>
+
+          <!-- Knowledge Base -->
+          <div class="dashboard-card bg-gray-800 rounded-xl p-4">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="font-semibold text-white">Knowledge Base</h3>
+              <div class="flex space-x-2">
+                <button
+                  class="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center"
+                >
+                  <i class="fas fa-expand text-xs text-gray-300"></i>
+                </button>
+                <button
+                  class="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center"
+                >
+                  <i class="fas fa-cog text-xs text-gray-300"></i>
+                </button>
+              </div>
+            </div>
+            <div class="iframe-container">
+              <iframe
+                src="https://wiki.example.com/home"
+                allowfullscreen
+              ></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Generate Tab Content -->
+      <div id="generate" class="tab-content">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Team Directory -->
+          <div class="dashboard-card bg-gray-800 rounded-xl p-4">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="font-semibold text-white">Text Generator</h3>
+              <div class="flex space-x-2">
+                <button
+                  class="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center"
+                >
+                  <i class="fas fa-expand text-xs text-gray-300"></i>
+                </button>
+                <button
+                  class="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center"
+                >
+                  <i class="fas fa-cog text-xs text-gray-300"></i>
+                </button>
+              </div>
+            </div>
+            <div class="iframe-container">
+              <iframe
+                src="https://directory.example.com"
+                allowfullscreen
+              ></iframe>
+            </div>
+          </div>
+
+          <!-- Org Chart -->
+          <div class="dashboard-card bg-gray-800 rounded-xl p-4">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="font-semibold text-white">Code Generator</h3>
+              <div class="flex space-x-2">
+                <button
+                  class="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center"
+                >
+                  <i class="fas fa-expand text-xs text-gray-300"></i>
+                </button>
+                <button
+                  class="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center"
+                >
+                  <i class="fas fa-cog text-xs text-gray-300"></i>
+                </button>
+              </div>
+            </div>
+            <div class="iframe-container">
+              <iframe
+                src="https://org.example.com/chart"
+                allowfullscreen
+              ></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Tab Content -->
+      <div id="settings" class="tab-content">
+        <div class="grid grid-cols-1 gap-6">
+          <!-- Data Management -->
+          <div class="dashboard-card bg-gray-800 rounded-xl p-6">
+            <h3 class="font-semibold text-white text-lg mb-4">
+              Data Management
+            </h3>
+            <div class="flex items-center space-x-4">
+              <button
+                id="exportLinksBtn"
+                class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg flex items-center space-x-2 transition"
+              >
+                <i class="fas fa-file-export"></i>
+                <span>Export Links</span>
+              </button>
+              <button
+                id="importLinksBtn"
+                class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-lg flex items-center space-x-2 transition"
+              >
+                <i class="fas fa-file-import"></i>
+                <span>Import Links</span>
+              </button>
+              <input
+                type="file"
+                id="importFileInput"
+                class="hidden"
+                accept=".json"
+              />
+            </div>
+            <p class="text-sm text-gray-400 mt-4">
+              Export your link configuration to a JSON file or import a
+              previously saved file.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Link Settings Modal -->
+    <div
+      id="linkSettingsModal"
+      class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50"
+    >
+      <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md shadow-xl">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-semibold">Edit Links</h3>
+          <button id="modalCloseBtn" class="text-gray-400 hover:text-white">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Category Name</label>
+            <input
+              type="text"
+              id="categoryName"
+              class="w-full bg-gray-700 rounded px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div id="linkItems" class="space-y-3 max-h-64 overflow-y-auto pr-2">
+            <!-- Links will be added here dynamically -->
+          </div>
+          <button
+            id="addNewLinkBtn"
+            class="text-blue-400 text-sm flex items-center space-x-1 hover:text-blue-300"
+          >
+            <i class="fas fa-plus"></i>
+            <span>Add New Link</span>
+          </button>
+        </div>
+        <div class="flex justify-end space-x-3 mt-6">
+          <button
+            id="modalCancelBtn"
+            class="px-4 py-2 rounded-md bg-gray-700 hover:bg-gray-600 transition"
+          >
+            Cancel
+          </button>
+          <button
+            id="saveChangesBtn"
+            class="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-500 transition"
+          >
+            Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // --- Global State ---
+        let currentCategory = "";
+        const storageKey = "dashboardLinks";
+        const iconClasses = {
+          blue: "fa-tachometer-alt text-blue-400",
+          green: "fa-project-diagram text-green-400",
+          purple: "fa-comments text-purple-400",
+          yellow: "fa-calendar text-yellow-400",
+          red: "fa-book text-red-400",
+          teal: "fa-users text-teal-400",
+          pink: "fa-ticket-alt text-pink-400",
+          orange: "fa-question-circle text-orange-400",
+          indigo: "fa-lightbulb text-indigo-400",
+        };
+
+        const defaultLinks = {
+          quick: {
+            title: "Quick Links",
+            links: [
+              { name: "Analytics Dashboard", url: "#", color: "blue" },
+              { name: "Project Tracker", url: "#", color: "green" },
+              { name: "Team Chat", url: "#", color: "purple" },
+            ],
+          },
+          resources: {
+            title: "Company Resources",
+            links: [
+              { name: "Company Calendar", url: "#", color: "yellow" },
+              { name: "Employee Handbook", url: "#", color: "red" },
+              { name: "Org Directory", url: "#", color: "teal" },
+            ],
+          },
+          support: {
+            title: "Support",
+            links: [
+              { name: "Submit Ticket", url: "#", color: "pink" },
+              { name: "Help Center", url: "#", color: "orange" },
+              { name: "Knowledge Base", url: "#", color: "indigo" },
+            ],
+          },
+          projects: {
+            title: "Project Links",
+            links: [
+              { name: "Project A Repo", url: "#", color: "green" },
+              { name: "Project B Wiki", url: "#", color: "blue" },
+            ],
+          },
+        };
+
+        // --- Functions ---
+        const getStoredLinks = () => {
+          const links = localStorage.getItem(storageKey);
+          return links ? JSON.parse(links) : defaultLinks;
+        };
+
+        const saveLinksToStorage = (links) => {
+          localStorage.setItem(storageKey, JSON.stringify(links));
+        };
+
+        const renderLinks = (category, data) => {
+          const container = document.getElementById(
+            `${category}-links-container`
+          );
+          const titleElement = document.getElementById(`${category}-title`);
+          if (!container || !titleElement) return;
+
+          titleElement.textContent = data.title;
+          container.innerHTML = "";
+
+          if (data.links && data.links.forEach) {
+            data.links.forEach((link) => {
+              const iconClass =
+                iconClasses[link.color] || "fa-link text-gray-400";
+              const linkEl = document.createElement("a");
+              linkEl.href = link.url;
+              linkEl.target = "_blank";
+              linkEl.className =
+                "block py-2 px-3 hover:bg-gray-700 rounded-md transition flex items-center space-x-2";
+              linkEl.innerHTML = `
+                            <i class="fas ${iconClass} w-5 text-center"></i>
+                            <span>${link.name}</span>
+                        `;
+              container.appendChild(linkEl);
+            });
+          }
+        };
+
+        const loadAllLinks = () => {
+          const allLinks = getStoredLinks();
+          Object.keys(allLinks).forEach((category) => {
+            renderLinks(category, allLinks[category]);
+          });
+        };
+
+        const hideLinkSettings = () =>
+          document.getElementById("linkSettingsModal").classList.add("hidden");
+
+        const addNewLink = (name = "", url = "", color = "blue") => {
+          const linkItems = document.getElementById("linkItems");
+          const newLink = document.createElement("div");
+          newLink.className = "flex items-center space-x-2 link-item-entry";
+
+          let optionsHtml = Object.keys(iconClasses)
+            .map(
+              (key) =>
+                `<option value="${key}" ${key === color ? "selected" : ""}>${
+                  key.charAt(0).toUpperCase() + key.slice(1)
+                }</option>`
+            )
+            .join("");
+
+          newLink.innerHTML = `
+                    <input type="text" placeholder="Link Name" class="flex-1 bg-gray-700 rounded px-3 py-2 text-white" value="${name}">
+                    <input type="text" placeholder="URL" class="flex-1 bg-gray-700 rounded px-3 py-2 text-white" value="${url}">
+                    <select class="bg-gray-700 rounded px-2 py-2 text-white">${optionsHtml}</select>
+                    <button class="text-red-500 hover:text-red-400 p-2 remove-link-btn">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+          linkItems.appendChild(newLink);
+        };
+
+        const showLinkSettings = (category) => {
+          currentCategory = category;
+          const allLinks = getStoredLinks();
+          const data = allLinks[currentCategory];
+
+          document.getElementById("categoryName").value = data.title;
+          const linkItemsContainer = document.getElementById("linkItems");
+          linkItemsContainer.innerHTML = "";
+
+          if (data.links && data.links.forEach) {
+            data.links.forEach((link) =>
+              addNewLink(link.name, link.url, link.color)
+            );
+          }
+
+          document
+            .getElementById("linkSettingsModal")
+            .classList.remove("hidden");
+        };
+
+        const saveLinkSettings = () => {
+          const newTitle = document.getElementById("categoryName").value;
+          const linkItems = document.querySelectorAll(
+            "#linkItems .link-item-entry"
+          );
+          const newLinks = Array.from(linkItems)
+            .map((item) => ({
+              name: item.children[0].value,
+              url: item.children[1].value,
+              color: item.children[2].value,
+            }))
+            .filter((link) => link.name && link.url);
+
+          const allLinks = getStoredLinks();
+          allLinks[currentCategory] = { title: newTitle, links: newLinks };
+
+          saveLinksToStorage(allLinks);
+          renderLinks(currentCategory, allLinks[currentCategory]);
+          hideLinkSettings();
+        };
+
+        const switchTab = (event) => {
+          const tabId = event.currentTarget.dataset.tab;
+          document
+            .querySelectorAll(".tab-content")
+            .forEach((tab) => tab.classList.remove("active"));
+          document
+            .querySelectorAll(".nav-tab")
+            .forEach((tab) => tab.classList.remove("active"));
+          document.getElementById(tabId).classList.add("active");
+          event.currentTarget.classList.add("active");
+        };
+
+        const handleMetaSearch = (event) => {
+          event.preventDefault();
+          const searchInput = document.getElementById("search-input");
+          const query = searchInput.value.trim();
+
+          if (query) {
+            const encodedQuery = encodeURIComponent(query);
+
+            const googleUrl = `https://www.google.com/search?q=${encodedQuery}`;
+            const perplexityUrl = `https://www.perplexity.ai/search?q=${encodedQuery}`;
+
+            window.open(googleUrl, "_blank");
+            window.open(perplexityUrl, "_blank");
+
+            searchInput.value = "";
+          }
+        };
+
+        const handleRubyGemsSearch = (event) => {
+          event.preventDefault();
+          const searchInput = document.getElementById("rubygems-search-input");
+          const query = searchInput.value.trim();
+
+          if (query) {
+            const encodedQuery = encodeURIComponent(query);
+            const rubyGemsUrl = `https://rubygems.org/search?query=${encodedQuery}`;
+            window.open(rubyGemsUrl, "_blank");
+            searchInput.value = "";
+          }
+        };
+
+        const handleExport = () => {
+          const data = localStorage.getItem(storageKey);
+          if (!data) {
+            alert("No links to export.");
+            return;
+          }
+          const blob = new Blob([data], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "dashboard-links.json";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        };
+
+        const handleImport = (event) => {
+          const file = event.target.files[0];
+          if (!file) {
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            try {
+              const importedData = JSON.parse(e.target.result);
+              // Basic validation
+              if (
+                typeof importedData === "object" &&
+                importedData !== null &&
+                Object.keys(importedData).every((k) =>
+                  defaultLinks.hasOwnProperty(k)
+                )
+              ) {
+                saveLinksToStorage(importedData);
+                loadAllLinks();
+                alert("Links imported successfully!");
+              } else {
+                throw new Error("Invalid file format.");
+              }
+            } catch (error) {
+              alert(`Error importing file: ${error.message}`);
+            }
+          };
+          reader.readAsText(file);
+          // Reset file input to allow importing the same file again
+          event.target.value = "";
+        };
+
+        // --- Initial Load ---
+        loadAllLinks();
+
+        // --- Event Listeners ---
+        document
+          .getElementById("meta-search-form")
+          .addEventListener("submit", handleMetaSearch);
+        document
+          .getElementById("rubygems-search-form")
+          .addEventListener("submit", handleRubyGemsSearch);
+
+        document.querySelectorAll(".nav-tab").forEach((tab) => {
+          tab.addEventListener("click", switchTab);
+        });
+
+        document.querySelectorAll("button[data-category]").forEach((button) => {
+          button.addEventListener("click", () =>
+            showLinkSettings(button.dataset.category)
+          );
+        });
+
+        document
+          .getElementById("modalCloseBtn")
+          .addEventListener("click", hideLinkSettings);
+        document
+          .getElementById("modalCancelBtn")
+          .addEventListener("click", hideLinkSettings);
+        document
+          .getElementById("saveChangesBtn")
+          .addEventListener("click", saveLinkSettings);
+        document
+          .getElementById("addNewLinkBtn")
+          .addEventListener("click", () => addNewLink());
+
+        document
+          .getElementById("linkItems")
+          .addEventListener("click", (event) => {
+            const removeButton = event.target.closest(".remove-link-btn");
+            if (removeButton) {
+              removeButton.parentElement.remove();
+            }
+          });
+
+        document
+          .getElementById("exportLinksBtn")
+          .addEventListener("click", handleExport);
+        document
+          .getElementById("importLinksBtn")
+          .addEventListener("click", () => {
+            document.getElementById("importFileInput").click();
+          });
+        document
+          .getElementById("importFileInput")
+          .addEventListener("change", handleImport);
+      });
+    </script>
+  </body>
+</html>

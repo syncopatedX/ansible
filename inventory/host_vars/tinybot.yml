@@ -1,11 +1,18 @@
 ---
 
+cpupower:
+  min_freq: 600MHz
+  max_freq: 4000MHz
+
+tuned_profile: server-powersave
+
 window_manager: i3
 autologin: true
 
 use_libvirt: true
 use_docker: true
 
+nfs_host: true
 share:
   nfs:
     parent: /home
@@ -14,17 +21,15 @@ share:
 
 samba_host: false
 
-rvm_install: true
-
 audio_system: pulseaudio_jack
-use_jack: true
-use_pipewire: false
+
+rvm_install: false
 
 i3:
-  autostart: ''
-  tray_output: 'HDMI-1'
-  assignments: ''
-  keybindings: ''
+  autostart: ""
+  tray_output: "HDMI-1"
+  assignments: ""
+  keybindings: ""
   workspaces:
     - "$ws1 output HDMI-1"
     - "$ws2 output HDMI-1"
@@ -47,3 +52,26 @@ desired_scale: 1.5
 # The integer scaling factor set in the desktop environment's settings
 # (e.g., "2" for 200%).
 toolkit_scale: 2
+
+systemd_network_netdevs:
+  br0:
+    NetDev:
+      Kind: bridge
+      MACAddress: 68:1d:ef:2a:ac:47
+
+systemd_network_networks:
+  eth0:
+    Match:
+      Name: eth0
+      MACAddress: 68:1d:ef:2a:ac:47
+    Network:
+      Bridge: br0
+
+  br0:
+    Network:
+      Address: 192.168.41.3/24
+      Gateway: 192.168.41.1
+      DNS: 192.168.41.4
+      Domains: syncopated.net
+      LinkLocalAddressing: no
+      IPv6AcceptRA: no

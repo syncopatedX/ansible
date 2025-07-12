@@ -1,23 +1,37 @@
+#SPDX-License-Identifier: MIT-0
 ---
-# - name: populate /etc/resolv with local dns info
-#   template:
-#       src: etc/resolv.conf.j2
-#       dest: /etc/resolv.conf
+# NetworkManager configuration tasks
+
+# Install essential packages
+- name: Install NetworkManager packages on Arch Linux
+  community.general.pacman:
+    name: "{{ packages.networkmanager }}"
+    state: present
+  become: true
+  when:
+    - ansible_os_family == "Archlinux"
+    - packages.networkmanager is defined
+  tags: ["packages"]
+
+- name: Install NetworkManager packages on Rocky Linux/RedHat
+  ansible.builtin.dnf:
+    name: "{{ packages.networkmanager }}"
+    state: present
+  become: true
+  when:
+    - ansible_os_family == "RedHat"
+    - packages.networkmanager is defined
+  tags: ["packages"]
 
 - name: Disable systemd-networkd service
-  systemd:
+  ansible.builtin.systemd:
     name: systemd-networkd
-    enabled: no
+    enabled: false
     state: stopped
-  ignore_errors: True
-
-# - name: Disable dhcpcd service
-#   service:
-#       name: dhcpcd.service
-#       enabled: no
+  failed_when: false
 
 - name: Ensure networkmanager connection check is enabled
-  copy:
+  ansible.builtin.copy:
     content: |
       [connectivity]
       enabled=true
@@ -25,21 +39,166 @@
     owner: root
 
 - name: Enable and start networkmanager
-  systemd:
+  ansible.builtin.systemd:
     name: NetworkManager
-    enabled: yes
+    enabled: true
     state: started
 
 - name: Enable and start NetworkManager dispatcher
-  service:
+  ansible.builtin.service:
     name: NetworkManager-dispatcher.service
-    enabled: yes
+    enabled: true
     state: started
 
-- import_tasks:
-    file: interfaces.yml
-  when: network_interfaces is defined
+- name: Set udev rules for wired NIC names
+  ansible.builtin.template:
+    src: etc/udev/rules.d/10-network.rules.j2
+    dest: /etc/udev/rules.d/10-network.rules
+    owner: root
+    group: root
+    mode: "0644"
+    backup: true
+  notify: Reload udev rules
+  tags: ["udev"]
 
-- import_tasks:
-    file: bridge.yml
-  when: network_interface_bridge is defined
+- name: Configure NetworkManager connectivity check
+  ansible.builtin.template:
+    src: etc/NetworkManager/conf.d/connectivity.conf.j2
+    dest: /etc/NetworkManager/conf.d/connectivity.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart NetworkManager
+  when: conn_check is defined
+
+- name: Copy NetworkManager WiFi backend configuration
+  ansible.builtin.copy:
+    src: etc/NetworkManager/conf.d/wifi_backend.conf
+    dest: /etc/NetworkManager/conf.d/wifi_backend.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart NetworkManager
+
+- name: Add ethernet device
+  community.general.nmcli:
+    type: "{{ item.type }}"
+    ifname: "{{ item.ifname }}"
+    conn_name: "{{ item.conn_name }}"
+    mac: "{{ item.mac }}"
+    ip4: "{{ item.ip4 }}"
+    gw4: "{{ item.gw4 }}"
+    dns4: "{{ item.dns4 }}"
+    dns4_search: "{{ item.dns4_search }}"
+    autoconnect: "{{ item.autoconnect }}"
+    state: "{{ item.state }}"
+    method4: "{{ item.method4 }}"
+  with_items: "{{ network_interfaces | default([]) }}"
+  when:
+    - item.type == 'ethernet'
+    - item.conn_name == item.ifname
+    - item.method4 != 'disabled'
+    - item.ip4 is defined
+    - item.gw4 is defined
+
+- name: Add static wifi device
+  community.general.nmcli:
+    type: "{{ item.type }}"
+    ifname: "{{ item.ifname }}"
+    conn_name: "{{ item.conn_name }}"
+    ip4: "{{ item.ip4 }}"
+    gw4: "{{ item.gw4 }}"
+    dns4: "{{ item.dns4 }}"
+    autoconnect: "{{ item.autoconnect }}"
+    state: "{{ item.state }}"
+    method4: "{{ item.method4 }}"
+    wifi:
+      mac-address: "{{ item.mac }}"
+      cloned-mac-address: "{{ item.assigned_address }}"
+    ssid: "{{ item.ssid }}"
+  with_items: "{{ network_interfaces | default([]) }}"
+  when:
+    - item.type == 'wifi'
+    - item.method4 != 'disabled'
+    - item.ip4 is defined
+  tags: ["wireless"]
+
+- name: Add dhcp wifi device
+  community.general.nmcli:
+    type: "{{ item.type }}"
+    ifname: "{{ item.ifname }}"
+    conn_name: "{{ item.conn_name }}"
+    autoconnect: "{{ item.autoconnect }}"
+    state: "{{ item.state }}"
+    method4: "{{ item.method4 }}"
+    wifi:
+      mac-address: "{{ item.mac }}"
+      cloned-mac-address: "{{ item.assigned_address }}"
+    ssid: "{{ item.ssid }}"
+  with_items: "{{ network_interfaces | default([]) }}"
+  when:
+    - item.type == 'wifi'
+    - item.method4 != 'disabled'
+  tags: ["wireless"]
+
+- name: Add bridge device
+  community.general.nmcli:
+    type: "{{ item.type }}"
+    ifname: "{{ item.ifname }}"
+    conn_name: "{{ item.conn_name }}"
+    ip4: "{{ item.ip4 }}"
+    gw4: "{{ item.gw4 }}"
+    dns4: "{{ item.dns4 }}"
+    autoconnect: "{{ item.autoconnect }}"
+    state: "{{ item.state }}"
+    method4: "{{ item.method4 }}"
+    stp: false
+  with_items: "{{ network_interfaces | default([]) }}"
+  when:
+    - item.type == 'bridge'
+    - item.method4 != 'disabled'
+
+- name: Add bridge slave
+  community.general.nmcli:
+    type: "{{ item.type }}"
+    ifname: "{{ item.ifname }}"
+    conn_name: "{{ item.conn_name }}"
+    master: "{{ item.master }}"
+    autoconnect: "{{ item.autoconnect }}"
+    state: "{{ item.state }}"
+    method4: "{{ item.method4 }}"
+  with_items: "{{ network_interfaces | default([]) }}"
+  when:
+    - item.type == 'ethernet'
+    - item.master is defined
+    - item.method4 != 'disabled'
+
+- name: Deactive ethernet device
+  community.general.nmcli:
+    type: "{{ item.type }}"
+    ifname: "{{ item.ifname }}"
+    conn_name: "{{ item.conn_name }}"
+    mac: "{{ item.mac }}"
+    autoconnect: "{{ item.autoconnect }}"
+    state: "{{ item.state }}"
+    method4: "{{ item.method4 }}"
+  with_items: "{{ network_interfaces | default([]) }}"
+  when:
+    - item.type == 'ethernet'
+    - item.method4 == 'disabled'
+
+- name: Deactive wifi device
+  community.general.nmcli:
+    type: "{{ item.type }}"
+    ifname: "{{ item.ifname }}"
+    conn_name: "{{ item.conn_name }}"
+    autoconnect: "{{ item.autoconnect }}"
+    state: "{{ item.state }}"
+    method4: "{{ item.method4 }}"
+    ssid: "{{ item.ssid }}"
+    wifi:
+      mac-address: "{{ item.mac }}"
+  with_items: "{{ network_interfaces | default([]) }}"
+  when:
+    - item.type == 'wifi'
+    - item.method4 == 'disabled'

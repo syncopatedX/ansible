@@ -1,0 +1,318 @@
+---
+# Example host_vars configuration for video role
+# Copy this to inventory/host_vars/<hostname>.yml and customize
+
+# =============================================================================
+# Example 1: Intel Laptop with 4K Display (Single Monitor)
+# =============================================================================
+video:
+  gpu:
+    vendor: "intel"
+    model: "iris_xe"
+    # driver: "modesetting"  # Optional: uses default for vendor
+
+  x11:
+    config_file: "20-intel-config.conf"
+    options:
+      TearFree: "true"
+      DRI: "3"
+      AccelMethod: "glamor"
+
+  monitors:
+    primary:
+      output: "eDP-1"
+      resolution: "3840x2160"
+      refresh_rate: "60.00"
+      position: "0x0"
+      scaling: 1.5
+
+    secondary:
+      enabled: false
+
+  packages:
+    additional:
+      - intel-gpu-tools
+    exclude: []
+
+# =============================================================================
+# Example 2: Hybrid Laptop (Intel + NVIDIA) - Intel Primary
+# Based on: Intel TigerLake-H GT1 + NVIDIA T1200 Laptop GPU
+# =============================================================================
+# video:
+#   gpu:
+#     vendor: "intel"
+#     model: "tigerlake_h"
+#     # Use Intel for display, NVIDIA for compute/gaming
+#
+#   # Hybrid GPU configuration
+#   hybrid:
+#     enabled: true
+#     primary_gpu: "intel"      # GPU handling displays
+#     secondary_gpu: "nvidia"   # GPU for compute/gaming
+#     nvidia_offload: true      # Enable NVIDIA Prime offload
+#
+#   x11:
+#     config_file: "20-hybrid-intel-config.conf"
+#     options:
+#       TearFree: "true"
+#       DRI: "3"
+#       AccelMethod: "glamor"
+#
+#   monitors:
+#     primary:
+#       output: "eDP-1"
+#       resolution: "1920x1200"
+#       refresh_rate: "60.00"
+#       position: "0x0"
+#       scaling: 1.0
+#
+#     secondary:
+#       enabled: false
+#
+#   packages:
+#     additional:
+#       - intel-gpu-tools
+#       - nvidia-prime        # For GPU switching
+#       - nvidia-settings
+#       - optimus-manager     # Optional: for Arch Linux
+#     exclude: []
+
+# =============================================================================
+# Example 3: Hybrid Laptop (Intel + NVIDIA) - NVIDIA Primary
+# For gaming/workstation laptops where NVIDIA drives displays
+# =============================================================================
+# video:
+#   gpu:
+#     vendor: "nvidia"
+#     model: "t1200"
+#
+#   # Hybrid GPU configuration
+#   hybrid:
+#     enabled: true
+#     primary_gpu: "nvidia"    # NVIDIA handles displays
+#     secondary_gpu: "intel"   # Intel for power saving
+#     power_management: true   # Enable dynamic switching
+#
+#   x11:
+#     config_file: "20-hybrid-nvidia-config.conf"
+#     options:
+#       NoLogo: "true"
+#       UseEDID: "false"
+#       AllowEmptyInitialConfiguration: "true"
+#
+#   monitors:
+#     primary:
+#       output: "eDP-1-1"      # NVIDIA-driven internal display
+#       resolution: "1920x1200"
+#       refresh_rate: "60.00"
+#       position: "0x0"
+#       scaling: 1.0
+#
+#     secondary:
+#       enabled: true
+#       output: "DP-1-1"       # External monitor via NVIDIA
+#       resolution: "2560x1440"
+#       refresh_rate: "144.00"
+#       position: "right-of-primary"
+#       scaling: 1.0
+#
+#   packages:
+#     additional:
+#       - nvidia-prime
+#       - nvidia-settings
+#       - intel-media-driver  # Keep Intel drivers for hybrid
+#     exclude: []
+
+# =============================================================================
+# Example 4: NVIDIA Desktop with Dual 4K Monitors
+# =============================================================================
+# video:
+#   gpu:
+#     vendor: "nvidia"
+#     model: "rtx_3080"
+#
+#   x11:
+#     config_file: "20-nvidia-config.conf"
+#     options:
+#       NoLogo: "true"
+#       UseEDID: "false"
+#
+#   monitors:
+#     primary:
+#       output: "DP-0"
+#       resolution: "3840x2160"
+#       refresh_rate: "60.00"
+#       position: "0x0"
+#       scaling: 1.0
+#
+#     secondary:
+#       enabled: true
+#       output: "DP-2"
+#       resolution: "3840x2160"
+#       refresh_rate: "60.00"
+#       position: "right-of-primary"
+#       scaling: 1.0
+#
+#   packages:
+#     additional:
+#       - nvidia-settings
+#       - nvidia-prime
+#     exclude: []
+
+# =============================================================================
+# Example 5: AMD Workstation with Ultrawide Monitor
+# =============================================================================
+# video:
+#   gpu:
+#     vendor: "amd"
+#     model: "rx_6800_xt"
+#
+#   x11:
+#     config_file: "20-amd-config.conf"
+#     options:
+#       TearFree: "true"
+#       DRI: "3"
+#       VariableRefresh: "true"
+#
+#   monitors:
+#     primary:
+#       output: "DisplayPort-0"
+#       resolution: "3440x1440"
+#       refresh_rate: "100.00"
+#       position: "0x0"
+#       scaling: 1.0
+#
+#     secondary:
+#       enabled: false
+#
+#   packages:
+#     additional:
+#       - radeontop
+#       - mesa-demos
+#     exclude: []
+
+# =============================================================================
+# Example 6: Multi-Monitor Gaming Setup (NVIDIA)
+# =============================================================================
+# video:
+#   gpu:
+#     vendor: "nvidia"
+#     model: "rtx_4090"
+#
+#   x11:
+#     config_file: "20-gaming-config.conf"
+#     options:
+#       NoLogo: "true"
+#       UseEDID: "false"
+#       ConnectedMonitor: "DFP-0,DFP-1,DFP-2"
+#
+#   monitors:
+#     primary:
+#       output: "DP-0"
+#       resolution: "2560x1440"
+#       refresh_rate: "165.00"
+#       position: "1920x0"
+#       scaling: 1.0
+#
+#     secondary:
+#       enabled: true
+#       output: "HDMI-0"
+#       resolution: "1920x1080"
+#       refresh_rate: "60.00"
+#       position: "0x0"
+#       scaling: 1.0
+#
+#   packages:
+#     additional:
+#       - nvidia-settings
+#       - nvidia-prime
+#       - vulkan-tools
+#     exclude: []
+
+# =============================================================================
+# Example 7: Hybrid AMD + Intel Laptop (Less Common)
+# =============================================================================
+# video:
+#   gpu:
+#     vendor: "amd"
+#     model: "radeon_680m"
+#
+#   hybrid:
+#     enabled: true
+#     primary_gpu: "amd"
+#     secondary_gpu: "intel"
+#
+#   x11:
+#     config_file: "20-hybrid-amd-config.conf"
+#     options:
+#       TearFree: "true"
+#       DRI: "3"
+#
+#   monitors:
+#     primary:
+#       output: "eDP-1"
+#       resolution: "1920x1080"
+#       refresh_rate: "60.00"
+#       position: "0x0"
+#       scaling: 1.0
+#
+#   packages:
+#     additional:
+#       - radeontop
+#       - intel-media-driver
+#     exclude: []
+
+# =============================================================================
+# Example 8: Minimal Configuration (Uses Defaults)
+# =============================================================================
+# video:
+#   gpu:
+#     vendor: "intel"  # Only vendor is required, rest uses defaults
+
+# =============================================================================
+# Example 9: Dell Laptop Configuration (Based on provided inxi output)
+# Intel TigerLake-H GT1 + NVIDIA T1200, Sharp 1920x1200 display
+# =============================================================================
+# video:
+#   gpu:
+#     vendor: "intel"           # Primary GPU for display
+#     model: "tigerlake_h_gt1"
+#
+#   hybrid:
+#     enabled: true
+#     primary_gpu: "intel"      # Intel handles display (modesetting driver)
+#     secondary_gpu: "nvidia"   # NVIDIA T1200 for compute/gaming
+#     nvidia_offload: true      # Enable __NV_PRIME_RENDER_OFFLOAD
+#     power_management: true    # Enable GPU power switching
+#
+#   x11:
+#     config_file: "20-dell-hybrid-config.conf"
+#     options:
+#       TearFree: "true"
+#       DRI: "3"
+#       AccelMethod: "glamor"
+#
+#   monitors:
+#     primary:
+#       output: "eDP-1"         # Sharp 0x1515 internal display
+#       resolution: "1920x1200" # Native resolution
+#       refresh_rate: "60.00"
+#       position: "0x0"
+#       scaling: 1.0            # 145 DPI, no scaling needed
+#
+#     secondary:
+#       enabled: false          # No external monitor by default
+#       output: "DP-1"          # Available DisplayPort
+#       resolution: "2560x1440"
+#       refresh_rate: "60.00"
+#       position: "right-of-primary"
+#       scaling: 1.0
+#
+#   packages:
+#     additional:
+#       - intel-gpu-tools       # Intel GPU utilities
+#       - nvidia-prime          # PRIME offload support
+#       - nvidia-settings       # NVIDIA control panel
+#       - mesa-utils            # OpenGL utilities
+#     exclude:
+#       - nouveau               # Exclude open-source NVIDIA driver

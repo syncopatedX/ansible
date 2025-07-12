@@ -1,4 +1,4 @@
 ---
 # RedHat/Rocky Linux specific audio packages and configuration
 
-audio_packages: "{{ packages__audio | default([]) }}"
+audio_packages: "{{ audio_packages__audio | default([]) }}"

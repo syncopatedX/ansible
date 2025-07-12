@@ -1,4 +1,0 @@
----
-
-- ansible.builtin.import_tasks: configuration.yml
-- ansible.builtin.import_tasks: install.yml

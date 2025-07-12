@@ -1,69 +1,11 @@
 ---
 - name: Load distribution-specific variables
-  include_vars: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
   tags: ["packages"]
 
 - name: Starting audio role tasks
   ansible.builtin.debug:
     msg: "Starting audio tasks"
-
-# Ensure audio_system is valid and enforce mutual exclusivity
-- name: Validate audio system configuration
-  ansible.builtin.assert:
-    that:
-      - audio_system in ['pipewire', 'pulseaudio_jack']
-      - not (use_jack|bool and use_pipewire|bool)
-    fail_msg: >
-      Invalid audio configuration detected!
-      You cannot enable both JACK/PulseAudio and PipeWire simultaneously.
-      Please set audio_system to either 'pipewire' or 'pulseaudio_jack', but not both.
-      Current settings: audio_system={{ audio_system }}, use_jack={{ use_jack }}, use_pipewire={{ use_pipewire }}
-    success_msg: "Audio system configuration validated: {{ audio_system }}"
-
-# Set derived variables based on audio_system
-- name: Set derived audio facts
-  ansible.builtin.set_fact:
-    use_jack: "{{ true if audio_system == 'pulseaudio_jack' else false }}"
-    use_pipewire: "{{ true if audio_system == 'pipewire' else false }}"
-
-# - ansible.builtin.import_tasks:
-#     file: packages.yml
-#   tags: ["packages"]
-
-# - block:
-#     - name: install lsmi
-#       copy:
-#         src: "usr/local/bin/{{ item }}"
-#         dest: "/usr/local/bin/{{ item }}"
-#         mode: '0755'
-#       with_items:
-#         - lsmi-joystick
-#         - lsmi-keyhack
-#         - lsmi-monterey
-#         - lsmi-mouse
-
-#     - name: install makeh2kit and makesfz
-#       copy:
-#         src: "usr/local/bin/{{ item }}"
-#         dest: "/usr/local/bin/{{ item }}"
-#         mode: '0755'
-#       with_items:
-#         - makeh2kit
-#         - makesfz
-
-#     - name: install ebu-norm
-#       copy:
-#         src: "usr/local/bin/{{ item }}"
-#         dest: "/usr/local/bin/{{ item }}"
-#         mode: '0755'
-#       with_items:
-#         - ebu-norm
-#         - ebu-scan
-#         - tp-norm
-#         - tp-normv2
-
-#   become: True
-#   tags: ['utils']
 
 # - name: add modprobe option to not use a usb card are the default device
 #   lineinfile:
@@ -73,6 +15,19 @@
 #     backup: yes
 #   become: True
 #   tags: ['modprobe']
+
+- tags: ["packages", "alsa_pkgs"]
+  become: false
+  block:
+    - name: Install alsa packages
+      aur:
+        use: auto
+        name: "{{ audio_packages.alsa }}"
+        state: present
+  rescue:
+    - name: Installing base packages failed
+      ansible.builtin.debug:
+        msg: "Failed to install base packages"
 
 - ansible.builtin.import_tasks:
     file: jack.yml

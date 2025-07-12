@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-
-poetry install
-
-{% for collection in archlinux_install_provisioning_collections %}
-poetry run ansible-galaxy collection install {{ collection }}
-{% endfor %}
-
-poetry run ansible-playbook "{{ archlinux_install_configure_remote_playbook | default('./playbook.yml') }}" {% if archlinux_install_configure_inventory is defined %} -i ./inventory {% endif %} -i ./extra_vars.yml

@@ -1,10 +1,9 @@
 ---
 - name: Configure tinybot host
   hosts: tinybot
-  become: yes
+  become: true
   vars: {}
-
   tasks:
     - name: Apply base configuration
-      include_role:
+      ansible.builtin.include_role:
         name: base

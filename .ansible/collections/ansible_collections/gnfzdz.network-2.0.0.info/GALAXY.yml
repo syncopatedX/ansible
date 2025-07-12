@@ -1,8 +1,0 @@
-download_url: https://galaxy.ansible.com/api/v3/plugin/ansible/content/published/collections/artifacts/gnfzdz-network-2.0.0.tar.gz
-format_version: 1.0.0
-name: network
-namespace: gnfzdz
-server: https://galaxy.ansible.com/api/
-signatures: []
-version: 2.0.0
-version_url: /api/v3/plugin/ansible/content/published/collections/index/gnfzdz/network/versions/2.0.0/

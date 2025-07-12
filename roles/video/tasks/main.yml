@@ -1,87 +1,177 @@
 ---
-# Video drivers and packages
+# =============================================================================
+# Video Role Main Tasks
+# Configures video drivers, X11, and monitor settings based on host_vars
+# =============================================================================
 
-- name: Load distribution-specific variables
-  include_vars: "{{ ansible_os_family }}.yml"
-  tags: ["packages"]
+- name: Display video configuration summary
+  ansible.builtin.debug:
+    msg:
+      - "Video Configuration Summary:"
+      - "  GPU Vendor: {{ video.gpu.vendor }}"
+      - "  GPU Model: {{ video.gpu.model }}"
+      - "  Hybrid GPU: {{ 'Enabled' if video.hybrid.enabled | default(false) else 'Disabled' }}"
+      - "  X11 Driver: {{ video.x11.driver | default(gpu_driver_configs[video.gpu.vendor].driver) }}"
+      - "  Primary Monitor: {{ video.monitors.primary.output }} ({{ video.monitors.primary.resolution }})"
+      - "  Secondary Monitor: {{ 'Enabled' if video.monitors.secondary.enabled | default(false) else 'Disabled' }}"
+  tags: ["video", "debug"]
 
-# - name: Install video packages on Arch Linux
-#   pacman:
-#     name: "{{ video_packages }}"
-#     state: present
-#   become: true
-#   when: 
-#     - ansible_os_family == "Archlinux"
-#     - video_packages is defined
-#   tags: ["packages"]
+- name: Display hybrid GPU configuration
+  ansible.builtin.debug:
+    msg:
+      - "Hybrid GPU Configuration:"
+      - "  Primary GPU: {{ video.hybrid.primary_gpu }} (displays)"
+      - "  Secondary GPU: {{ video.hybrid.secondary_gpu }} (compute)"
+      - "  NVIDIA Offload: {{ 'Enabled' if video.hybrid.nvidia_offload | default(false) else 'Disabled' }}"
+  when: video.hybrid.enabled | default(false)
+  tags: ["video", "debug"]
 
-# - name: Install video packages on Rocky Linux/RedHat
-#   dnf:
-#     name: "{{ video_packages }}"
-#     state: present
-#   become: true
-#   when: 
-#     - ansible_os_family == "RedHat"
-#     - video_packages is defined
-#   tags: ["packages"]
-#
-# Task Block: System-Level Graphics Driver Configuration
-#
-- name: Block for system-wide graphics configuration
+# =============================================================================
+# Package Management
+# =============================================================================
+
+- name: Block for video package management
+  become: true
   block:
-    - name: Ensure modern graphics packages are installed (Arch/pacman)
+    - name: Calculate required video packages
+      ansible.builtin.set_fact:
+        calculated_video_packages: >-
+          {{
+            (base_video_packages | default([])) +
+            (lookup('vars', video.gpu.vendor + '_video_packages', default=[]) | list) +
+            (video.hybrid.enabled | default(false) | ternary(
+              lookup('vars', video.hybrid.secondary_gpu + '_video_packages', default=[]) | list,
+              []
+            )) +
+            (video.packages.additional | default([]))
+          }}
+        packages_to_exclude: "{{ video.packages.exclude | default([]) }}"
+        final_video_packages: >-
+          {{
+            (
+              (base_video_packages | default([])) +
+              (lookup('vars', video.gpu.vendor + '_video_packages', default=[]) | list) +
+              (video.hybrid.enabled | default(false) | ternary(
+                lookup('vars', video.hybrid.secondary_gpu + '_video_packages', default=[]) | list,
+                []
+              )) +
+              (video.packages.additional | default([]))
+            ) | difference(video.packages.exclude | default([]))
+          }}
+
+    - name: Display package installation plan
+      ansible.builtin.debug:
+        msg:
+          - "Package Installation Plan:"
+          - "  Base packages: {{ base_video_packages | default([]) }}"
+          - "  {{ video.gpu.vendor | upper }} packages: {{ lookup('vars', video.gpu.vendor + '_video_packages', default=[]) }}"
+          - "{% if video.hybrid.enabled | default(false) %}  {{ video.hybrid.secondary_gpu | upper }} packages (hybrid): {{ lookup('vars', video.hybrid.secondary_gpu
+            + '_video_packages', default=[]) }}{% endif %}"
+          - "  Additional packages: {{ video.packages.additional | default([]) }}"
+          - "  Excluded packages: {{ video.packages.exclude | default([]) }}"
+          - "  Final package list: {{ final_video_packages }}"
+      tags: ["video", "debug"]
+
+    - name: Install video packages (Arch Linux)
       community.general.pacman:
-        name: "{{ required_packages }}"
+        name: "{{ final_video_packages }}"
         state: present
+      when:
+        - ansible_os_family == "Archlinux"
+        - final_video_packages | length > 0
+      tags: ["packages", "video"]
 
-    - name: Ensure legacy Intel driver '{{ legacy_intel_driver }}' is uninstalled
+    - name: Install video packages (RedHat/Fedora)
+      ansible.builtin.dnf:
+        name: "{{ final_video_packages }}"
+        state: present
+      when:
+        - ansible_os_family == "RedHat"
+        - final_video_packages | length > 0
+      tags: ["packages", "video"]
+
+    - name: Remove legacy video packages
       community.general.pacman:
-        name: "{{ legacy_intel_driver }}"
+        name: "{{ legacy_packages | default([]) }}"
         state: absent
+      when:
+        - ansible_os_family == "Archlinux"
+        - legacy_packages is defined
+        - legacy_packages | length > 0
+      tags: ["packages", "video"]
 
-    - name: Create /etc/X11/xorg.conf.d/ directory if it doesn't exist
+    - name: Remove legacy video packages (RedHat/Fedora)
+      ansible.builtin.dnf:
+        name: "{{ legacy_packages | default([]) }}"
+        state: absent
+      when:
+        - ansible_os_family == "RedHat"
+        - legacy_packages is defined
+        - legacy_packages | length > 0
+      tags: ["packages", "video"]
+
+# =============================================================================
+# X11 Configuration
+# =============================================================================
+
+- name: Block for X11 configuration
+  become: true
+  block:
+    - name: Create /etc/X11/xorg.conf.d/ directory
       ansible.builtin.file:
         path: /etc/X11/xorg.conf.d/
         state: directory
-        mode: '0755'
+        mode: "0755"
+      tags: ["video", "x11"]
 
-    - name: Create Xorg configuration for modesetting driver
-      ansible.builtin.copy:
-        dest: "/etc/X11/xorg.conf.d/20-intel-modesetting.conf"
+    - name: Generate X11 configuration for GPU
+      ansible.builtin.template:
+        src: "etc/X11/xorg.conf.d/gpu-config.conf.j2"
+        dest: "/etc/X11/xorg.conf.d/{{ video.x11.config_file }}"
         owner: root
         group: root
-        mode: '0644'
-        content: |
-          # This file is managed by Ansible.
-          # Ensures the modern 'modesetting' driver is used for the Intel Iris Xe GPU.
-          Section "Device"
-              Identifier  "Intel Iris Xe Graphics"
-              Driver      "modesetting"
-              Option      "TearFree" "true"
-              Option      "DRI"      "3"
-          EndSection
-  become: true
+        mode: "0644"
+        backup: true
+      notify: "restart display manager"
+      tags: ["video", "x11"]
 
-#
-# Task Block: Per-User Display Layout and Scaling Configuration
-#
-- name: Block for user-specific display configuration
+    - name: Remove old hardcoded Intel configuration
+      ansible.builtin.file:
+        path: "/etc/X11/xorg.conf.d/20-intel-modesetting.conf"
+        state: absent
+      tags: ["video", "x11", "cleanup"]
+
+# =============================================================================
+# User-specific Monitor Configuration
+# =============================================================================
+
+- name: Block for user-specific monitor configuration
+  become: false
   block:
     - name: Create user screenlayout directory
       ansible.builtin.file:
         path: "{{ user.home }}/.screenlayout"
         state: directory
         owner: "{{ user.name }}"
-        group: "{{ user.group }}" # Use the user's primary group
-        mode: '0755'
+        group: "{{ user.group }}"
+        mode: "0755"
+      tags: ["video", "user"]
 
-    - name: Deploy xrandr startup script for dual 4K layout and scaling
+    - name: Deploy monitor setup script
       ansible.builtin.template:
-        src: "home/.screenlayout/dual-4k-setup.sh.j2"      
-        dest: "{{ user.home }}/.screenlayout/dual-4k-setup.sh"
+        src: "home/.screenlayout/monitor-setup.sh.j2"
+        dest: "{{ user.home }}/.screenlayout/{{ inventory_hostname }}.sh"
         owner: "{{ user.name }}"
         group: "{{ user.group }}"
-        mode: '0755' # Must be executable
+        mode: "0755"
+        backup: true
+      tags: ["video", "user", "monitors"]
+
+    - name: Remove old dual-4k setup script
+      ansible.builtin.file:
+        path: "{{ user.home }}/.screenlayout/dual-4k-setup.sh"
+        state: absent
+      tags: ["video", "user", "cleanup"]
 
     - name: Create user autostart directory
       ansible.builtin.file:
@@ -89,32 +179,71 @@
         state: directory
         owner: "{{ user.name }}"
         group: "{{ user.group }}"
-        mode: '0755'
+        mode: "0755"
+      tags: ["video", "user"]
 
-    - name: Create .desktop file to autostart the xrandr script
+    - name: Create .desktop file to autostart monitor setup
       ansible.builtin.copy:
         dest: "{{ user.home }}/.config/autostart/apply-screen-layout.desktop"
         owner: "{{ user.name }}"
         group: "{{ user.group }}"
-        mode: '0644'
+        mode: "0644"
         content: |
           [Desktop Entry]
           # This file is managed by Ansible.
           Type=Application
           Name=Apply Screen Layout
-          Comment=Sets up dual 4K monitors with xrandr
-          Exec={{ user.home }}/.screenlayout/dual-4k-setup.sh
+          Comment=Configures monitors for {{ inventory_hostname }} ({{ video.gpu.vendor | upper }} {{ video.gpu.model | upper }})
+          Exec={{ user.home }}/.screenlayout/{{ inventory_hostname }}.sh
           Terminal=false
           X-GNOME-Autostart-enabled=true
-  become: false # These tasks run as the user, not root. But playbook runs as root, so we use become: false and specify owner/group.
-  # To run as the actual user, connection method would need to change.
-  # For local connection, setting owner/group is sufficient and simpler.
+          Categories=System;
+      tags: ["video", "user", "autostart"]
 
-  # handlers:
-  #   - name: Handler Restart Display Manager
-  #     ansible.builtin.debug:
-  #       msg: |
-  #         A system-level graphics configuration has changed.
-  #         Please reboot or restart your display manager (e.g., 'sudo systemctl restart sddm')
-  #         for the changes to take full effect.
-  #     listen: "Handler Restart Display Manager"
+# =============================================================================
+# GPU-specific Tasks
+# =============================================================================
+
+- name: Include GPU-specific tasks
+  ansible.builtin.include_tasks: "gpu/{{ video.gpu.vendor }}.yml"
+  when:
+    - video.gpu.vendor in ['intel', 'nvidia', 'amd']
+  tags: ["video", "gpu"]
+  ignore_errors: true # Allow missing GPU-specific task files
+
+# =============================================================================
+# Configuration Validation
+# =============================================================================
+
+- name: Block for configuration validation
+  become: false
+  block:
+    - name: Validate X11 configuration syntax
+      ansible.builtin.command:
+        cmd: "Xorg -config /etc/X11/xorg.conf.d/{{ video.x11.config_file }} -retro -noreset -logfile /tmp/xorg-test.log"
+      register: xorg_test
+      failed_when: false
+      changed_when: false
+      tags: ["video", "validation"]
+
+    - name: Display X11 validation results
+      ansible.builtin.debug:
+        msg:
+          - "X11 Configuration Validation:"
+          - "  Return code: {{ xorg_test.rc }}"
+          - "  Status: {{ 'PASSED' if xorg_test.rc == 0 else 'FAILED' }}"
+      tags: ["video", "validation"]
+
+    - name: Check if monitor setup script is executable
+      ansible.builtin.stat:
+        path: "{{ user.home }}/.screenlayout/{{ inventory_hostname }}.sh"
+      register: monitor_script
+      tags: ["video", "validation"]
+
+    - name: Validate monitor script
+      ansible.builtin.debug:
+        msg:
+          - "Monitor Script Validation:"
+          - "  Exists: {{ monitor_script.stat.exists }}"
+          - "  Executable: {{ monitor_script.stat.executable | default(false) }}"
+      tags: ["video", "validation"]

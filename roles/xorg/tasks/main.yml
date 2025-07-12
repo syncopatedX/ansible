@@ -1,45 +1,34 @@
 ---
-# tasks file for x
+# tasks file for xorg
 
 - name: Load distribution-specific variables
-  include_vars: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_distribution }}.yml"
   tags: ["packages"]
+
 - name: Install xorg packages
   aur:
     use: paru
-    name: "{{ packages__xorg }}"
+    name: "{{ xorg_packages__xorg }}"
     state: present
   become: false
+  when: ansible_distribution == "Archlinux"
   tags: ["packages"]
 
-# - block:
-#     - name: Set xorg.conf
-#       template:
-#         src: etc/X11/xorg.conf.j2
-#         dest: /etc/X11/xorg.conf
-#         owner: root
-#         group: root
-#         mode: '0644'
-#         backup: yes
-
-#     - name: Set video modules in mkinitcpio
-#       template:
-#         src: etc/mkinitcpio.conf.j2
-#         dest: /etc/mkinitcpio.conf
-#         owner: root
-#         group: root
-#         mode: '0644'
-#         backup: yes
-#       register: mkinitcpio_conf
-
-#     - name: Re-create ramdisk if config changed
-#       shell: mkinitcpio -P
-#       when: mkinitcpio_conf.changed
-
-#   when:
-#     - (ansible_distribution != 'EndeavourOS' or ansible_facts["lsb"]["id"] != 'EndeavourOS')
-#     - ansible_os_family == 'Archlinux'
-#   tags: ['video', 'mkinitcpio']
+- tags: ["packages"]
+  when: ansible_distribution == "Fedora"
+  block:
+    - name: Install xorg packages
+      ansible.builtin.dnf:
+        name: "{{ xorg_package_item }}"
+        state: present
+      loop: "{{ xorg_packages__xorg }}"
+      loop_control:
+        loop_var: xorg_package_item
+      become: true
+  rescue:
+    - name: Installing packages failed
+      ansible.builtin.debug:
+        msg: "Failed to install xorg packages"
 
 - name: Disable vblank
   ansible.builtin.copy:
@@ -49,7 +38,6 @@
               <option name="vblank_mode" value="0"/>
           </application>
       </device>
-
     dest: "{{ user.home }}/.drirc"
     owner: "{{ user.name }}"
     group: "{{ user.group }}"
@@ -74,8 +62,6 @@
         - .xprofile
         - .xserverrc
         - .Xresources
-      # register: xconfig
-      # changed_when: (xconfig.msg is defined and not 'All items completed' in xconfig.msg)
 
     - name: Set xinitrc config
       ansible.builtin.template:
@@ -85,20 +71,3 @@
         group: "{{ user.group }}"
         mode: "0755"
         backup: true
-
-
-- ansible.builtin.import_tasks:
-    file: sxhkd.yml
-  tags: ["sxhkd"]
-
-- ansible.builtin.import_tasks:
-    file: picom.yml
-  tags: ["picom"]
-
-- ansible.builtin.import_tasks:
-    file: dunst.yml
-  tags: ["dunst"]
-
-- ansible.builtin.import_tasks:
-    file: xdg.yml
-  tags: ["xdg"]

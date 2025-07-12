@@ -32,6 +32,6 @@
       tags: ["folders"]
 
 - name: Configure sudo access
-  include_tasks: sudo.yml
+  ansible.builtin.include_tasks: sudo.yml
   when: user.sudoers | default(true)
   tags: ["sudoers"]

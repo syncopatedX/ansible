@@ -4,44 +4,43 @@
 
 packages__base:
   # Download and network utilities
-  - aria2                          # aria2 (EPEL)
-  - wget                           # wget
-  - curl                           # curl equivalent
-  - rsync                          # rsync
-  - bind-utils                     # bind (DNS utilities)
-  - net-tools                      # net-tools
+  - aria2 # aria2 (EPEL)
+  - wget # wget
+  - curl # curl equivalent
+  - rsync # rsync
+  - bind-utils # bind (DNS utilities)
+  - net-tools # net-tools
   # inetutils -> use individual tools (hostname, ping, etc. in coreutils)
-  
+
   # Text processing and spell checking
-  - aspell                         # aspell
-  - aspell-en                      # aspell-en
-  - hunspell                       # nuspell alternative
-  - hspell                         # hspell
-  
+  - aspell # aspell
+  - aspell-en # aspell-en
+  - hunspell # nuspell alternative
+  - hspell # hspell
+
   # Archive and file utilities
-  - unzip                          # unzip
-  - tree                           # tree
-  
+  - unzip # unzip
+  - tree # tree
+
   # Audio and multimedia libraries
-  - audiofile-devel                # audiofile
-  - taglib                         # taglib
-  - vorbis-tools                   # vorbis-tools
-  - wavpack                        # wavpack
-  
+  - audiofile-devel # audiofile
+  - taglib # taglib
+  - vorbis-tools # vorbis-tools
+  - wavpack # wavpack
+
   # Development tools and build system
-  - "@Development Tools"           # base-devel equivalent
+  - "@Development Tools" # base-devel equivalent
   - autoconf
   - automake
   - cmake
-  - cmake                          # cmake
-  - debugedit                      # debugedit
+  - debugedit # debugedit
   - elfutils-libelf-devel
   - gettext-devel
-  - git                            # git
-  - git-lfs                        # git-lfs
+  - git # git
+  - git-lfs # git-lfs
   - kernel-devel
   - kernel-headers
-  - libffi-devel  
+  - libffi-devel
   - libtool
   - openssl-devel
   - patch
@@ -52,75 +51,75 @@ packages__base:
   - sqlite-devel
   - xz-devel
   - zlib-devel
-  
+
   # System tools and monitoring
-  - bash-completion                # bash-completion
-  - firewalld                      # firewalld
-  - kernel-tools                   # cpupower equivalent
-  - htop                           # htop
-  - iotop                          # iotop
-  - sysstat                        # sysstat
-  - smartmontools                  # smartmontools
-  
+  - bash-completion # bash-completion
+  - firewalld # firewalld
+  - kernel-tools # cpupower equivalent
+  - htop # htop
+  - iotop # iotop
+  - sysstat # sysstat
+  - smartmontools # smartmontools
+
   # Text editors and pagers
-  - most                           # most
-  
+  - most # most
+
   # Graphics and image processing
-  - ImageMagick                    # imagemagick
-  - GraphicsMagick                 # graphicsmagick
-  
+  - ImageMagick # imagemagick
+  - GraphicsMagick # graphicsmagick
+
   # Network and web browsers
-  - elinks                         # elinks
-  - links                          # links
-  - lynx                           # lynx
-  
+  - elinks # elinks
+  - links # links
+  - lynx # lynx
+
   # Security and authentication
-  - gnome-keyring                  # gnome-keyring
-  - openssh                        # openssh
-  - sudo                           # sudo
-  - stunnel                        # stunnel
-  
+  - gnome-keyring # gnome-keyring
+  - openssh # openssh
+  - sudo # sudo
+  - stunnel # stunnel
+
   # FUSE filesystem support
-  - fuse                           # fuse-common
-  - fuse3                          # fuse3
-  
+  - fuse # fuse-common
+  - fuse3 # fuse3
+
   # Multimedia framework
-  - gstreamer1                     # gstreamer
-  
+  - gstreamer1 # gstreamer
+
   # Programming languages and tools
-  - nodejs                         # nodejs
-  - npm                            # npm
-  - jq                             # jq
-  - highlight                      # highlight
-  - figlet                         # figlet
-  - gnuplot                        # gnuplot
-  
+  - nodejs # nodejs
+  - npm # npm
+  - jq # jq
+  - highlight # highlight
+  - figlet # figlet
+  - gnuplot # gnuplot
+
   # Git and version control libraries
-  - libgit2                        # libgit2
-  
+  - libgit2 # libgit2
+
   # PDF and document processing
-  - poppler                        # poppler
-  
+  - poppler # poppler
+
   # Database libraries
-  - postgresql                     # postgresql-libs
-  
+  - postgresql # postgresql-libs
+
   # Python packages
-  - python3-chardet                # python-chardet
-  - python3-pillow                # python-pillow
-  - python3-pygments              # python-pygments
-  - python3-setuptools            # python-setuptools
-  - python3-virtualenv            # python-virtualenv
-  
+  - python3-chardet # python-chardet
+  - python3-pillow # python-pillow
+  - python3-pygments # python-pygments
+  - python3-setuptools # python-setuptools
+  - python3-virtualenv # python-virtualenv
+
   # File manager and terminal tools
-  - ranger                         # ranger
-  - xterm                          # xterm
+  - ranger # ranger
+  - xterm # xterm
   - zoxide
   # Socket and network utilities
-  - socat                          # socat
-  
+  - socat # socat
+
   # Accessibility
-  - speech-dispatcher              # speech-dispatcher
-  
+  - speech-dispatcher # speech-dispatcher
+
   # SSH
   - sshfs
   - autossh
@@ -128,155 +127,166 @@ packages__base:
   - openssh-askpass
   - mosh
   # Video utilities moved to EPEL section
+  # Ruby
+  - libgit2-devel
+  - openslide-devel
+  - readline-devel
+  - openssl-devel
+  - vips-devel
+  - libyaml-devel
+  - openssl
+  # - postgresql-server-devel
+  - libpq-devel
+  - ruby-devel
 
 # Packages available in EPEL repository
 packages__epel:
-  - aria2                          # Download utility
-  - atool                          # Archive tool wrapper
-  - bat                            # Cat with syntax highlighting
-  - fd-find                        # Find alternative
-  - fakeroot                       # Fake root environment
-  - inxi                           # System information
-  - lnav                           # Log navigator
-  - ncdu                           # Disk usage analyzer
-  - numlockx                       # NumLock control
-  - pandoc                         # Document converter
-  - playerctl                      # Media player control
-  - ripgrep                        # Fast grep alternative
-  - rxvt-unicode                   # Terminal emulator
-  - sshpass                        # SSH password authentication
-  - mediainfo                      # Media file information
-  - meld                           # File comparison
+  - aria2 # Download utility
+  - atool # Archive tool wrapper
+  - bat # Cat with syntax highlighting
+  - fd-find # Find alternative
+  - fakeroot # Fake root environment
+  - inxi # System information
+  - lnav # Log navigator
+  - ncdu # Disk usage analyzer
+  - numlockx # NumLock control
+  - pandoc # Document converter
+  - playerctl # Media player control
+  - ripgrep # Fast grep alternative
+  - rxvt-unicode # Terminal emulator
+  - sshpass # SSH password authentication
+  - mediainfo # Media file information
+  - meld # File comparison
   # - v4l-utils                      # Video4Linux utilities
-  
+
 # Packages from RPM Fusion Free
 packages__rpmfusion_free:
-  - faac                           # AAC encoder
-  - faad2                          # AAC decoder
-  - gstreamer1-libav              # GStreamer libav plugin
-  - x264                           # H.264 encoder
-  - x265                           # H.265 encoder
-  
+  - faac # AAC encoder
+  - faad2 # AAC decoder
+  - gstreamer1-libav # GStreamer libav plugin
+  - x264 # H.264 encoder
+  - x265 # H.265 encoder
+
 # Packages from RPM Fusion Non-Free
 packages__rpmfusion_nonfree:
-  - unrar                          # RAR extractor
+  - unrar # RAR extractor
 
 # Packages not available - alternatives needed
 packages__alternatives:
   - name: "bandwhich"
-    alternative: "iftop"           # Network bandwidth monitor alternative
+    alternative: "iftop" # Network bandwidth monitor alternative
     package: "iftop"
-    
+
   - name: "bottom"
-    cargo: "bottom"                # Install via cargo
-    
+    cargo: "bottom" # Install via cargo
+
   - name: "choose"
-    alternative: "cut"             # Field selection alternative
-    
+    alternative: "cut" # Field selection alternative
+
   - name: "chromaprint"
     source_build: "https://github.com/acoustid/chromaprint.git"
     build_deps: ["cmake", "gcc-c++", "ffmpeg-devel"]
     note: "Audio fingerprinting library - build from source"
-    
+
   - name: "curlie"
-    alternative: "curl"            # HTTP client alternative
-    
+    alternative: "curl" # HTTP client alternative
+
   - name: "downgrade"
     note: "Arch-specific, not needed on Rocky Linux"
-    
+
   - name: "duf"
-    alternative: "df"              # Disk usage alternative
-    
+    alternative: "df" # Disk usage alternative
+
   - name: "dust"
-    cargo: "du-dust"               # Install via cargo
+    cargo: "du-dust" # Install via cargo
     alternative: "ncdu"
-    
+
   - name: "eza"
-    cargo: "eza"                   # Install via cargo
+    cargo: "eza" # Install via cargo
     alternative: "ls"
-    
+
   - name: "gh"
     repo_setup: |
       curl -fsSL https://cli.github.com/packages/rpm/gh-cli.repo | sudo tee /etc/yum.repos.d/github-cli.repo
     package: "gh"
     note: "GitHub CLI - requires adding official repository"
-    
+
   - name: "git-delta"
-    cargo: "git-delta"             # Install via cargo
-    
+    cargo: "git-delta" # Install via cargo
+
   - name: "glow"
     binary_url: "https://github.com/charmbracelet/glow/releases/latest/download/glow_Linux_x86_64.tar.gz"
-    
+
   - name: "gping"
-    cargo: "gping"                 # Install via cargo
-    
+    cargo: "gping" # Install via cargo
+
   - name: "gum"
     binary_url: "https://github.com/charmbracelet/gum/releases/latest/download/gum_Linux_x86_64.tar.gz"
-    
+
   - name: "i7z"
-    alternative: "cpupower"        # CPU monitor alternative
-    
+    alternative: "cpupower" # CPU monitor alternative
+
   - name: "inetutils"
     note: "Individual utilities available in coreutils, net-tools packages"
     alternatives: ["hostname", "ping", "traceroute"]
-    
+
   - name: "libgit2-glib"
-    alternative: "libgit2-devel"   # Use development version
+    alternative: "libgit2-devel" # Use development version
     package: "libgit2-devel"
-    
+
   - name: "libvips"
     source_build: "https://github.com/libvips/libvips.git"
     build_deps: ["meson", "ninja-build", "glib2-devel", "expat-devel", "libjpeg-turbo-devel", "libpng-devel", "libtiff-devel", "libwebp-devel"]
     note: "Image processing library - build from source"
-    
+
   - name: "mako"
     note: "Wayland notification daemon - GNOME has built-in notifications"
-    
+
   - name: "micro"
     binary_url: "https://github.com/zyedidia/micro/releases/latest/download/micro-linux64.tar.gz"
-    
+
   - name: "nano-syntax-highlighting"
     note: "Nano comes with basic syntax highlighting on Rocky Linux"
-    
+
   - name: "nuspell"
-    alternative: "hunspell"        # Use hunspell instead
+    alternative: "hunspell" # Use hunspell instead
     package: "hunspell"
-    
+
   - name: "python-adblock"
     note: "Not available, consider browser-based ad blocking"
-    
+
   - name: "python-edge-tts"
-    pip: "edge-tts"                # Install via pip
-    
+    pip: "edge-tts" # Install via pip
+
   - name: "python-j2cli"
-    pip: "j2cli"                   # Install via pip
-    
+    pip: "j2cli" # Install via pip
+
   - name: "python-sphinx-intl"
-    package: "python3-sphinx-intl"  # Available in EPEL
-    
+    package: "python3-sphinx-intl" # Available in EPEL
+
   - name: "ripgrep-all"
-    cargo: "ripgrep_all"           # Install via cargo
-    
+    cargo: "ripgrep_all" # Install via cargo
+
   - name: "realtime-privileges"
     note: "Configure manually via /etc/security/limits.conf"
-    
+
   - name: "sd"
-    cargo: "sd"                    # Install via cargo
-    
+    cargo: "sd" # Install via cargo
+
   - name: "swappy"
     note: "Screenshot editor - use GNOME Screenshot or similar"
-    
+
   - name: "tldr"
-    pip: "tldr"                    # Install via pip
+    pip: "tldr" # Install via pip
     alternative: "man"
-    
+
   - name: "ueberzug"
-    pip: "ueberzug"                # Install via pip
-    
+    pip: "ueberzug" # Install via pip
+
   # - name: "v4l-utils"
   #   package: "v4l-utils"           # Should be available in EPEL
   #   note: "Try installing from EPEL repository"
-    
+
   - name: "vips"
     source_build: "https://github.com/libvips/libvips.git"
     build_deps: ["meson", "ninja-build", "glib2-devel", "expat-devel", "libjpeg-turbo-devel", "libpng-devel", "libtiff-devel", "libwebp-devel"]

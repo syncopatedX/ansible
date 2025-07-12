@@ -1,4 +1,0 @@
----
-network_bluetooth_packages: "{{ network_bluetooth_packages_default }}"
-network_bluetooth_gui_packages: "{{ network_bluetooth_packages_default }}"
-network_bluetooth_enabled: False

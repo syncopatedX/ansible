@@ -1,9 +1,40 @@
 ---
 # Arch Linux specific video packages and configuration
 
-video_packages:
+# Base video packages for all GPU types
+base_video_packages:
   - mesa
+  - mesa-utils
   - vulkan-mesa-layers
-  # - xf86-video-intel
-  # - nvidia
-  # - nvidia-utils
+  - xorg-xrandr
+  - xorg-xdpyinfo
+
+# Intel-specific packages
+intel_video_packages:
+  - intel-media-driver
+  - libva-intel-driver
+  - vulkan-intel
+  - intel-gpu-tools
+
+# NVIDIA-specific packages
+nvidia_video_packages:
+  - nvidia
+  - nvidia-utils
+  - nvidia-settings
+  - libva-nvidia-driver
+
+# AMD-specific packages
+amd_video_packages:
+  - libva-mesa-driver
+  - mesa-vdpau
+  - vulkan-radeon
+  - radeontop
+
+# Legacy packages to remove
+legacy_packages:
+  - xf86-video-intel # Deprecated Intel driver
+  - xf86-video-ati # Deprecated AMD driver
+  - xf86-video-nouveau # Use nouveau kernel module instead
+
+# Distribution-specific package manager
+package_manager: pacman

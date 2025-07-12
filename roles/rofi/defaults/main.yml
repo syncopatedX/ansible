@@ -1,0 +1,20 @@
+---
+# defaults file for rofi
+rofi_packages:
+  - name: "{{ rofi-wayland if ansible_os_family == Archlinux else rofi }}" # This is a guess, might need adjustment
+rofi_directory_default_mode: "0750"
+rofi_directory_default_owner: "{{ user.name }}"
+rofi_directory_default_group: "{{ user.group }}"
+rofi_directory_default_location: "{{ user.home }}"
+rofi_directory_default_recurse: false
+rofi_directory_definitions:
+  - dest: ".config/rofi"
+  - dest: ".config/rofi/colors"
+  - dest: ".config/rofi/images"
+  - dest: ".config/rofi/launchers"
+  - dest: ".config/rofi/launchers/type-1"
+  - dest: ".config/rofi/launchers/type-1/shared"
+  - dest: ".config/rofi/launchers/type-4"
+  - dest: ".config/rofi/launchers/type-4/shared"
+  - dest: ".config/rofi/powermenu"
+  - dest: ".config/rofi/scripts"

@@ -15,7 +15,7 @@ colors:
     KeywordForeground: "#e08f23"
     SymbolForeground: "#a143af"
     ModuleNameForeground: "#0fa4c4"
-    InstanceVariableForeground : "#d51b7f"
+    InstanceVariableForeground: "#d51b7f"
     ClassVariableForeground: "#859900"
     DoubleQuotedStringForeground: "#ba2290"
     SingleQuotedStringForeground: "#22acba"
@@ -32,110 +32,108 @@ colors:
     CuePathForeground: "#585858"
     CuePathBackground: "#0a0a0a"
   css:
-    background: '#0D0D0D'
-    foreground: '#a29e9e'
-    strong: '#c7d524'
-    emphasis: '#108E1A'
+    background: "#0D0D0D"
+    foreground: "#a29e9e"
+    strong: "#c7d524"
+    emphasis: "#108E1A"
     mark:
-      foreground: '#010101'
-      background: '#811d47'
-    strike: '#282828'
-    pre: '#d14242'
-    link: '#066592'
-    tag: '#838d6e'
-    h1: '#108E1A'
-    h2: '#bbaf05'
-    h3: '#14a8f0'
-    h4: '#b8b8b8'
-    h5: '#e9f10a'
-    sub: '#d28215'
-    sup: '#1D7981'
+      foreground: "#010101"
+      background: "#811d47"
+    strike: "#282828"
+    pre: "#d14242"
+    link: "#066592"
+    tag: "#838d6e"
+    h1: "#108E1A"
+    h2: "#bbaf05"
+    h3: "#14a8f0"
+    h4: "#b8b8b8"
+    h5: "#e9f10a"
+    sub: "#d28215"
+    sup: "#1D7981"
   primary:
-    background: '#000000'
-    foreground: '#838d6e'
-    cursor: '#a38e1d'
-    status: '#794794'
-    separator: '#282828'
+    background: "#000000"
+    foreground: "#838d6e"
+    cursor: "#a38e1d"
+    status: "#794794"
+    separator: "#282828"
   normal:
-    black:   '#000000'
-    red:     '#E32C2C'
-    green:   '#4E9A06'
-    yellow:  '#468A35'
-    blue:    '#C92CA8'
-    magenta: '#96363C'
-    cyan:    '#06989A'
-    white:   '#77767B'
+    black: "#000000"
+    red: "#E32C2C"
+    green: "#4E9A06"
+    yellow: "#468A35"
+    blue: "#C92CA8"
+    magenta: "#96363C"
+    cyan: "#06989A"
+    white: "#77767B"
   bright:
-    black:   '#1C71D8'
-    red:     '#EF2929'
-    green:   '#8AE234'
-    yellow:  '#FCE94F'
-    blue:    '#729FCF'
-    magenta: '#865E3C'
-    cyan:    '#34E2E2'
-    white:   '#1C8B1C'
+    black: "#1C71D8"
+    red: "#EF2929"
+    green: "#8AE234"
+    yellow: "#FCE94F"
+    blue: "#729FCF"
+    magenta: "#865E3C"
+    cyan: "#34E2E2"
+    white: "#1C8B1C"
   selection:
-    foreground: '#292828'
-    background: '#b1701e'
+    foreground: "#292828"
+    background: "#b1701e"
   workspace:
-    background: '#005F89'
-    border: '#005F89'
-    text: '#ebdbb2'
+    background: "#005F89"
+    border: "#005F89"
+    text: "#ebdbb2"
   focused:
-    border: '#33eb1c'
-    background: '#000000'
-    text: '#ebdbb2'
-    indicator: '#33eb1c'
-    child_border: '#33eb1c'
+    border: "#33eb1c"
+    background: "#000000"
+    text: "#ebdbb2"
+    indicator: "#33eb1c"
+    child_border: "#33eb1c"
   unfocused:
-    border: '#2a2a2a'
-    background: '#000000'
-    text: '#4a4d44'
-    indicator: '#33eb1c'
-    child_border: '#2a2a2a'
+    border: "#2a2a2a"
+    background: "#000000"
+    text: "#4a4d44"
+    indicator: "#33eb1c"
+    child_border: "#2a2a2a"
   active:
-    border: '#2a2a2a'
-    background: '#000000'
-    text: '#4a4d44'
-    indicator: '#33eb1c'
-    child_border: '#33eb1c'
+    border: "#2a2a2a"
+    background: "#000000"
+    text: "#4a4d44"
+    indicator: "#33eb1c"
+    child_border: "#33eb1c"
   inactive:
-    border: '#2a2a2a'
-    background: '#6c6c6c'
-    text: '#4a4d44'
-    indicator: '#2a2a2a'
-    child_border: '#2a2a2a'
+    border: "#2a2a2a"
+    background: "#6c6c6c"
+    text: "#4a4d44"
+    indicator: "#2a2a2a"
+    child_border: "#2a2a2a"
   urgent:
-    border: '#2a8e10'
-    background: '#000000'
-    text: '#4a4d44'
-    indicator: '#33eb1c'
-    child_border: '#2a2a2a'
+    border: "#2a8e10"
+    background: "#000000"
+    text: "#4a4d44"
+    indicator: "#33eb1c"
+    child_border: "#2a2a2a"
   placeholder:
-    border: '#2a2a2a'
-    background: '#249043'
-    text: '#4a4d44'
-    indicator: '#33eb1c'
-    child_border: '#2a2a2a'
+    border: "#2a2a2a"
+    background: "#249043"
+    text: "#4a4d44"
+    indicator: "#33eb1c"
+    child_border: "#2a2a2a"
   sway:
-    black0: '#000000'
-    red1: '#EF2929'
-    green2: '#33eb1c'
-    yellow3: '#b1701e'
-    blue4: '#3149a7'
-    magenta5: '#96363C'
-    cyan6: '#34E2E2'
-    white7: '#ebdbb2'
-    black8: '#2a2a2a'
-    red9: '#Cd3f45'
-    green10: '#2a8e10'
-    yellow11: '#FCE94F'
-    blue12: '#475ebd'
-    magenta13: '#96363c'
-    cyan14: '#01495d'
-    white15: '#4a4d44'
-
-
+    black0: "#000000"
+    red1: "#EF2929"
+    green2: "#33eb1c"
+    yellow3: "#b1701e"
+    blue4: "#3149a7"
+    magenta5: "#96363C"
+    cyan6: "#34E2E2"
+    white7: "#ebdbb2"
+    black8: "#2a2a2a"
+    red9: "#Cd3f45"
+    green10: "#2a8e10"
+    yellow11: "#FCE94F"
+    blue12: "#475ebd"
+    magenta13: "#96363c"
+    cyan14: "#01495d"
+    white15: "#4a4d44"
 
 # colors:
 #   active_border: "#8f350a"

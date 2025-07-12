@@ -23,7 +23,7 @@
 ! xterm
 xterm*termName: xterm-256color
 xterm*font: {{ font.primary.name }}
-{% if inventory_hostname == 'ninjabot' %}
+{% if ansible_hostname == 'ninjabot' %}
 xterm*faceName: {{ font.primary.name }}:size=10
 {% else %}
 xterm*faceName: {{ font.primary.name }}:size=12
@@ -51,7 +51,7 @@ URxvt*scrollBar_right: false
 URxvt*internalBorder: 0
 URxvt*externalBorder: 0
 URxvt*letterSpace: -1
-{% if inventory_hostname == 'ninjabot' %}
+{% if ansible_hostname == 'ninjabot' %}
 URxvt.font: xft:{{ font.primary.name }}:size=12
 {% else %}
 URxvt.font: xft:{{ font.primary.name }}:size=10

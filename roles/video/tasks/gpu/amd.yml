@@ -1,0 +1,68 @@
+---
+# AMD GPU specific tasks
+
+- name: AMD GPU configuration
+  ansible.builtin.debug:
+    msg:
+      - "Configuring AMD GPU: {{ video.gpu.model }}"
+      - "Driver: {{ video.x11.driver | default(gpu_driver_configs.amd.driver) }}"
+
+- name: Configure AMD GPU kernel parameters
+  ansible.builtin.lineinfile:
+    path: /etc/modprobe.d/amdgpu.conf
+    line: "options amdgpu si_support=1 cik_support=1"
+    create: true
+    mode: "0644"
+  become: true
+  tags: ["amd", "kernel"]
+
+- name: Enable AMD GPU power management
+  ansible.builtin.copy:
+    dest: /etc/udev/rules.d/99-amdgpu-pm.rules
+    content: |
+      # AMD GPU power management
+      SUBSYSTEM=="drm", KERNEL=="card0", DRIVERS=="amdgpu", ATTR{device/power_dpm_state}="performance"
+      SUBSYSTEM=="drm", KERNEL=="card0", DRIVERS=="amdgpu", ATTR{device/power_dpm_force_performance_level}="auto"
+    mode: "0644"
+  become: true
+  tags: ["amd", "power"]
+
+- name: Configure AMD GPU frequency scaling
+  ansible.builtin.lineinfile:
+    path: /etc/default/grub
+    regexp: "^GRUB_CMDLINE_LINUX_DEFAULT="
+    line: 'GRUB_CMDLINE_LINUX_DEFAULT="quiet amdgpu.ppfeaturemask=0xffffffff"'
+    backup: true
+  become: true
+  notify: update grub
+  tags: ["amd", "grub"]
+
+- name: Verify AMD GPU driver loading
+  ansible.builtin.command:
+    cmd: "lsmod | grep amdgpu"
+  register: amd_driver_check
+  failed_when: false
+  changed_when: false
+  tags: ["amd", "validation"]
+
+- name: Display AMD driver status
+  ansible.builtin.debug:
+    msg:
+      - "AMD amdgpu driver status:"
+      - "{{ 'Loaded' if amd_driver_check.rc == 0 else 'Not loaded' }}"
+  tags: ["amd", "validation"]
+
+- name: Check AMD GPU information
+  ansible.builtin.command:
+    cmd: "lspci | grep -i amd"
+  register: amd_gpu_info
+  failed_when: false
+  changed_when: false
+  tags: ["amd", "validation"]
+
+- name: Display AMD GPU information
+  ansible.builtin.debug:
+    msg:
+      - "AMD GPU detected:"
+      - "{{ amd_gpu_info.stdout_lines if amd_gpu_info.rc == 0 else 'No AMD GPU detected' }}"
+  tags: ["amd", "validation"]

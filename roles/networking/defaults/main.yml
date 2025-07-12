@@ -1,22 +1,28 @@
+#SPDX-License-Identifier: MIT-0
 ---
+# defaults file for networking
 
-packages__network:
-  networkd:
-    - android-tethering
-    - iwd
-  networkmanager:
-    - network-manager-applet
+# Network backend selection
+network_backend: "networkmanager" # Options: networkmanager, networkd
+wifi_backend: "iwd"
 
+# NetworkManager connectivity check configuration
 conn_check:
-    uri: "http://steve/admin"
-    interval: 120
+  ansible.builtin.uri: "http://steve/admin"
+  interval: 120
 
-ansible_service_mgr: "systemd"
+# Avahi/mDNS configuration
+enable_mdns: true
+lan:
+  domain: "syncopated.net"
+
+# NTP configuration
+enable_ntp: true
 
 systemd_network_confs: {}
 systemd_resolve_confs: {}
-systemd_network_netdevs: {}
-systemd_network_networks: {}
+# systemd_network_netdevs: {}
+# systemd_network_networks: {}
 systemd_network_copy_files: []
 systemd_network_keep_existing_definitions: false
 systemd_mounts: {}

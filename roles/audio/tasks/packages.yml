@@ -2,21 +2,21 @@
 # Audio packages installation
 
 - name: Install audio packages on Arch Linux
-  pacman:
+  community.general.pacman:
     name: "{{ audio_packages }}"
     state: present
   become: true
-  when: 
+  when:
     - ansible_os_family == "Archlinux"
     - audio_packages is defined
   tags: ["packages"]
 
 - name: Install audio packages on Rocky Linux/RedHat
-  dnf:
+  ansible.builtin.dnf:
     name: "{{ audio_packages }}"
     state: present
   become: true
-  when: 
+  when:
     - ansible_os_family == "RedHat"
     - audio_packages is defined
   tags: ["packages"]

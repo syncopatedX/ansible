@@ -1,5 +1,4 @@
 ---
-
 - name: Enable systemd-timesyncd Service
   ansible.builtin.service:
     name: systemd-timesyncd

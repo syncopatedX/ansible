@@ -1,0 +1,58 @@
+#!/bin/sh
+# This script is managed by Ansible.
+# Monitor configuration for {{ inventory_hostname }}
+# GPU: {{ video.gpu.vendor | upper }} {{ video.gpu.model | upper }}
+# Generated on {{ ansible_date_time.iso8601 }}
+
+# Wait for X11 to be ready
+sleep 2
+
+{% if video.monitors.secondary.enabled | default(false) %}
+# Dual monitor setup
+xrandr \
+    --output "{{ video.monitors.primary.output }}" \
+        --primary \
+        --mode {{ video.monitors.primary.resolution }} \
+        --rate {{ video.monitors.primary.refresh_rate }} \
+        --pos {{ video.monitors.primary.position }} \
+{% if video.monitors.primary.scaling != 1.0 %}
+        --scale {{ video.monitors.primary.scaling }}x{{ video.monitors.primary.scaling }} \
+{% endif %}
+    --output "{{ video.monitors.secondary.output }}" \
+        --mode {{ video.monitors.secondary.resolution }} \
+        --rate {{ video.monitors.secondary.refresh_rate }} \
+{% if video.monitors.secondary.position == "right-of-primary" %}
+        --right-of "{{ video.monitors.primary.output }}" \
+{% elif video.monitors.secondary.position == "left-of-primary" %}
+        --left-of "{{ video.monitors.primary.output }}" \
+{% elif video.monitors.secondary.position == "above-primary" %}
+        --above "{{ video.monitors.primary.output }}" \
+{% elif video.monitors.secondary.position == "below-primary" %}
+        --below "{{ video.monitors.primary.output }}" \
+{% else %}
+        --pos {{ video.monitors.secondary.position }} \
+{% endif %}
+{% if video.monitors.secondary.scaling != 1.0 %}
+        --scale {{ video.monitors.secondary.scaling }}x{{ video.monitors.secondary.scaling }}
+{% endif %}
+
+{% else %}
+# Single monitor setup
+xrandr \
+    --output "{{ video.monitors.primary.output }}" \
+        --primary \
+        --mode {{ video.monitors.primary.resolution }} \
+        --rate {{ video.monitors.primary.refresh_rate }} \
+        --pos {{ video.monitors.primary.position }}{% if video.monitors.primary.scaling != 1.0 %} \
+        --scale {{ video.monitors.primary.scaling }}x{{ video.monitors.primary.scaling }}{% endif %}
+
+{% endif %}
+
+# Disable any other connected outputs that aren't configured
+{% for output in ['HDMI-1', 'HDMI-2', 'DP-1', 'DP-2', 'DP-3', 'VGA-1', 'DVI-1'] %}
+{% if output != video.monitors.primary.output and (not video.monitors.secondary.enabled or output != video.monitors.secondary.output) %}
+xrandr --output {{ output }} --off 2>/dev/null || true
+{% endif %}
+{% endfor %}
+
+echo "Monitor setup complete for {{ inventory_hostname }}"

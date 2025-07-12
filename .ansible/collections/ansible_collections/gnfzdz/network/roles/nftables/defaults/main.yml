@@ -1,3 +1,0 @@
----
-network_nftables_packages: "{{ network_nftables_packages_default }}"
-network_nftables_service_enabled: False

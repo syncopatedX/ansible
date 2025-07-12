@@ -1,8 +1,0 @@
-# {{ ansible_managed }}
-{% for section, kv in network_systemd_resolved_config.items() %}
-[{{ section }}]
-{% for option, value in kv.items() %}
-{{ option }}={{ value }}
-{% endfor %}
-
-{% endfor %}

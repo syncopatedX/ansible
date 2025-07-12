@@ -16,7 +16,6 @@
       ansible.builtin.debug:
         msg: "Failed to install packages"
 
-
 - name: Clone code-packager repository
   ansible.builtin.git:
     repo: https://github.com/yohasebe/code-packager.git

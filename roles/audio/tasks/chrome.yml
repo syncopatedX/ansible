@@ -28,7 +28,7 @@
         state: present
 
     - name: Ensure target directory for user applications exists
-      ansible.builtin.file:
+      file:
         path: "{{ target_user_home }}/.local/share/applications"
         state: directory
         mode: "0755"

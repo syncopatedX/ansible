@@ -3,7 +3,7 @@
   hosts: all
   become: true
   gather_facts: true
-  
+
   vars:
     path:
       - "{{ lookup('env','HOME') }}/.local/bin"
@@ -11,6 +11,5 @@
     PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path|join(':') }}"
 
   roles:
-    - { role: networking, tags: ["networking", "networkd", "networkmanager", "dns"] }
-    - { role: ntp, tags: ["ntp"] }
+    - { role: networking, tags: ["networking", "networkmanager", "networkd", "avahi", "ntp"] }
     - { role: firewalld, tags: ["firewalld"] }

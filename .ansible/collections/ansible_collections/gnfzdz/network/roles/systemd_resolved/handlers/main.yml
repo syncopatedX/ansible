@@ -1,7 +1,0 @@
----
-
-- name: Update resolved
-  ansible.builtin.service:
-    name: systemd-resolved
-    state: restarted
-  when: network_systemd_resolved_enabled and network_systemd_resolved_can_restart

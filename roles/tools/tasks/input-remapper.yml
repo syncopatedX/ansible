@@ -13,38 +13,38 @@
       ansible.builtin.debug:
         msg: "Failed to install shell packages"
 
-- name: Ensure input-remapper preset synchronization
-  block:
-    - name: Ensure destination directory exists
-      ansible.builtin.file:
-        path: "{{ user.home }}/.config/input-remapper-2/presets/"
-        state: directory
-        mode: "0755"
-        owner: "{{ user.name }}"
-        group: "{{ user.group }}"
-      # when: source_dir.stat.exists
+# - name: Ensure input-remapper preset synchronization
+#   block:
+#     - name: Ensure destination directory exists
+#       ansible.builtin.file:
+#         path: "{{ user.home }}/.config/input-remapper-2/presets/"
+#         state: directory
+#         mode: "0755"
+#         owner: "{{ user.name }}"
+#         group: "{{ user.group }}"
+#       # when: source_dir.stat.exists
 
-    - name: Sync input-remapper presets folder
-      ansible.posix.synchronize:
-        checksum: true
-        delete: false
-        src: home/.config/input-remapper/presets/
-        dest: "{{ user.home }}/.config/input-remapper-2/presets/"
-        mode: push
-        perms: false
-        recursive: true
-        rsync_opts:
-          - --compress
-          - --update
-          - --omit-dir-times
-          - --progress
-          - --itemize-changes
-          - --chown={{ user.name }}:{{ user.group }}
+#     - name: Sync input-remapper presets folder
+#       ansible.posix.synchronize:
+#         checksum: true
+#         delete: false
+#         src: home/.config/input-remapper/presets/
+#         dest: "{{ user.home }}/.config/input-remapper-2/presets/"
+#         mode: push
+#         perms: false
+#         recursive: true
+#         rsync_opts:
+#           - --compress
+#           - --update
+#           - --omit-dir-times
+#           - --progress
+#           - --itemize-changes
+#           - --chown={{ user.name }}:{{ user.group }}
 
-  rescue:
-    - name: Handle synchronization failure
-      ansible.builtin.debug:
-        msg: "Failed to sync input-remapper presets: {{ ansible_failed_result }}"
+#   rescue:
+#     - name: Handle synchronization failure
+#       ansible.builtin.debug:
+#         msg: "Failed to sync input-remapper presets: {{ ansible_failed_result }}"
 
 - name: Enable input-remapper service
   ansible.builtin.systemd:

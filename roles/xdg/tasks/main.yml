@@ -1,0 +1,64 @@
+---
+- name: Install xdg packages
+  aur:
+    use: paru
+    name: "{{ packages__xdg }}"
+    state: present
+  become: false
+  when: ansible_distribution == "Archlinux"
+
+- name: Ensure /etc/xdg exists
+  ansible.builtin.file:
+    path: /etc/xdg
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+
+- name: Create /etc/xdg/menus and /usr/share/desktop-entries
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  with_items:
+    - /etc/xdg/menus
+    - /etc/xdg/menus/applications-merged
+    - /etc/xdg/Thunar
+    - /usr/share/desktop-directories
+  become: true
+
+- name: Set xdg user-dirs defaults
+  ansible.builtin.copy:
+    src: etc/xdg/user-dirs.defaults
+    dest: /etc/xdg/user-dirs.defaults
+    owner: root
+    group: root
+    mode: "0644"
+    backup: true
+  register: xdg_defaults
+  become: true
+
+- name: Enable xdg-user-dirs-update service
+  ansible.builtin.systemd:
+    name: xdg-user-dirs-update.service
+    enabled: true
+    scope: user
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ user.uid }}"
+  become: false
+
+- name: Remove existing user-dirs.dirs
+  ansible.builtin.file:
+    path: "{{ user.home }}/.config/user-dirs.dirs"
+    state: absent
+  register: xdg_userdirs
+
+- name: Run xdg-user-dirs-update
+  ansible.builtin.command: xdg-user-dirs-update
+  when: xdg_defaults.changed or xdg_userdirs.changed
+  become: false
+
+- name: Update desktop database
+  ansible.builtin.command: bash -lc "update-desktop-database"
+  become: true

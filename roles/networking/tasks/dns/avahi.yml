@@ -1,0 +1,49 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Avahi/mDNS configuration tasks
+
+- name: Install Avahi packages on Arch Linux
+  community.general.pacman:
+    name: "{{ packages.avahi }}"
+    state: present
+  become: true
+  when:
+    - ansible_os_family == "Archlinux"
+    - packages.avahi is defined
+  tags: ["packages", "avahi"]
+
+- name: Install Avahi packages on Rocky Linux/RedHat
+  ansible.builtin.dnf:
+    name: "{{ packages.avahi }}"
+    state: present
+  become: true
+  when:
+    - ansible_os_family == "RedHat"
+    - packages.avahi is defined
+  tags: ["packages", "avahi"]
+
+- name: Configure nsswitch for mDNS
+  ansible.builtin.lineinfile:
+    path: /etc/nsswitch.conf
+    regexp: "^hosts:"
+    line: "hosts: files mdns_minimal [NOTFOUND=return] dns myhostname"
+    backup: true
+  tags: ["avahi"]
+
+- name: Enable and start avahi-daemon
+  ansible.builtin.systemd:
+    name: avahi-daemon
+    enabled: true
+    state: started
+  tags: ["avahi"]
+
+- name: Generate hosts file
+  ansible.builtin.template:
+    src: etc/hosts.j2
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: "0644"
+    backup: true
+  when: etc_hosts is defined or lan.domain is defined
+  tags: ["avahi", "hosts"]

@@ -1,0 +1,36 @@
+---
+# Fedora specific video packages and configuration
+
+# Base video packages for all GPU types
+base_video_packages:
+  - mesa-dri-drivers
+  - mesa-vulkan-drivers
+  - xorg-x11-server-utils
+  - xorg-x11-utils
+
+# Intel-specific packages
+intel_video_packages:
+  - intel-media-driver
+  - libva-intel-driver
+  - mesa-vulkan-drivers-intel
+
+# NVIDIA-specific packages
+nvidia_video_packages:
+  - akmod-nvidia
+  - xorg-x11-drv-nvidia-cuda
+  - xorg-x11-drv-nvidia-power
+  - nvidia-vaapi-driver
+
+# AMD-specific packages
+amd_video_packages:
+  - mesa-vulkan-drivers-amd
+  - libva-mesa-driver
+  - mesa-vdpau-drivers
+
+# Legacy packages to remove
+legacy_packages:
+  - xorg-x11-drv-intel # Deprecated Intel driver
+  - xorg-x11-drv-ati # Deprecated AMD driver
+
+# Distribution-specific package manager
+package_manager: dnf

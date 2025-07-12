@@ -1,3 +1,0 @@
----
-network_wpasupplicant_packages_default:
-  - wpasupplicant

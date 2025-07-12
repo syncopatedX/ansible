@@ -8,7 +8,7 @@
   ansible.builtin.user:
     name: home
     state: present
-    shell: /sbin/nologin
+    ansible.builtin.shell: /sbin/nologin
     group: storage
 
 - name: Set smb.conf

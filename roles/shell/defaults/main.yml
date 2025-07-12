@@ -3,4 +3,3 @@
 
 profile_config_dir: "{{ user.home }}"
 window_manager: "i3"
-

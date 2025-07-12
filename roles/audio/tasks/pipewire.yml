@@ -10,8 +10,8 @@
       register: jack_check
       changed_when: false
       failed_when: false
-      loop: "{{ packages__audio.jack }}"
-      
+      loop: "{{ audio_packages.jack }}"
+
     - name: Warn about conflicting JACK installation
       ansible.builtin.debug:
         msg: |
@@ -27,17 +27,17 @@
       register: pkg_check
       changed_when: false
       failed_when: false
-      loop: "{{ packages__audio.pipewire }}"
+      loop: "{{ audio_packages.pipewire }}"
       # This won't fail the play, just records which packages are missing
 
     - name: Install pipewire packages
       aur:
         use: auto
-        name: "{{ packages__audio.pipewire }}"
+        name: "{{ audio_packages.pipewire }}"
         state: present
       register: pipewire_install
       # We'll handle errors in the rescue block
-      
+
   rescue:
     - name: Capture detailed error information
       ansible.builtin.set_fact:
@@ -54,8 +54,8 @@
 
     - name: Attempt alternative installation method
       aur:
-        use: paru  # Try with a specific helper instead of auto
-        name: "{{ packages__audio.pipewire }}"
+        use: paru # Try with a specific helper instead of auto
+        name: "{{ audio_packages.pipewire }}"
         state: present
       register: alternative_install
       failed_when: false
@@ -69,10 +69,10 @@
           1. Network connectivity issues
           2. AUR package build failures
           3. Dependency conflicts
-          
+
           Original error: {{ pipewire_error.stderr | default('Unknown error') }}
-          
-          Please try manually with: 'paru -S {{ packages__audio.pipewire | join(' ') }}'
+
+          Please try manually with: 'paru -S {{ audio_packages.pipewire | join(' ') }}'
           and check the output for specific errors.
       when: alternative_install is failed
       # Fail with useful diagnostic information if both methods failed
@@ -80,11 +80,12 @@
   always:
     - name: Verify pipewire service status
       ansible.builtin.service_facts:
-      when: (alternative_install is defined and alternative_install.rc is defined and alternative_install.rc == 0) or
-            (pipewire_install is defined and pipewire_install.rc is defined and pipewire_install.rc == 0)
+      when: (alternative_install is defined and alternative_install.rc is defined and alternative_install.rc == 0) or (pipewire_install is defined and pipewire_install.rc
+        is defined and pipewire_install.rc == 0)
       # Only check services if one of the installation methods succeeded
 
     - name: Report on pipewire installation status
       ansible.builtin.debug:
-        msg: "Pipewire installation {{ 'succeeded' if ((alternative_install is defined and alternative_install.rc is defined and alternative_install.rc == 0) or (pipewire_install is defined and pipewire_install.rc is defined and pipewire_install.rc == 0)) else 'failed' }}. Please check the logs for details."
+        msg: "Pipewire installation {{ 'succeeded' if ((alternative_install is defined and alternative_install.rc is defined and alternative_install.rc == 0) or (pipewire_install
+          is defined and pipewire_install.rc is defined and pipewire_install.rc == 0)) else 'failed' }}. Please check the logs for details."
       # Always report final status

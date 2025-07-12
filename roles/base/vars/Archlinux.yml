@@ -90,7 +90,9 @@ packages__base:
   - numlockx
   - nuspell
   - oh-my-zsh-git
+  - openslide
   - openssh
+  - openssl
   - pandoc
   - playerctl
   - poppler
@@ -109,10 +111,12 @@ packages__base:
   - ripgrep
   - ripgrep-all
   - rsync
+  - ruby-psych
   - rxvt-unicode
   - sd
   - smartmontools
   - socat
+  - sox
   - speech-dispatcher
   - sshfs
   - sshpass

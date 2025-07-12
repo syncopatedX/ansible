@@ -1,19 +1,54 @@
+#SPDX-License-Identifier: MIT-0
 ---
+# handlers file for networking
+
+# NetworkManager handlers
+- name: Reload udev rules
+  ansible.builtin.systemd:
+    name: systemd-udevd
+    state: reloaded
+
+- name: Restart NetworkManager
+  ansible.builtin.systemd:
+    name: NetworkManager
+    state: restarted
+
+# systemd-networkd handlers
+- name: Restart systemd-networkd
+  ansible.builtin.systemd:
+    name: systemd-networkd
+    state: restarted
+
+- name: Restart systemd-resolved
+  ansible.builtin.systemd:
+    name: systemd-resolved
+    state: restarted
+
+- name: Restart iwd
+  ansible.builtin.systemd:
+    name: iwd
+    state: restarted
+
+# Avahi handlers
+- name: Restart avahi-daemon
+  ansible.builtin.systemd:
+    name: avahi-daemon
+    state: restarted
+
+# NTP handlers
+- name: Enable systemd-timesyncd Service
+  ansible.builtin.service:
+    name: systemd-timesyncd
+    enabled: true
+    state: restarted
 
 - name: Refresh host facts
   ansible.builtin.setup:
 
-- name: Reload udev rules
-  shell: "/sbin/udevadm control --reload-rules"
-
-- name: Restart NetworkManager
-  service:
-    name: NetworkManager
-    state: restarted
-
 - name: Reload systemd configuration
   ansible.builtin.service:
     daemon_reload: true
+  become: true
 
 - name: Restart systemd-networkd service
   ansible.builtin.service:
@@ -21,9 +56,17 @@
     enabled: true
     masked: false
     state: restarted
+  become: true
 
-- name: Restart systemd-resolved service
+- name: Restart systemd-resolved
   ansible.builtin.service:
     name: systemd-resolved
     enabled: true
     state: restarted
+  become: true
+
+- name: Restart iwd
+  ansible.builtin.service:
+    name: iwd
+    state: restarted
+  become: true

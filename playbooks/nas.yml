@@ -10,6 +10,6 @@
     - "vars/main.yml"
   environment:
     PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path|join(':') }}"
-  
+
   roles:
     - { role: nas, tags: ["nas"] }

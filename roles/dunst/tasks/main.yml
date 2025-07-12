@@ -1,0 +1,25 @@
+---
+- name: Install dunst packages
+  aur:
+    use: paru
+    name: "{{ packages__dunst }}"
+    state: present
+  become: false
+  when: ansible_distribution == "Archlinux"
+
+- name: Ensure dunst configuration directory exists
+  ansible.builtin.file:
+    path: "{{ dunst_config_path }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+
+- name: Set dunst config
+  ansible.builtin.template:
+    src: "home/.config/dunst/dunstrc.j2"
+    dest: "{{ dunst_config_path }}/dunstrc"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+    mode: "0644"
+    backup: true

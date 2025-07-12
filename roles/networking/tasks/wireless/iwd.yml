@@ -1,0 +1,58 @@
+---
+# Wireless device detection for iwd configuration
+- name: "Check for actual wireless devices"
+  ansible.builtin.shell: "ls /sys/class/net/*/wireless 2>/dev/null | wc -l"
+  register: wireless_check
+  changed_when: false
+  failed_when: false
+  tags: ["wireless"]
+
+- name: "Set wireless fact for networkd"
+  ansible.builtin.set_fact:
+    has_wireless: "{{ wireless_check.stdout | int > 0 }}"
+  tags: ["wireless"]
+
+- name: "Debug wireless status for networkd"
+  ansible.builtin.debug:
+    msg: "Host has wireless interfaces: {{ has_wireless }}"
+  tags: ["wireless"]
+
+- when: has_wireless
+  block:
+    - name: "Install iwd wireless packages on Arch Linux"
+      aur:
+        use: paru
+        name:
+          - iwd
+          - iwgtk
+        state: present
+      become: false
+      when:
+        - ansible_os_family == "Archlinux"
+      tags: ["packages", "iwd", "wireless"]
+
+    - name: "Install iwd wireless packages on Rocky Linux/RedHat"
+      ansible.builtin.dnf:
+        name:
+          - iwd
+        state: present
+      when:
+        - ansible_os_family == "RedHat"
+      tags: ["packages", "iwd", "wireless"]
+
+    - name: "Enable iwd service"
+      ansible.builtin.service:
+        name: iwd
+        state: started
+        enabled: true
+      tags: ["iwd", "wireless"]
+
+    - name: "Configure iwd"
+      ansible.builtin.copy:
+        src: etc/iwd/main.conf
+        dest: /etc/iwd/main.conf
+        mode: "0644"
+
+      notify:
+        - restart iwd
+      tags: ["iwd", "wireless"]

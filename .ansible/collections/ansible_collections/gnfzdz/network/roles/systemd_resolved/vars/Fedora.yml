@@ -1,3 +1,0 @@
----
-network_systemd_resolved_packages_default:
-- systemd-resolved

@@ -1,8 +1,0 @@
-download_url: https://galaxy.ansible.com/api/v3/plugin/ansible/content/published/collections/artifacts/gnfzdz-archlinux-1.4.1.tar.gz
-format_version: 1.0.0
-name: archlinux
-namespace: gnfzdz
-server: https://galaxy.ansible.com/api/
-signatures: []
-version: 1.4.1
-version_url: /api/v3/plugin/ansible/content/published/collections/index/gnfzdz/archlinux/versions/1.4.1/

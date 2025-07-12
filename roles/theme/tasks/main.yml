@@ -1,0 +1,53 @@
+---
+- name: Include distro vars
+  ansible.builtin.include_vars:
+    file: vars/{{ ansible_distribution }}.yml
+  tags: ["always"]
+
+- name: Ensure user directories are created
+  ansible.builtin.file:
+    dest: "{{ user.home }}/{{ item.dest }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+    mode: "{{ item.mode | default('0750') }}"
+    recurse: "{{ item.recurse | default(False) }}"
+  with_items: "{{ user_directory_definitions }}"
+
+- name: Ensure system directories are created
+  ansible.builtin.file:
+    dest: "{{ item.dest }}"
+    state: directory
+    owner: "{{ item.owner | default(system_directory_default_owner) }}"
+    group: "{{ item.group | default(system_directory_default_group) }}"
+    mode: "{{ item.mode | default(system_directory_default_mode) }}"
+    recurse: "{{ item.recurse | default(system_directory_default_recurse) }}"
+  with_items: "{{ system_directory_definitions }}"
+  become: true
+
+- ansible.builtin.import_tasks:
+    file: fonts.yml
+  tags: ["fonts"]
+
+- ansible.builtin.import_tasks:
+    file: icons.yml
+  tags: ["icons"]
+
+- ansible.builtin.import_tasks:
+    file: gtk.yml
+  tags: ["gtk"]
+
+- ansible.builtin.import_tasks:
+    file: qt.yml
+  tags: ["qt"]
+
+- name: Install backgrounds
+  ansible.posix.synchronize:
+    src: "files/usr/share/backgrounds/syncopated/"
+    dest: "/usr/share/backgrounds/syncopated/"
+    recursive: true
+    mode: push
+    delete: false
+    rsync_opts: "--update"
+  tags: ["backgrounds"]
+  become: true

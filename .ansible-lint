@@ -1,3 +1,4 @@
+---
 # .ansible-lint
 exclude_paths:
   - .cache/
@@ -39,6 +40,7 @@ skip_list:
   - "502" # All tasks should be named
   - yaml[truthy]
   - loop_var_prefix[missing]
+  - name[casing]
   # - fqcn
 
 # Enable specific rules
@@ -49,4 +51,4 @@ enable_list:
   # - yaml                # Yaml syntax check
 
 # Configure rule specific configuration
-task_name_prefix: "true" # Enforce task names to be prefixed with role names
+task_name_prefix: "false" # Enforce task names to be prefixed with role names

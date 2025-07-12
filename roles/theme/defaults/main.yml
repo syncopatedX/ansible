@@ -1,0 +1,34 @@
+---
+# The default directory permission mode when creating directories
+system_directory_default_mode: "0750"
+system_directory_default_owner: root
+system_directory_default_group: root
+system_directory_default_recurse: false
+
+system_directory_definitions:
+  - dest: /usr/share/backgrounds/syncopated/
+    mode: "0755"
+  - dest: /usr/local/share/fonts/
+    mode: "0755"
+  - dest: /usr/local/share/icons/
+    mode: "0755"
+  - dest: /usr/local/share/pixmaps/
+    mode: "0755"
+  - dest: /usr/local/share/themes/
+    mode: "0755"
+
+user_directory_definitions:
+  - dest: .config/Kvantum
+  - dest: .config/Thunar
+  - dest: .config/gtk-3.0
+  - dest: .config/gtk-4.0
+  - dest: .config/qt5ct/colors
+  - dest: .config/qt6ct/colors
+
+# theme options
+theme:
+  name: oomox-soundbot
+  icons: Numix-Circle
+  cursor: xcursor-breeze
+  kvantum: KvGnomeDark
+  qtstyle: Fusion
