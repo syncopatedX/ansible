@@ -22,9 +22,10 @@
         msg: "Failed to install i3-wm packages"
 
 - tags: ["packages"]
+  when: ansible_distribution == "Fedora"
   block:
     - name: Install i3-wm packages
-      dnf:
+      ansible.builtin.dnf:
         name: "{{ i3_package_item }}"
         state: present
       loop: "{{ packages__i3 }}"
@@ -33,7 +34,7 @@
       become: true
 
     - name: Install i3status-rs
-      command: "cargo install i3status-rs"
+      ansible.builtin.command: "cargo install i3status-rs"
       args:
         creates: "{{ ansible_env.HOME }}/.cargo/bin/i3status-rs"
       register: i3status_rs_install
@@ -41,7 +42,6 @@
       failed_when: i3status_rs_install.rc != 0
       become: false
 
-  when: ansible_distribution == "Fedora"
   rescue:
     - name: Installing packages failed
       ansible.builtin.debug:
@@ -133,4 +133,3 @@
     mode: "0644"
     backup: true
   become: true
-

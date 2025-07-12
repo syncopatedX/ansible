@@ -2,4 +2,3 @@
 # vars file for sxhkd
 packages__sxhkd:
   - sxhkd
-

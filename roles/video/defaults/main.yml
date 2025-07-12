@@ -7,18 +7,18 @@
 video:
   # GPU vendor and model configuration
   gpu:
-    vendor: "intel"           # intel, nvidia, amd
-    model: "generic"          # specific model for optimization
-    driver: "modesetting"     # X11 driver to use
-    
+    vendor: "intel" # intel, nvidia, amd
+    model: "generic" # specific model for optimization
+    driver: "modesetting" # X11 driver to use
+
   # Hybrid GPU configuration (for laptops with dual GPUs)
   hybrid:
-    enabled: false            # Enable hybrid GPU support
-    primary_gpu: "intel"      # GPU handling displays (intel, nvidia, amd)
-    secondary_gpu: "nvidia"   # Secondary GPU for compute/gaming
-    nvidia_offload: false     # Enable NVIDIA Prime offload
-    power_management: false   # Enable dynamic GPU switching
-    
+    enabled: false # Enable hybrid GPU support
+    primary_gpu: "intel" # GPU handling displays (intel, nvidia, amd)
+    secondary_gpu: "nvidia" # Secondary GPU for compute/gaming
+    nvidia_offload: false # Enable NVIDIA Prime offload
+    power_management: false # Enable dynamic GPU switching
+
   # X11 configuration options
   x11:
     config_file: "20-gpu-config.conf"
@@ -26,7 +26,7 @@ video:
       TearFree: "true"
       DRI: "3"
       # Additional options can be added per host
-    
+
   # Monitor configuration
   monitors:
     # Primary monitor (always required)
@@ -36,7 +36,7 @@ video:
       refresh_rate: "60.00"
       position: "0x0"
       scaling: 1.0
-      
+
     # Secondary monitor (optional)
     secondary:
       enabled: false
@@ -45,14 +45,13 @@ video:
       refresh_rate: "60.00"
       position: "right-of-primary"
       scaling: 1.0
-      
+
   # Package configuration
   packages:
     # Additional packages specific to this host
     additional: []
     # Packages to exclude from distribution defaults
     exclude: []
-
 # =============================================================================
 # Legacy compatibility variables (deprecated but maintained for backward compatibility)
 # =============================================================================
@@ -105,7 +104,7 @@ gpu_driver_configs:
       TearFree: "true"
       DRI: "3"
       AccelMethod: "glamor"
-      
+
   nvidia:
     driver: "nvidia"
     identifier: "NVIDIA Graphics"
@@ -113,7 +112,7 @@ gpu_driver_configs:
       NoLogo: "true"
       UseEDID: "false"
       ConnectedMonitor: "DFP"
-      
+
   amd:
     driver: "amdgpu"
     identifier: "AMD Graphics"

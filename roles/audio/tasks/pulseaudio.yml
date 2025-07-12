@@ -21,7 +21,6 @@
     group: "{{ user.group }}"
   become: false
 
-
 - name: Update pulseaudio configs
   ansible.builtin.copy:
     src: "etc/pulse/{{ item }}"

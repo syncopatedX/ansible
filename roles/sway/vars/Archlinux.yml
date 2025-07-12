@@ -31,4 +31,3 @@ sway_directory_definitions:
   - dest: ".config/sway/inputs"
   - dest: ".config/sway/modes"
   - dest: ".config/sway/outputs"
-

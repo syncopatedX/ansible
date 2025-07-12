@@ -15,16 +15,16 @@
   tags: ["packages"]
 
 - tags: ["packages"]
+  when: ansible_distribution == "Fedora"
   block:
     - name: Install xorg packages
-      dnf:
+      ansible.builtin.dnf:
         name: "{{ xorg_package_item }}"
         state: present
       loop: "{{ xorg_packages__xorg }}"
       loop_control:
         loop_var: xorg_package_item
       become: true
-  when: ansible_distribution == "Fedora"
   rescue:
     - name: Installing packages failed
       ansible.builtin.debug:
@@ -71,4 +71,3 @@
         group: "{{ user.group }}"
         mode: "0755"
         backup: true
-

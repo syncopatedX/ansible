@@ -23,4 +23,3 @@
     group: "{{ user.group }}"
     mode: "0644"
     backup: true
-

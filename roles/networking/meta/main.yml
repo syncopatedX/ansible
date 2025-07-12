@@ -1,9 +1,9 @@
+---
 #SPDX-License-Identifier: MIT-0
 galaxy_info:
   author: ansible-workstation
   description: Unified networking role supporting NetworkManager, systemd-networkd, Avahi/mDNS, and NTP
-  company: 
-
+  company:
   license: MIT-0
 
   min_ansible_version: 2.9
@@ -18,7 +18,7 @@ galaxy_info:
 
   galaxy_tags:
     - networking
-    - networkmanager  
+    - networkmanager
     - systemd
     - networkd
     - avahi

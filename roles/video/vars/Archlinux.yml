@@ -32,8 +32,8 @@ amd_video_packages:
 
 # Legacy packages to remove
 legacy_packages:
-  - xf86-video-intel  # Deprecated Intel driver
-  - xf86-video-ati    # Deprecated AMD driver
+  - xf86-video-intel # Deprecated Intel driver
+  - xf86-video-ati # Deprecated AMD driver
   - xf86-video-nouveau # Use nouveau kernel module instead
 
 # Distribution-specific package manager

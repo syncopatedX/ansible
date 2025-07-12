@@ -47,4 +47,3 @@
     owner: "{{ user.name }}"
     group: "{{ user.group }}"
   notify: Reload sxhkd
-

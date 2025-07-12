@@ -68,7 +68,7 @@
           ignore_errors: "{{ ansible_check_mode }}"
 
         - name: set tuned profile
-          shell: |
+          ansible.builtin.shell: |
             tuned-adm profile {{ tuned_profile }}
           register: tuned_profile
           changed_when: tuned_profile.rc != 0

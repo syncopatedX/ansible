@@ -29,8 +29,8 @@ amd_video_packages:
 
 # Legacy packages to remove
 legacy_packages:
-  - xorg-x11-drv-intel  # Deprecated Intel driver
-  - xorg-x11-drv-ati    # Deprecated AMD driver
+  - xorg-x11-drv-intel # Deprecated Intel driver
+  - xorg-x11-drv-ati # Deprecated AMD driver
 
 # Distribution-specific package manager
 package_manager: dnf

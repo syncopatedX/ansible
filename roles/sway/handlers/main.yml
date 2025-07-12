@@ -1,3 +1,4 @@
+---
 - name: Reload sway
   ansible.builtin.command: bash -lc "swaymsg reload"
   become: false

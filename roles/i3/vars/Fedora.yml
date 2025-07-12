@@ -17,4 +17,3 @@ i3_directory_definitions:
   - dest: ".config/i3"
   - dest: ".config/i3/modes"
   - dest: ".config/i3status-rust/themes"
-

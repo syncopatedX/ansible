@@ -51,4 +51,3 @@ wm_directory_default_recurse: false
 # Terminal configuration
 terminal: terminator
 terminal_alt: urxvt
-

@@ -11,4 +11,3 @@
     - { role: ntp, tags: ["ntp"] }
     - { role: shell, tags: ["shell"] }
     - { role: sway, tags: ["sway"] }
-

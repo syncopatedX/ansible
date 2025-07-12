@@ -5,7 +5,7 @@
   tags: ["packages"]
 
 - name: Install rofi packages
-  package:
+  ansible.builtin.package:
     name: "{{ item }}"
     state: present
   loop: "{{ packages__rofi }}"
@@ -60,4 +60,3 @@
         - scripts/launcher_main.sh
         - scripts/launcher_t1.sh
         - scripts/launcher_t4.sh
-

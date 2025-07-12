@@ -1,5 +1,4 @@
 ---
-
 # Wireless device detection for iwd configuration
 - name: "Check for actual wireless devices"
   ansible.builtin.shell: "ls /sys/class/net/*/wireless 2>/dev/null | wc -l"
@@ -57,4 +56,3 @@
       notify:
         - restart iwd
       tags: ["iwd", "wireless"]
-  

@@ -15,7 +15,6 @@
       ansible.builtin.debug:
         msg: "Failed to install packages"
 
-
 # - name: Add go bin to path
 #   lineinfile:
 #     path: "{{ lookup('env','HOME') }}/.zshrc"
@@ -105,7 +104,7 @@
 - vars:
     patterns: "{{ user.home }}/.config/fabric/patterns"
   environment:
-    PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path|join(':') }}"
+    PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path | join(':') }}"
   tags: ["aliases"]
   block:
     - name: Check if folder exists (with error handling)

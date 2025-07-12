@@ -1,6 +1,6 @@
 ---
 packages__base:
-  - '@development-tools'
+  - "@development-tools"
   - GraphicsMagick
   - ImageMagick
   - aria2

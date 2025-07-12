@@ -18,4 +18,3 @@ rofi_directory_definitions:
   - dest: ".config/rofi/launchers/type-4/shared"
   - dest: ".config/rofi/powermenu"
   - dest: ".config/rofi/scripts"
-

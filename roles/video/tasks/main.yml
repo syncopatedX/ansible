@@ -65,7 +65,8 @@
           - "Package Installation Plan:"
           - "  Base packages: {{ base_video_packages | default([]) }}"
           - "  {{ video.gpu.vendor | upper }} packages: {{ lookup('vars', video.gpu.vendor + '_video_packages', default=[]) }}"
-          - "{% if video.hybrid.enabled | default(false) %}  {{ video.hybrid.secondary_gpu | upper }} packages (hybrid): {{ lookup('vars', video.hybrid.secondary_gpu + '_video_packages', default=[]) }}{% endif %}"
+          - "{% if video.hybrid.enabled | default(false) %}  {{ video.hybrid.secondary_gpu | upper }} packages (hybrid): {{ lookup('vars', video.hybrid.secondary_gpu
+            + '_video_packages', default=[]) }}{% endif %}"
           - "  Additional packages: {{ video.packages.additional | default([]) }}"
           - "  Excluded packages: {{ video.packages.exclude | default([]) }}"
           - "  Final package list: {{ final_video_packages }}"
@@ -208,7 +209,7 @@
   when:
     - video.gpu.vendor in ['intel', 'nvidia', 'amd']
   tags: ["video", "gpu"]
-  ignore_errors: true  # Allow missing GPU-specific task files
+  ignore_errors: true # Allow missing GPU-specific task files
 
 # =============================================================================
 # Configuration Validation

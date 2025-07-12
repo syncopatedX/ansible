@@ -6,4 +6,3 @@
   roles:
     - { role: docker, tags: ["docker"] }
     - { role: libvirt, tags: ["libvirt"] }
-

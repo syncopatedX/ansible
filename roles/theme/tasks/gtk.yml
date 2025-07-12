@@ -4,22 +4,22 @@
     use: paru
     name: "{{ ui.packages.gtk3 }}"
     state: present
-  become: False
+  become: false
   when: ansible_distribution == 'Archlinux'
-  tags: ['packages']
+  tags: ["packages"]
 
 - name: Install gtk configurations
-  template:
+  ansible.builtin.template:
     src: "home/{{ item }}.j2"
     dest: "{{ user.home }}/{{ item }}"
     owner: "{{ user.name }}"
     group: "{{ user.group }}"
-    mode: '0644'
-    backup: yes
+    mode: "0644"
+    backup: true
   with_items:
-    - '.config/gtk-3.0/bookmarks'
-    - '.config/gtk-3.0/gtk.css'
-    - '.config/gtk-3.0/settings.ini'
-    - '.config/gtk-4.0/settings.ini'
-    - '.gtkrc-2.0'
-  tags: ['profile', 'gtk']
+    - ".config/gtk-3.0/bookmarks"
+    - ".config/gtk-3.0/gtk.css"
+    - ".config/gtk-3.0/settings.ini"
+    - ".config/gtk-4.0/settings.ini"
+    - ".gtkrc-2.0"
+  tags: ["profile", "gtk"]

@@ -4,31 +4,31 @@
     use: paru
     name: "{{ ui.packages.qt5 }}"
     state: present
-  become: False
+  become: false
   when: ansible_distribution == 'Archlinux'
-  tags: ['packages']
+  tags: ["packages"]
 
 - name: install qt6 packages
   aur:
     use: paru
     name: "{{ ui.packages.qt6 }}"
     state: present
-  become: False
+  become: false
   when: ansible_distribution == 'Archlinux'
-  tags: ['packages']
+  tags: ["packages"]
 
 - name: Install qt configurations
-  template:
+  ansible.builtin.template:
     src: "home/{{ item }}.j2"
     dest: "{{ user.home }}/{{ item }}"
     owner: "{{ user.name }}"
     group: "{{ user.group }}"
-    mode: '0644'
-    backup: yes
+    mode: "0644"
+    backup: true
   with_items:
-    - '.config/Kvantum/kvantum.kvconfig'
-    - '.config/qt5ct/colors/syncopated.conf'
-    - '.config/qt5ct/qt5ct.conf'
-    - '.config/qt6ct/colors/syncopated.conf'
-    - '.config/qt6ct/qt6ct.conf'
-  tags: ['profile', 'qt']
+    - ".config/Kvantum/kvantum.kvconfig"
+    - ".config/qt5ct/colors/syncopated.conf"
+    - ".config/qt5ct/qt5ct.conf"
+    - ".config/qt6ct/colors/syncopated.conf"
+    - ".config/qt6ct/qt6ct.conf"
+  tags: ["profile", "qt"]

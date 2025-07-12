@@ -4,31 +4,31 @@
     use: paru
     name: "{{ ui.packages.font }}"
     state: present
-  become: False
+  become: false
   when: ansible_distribution == 'Archlinux'
-  tags: ['packages']
+  tags: ["packages"]
 
 - name: Ensure fontconfig directory exists
-  file:
+  ansible.builtin.file:
     path: "{{ user.home }}/.config/fontconfig"
     state: directory
     owner: "{{ user.name }}"
     group: "{{ user.group }}"
-    mode: '0755'
+    mode: "0755"
 
 - name: Install fonts.conf
-  copy:
+  ansible.builtin.copy:
     src: home/.config/fontconfig/fonts.conf
     dest: "{{ user.home }}/.config/fontconfig/fonts.conf"
     owner: "{{ user.name }}"
     group: "{{ user.group }}"
-    mode: '0644'
-    backup: yes
-  tags: ['fonts']
+    mode: "0644"
+    backup: true
+  tags: ["fonts"]
 
 - name: Update font-cache
-  command: fc-cache -fv
+  ansible.builtin.command: fc-cache -fv
   become: false
   register: font_cache
   changed_when: font_cache.rc != 0
-  tags: ['fonts']
+  tags: ["fonts"]

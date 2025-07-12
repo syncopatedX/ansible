@@ -28,7 +28,6 @@
       packages:
         additional: ["intel-gpu-tools"]
         exclude: ["xf86-video-intel"]
-
     user:
       name: "testuser"
       group: "testuser"
@@ -50,7 +49,7 @@
             (video.packages.additional | default([]))
           }}
         test_gpu_config: "{{ gpu_driver_configs[video.gpu.vendor] }}"
-        
+
     - name: Display test results
       ansible.builtin.debug:
         msg:

@@ -14,7 +14,6 @@
   when: ansible_os_family == "RedHat"
   listen: "Update cache"
 
-
 - name: Generate locales
   ansible.builtin.command: locale-gen
   listen: "Generate locales" # Explicitly listen for clarity

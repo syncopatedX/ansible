@@ -19,7 +19,6 @@ share:
     exports:
       - b08x
 
-
 samba_host: false
 
 audio_system: pulseaudio_jack

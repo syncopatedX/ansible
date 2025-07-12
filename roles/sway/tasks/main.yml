@@ -17,7 +17,7 @@
       when: ansible_distribution == "Archlinux"
 
     - name: Install sway packages
-      dnf:
+      ansible.builtin.dnf:
         name: "{{ item }}"
         state: present
       with_items:
@@ -97,4 +97,3 @@
     mode: "0644"
     backup: true
   become: true
-

@@ -17,4 +17,3 @@ dependencies:
   - role: picom
   - role: sxhkd
   - role: xdg
-

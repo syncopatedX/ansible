@@ -4,23 +4,23 @@
     use: auto
     name: "{{ item }}"
     state: present
-  become: False
+  become: false
   with_items:
     - numix-circle-icon-theme-git
   when: ansible_distribution == 'Archlinux'
-  tags: ['packages']
+  tags: ["packages"]
 
 - name: Install icons
-  copy:
+  ansible.builtin.copy:
     src: "files/usr/local/share/pixmaps/"
     dest: "/usr/local/share/pixmaps/"
-    directory_mode: yes
-    mode: '644'
+    directory_mode: true
+    mode: "644"
   become: true
 
 - name: Update the icon cache
-  command: bash -lc "gtk-update-icon-cache"
+  ansible.builtin.command: bash -lc "gtk-update-icon-cache"
   become: false
   register: icon_cache
   changed_when: icon_cache.rc !=0
-  tags: ['icons']
+  tags: ["icons"]
