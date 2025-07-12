@@ -1,0 +1,9 @@
+---
+- name: Development Environment
+  hosts: all
+  gather_facts: true
+  become: true
+  roles:
+    - { role: docker, tags: ["docker"] }
+    - { role: libvirt, tags: ["libvirt"] }
+

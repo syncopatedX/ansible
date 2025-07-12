@@ -1,0 +1,5 @@
+---
+# vars file for picom
+packages__picom:
+  - picom
+

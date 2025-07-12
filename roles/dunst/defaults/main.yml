@@ -1,0 +1,4 @@
+---
+# defaults file for dunst
+dunst_config_path: "{{ user.home }}/.config/dunst"
+

@@ -1,0 +1,26 @@
+---
+- name: Install Arc icon theme
+  aur:
+    use: auto
+    name: "{{ item }}"
+    state: present
+  become: False
+  with_items:
+    - numix-circle-icon-theme-git
+  when: ansible_distribution == 'Archlinux'
+  tags: ['packages']
+
+- name: Install icons
+  copy:
+    src: "files/usr/local/share/pixmaps/"
+    dest: "/usr/local/share/pixmaps/"
+    directory_mode: yes
+    mode: '644'
+  become: true
+
+- name: Update the icon cache
+  command: bash -lc "gtk-update-icon-cache"
+  become: false
+  register: icon_cache
+  changed_when: icon_cache.rc !=0
+  tags: ['icons']

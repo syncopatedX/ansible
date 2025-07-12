@@ -58,6 +58,19 @@
         - nfs-mountd
         - nfs-idmapd
         - rpcbind
+      when: ansible_distribution == 'Archlinux'
+
+    - name: Ensure nfs/rpc services are enabled and started
+      ansible.builtin.service:
+        name: "{{ item }}"
+        state: restarted
+        enabled: true
+      with_items:
+        - nfs-server
+        - nfs-mountd
+        - nfs-idmapd
+        - rpcbind
+      when: ansible_distribution == 'Fedora'
 
     - when: ansible_os_family == 'Archlinux' or ansible_os_family == 'RedHat'
 

@@ -1,0 +1,4 @@
+---
+# defaults file for sxhkd
+sxhkd_config_path: "{{ user.home }}/.config/sxhkd"
+

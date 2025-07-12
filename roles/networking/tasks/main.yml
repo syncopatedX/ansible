@@ -8,25 +8,24 @@
 
 # iwd backend
 - name: Include iwd tasks
-  ansible.builtin.include_tasks: iwd.yml
+  ansible.builtin.include_tasks: wireless/iwd.yml
   when: wifi_backend == "iwd"
 
-# NetworkManager backend
-- name: Include NetworkManager tasks
-  ansible.builtin.include_tasks: networkmanager.yml
-  when: network_interfaces is defined
-
-# systemd-networkd backend 
-- name: Include networkd tasks
-  ansible.builtin.include_tasks: networkd.yml
-  when: systemd_network_networks is defined
+- name: Include avahi tasks
+  ansible.builtin.include_tasks: dns/systemd-resolved.yml
+  when: enable_mdns | default(true)
 
 # Avahi/mDNS support
 - name: Include avahi tasks
-  ansible.builtin.include_tasks: avahi.yml
+  ansible.builtin.include_tasks: dns/avahi.yml
   when: enable_mdns | default(true)
 
-# NTP/time synchronization
-- name: Include NTP tasks
-  ansible.builtin.include_tasks: ntp.yml
-  when: enable_ntp | default(true)
+# NetworkManager backend
+- name: Include NetworkManager tasks
+  ansible.builtin.include_tasks: networkmanager/main.yml
+  when: network_interfaces is defined
+
+# systemd-networkd backend
+- name: Include systemd-networkd tasks
+  ansible.builtin.include_tasks: networkd/main.yml
+  when: systemd_network_networks is defined

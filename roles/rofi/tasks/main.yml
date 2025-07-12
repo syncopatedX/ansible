@@ -1,0 +1,63 @@
+---
+# Rofi launcher
+- name: Load distribution-specific variables
+  ansible.builtin.include_vars: "{{ ansible_distribution }}.yml"
+  tags: ["packages"]
+
+- name: Install rofi packages
+  package:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ packages__rofi }}"
+  become: true
+
+- name: Create rofi directories
+  ansible.builtin.file:
+    dest: "{{ user.home }}/.config/rofi/{{ item }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: "0755"
+  loop:
+    - ""
+    - "colors"
+    - "scripts"
+    - "launchers/type-1/shared"
+    - "launchers/type-4/shared"
+  become: false
+
+- become: false
+  tags: ["config"]
+  block:
+    - name: Copy rofi configuration files
+      ansible.builtin.template:
+        src: "home/.config/rofi/{{ item }}.j2"
+        dest: "{{ user.home }}/.config/rofi/{{ item }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0644"
+      loop:
+        - config.rasi
+        - gruvbox-common.rasi
+        - gruvbox-dark-hard.rasi
+        - colors/onedark.rasi
+        - launchers/type-1/shared/colors.rasi
+        - launchers/type-1/shared/fonts.rasi
+        - launchers/type-1/style-8.rasi
+        - launchers/type-1/style-10.rasi
+        - launchers/type-4/shared/colors.rasi
+        - launchers/type-4/shared/fonts.rasi
+        - launchers/type-4/style-6.rasi
+
+    - name: Copy rofi laumcher scripts
+      ansible.builtin.template:
+        src: "home/.config/rofi/{{ item }}.j2"
+        dest: "{{ user.home }}/.config/rofi/{{ item }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0755"
+      loop:
+        - scripts/launcher_main.sh
+        - scripts/launcher_t1.sh
+        - scripts/launcher_t4.sh
+

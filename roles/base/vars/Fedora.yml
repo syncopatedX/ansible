@@ -48,6 +48,7 @@ packages__base:
   - libgit2-glib
   - libvoikko
   - links
+  - lm_sensors-devel
   - lnav
   - lynx
   - mako

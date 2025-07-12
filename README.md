@@ -111,29 +111,32 @@ The playbook is organized into modular roles found in the `roles/` directory:
 
 | Role               | Description                                                                                                                            |
 | :----------------- | :------------------------------------------------------------------------------------------------------------------------------------- |
-| [audio](roles/audio/)            | Professional Linux audio setup with configurable server selection (JACK, PulseAudio, PipeWire) via `use_jack` and `use_pipewire` variables. Includes comprehensive system tuning for low-latency performance, realtime privileges, CPU optimization, and audio normalization tools.                                                                         |
-| [base](roles/base/)             | Core system setup, package management (pacman/paru), repositories, base packages, user creation, sudoers, `rc.local`.                   |
-| [display-manager](roles/display-manager/) | Display manager configuration including greetd and getty autologin setup.                                                        |
-| [docker](roles/docker/)           | Docker Engine & Docker Compose installation and configuration (including optional NVIDIA support).                                       |
-| [firewalld](roles/firewalld/)        | Firewall configuration using firewalld, opening necessary ports.                                                                       |
-| [gnome](roles/gnome/)           | GNOME desktop environment configuration.                                                                                               |
-| [grub](roles/grub/)             | GRUB bootloader configuration tweaks (kernel parameters, submenus, savedefault).                                                       |
-| [libvirt](roles/libvirt/)          | Libvirt virtualization stack & optional Vagrant integration.                                                                           |
-| [media](roles/media/)            | Media-related configurations (e.g., Musikcube).                                                                                        |
-| [nas](roles/nas/)              | NFS & Samba server configuration.                                                                                                      |
-| [networking](roles/networking/)     | Comprehensive network management supporting multiple backends (NetworkManager, systemd-networkd). Features automatic wireless interface detection, interactive Wi-Fi configuration using the pause module, and support for ethernet, Wi-Fi, bridges, static/DHCP configurations, and udev rules. |
-| [ntp](roles/ntp/)              | Time synchronization using `systemd-timesyncd`.                                                                                        |
-| [repository-manager](roles/repository-manager/) | Multi-distribution repository management for Arch Linux and Rocky Linux package sources.                              |
-| [ruby](roles/ruby/)             | Ruby environment setup with RVM support via Ansible Galaxy roles. Includes GPG configuration for secure RVM installation and comprehensive knowledge base documentation.                                                                                    |
-| [shell](roles/shell/)            | Zsh, Oh My Zsh, aliases, functions, kitty, ranger configuration.                                                                       |
-| [ssh](roles/ssh/)              | OpenSSH server/client configuration and hardening.                                                                                     |
-| [system-base](roles/system-base/) | Base system configuration including timezone, locale, and keymap settings.                                                           |
-| [tools](roles/tools/)            | Installation of custom scripts/tools like `code-packager`, `whisper-stream`, fabric, and input-remapper.                               |
-| [user-manager](roles/user-manager/) | User account management, sudo configuration, and polkit access control.                                                            |
-| [video](roles/video/)            | Video driver configuration including mesa packages and vendor-specific drivers (Intel, AMD).                                                           |
-| [window-manager](roles/window-manager/) | Unified window manager configuration supporting both i3 (X11) and Sway (Wayland) with rofi launcher.                          |
-| [xorg](roles/xorg/)             | X11 server, drivers, core X utilities, Picom, Dunst, sxhkd, XDG configuration.                                                         |
-| [xwayland](roles/xwayland/)          | XWayland configuration for running X11 applications on Wayland (Sway).                                                         |
+| [audio](roles/audio/)            | Professional Linux audio setup with configurable server selection (JACK, PulseAudio, PipeWire). Includes system tuning for low-latency performance. |
+| [base](roles/base/)             | Core system setup, package management (pacman/paru), repositories, user creation, and sudoers configuration.                   |
+| [display-manager](roles/display-manager/) | Manages the display manager, including greetd and getty autologin.                                                        |
+| [docker](roles/docker/)           | Installs and configures Docker Engine and Docker Compose.                                       |
+| [dunst](roles/dunst/)           | Configures the Dunst notification daemon.                                                                                               |
+| [firewalld](roles/firewalld/)        | Manages firewall rules using firewalld.                                                                       |
+| [grub](roles/grub/)             | Configures the GRUB bootloader.                                                       |
+| [i3](roles/i3/)                 | Installs and configures the i3 window manager.                                                                          |
+| [libvirt](roles/libvirt/)          | Sets up the Libvirt virtualization stack and optional Vagrant integration.                                                                           |
+| [media](roles/media/)            | Configures media-related applications like Musikcube.                                                                                        |
+| [nas](roles/nas/)              | Configures NFS and Samba server settings.                                                                                                      |
+| [networking](roles/networking/)     | Manages network configurations, supporting multiple backends like NetworkManager and systemd-networkd. |
+| [ntp](roles/ntp/)              | Configures time synchronization using `systemd-timesyncd`.                                                                                        |
+| [picom](roles/picom/)           | Configures the Picom compositor for X11.                                                                                               |
+| [rofi](roles/rofi/)             | Installs and configures the Rofi application launcher.                                                                  |
+| [shell](roles/shell/)            | Configures the shell environment, including Zsh, Oh My Zsh, aliases, and terminal tools.                                                                       |
+| [ssh](roles/ssh/)              | Configures and hardens the OpenSSH server and client.                                                                                     |
+| [sway](roles/sway/)             | Installs and configures the Sway window manager.                                                                        |
+| [sxhkd](roles/sxhkd/)           | Configures the Simple X Hotkey Daemon (sxhkd).                                                                          |
+| [theme](roles/theme/)           | Manages system-wide and user-specific themes, including GTK, Qt, icons, and fonts.                                    |
+| [tools](roles/tools/)            | Installs custom scripts and development tools.                               |
+| [user-manager](roles/user-manager/) | Manages user accounts and sudo privileges.                                                            |
+| [video](roles/video/)            | Configures video drivers and related settings.                                                           |
+| [xdg](roles/xdg/)               | Manages XDG base directories and user directory configurations.                                                          |
+| [xorg](roles/xorg/)             | Installs and configures the Xorg server and core X11 utilities.                                                         |
+| [xwayland](roles/xwayland/)          | Configures XWayland for running X11 applications on Wayland.                                                         |
 
 ## 🎨 Customization
 
@@ -325,70 +328,135 @@ Build dependencies are automatically installed and compilation happens in `/tmp/
 
 Run specific parts of the playbook using tags defined in playbooks (`main.yml`, `playbooks/full.yml`) and role tasks.
 
-### Available Tags
+### Tag Summary
 
-| Tag | Description |
-| :--- | :--- |
-| `aliases` | Configure shell aliases |
-| `audio` | Configure professional audio setup (JACK, PulseAudio, PipeWire) |
-| `base` | Core system setup tasks |
-| `base_pkgs` | Install base system packages |
-| `code-packager` | Install and configure code-packager tool |
-| `docker` | Docker installation and configuration |
-| `docker_pkgs` | Install Docker-related packages |
-| `dunst` | Configure Dunst notification daemon |
-| `env` | Set up environment variables |
-| `fabric` | Install and configure Fabric AI scripting tool |
-| `firewalld` | Configure firewall using firewalld |
-| `folders` | Create and configure directories |
-| `groups` | Manage system groups |
-| `grub` | Configure GRUB bootloader |
-| `grub_pkgs` | Install GRUB-related packages |
-| `homepage` | Set up static HTML homepage |
-| `i3` | Install and configure i3 window manager |
-| `i3_config` | Configure i3 window manager settings |
-| `input-remapper` | Set up input device mapping |
-| `keybindings` | Configure keyboard shortcuts |
-| `libvirt` | Install and configure libvirt virtualization |
-| `makepkg` | Configure makepkg settings |
-| `menus` | Configure application menus |
-| `mirrors` | Update and optimize package mirrors |
-| `nas` | Set up NAS-related services |
-| `network` | Configure network settings |
-| `nfs` | Set up NFS server/client |
-| `ntp` | Configure time synchronization |
-| `packages` | General package installation tasks |
-| `paru` | Install and configure paru AUR helper |
-| `picom` | Configure Picom compositor |
-| `profile` | Set up user profile configurations |
-| `repos` | Configure package repositories |
-| `rofi` | Configure Rofi application launcher |
-| `rsyncd` | Set up rsync daemon |
-| `ruby` | Install and configure Ruby environment |
-| `rvm` | Install and configure Ruby Version Manager |
-| `samba` | Set up Samba file sharing |
-| `setup` | General setup tasks |
-| `shell` | Configure shell environment |
-| `shell_pkgs` | Install shell-related packages |
-| `ssh` | Configure SSH server/client |
-| `sudo` | Configure sudo access |
-| `sudoers` | Manage sudoers configuration |
-| `sway` | Install and configure Sway window manager |
-| `sxhkd` | Configure Simple X Hotkey Daemon |
-| `systemd-mounts` | Configure systemd mount units |
-| `tools` | Install and configure custom tools |
-| `updatedb` | Configure and run updatedb for file indexing |
-| `user` | Manage user accounts |
-| `vagrant` | Install and configure Vagrant |
-| `video` | Configure video drivers and related packages |
-| `whisper-stream` | Install and configure whisper-stream tool |
-| `x` | Configure X11 environment |
-| `xdg` | Configure XDG Base Directory settings |
-| `xprofile` | Configure X11 profile settings |
-| `xwayland` | Configure XWayland for X11 application compatibility on Wayland |
-| `zprofile` | Configure Zsh profile |
-| `zsh` | Install and configure Zsh shell |
-| `zsh_functions` | Configure Zsh functions |
+*   **aliases**: `tools`, `shell`
+*   **always**: `theme`, `base`
+*   **amd**: `video`
+*   **archaudio**: `base`
+*   **audio**: `audio`
+*   **autostart**: `video`
+*   **avahi**: `networking`
+*   **backgrounds**: `theme`
+*   **base**: `base`
+*   **base_pkgs**: `base`
+*   **cache**: `base`
+*   **cache_update**: `base`
+*   **cargo**: `base`
+*   **chaotic_aur**: `base`
+*   **cleanup**: `video`
+*   **code-packager**: `tools`
+*   **config**: `rofi`
+*   **cpupower**: `audio`
+*   **crb**: `base`
+*   **debug**: `video`
+*   **dnf_config**: `base`
+*   **dnf_configuration**: `base`
+*   **docker**: `docker`
+*   **docker_pkgs**: `docker`
+*   **dunst**: `dunst`
+*   **env**: `xorg`, `tools`
+*   **epel**: `base`
+*   **fabric**: `tools`
+*   **firewalld**: `firewalld`
+*   **folders**: `sway`, `i3`, `user-manager`
+*   **fonts**: `theme`
+*   **functions**: `shell`
+*   **getty**: `display-manager`
+*   **gpu**: `video`
+*   **greetd**: `display-manager`
+*   **groups**: `docker`
+*   **grub**: `video`, `grub`
+*   **grub_pkgs**: `grub`
+*   **gtk**: `theme`
+*   **hosts**: `networking`
+*   **i3**: `i3`
+*   **i3_config**: `i3`
+*   **icons**: `theme`
+*   **input-remapper**: `tools`
+*   **intel**: `video`
+*   **iwd**: `networking`
+*   **jack**: `audio`
+*   **jack_pkgs**: `audio`
+*   **kernel**: `video`
+*   **keybindings**: `i3`, `sxhkd`
+*   **keymap**: `base`
+*   **libvirt**: `libvirt`
+*   **locale**: `base`
+*   **modprobe**: `audio`
+*   **monitors**: `video`
+*   **musikcube**: `nas`
+*   **nas**: `nas`
+*   **network**: `networking`
+*   **network_check**: `base`
+*   **networkd**: `networking`
+*   **networking**: `networking`
+*   **nfs**: `nas`, `firewalld`
+*   **nfstest**: `nas`
+*   **ntp**: `firewalld`
+*   **nvidia**: `video`
+*   **oh-my-zsh**: `shell`
+*   **packages**: `theme`, `nas`, `rofi`, `picom`, `xorg`, `display-manager`, `audio`, `tools`, `sway`, `xdg`, `dunst`, `i3`, `docker`, `libvirt`, `networking`, `xwayland`, `shell`, `base`, `video`, `grub`, `user-manager`
+*   **paru**: `base`
+*   **performance**: `video`
+*   **picom**: `picom`
+*   **pipewire**: `audio`
+*   **pipewire_pkgs**: `audio`
+*   **plugins**: `shell`
+*   **power**: `video`
+*   **powertools**: `base`
+*   **profile**: `theme`, `sxhkd`, `shell`
+*   **pulseaudio**: `audio`
+*   **pulseaudio_pkgs**: `audio`
+*   **qt**: `theme`
+*   **repo_check**: `base`
+*   **repo_setup**: `base`
+*   **repositories**: `base`
+*   **repos**: `base`
+*   **rofi**: `rofi`
+*   **rpmfusion**: `base`
+*   **rsyncd**: `nas`, `firewalld`
+*   **rtirq**: `audio`
+*   **rtkit**: `audio`
+*   **ruby**: `ruby`
+*   **rvm**: `ruby`
+*   **samba**: `nas`
+*   **service**: `video`
+*   **setup**: `docker`
+*   **shell**: `shell`
+*   **shell_pkgs**: `shell`
+*   **ssh**: `firewalld`
+*   **status**: `base`
+*   **sudo**: `user-manager`
+*   **sudoers**: `user-manager`
+*   **sway**: `sway`
+*   **sxhkd**: `sxhkd`
+*   **sysctl**: `audio`
+*   **systemd-mounts**: `networking`
+*   **systemd-networkd**: `networking`
+*   **theme**: `grub`
+*   **timezone**: `base`
+*   **tools**: `tools`
+*   **tuned**: `audio`
+*   **tuning**: `audio`
+*   **udev**: `networking`
+*   **updatedb**: `base`
+*   **update_cache**: `base`
+*   **user**: `video`, `user-manager`
+*   **vagrant**: `libvirt`
+*   **validation**: `video`
+*   **video**: `video`
+*   **whisper-stream**: `tools`
+*   **wireless**: `networking`
+*   **x**: `xorg`
+*   **x11**: `video`
+*   **xdg**: `xdg`
+*   **xorg**: `xorg`
+*   **xprofile**: `xorg`
+*   **xwayland**: `xwayland`
+*   **zsh**: `shell`
+*   **zsh_functions**: `shell`
+*   **zprofile**: `shell`
 
 ### Usage Examples
 

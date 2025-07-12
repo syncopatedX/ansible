@@ -1,0 +1,5 @@
+---
+# vars file for xdg
+packages__xdg:
+  - xdg-utils
+

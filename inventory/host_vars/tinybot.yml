@@ -12,11 +12,13 @@ autologin: true
 use_libvirt: true
 use_docker: true
 
+nfs_host: true
 share:
   nfs:
     parent: /home
     exports:
       - b08x
+
 
 samba_host: false
 

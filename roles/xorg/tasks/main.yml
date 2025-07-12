@@ -1,5 +1,5 @@
 ---
-# tasks file for x
+# tasks file for xorg
 
 - name: Load distribution-specific variables
   ansible.builtin.include_vars: "{{ ansible_distribution }}.yml"
@@ -28,94 +28,47 @@
   rescue:
     - name: Installing packages failed
       ansible.builtin.debug:
-        msg: "Failed to install i3-wm packages"
+        msg: "Failed to install xorg packages"
 
-# - block:
-#     - name: Set xorg.conf
-#       template:
-#         src: etc/X11/xorg.conf.j2
-#         dest: /etc/X11/xorg.conf
-#         owner: root
-#         group: root
-#         mode: '0644'
-#         backup: yes
+- name: Disable vblank
+  ansible.builtin.copy:
+    content: |
+      <device screen="0" driver="dri2">
+          <application name="Default">
+              <option name="vblank_mode" value="0"/>
+          </application>
+      </device>
+    dest: "{{ user.home }}/.drirc"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+  when: disable_vblank is defined
 
-#     - name: Set video modules in mkinitcpio
-#       template:
-#         src: etc/mkinitcpio.conf.j2
-#         dest: /etc/mkinitcpio.conf
-#         owner: root
-#         group: root
-#         mode: '0644'
-#         backup: yes
-#       register: mkinitcpio_conf
+- tags: ["env", "profile", "xprofile"]
+  block:
+    - name: Display x vars
+      ansible.builtin.debug:
+        msg: "{{ x }}"
+      when: debug_vars is defined
 
-#     - name: Re-create ramdisk if config changed
-#       shell: mkinitcpio -P
-#       when: mkinitcpio_conf.changed
+    - name: Set xserver configs
+      ansible.builtin.template:
+        src: "home/{{ item }}.j2"
+        dest: "{{ user.home }}/{{ item }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.group }}"
+        mode: "0644"
+        backup: true
+      with_items:
+        - .xprofile
+        - .xserverrc
+        - .Xresources
 
-#   when:
-#     - (ansible_distribution != 'EndeavourOS' or ansible_facts["lsb"]["id"] != 'EndeavourOS')
-#     - ansible_os_family == 'Archlinux'
-#   tags: ['video', 'mkinitcpio']
+    - name: Set xinitrc config
+      ansible.builtin.template:
+        src: home/.xinitrc.j2
+        dest: "{{ user.home }}/.xinitrc"
+        owner: "{{ user.name }}"
+        group: "{{ user.group }}"
+        mode: "0755"
+        backup: true
 
-# - name: Disable vblank
-#   ansible.builtin.copy:
-#     content: |
-#       <device screen="0" driver="dri2">
-#           <application name="Default">
-#               <option name="vblank_mode" value="0"/>
-#           </application>
-#       </device>
-
-#     dest: "{{ user.home }}/.drirc"
-#     owner: "{{ user.name }}"
-#     group: "{{ user.group }}"
-#   when: disable_vblank is defined
-
-# - tags: ["env", "profile", "xprofile"]
-#   block:
-#     - name: Display x vars
-#       ansible.builtin.debug:
-#         msg: "{{ x }}"
-#       when: debug_vars is defined
-
-#     - name: Set xserver configs
-#       ansible.builtin.template:
-#         src: "home/{{ item }}.j2"
-#         dest: "{{ user.home }}/{{ item }}"
-#         owner: "{{ user.name }}"
-#         group: "{{ user.group }}"
-#         mode: "0644"
-#         backup: true
-#       with_items:
-#         - .xprofile
-#         - .xserverrc
-#         - .Xresources
-#       # register: xconfig
-#       # changed_when: (xconfig.msg is defined and not 'All items completed' in xconfig.msg)
-
-#     - name: Set xinitrc config
-#       ansible.builtin.template:
-#         src: home/.xinitrc.j2
-#         dest: "{{ user.home }}/.xinitrc"
-#         owner: "{{ user.name }}"
-#         group: "{{ user.group }}"
-#         mode: "0755"
-#         backup: true
-
-- ansible.builtin.import_tasks:
-    file: sxhkd.yml
-  tags: ["sxhkd"]
-
-- ansible.builtin.import_tasks:
-    file: picom.yml
-  tags: ["picom"]
-
-- ansible.builtin.import_tasks:
-    file: dunst.yml
-  tags: ["dunst"]
-
-- ansible.builtin.import_tasks:
-    file: xdg.yml
-  tags: ["xdg"]

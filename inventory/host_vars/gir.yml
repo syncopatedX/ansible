@@ -10,3 +10,12 @@ window_manager: i3
 
 use_libvirt: true
 use_docker: true
+
+nfs_host: true
+share:
+  nfs:
+    parent: /home
+    exports:
+      - b08x
+
+samba_host: false

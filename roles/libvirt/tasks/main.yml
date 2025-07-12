@@ -2,7 +2,7 @@
 # Libvirt virtualization
 
 - name: Load distribution-specific variables
-  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_distribution }}.yml"
   tags: ["packages"]
 
 - name: Install libvirt packages on Arch Linux
@@ -11,7 +11,7 @@
     state: present
   become: true
   when:
-    - ansible_os_family == "Archlinux"
+    - ansible_distribution == "Archlinux"
     - libvirt_packages is defined
   tags: ["packages"]
 
@@ -21,7 +21,7 @@
     state: present
   become: true
   when:
-    - ansible_os_family == "RedHat"
+    - ansible_distribution == "RedHat"
     - libvirt_packages is defined
   tags: ["packages"]
 

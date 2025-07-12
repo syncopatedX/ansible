@@ -1,0 +1,100 @@
+---
+# sway specific tasks
+- name: Load distribution-specific variables
+  ansible.builtin.include_vars: "{{ ansible_distribution }}.yml"
+  tags: ["packages"]
+
+- become: false
+  block:
+    - name: Install sway packages
+      aur:
+        use: paru
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - "{{ packages__sway }}"
+      tags: ["packages"]
+      when: ansible_distribution == "Archlinux"
+
+    - name: Install sway packages
+      dnf:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - "{{ packages__sway }}"
+      tags: ["packages"]
+      when: ansible_distribution == "Fedora"
+
+  rescue:
+    - name: Installing sway packages failed
+      ansible.builtin.debug:
+        msg: "Failed to install sway packages"
+
+  always:
+    - name: Ensure sway directories exist
+      ansible.builtin.file:
+        dest: "{{ wm_directory_default_location }}/{{ item.dest }}"
+        state: directory
+        owner: "{{ item.owner | default(wm_directory_default_owner) }}"
+        group: "{{ item.group | default(wm_directory_default_group) }}"
+        mode: "{{ item.mode | default(wm_directory_default_mode) }}"
+        recurse: "{{ item.recurse | default(wm_directory_default_recurse) }}"
+      loop: "{{ sway_directory_definitions }}"
+      check_mode: false
+      tags: ["folders"]
+
+- name: Update sway system configs
+  ansible.posix.synchronize:
+    src: etc/sway/
+    dest: /etc/sway
+    recursive: true
+    mode: push
+    delete: false
+    checksum: true
+    perms: false
+    owner: false
+    group: false
+  become: true
+
+- become: false
+  block:
+    - name: Update sway user configs
+      ansible.posix.synchronize:
+        src: home/.config/sway/
+        dest: "{{ user.home }}/.config/sway"
+        recursive: true
+        mode: push
+        delete: false
+        checksum: true
+        perms: false
+        owner: false
+        group: false
+
+    - name: Update waybar css
+      ansible.builtin.template:
+        src: "home/.config/waybar/{{ item }}.j2"
+        dest: "{{ user.home }}/.config/waybar/{{ item }}"
+        mode: "0644"
+        backup: true
+      with_items:
+        - style.css
+        - theme.css
+
+    - name: Update wlogout css
+      ansible.builtin.template:
+        src: "home/.config/wlogout/{{ item }}.j2"
+        dest: "{{ user.home }}/.config/wlogout/{{ item }}"
+        mode: "0644"
+        backup: true
+      with_items:
+        - style.css
+        - theme.css
+
+- name: Update environment file
+  ansible.builtin.copy:
+    src: etc/environment
+    dest: /etc/environment
+    mode: "0644"
+    backup: true
+  become: true
+

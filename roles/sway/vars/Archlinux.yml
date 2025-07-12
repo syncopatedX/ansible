@@ -1,0 +1,34 @@
+---
+# vars file for sway on Archlinux
+packages__sway:
+  - foot
+  - fuzzel
+  - greetd
+  - greetd-gtkgreet
+  - grim
+  - kanshi
+  - mako
+  - mdcat
+  - slurp
+  - sway
+  - swaybg
+  - swayidle
+  - swaylock
+  - waybar
+  - wl-clipboard
+  - wlogout
+  - wf-recorder
+  - xdg-desktop-portal-wlr
+  - xorg-xwayland
+
+sway_directory_definitions:
+  - dest: ".config/sway"
+  - dest: ".config/waybar"
+  - dest: ".config/mako"
+  - dest: ".config/wlogout"
+  - dest: ".config/sway/config.d"
+  - dest: ".config/sway/themes"
+  - dest: ".config/sway/inputs"
+  - dest: ".config/sway/modes"
+  - dest: ".config/sway/outputs"
+
