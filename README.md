@@ -330,133 +330,133 @@ Run specific parts of the playbook using tags defined in playbooks (`main.yml`, 
 
 ### Tag Summary
 
-*   **aliases**: `tools`, `shell`
-*   **always**: `theme`, `base`
-*   **amd**: `video`
-*   **archaudio**: `base`
-*   **audio**: `audio`
-*   **autostart**: `video`
-*   **avahi**: `networking`
-*   **backgrounds**: `theme`
-*   **base**: `base`
-*   **base_pkgs**: `base`
-*   **cache**: `base`
-*   **cache_update**: `base`
-*   **cargo**: `base`
-*   **chaotic_aur**: `base`
-*   **cleanup**: `video`
-*   **code-packager**: `tools`
-*   **config**: `rofi`
-*   **cpupower**: `audio`
-*   **crb**: `base`
-*   **debug**: `video`
-*   **dnf_config**: `base`
-*   **dnf_configuration**: `base`
-*   **docker**: `docker`
-*   **docker_pkgs**: `docker`
-*   **dunst**: `dunst`
-*   **env**: `xorg`, `tools`
-*   **epel**: `base`
-*   **fabric**: `tools`
-*   **firewalld**: `firewalld`
-*   **folders**: `sway`, `i3`, `user-manager`
-*   **fonts**: `theme`
-*   **functions**: `shell`
-*   **getty**: `display-manager`
-*   **gpu**: `video`
-*   **greetd**: `display-manager`
-*   **groups**: `docker`
-*   **grub**: `video`, `grub`
-*   **grub_pkgs**: `grub`
-*   **gtk**: `theme`
-*   **hosts**: `networking`
-*   **i3**: `i3`
-*   **i3_config**: `i3`
-*   **icons**: `theme`
-*   **input-remapper**: `tools`
-*   **intel**: `video`
-*   **iwd**: `networking`
-*   **jack**: `audio`
-*   **jack_pkgs**: `audio`
-*   **kernel**: `video`
-*   **keybindings**: `i3`, `sxhkd`
-*   **keymap**: `base`
-*   **libvirt**: `libvirt`
-*   **locale**: `base`
-*   **modprobe**: `audio`
-*   **monitors**: `video`
-*   **musikcube**: `nas`
-*   **nas**: `nas`
-*   **network**: `networking`
-*   **network_check**: `base`
-*   **networkd**: `networking`
-*   **networking**: `networking`
-*   **nfs**: `nas`, `firewalld`
-*   **nfstest**: `nas`
-*   **ntp**: `firewalld`
-*   **nvidia**: `video`
-*   **oh-my-zsh**: `shell`
-*   **packages**: `theme`, `nas`, `rofi`, `picom`, `xorg`, `display-manager`, `audio`, `tools`, `sway`, `xdg`, `dunst`, `i3`, `docker`, `libvirt`, `networking`, `xwayland`, `shell`, `base`, `video`, `grub`, `user-manager`
-*   **paru**: `base`
-*   **performance**: `video`
-*   **picom**: `picom`
-*   **pipewire**: `audio`
-*   **pipewire_pkgs**: `audio`
-*   **plugins**: `shell`
-*   **power**: `video`
-*   **powertools**: `base`
-*   **profile**: `theme`, `sxhkd`, `shell`
-*   **pulseaudio**: `audio`
-*   **pulseaudio_pkgs**: `audio`
-*   **qt**: `theme`
-*   **repo_check**: `base`
-*   **repo_setup**: `base`
-*   **repositories**: `base`
-*   **repos**: `base`
-*   **rofi**: `rofi`
-*   **rpmfusion**: `base`
-*   **rsyncd**: `nas`, `firewalld`
-*   **rtirq**: `audio`
-*   **rtkit**: `audio`
-*   **ruby**: `ruby`
-*   **rvm**: `ruby`
-*   **samba**: `nas`
-*   **service**: `video`
-*   **setup**: `docker`
-*   **shell**: `shell`
-*   **shell_pkgs**: `shell`
-*   **ssh**: `firewalld`
-*   **status**: `base`
-*   **sudo**: `user-manager`
-*   **sudoers**: `user-manager`
-*   **sway**: `sway`
-*   **sxhkd**: `sxhkd`
-*   **sysctl**: `audio`
-*   **systemd-mounts**: `networking`
-*   **systemd-networkd**: `networking`
-*   **theme**: `grub`
-*   **timezone**: `base`
-*   **tools**: `tools`
-*   **tuned**: `audio`
-*   **tuning**: `audio`
-*   **udev**: `networking`
-*   **updatedb**: `base`
-*   **update_cache**: `base`
-*   **user**: `video`, `user-manager`
-*   **vagrant**: `libvirt`
-*   **validation**: `video`
-*   **video**: `video`
-*   **whisper-stream**: `tools`
-*   **wireless**: `networking`
-*   **x**: `xorg`
-*   **x11**: `video`
-*   **xdg**: `xdg`
-*   **xorg**: `xorg`
-*   **xprofile**: `xorg`
-*   **xwayland**: `xwayland`
-*   **zsh**: `shell`
-*   **zsh_functions**: `shell`
-*   **zprofile**: `shell`
+* **aliases**: `tools`, `shell`
+* **always**: `theme`, `base`
+* **amd**: `video`
+* **archaudio**: `base`
+* **audio**: `audio`
+* **autostart**: `video`
+* **avahi**: `networking`
+* **backgrounds**: `theme`
+* **base**: `base`
+* **base_pkgs**: `base`
+* **cache**: `base`
+* **cache_update**: `base`
+* **cargo**: `base`
+* **chaotic_aur**: `base`
+* **cleanup**: `video`
+* **code-packager**: `tools`
+* **config**: `rofi`
+* **cpupower**: `audio`
+* **crb**: `base`
+* **debug**: `video`
+* **dnf_config**: `base`
+* **dnf_configuration**: `base`
+* **docker**: `docker`
+* **docker_pkgs**: `docker`
+* **dunst**: `dunst`
+* **env**: `xorg`, `tools`
+* **epel**: `base`
+* **fabric**: `tools`
+* **firewalld**: `firewalld`
+* **folders**: `sway`, `i3`, `user-manager`
+* **fonts**: `theme`
+* **functions**: `shell`
+* **getty**: `display-manager`
+* **gpu**: `video`
+* **greetd**: `display-manager`
+* **groups**: `docker`
+* **grub**: `video`, `grub`
+* **grub_pkgs**: `grub`
+* **gtk**: `theme`
+* **hosts**: `networking`
+* **i3**: `i3`
+* **i3_config**: `i3`
+* **icons**: `theme`
+* **input-remapper**: `tools`
+* **intel**: `video`
+* **iwd**: `networking`
+* **jack**: `audio`
+* **jack_pkgs**: `audio`
+* **kernel**: `video`
+* **keybindings**: `i3`, `sxhkd`
+* **keymap**: `base`
+* **libvirt**: `libvirt`
+* **locale**: `base`
+* **modprobe**: `audio`
+* **monitors**: `video`
+* **musikcube**: `nas`
+* **nas**: `nas`
+* **network**: `networking`
+* **network_check**: `base`
+* **networkd**: `networking`
+* **networking**: `networking`
+* **nfs**: `nas`, `firewalld`
+* **nfstest**: `nas`
+* **ntp**: `firewalld`
+* **nvidia**: `video`
+* **oh-my-zsh**: `shell`
+* **packages**: `theme`, `nas`, `rofi`, `picom`, `xorg`, `display-manager`, `audio`, `tools`, `sway`, `xdg`, `dunst`, `i3`, `docker`, `libvirt`, `networking`, `xwayland`, `shell`, `base`, `video`, `grub`, `user-manager`
+* **paru**: `base`
+* **performance**: `video`
+* **picom**: `picom`
+* **pipewire**: `audio`
+* **pipewire_pkgs**: `audio`
+* **plugins**: `shell`
+* **power**: `video`
+* **powertools**: `base`
+* **profile**: `theme`, `sxhkd`, `shell`
+* **pulseaudio**: `audio`
+* **pulseaudio_pkgs**: `audio`
+* **qt**: `theme`
+* **repo_check**: `base`
+* **repo_setup**: `base`
+* **repositories**: `base`
+* **repos**: `base`
+* **rofi**: `rofi`
+* **rpmfusion**: `base`
+* **rsyncd**: `nas`, `firewalld`
+* **rtirq**: `audio`
+* **rtkit**: `audio`
+* **ruby**: `ruby`
+* **rvm**: `ruby`
+* **samba**: `nas`
+* **service**: `video`
+* **setup**: `docker`
+* **shell**: `shell`
+* **shell_pkgs**: `shell`
+* **ssh**: `firewalld`
+* **status**: `base`
+* **sudo**: `user-manager`
+* **sudoers**: `user-manager`
+* **sway**: `sway`
+* **sxhkd**: `sxhkd`
+* **sysctl**: `audio`
+* **systemd-mounts**: `networking`
+* **systemd-networkd**: `networking`
+* **theme**: `grub`
+* **timezone**: `base`
+* **tools**: `tools`
+* **tuned**: `audio`
+* **tuning**: `audio`
+* **udev**: `networking`
+* **updatedb**: `base`
+* **update_cache**: `base`
+* **user**: `video`, `user-manager`
+* **vagrant**: `libvirt`
+* **validation**: `video`
+* **video**: `video`
+* **whisper-stream**: `tools`
+* **wireless**: `networking`
+* **x**: `xorg`
+* **x11**: `video`
+* **xdg**: `xdg`
+* **xorg**: `xorg`
+* **xprofile**: `xorg`
+* **xwayland**: `xwayland`
+* **zsh**: `shell`
+* **zsh_functions**: `shell`
+* **zprofile**: `shell`
 
 ### Usage Examples
 
