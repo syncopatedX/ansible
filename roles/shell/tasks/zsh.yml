@@ -1,25 +1,28 @@
 ---
 # Zsh configuration and setup
 
-# - name: Oh-my-zsh installation
-#   block:
-#     - name: Download oh-my-zsh install script
-#       ansible.builtin.get_url:
-#         url: "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
-#         dest: "/tmp/oh-my-zsh-install.sh"
-#         mode: "0755"
-#       register: oh_my_zsh_install_script
+- name: Check if oh-my-zsh is installed
+  ansible.builtin.stat:
+    path: "/usr/share/oh-my-zsh"
+  register: oh_my_zsh_stat
 
-#     - name: Install oh-my-zsh
-#       ansible.builtin.command:
-#         cmd: "env ZSH=/usr/share/oh-my-zsh sh /tmp/oh-my-zsh-install.sh --unattended"
-#       when: oh_my_zsh_install_script is changed
-#       register: oh_my_zsh_install
-#   tags: ["oh-my-zsh"]
-
-- name: Oh-my-zsh plugins installation
-  tags: ["plugins"]
+- name: Oh-my-zsh installation
   block:
+    - name: Download oh-my-zsh install script
+      ansible.builtin.get_url:
+        url: "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
+        dest: "/tmp/oh-my-zsh-install.sh"
+        mode: "0755"
+      register: oh_my_zsh_install_script
+
+    - name: Install oh-my-zsh
+      ansible.builtin.command:
+        cmd: "/tmp/oh-my-zsh-install.sh --unattended"
+      environment: 
+        ZSH: "/usr/share/oh-my-zsh"
+      when: oh_my_zsh_install_script is changed
+      register: oh_my_zsh_install
+
     - name: Install oh-my-zsh plugins
       ansible.builtin.copy:
         src: "usr/share/oh-my-zsh/plugins/{{ item }}"
@@ -30,25 +33,27 @@
       loop:
         - fd
         - ripgrep
+      when: oh_my_zsh_install is changed
 
-- name: Zsh custom functions setup
-  tags: ["functions"]
-  block:
-    - name: Install zsh custom functions
-      ansible.posix.synchronize:
-        src: home/.local/share/zsh/
-        dest: "{{ user.home }}/.local/share/zsh/"
-        recursive: true
-        mode: push
-        delete: true
-        checksum: true
-        perms: false
-        rsync_opts:
-          - "--update"
-          - "--omit-dir-times"
-          - "--chown={{ user.name }}:{{ user.name }}"
-      ignore_errors: "{{ ansible_check_mode }}"
-      become: false
+  when: not oh_my_zsh_stat.stat.exists
+  tags: ["oh-my-zsh"]
+
+
+- name: Install zsh custom functions
+  ansible.posix.synchronize:
+    src: home/.local/share/zsh/
+    dest: "{{ user.home }}/.local/share/zsh/"
+    recursive: true
+    mode: push
+    delete: true
+    checksum: true
+    perms: false
+    rsync_opts:
+      - "--update"
+      - "--omit-dir-times"
+      - "--chown={{ user.name }}:{{ user.name }}"
+  ignore_errors: "{{ ansible_check_mode }}"
+  become: false
 
 # - name: Zsh configuration files
 #   block:

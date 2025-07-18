@@ -15,6 +15,8 @@
         # Try PowerTools first (Rocky 8), then CRB (Rocky 9)
         dnf config-manager --set-enabled powertools 2>/dev/null ||
         dnf config-manager --set-enabled crb
+        dnf config-manager --set-enabled plus
+        dnf config-manager --set-enabled rt
       changed_when: false
       tags: ["powertools", "crb"]
 
@@ -59,8 +61,14 @@
         backup: yes
       loop:
         - { regexp: "^fastestmirror=", line: "fastestmirror=1" }
-        - { regexp: "^max_parallel_downloads=", line: "max_parallel_downloads=10" }
-        - { regexp: "^clean_requirements_on_remove=", line: "clean_requirements_on_remove=True" }
+        - {
+            regexp: "^max_parallel_downloads=",
+            line: "max_parallel_downloads=10",
+          }
+        - {
+            regexp: "^clean_requirements_on_remove=",
+            line: "clean_requirements_on_remove=True",
+          }
       tags: ["dnf_config"]
 
     - name: Set repository priorities
@@ -68,8 +76,10 @@
         dnf config-manager --save --setopt="baseos.priority=10"
         dnf config-manager --save --setopt="appstream.priority=10"
         dnf config-manager --save --setopt="epel.priority=20"
+        dnf config-manager --save --setopt="rt.priority=20"
         dnf config-manager --save --setopt="powertools.priority=30" 2>/dev/null ||
         dnf config-manager --save --setopt="crb.priority=30"
+        dnf config-manager --save --setopt="plus.priority=30"
         dnf config-manager --save --setopt="rpmfusion-*.priority=40"
       changed_when: false
       tags: ["repo_priorities"]

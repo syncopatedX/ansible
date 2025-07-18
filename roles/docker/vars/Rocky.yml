@@ -1,0 +1,6 @@
+---
+# RedHat/Rocky Linux specific docker packages and configuration
+
+packages__docker:
+  - docker-ce
+  - docker-compose

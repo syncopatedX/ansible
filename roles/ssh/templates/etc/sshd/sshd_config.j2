@@ -122,7 +122,7 @@ PermitEmptyPasswords no
 #Banner none
 
 # override default of no subsystems
-{% if ansible_distribution == 'Fedora' %}
+{% if ansible_distribution == 'Fedora' or ansible_distribution == 'Rocky' %}
 Subsystem	sftp	/usr/libexec/openssh/sftp-server
 {% else %}
 Subsystem	sftp	/usr/lib/openssh/sftp-server

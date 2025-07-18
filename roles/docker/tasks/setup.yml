@@ -31,6 +31,7 @@
         state: directory
         owner: root
         group: root
+        mode: '0755'
 
     - name: Set docker storage location
       ansible.builtin.copy:
@@ -41,6 +42,8 @@
 
         dest: "/etc/docker/daemon.json"
         owner: root
+        mode: '0644'
+        backup: True
       notify: Reload systemd daemon
 
 # - name: Set docker storage location
@@ -79,6 +82,8 @@
 
     dest: "/etc/modprobe.d/disable-overlay-redirect-dir.conf"
     owner: root
+    mode: '0644'
+    backup: True
 
 - name: Set docker service preset
   ansible.builtin.systemd:

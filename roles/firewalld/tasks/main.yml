@@ -34,7 +34,7 @@
     - ntp
     - rsyncd
     - ssh
-  notify: reload firewalld
+  notify: Reload firewalld
   when: firewalld_state.rc == 0 or ansible_check_mode
   # Only run if firewalld is active or we're in check mode
   tags: ["nfs", "ntp", "rsyncd", "ssh"]
@@ -45,6 +45,6 @@
     state: enabled
     permanent: true
   with_items: "{{ rules.allowed }}"
-  notify: reload firewalld
+  notify: Reload firewalld
   when: firewalld_state.rc == 0 or ansible_check_mode
   # Only run if firewalld is active or we're in check mode

@@ -28,19 +28,19 @@
     - { role: base, tags: ["base"] }
     - { role: ssh, tags: ["ssh"] }
     - { role: firewalld, tags: ["firewalld"] }
-    - { role: networking, tags: ["networkmanager", "networkd", "resolved"] }
+    # - { role: networking, tags: ["networkmanager", "networkd", "resolved"] }
     - { role: ntp, tags: ["ntp"] }
     #   - { role: grub, tags: ["grub"], when: "bootloader == 'grub' | default('grub')" }
     - { role: shell, tags: ["shell"] }
     #   - { role: rvm.ruby, tags: ["ruby"] }
-    - { role: docker, tags: ["docker"] }
-    - { role: libvirt, tags: ["libvirt"] }
+    # - { role: docker, tags: ["docker"] }
+    # - { role: libvirt, tags: ["libvirt"] }
     #   - { role: nas, tags: ["nas"], when: "nfs_host == 'true' or samba_host == 'true'" }
-    - { role: xorg, tags: ["xorg"], when: "window_manager != 'sway'" }
+    # - { role: xorg, tags: ["xorg"], when: "window_manager != 'sway'" }
     #   - { role: xwayland, tags: ["xwayland"], when: "window_manager == 'sway'" }
-    - { role: i3, tags: ["i3"] }
-    - { role: rofi, tags: ["rofi"] }
-    # - { role: sway, tags: ["sway"] }
+    # - { role: i3, tags: ["i3"] }
+    # - { role: rofi, tags: ["rofi"] }
+    - { role: sway, tags: ["sway"] }
   #   - { role: display-manager, tags: ["display-manager"] }
   #   - { role: audio, tags: ["audio"] }
   #   - { role: video, tags: ["video"] }

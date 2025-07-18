@@ -1,7 +1,7 @@
 ---
 
 packages__base:
-  - "@development-tools"
+  # - "@development-tools"
   - GraphicsMagick
   - ImageMagick
   - aria2
@@ -13,11 +13,10 @@ packages__base:
   - bash-completion
   - bat
   - bind
-  - cargo
   - cmake
   - debugedit
   - elinks
-  # - eza
+  - eza
   - faac
   - faad2
   - fakeroot
@@ -32,7 +31,6 @@ packages__base:
   - git
   - git-delta
   - git-lfs
-  - gitui
   - glow
   - gnome-keyring
   - gnuplot
@@ -69,17 +67,13 @@ packages__base:
   - openslide
   - openssh
   - openssl
-  - perl-File-Compare
-  - perl-FindBin
-  - perl-IPC-Cmd
   - playerctl
   - poppler
   - python3-pip
   - ranger
   - ripgrep
-  - ruby-devel
   - rsync
-  # - sd
+  - sd
   - smartmontools
   - sox
   - sshpass

@@ -1,17 +1,23 @@
 ---
+- name: Install python3-libdnf5 on Fedora
+  ansible.builtin.dnf:
+    name: python3-libdnf5
+    state: present
+  become: true
+
 # Repository Installation Block
 - name: Repository Setup
   block:
     - name: Install RPM Fusion Free repository
       ansible.builtin.dnf:
-        name: "https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-41.noarch.rpm"
+        name: "https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_major_version }}.noarch.rpm"
         state: present
         disable_gpg_check: yes
       tags: ["rpmfusion"]
 
     - name: Install RPM Fusion Non-Free repository
       ansible.builtin.dnf:
-        name: "https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-41.noarch.rpm"
+        name: "https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_major_version }}.noarch.rpm"
         state: present
         disable_gpg_check: yes
       tags: ["rpmfusion"]
@@ -43,8 +49,14 @@
         backup: yes
       loop:
         - { regexp: "^fastestmirror=", line: "fastestmirror=1" }
-        - { regexp: "^max_parallel_downloads=", line: "max_parallel_downloads=10" }
-        - { regexp: "^clean_requirements_on_remove=", line: "clean_requirements_on_remove=True" }
+        - {
+            regexp: "^max_parallel_downloads=",
+            line: "max_parallel_downloads=10",
+          }
+        - {
+            regexp: "^clean_requirements_on_remove=",
+            line: "clean_requirements_on_remove=True",
+          }
       tags: ["dnf_config"]
 
     - name: Set repository priorities

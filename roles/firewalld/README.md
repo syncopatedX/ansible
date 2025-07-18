@@ -61,12 +61,12 @@ This role has no external dependencies on other Ansible Galaxy roles.
 
 The role includes the following handler:
 
-- **`reload firewalld`**: This handler is triggered when any firewall rule (service or port) is changed. It executes `firewall-cmd --reload` to apply the changes without interrupting existing connections.
+- **`Reload firewalld`**: This handler is triggered when any firewall rule (service or port) is changed. It executes `firewall-cmd --reload` to apply the changes without interrupting existing connections.
 
     _Defined in `handlers/main.yml`_:
 
     ```yaml
-    - name: reload firewalld
+    - name: Reload firewalld
       shell: "firewall-cmd --reload"
       ignore_errors: "{{ ansible_check_mode }}"
     ```
@@ -132,9 +132,9 @@ The main tasks performed by this role (from `tasks/main.yml`) are:
 
 1. **Enable and start firewalld**: Ensures the `firewalld` service is running and enabled at boot using the `ansible.builtin.systemd` module.
 
-2. **Permit traffic to common services**: Uses the `ansible.posix.firewalld` module to enable `ntp`, `rsyncd`, and `ssh` services permanently. This task notifies the `reload firewalld` handler.
+2. **Permit traffic to common services**: Uses the `ansible.posix.firewalld` module to enable `ntp`, `rsyncd`, and `ssh` services permanently. This task notifies the `Reload firewalld` handler.
 
-3. **Permit traffic to custom ports**: Iterates through the `rules.allowed` list and uses the `ansible.posix.firewalld` module to enable each specified port/protocol combination permanently. This task also notifies the `reload firewalld` handler.
+3. **Permit traffic to custom ports**: Iterates through the `rules.allowed` list and uses the `ansible.posix.firewalld` module to enable each specified port/protocol combination permanently. This task also notifies the `Reload firewalld` handler.
 
 ## License
 

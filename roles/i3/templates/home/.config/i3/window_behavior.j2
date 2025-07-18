@@ -3,6 +3,13 @@
 #############################################################################
 for_window [instance="__scratchpad"] move scratchpad
 
+for_window [class="^obsidian"] move to workspace 1
+for_window [class="Code" title="(?i)Visual Studio Code"] move to workspace 2
+
+for_window [class="^RaySession$"] move to workspace 10
+
+for_window [class="^RaySession$" title="(?i)Add Application"] floating enable, resize set 1028 690, move position center
+for_window [class="^RaySession$" title="(?i)Previous session"] floating enable, resize set 571 273, move position center
 
 #--------------- General Applications ---------------#
 for_window [title="Calculator"] floating enable

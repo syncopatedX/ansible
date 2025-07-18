@@ -20,6 +20,7 @@
         mode: "0755"
         owner: "{{ user.name }}"
         group: "{{ user.group | default(user.name) }}"
+      register: local_bin_dir
       tags: ["folders"]
 
     - name: Ensure ~/.local/share exists
@@ -35,3 +36,15 @@
   ansible.builtin.include_tasks: sudo.yml
   when: user.sudoers | default(true)
   tags: ["sudoers"]
+
+- name: Install yadm for dotfile management
+  ansible.builtin.get_url:
+    url: "https://github.com/yadm-dev/yadm/raw/master/yadm"
+    dest: "{{ user.home | default('/home/' + user.name) }}/.local/bin/yadm"
+    mode: "0755"
+    owner: "{{ user.name }}"
+    group: "{{ user.group | default(user.name) }}"
+  register: yadm_install
+  when: not ansible_check_mode
+  # when: user.yadm | default(true)
+  tags: ["yadm"]
