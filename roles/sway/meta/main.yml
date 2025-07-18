@@ -17,5 +17,4 @@ galaxy_info:
     - windowmanager
     - sway
     - wayland
-dependencies:
-  - role: rofi
+dependencies: []

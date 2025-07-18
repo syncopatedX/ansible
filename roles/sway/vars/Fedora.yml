@@ -1,14 +1,15 @@
 ---
 # vars file for sway on Fedora
 packages__sway:
+  - azote
   - foot
   - fuzzel
-  - greetd
-  - greetd-gtkgreet
+  # - greetd
+  # - greetd-gtkgreet
   - grim
   - kanshi
   - mako
-  - mdcat
+  # - mdcat
   - slurp
   - sway
   - swaybg
@@ -18,8 +19,9 @@ packages__sway:
   - wl-clipboard
   - wlogout
   - wf-recorder
+  - wofi
   - xdg-desktop-portal-wlr
-  - xorg-xwayland
+  # - xorg-xwayland
 
 sway_directory_definitions:
   - dest: ".config/sway"

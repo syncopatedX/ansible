@@ -15,3 +15,4 @@ installer.sh
 pyproject.toml
 .ruby-version
 .ruby-gemset
+ansible.code-workspace

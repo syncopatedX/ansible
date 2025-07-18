@@ -4,8 +4,7 @@
   ansible.builtin.include_vars: "{{ ansible_distribution }}.yml"
   tags: ["packages"]
 
-- become: false
-  block:
+- block:
     - name: Install sway packages
       aur:
         use: paru
@@ -13,6 +12,7 @@
         state: present
       with_items:
         - "{{ packages__sway }}"
+      become: false
       tags: ["packages"]
       when: ansible_distribution == "Archlinux"
 
@@ -22,6 +22,7 @@
         state: present
       with_items:
         - "{{ packages__sway }}"
+      become: true
       tags: ["packages"]
       when: ansible_distribution == "Fedora"
 
@@ -47,6 +48,32 @@
   ansible.posix.synchronize:
     src: etc/sway/
     dest: /etc/sway
+    recursive: true
+    mode: push
+    delete: false
+    checksum: true
+    perms: false
+    owner: false
+    group: false
+  become: true
+
+- name: Update sway system configs
+  ansible.posix.synchronize:
+    src: usr/libexec/sway/
+    dest: /usr/libexec/sway
+    recursive: true
+    mode: push
+    delete: false
+    checksum: true
+    perms: false
+    owner: false
+    group: false
+  become: true
+
+- name: Update sway system configs
+  ansible.posix.synchronize:
+    src: usr/libexec/sway-systemd/
+    dest: /usr/libexec/sway-systemd
     recursive: true
     mode: push
     delete: false
@@ -89,11 +116,10 @@
       with_items:
         - style.css
         - theme.css
-
-- name: Update environment file
-  ansible.builtin.copy:
-    src: etc/environment
-    dest: /etc/environment
-    mode: "0644"
-    backup: true
-  become: true
+# - name: Update environment file
+#   ansible.builtin.copy:
+#     src: etc/environment
+#     dest: /etc/environment
+#     mode: "0644"
+#     backup: true
+#   become: true
