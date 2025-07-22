@@ -62,7 +62,8 @@ alias pui="paru -Rdd"
 alias listi="paru -Qe | awk '{ print $1 }'"
 alias pup="paru -Syyuu --batchinstall"
 alias paruscc="paru -Scc --noconfirm"
-
+alias provides="sudo dnf provides"
+alias dnf="sudo dnf"
 # git
 # alias gd="git diff --name-status | grep -v D | awk '{print $2}' | fzf --preview 'git diff -- {}'"
 alias gc="env GIT_EDITOR=micro git commit && gum confirm 'push changes' && git push"
@@ -93,9 +94,6 @@ alias monitoroff="xset dpms force off"
 alias ra="ranger"
 
 alias dl="aria2c"
-if [ -x "$(command -v curlie)" ]; then
-  alias curl="curlie"
-fi
 
 alias duf="sudo duf"
 alias top="sudo btm --enable_cache_memory --enable_gpu_memory --process_command -n"
