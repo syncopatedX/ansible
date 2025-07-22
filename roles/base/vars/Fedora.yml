@@ -4,6 +4,7 @@ packages__base:
   - "@development-tools"
   - GraphicsMagick
   - ImageMagick
+  - asciiquarium
   - aria2
   - aspell
   - aspell-en
@@ -14,6 +15,7 @@ packages__base:
   - bat
   - bind
   - cargo
+  - cbonsai
   - cmake
   - debugedit
   - elinks
@@ -42,9 +44,11 @@ packages__base:
   - highlight
   - hspell
   - htop
+  - input-remapper
   - inxi
   - iotop
   - jq
+  - kitty
   - kernel-tools
   - keychain
   - libgit2

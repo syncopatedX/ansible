@@ -112,18 +112,25 @@ bindsym {{ keybinding.key }} exec {{ keybinding.exec }}
 bindsym XF86RotateWindows $exec /mnt/bender/backup/weather.sh
 
 bindsym XF86AudioRecord $exec {{terminal }} --class "notepad" --hold -e ~/.local/bin/whisper-stream
-# bindsym Control+Menu $exec wmfocus
-#
-# bindsym Menu $exec ~/.config/rofi/scripts/launcher_t1.sh
-#
-# bindsym XF86Search+d $exec /usr/local/bin/search_devdocs.sh
-# bindsym XF86Search+w $exec /usr/local/bin/search_web.sh
-#
-# bindsym XF86AudioRecord $exec {{terminal }} --class "notepad" -e /usr/local/bin/# scriber.rb
-#
-# bindsym $mod+XF86AudioRecord $exec {{terminal }} --class "notepad" -e /usr/local/# bin/scriber.rb --new-file
-#
-# bindsym XF86Paste $exec xclip -o
+
+# Keybindings migrated from sxhkdrc
+bindsym Control+Menu $exec wmfocus
+bindsym $alt+Next $exec wmfocus
+bindsym $mod+Prior $exec ~/Utils/bin/search_web.sh
+bindsym Menu $exec ~/.config/rofi/scripts/launcher_t1.sh
+bindsym $mod+F5 $exec {{ terminal }} --class "htop" -e htop
+bindsym $mod+$alt+n $exec {{ terminal }} --class "notepad" -e notepad.sh
+bindsym F12 $exec search_web.sh
+bindsym Shift+F12 $exec search_devdocs.sh
+bindsym $alt+Tab $exec rofi -no-lazy-grab -show window -modi run,drun,window
+bindsym $alt+Shift+Return $exec ~/.config/rofi/scripts/launcher_t4.sh
+bindsym XF86Paste $exec xclip -o
+bindsym $mod+Print $exec sendmidi dev 'Midi Through Port-0' panic
+bindsym Control+$alt+End $exec uxterm -class 'backup' -e sudo shutdown -h now
+bindsym Control+$alt+Home $exec uxterm -class 'backup' -e sudo shutdown -r now
+
+# Screenshot keybindings moved to screenshot mode (see modes/screenshot.j2)
+# Print key enters screenshot mode
 
 bindsym $mod+Shift+m sticky toggle
 bindsym $mod+Shift+space floating toggle

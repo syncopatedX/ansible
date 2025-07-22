@@ -39,7 +39,7 @@
 
 # Install essential packages
 - name: Install base packages
-  tags: ["packages"]
+  tags: ["packages", "packages__base"]
   block:
     - name: Install base packages on Arch Linux
       community.general.pacman:
@@ -67,11 +67,59 @@
       when:
         - ansible_distribution == "Fedora"
         - packages__base is defined
-# - name: Install cargo
-#   ansible.builtin.command: "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o - | sh -s -- -y"
-#   args:
-#     creates: "{{ ansible_env.HOME }}/.cargo/bin/cargo"
-#   register: cargo_install
-#   changed_when: cargo_install.rc == 0
-#   failed_when: cargo_install.rc != 0
-#   tags: ["cargo"]
+
+# Install workstation packages
+- name: Install workstation packages
+  tags: ["packages"]
+  block:
+    - name: Install Google Chrome Stable
+      ansible.builtin.dnf:
+        name: google-chrome-stable
+        state: present
+        update_cache: yes
+      when:
+        - ansible_distribution == "Fedora"
+      tags: ["google_chrome"]
+
+- name: Install Rust packages
+  become: false
+  vars:
+    path:
+      - "{{ user.home }}/.cargo/bin"
+      - "{{ user.home }}/.local/bin"
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path | join(':') }}"
+  tags: ["cargo", "packages"]
+  block:
+    # - name: Install Rust toolchain
+    #   ansible.builtin.command: "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y"
+    #   args:
+    #     creates: "{{ ansible_env.HOME }}/.cargo/bin/rustup"
+    #   register: rust_install
+    #   changed_when: rust_install.rc == 0
+    #   failed_when: rust_install.rc != 0
+    #   tags: ["rust"]
+
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Check if 'cargo' is installed
+      ansible.builtin.debug:
+        msg: "'cargo' is installed"
+      when: "'cargo' in ansible_facts.packages"
+
+    - name: Install Rust packages with locked dependencies
+      community.general.cargo:
+        name: "{{ item }}"
+        locked: true
+      loop:
+        - bottom
+        - du-dust
+        - eza
+        - gping
+        - sd
+      loop_control:
+        label: "{{ item }}"
+      when:
+        - "'cargo' in ansible_facts.packages"

@@ -105,6 +105,7 @@
       loop:
         - config
         - modes/resize
+        - modes/screenshot
         - keybindings
         - appearance
         - window_behavior

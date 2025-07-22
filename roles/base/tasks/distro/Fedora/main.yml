@@ -1,9 +1,12 @@
 ---
-- name: Install python3-libdnf5 on Fedora
+- name: Install python3-libdnf5 and fedora-workstation-repositories
   ansible.builtin.dnf:
-    name: python3-libdnf5
+    name: "{{ item  }}"
     state: present
-  become: true
+  with_items:
+    - python3-libdnf5
+    - fedora-workstation-repositories
+  tags: ["packages", "packages__repos"]
 
 # Repository Installation Block
 - name: Repository Setup
@@ -21,6 +24,10 @@
         state: present
         disable_gpg_check: yes
       tags: ["rpmfusion"]
+
+    - name: Enable Google Chrome repository
+      ansible.builtin.command: dnf config-manager setopt google-chrome.enabled=1
+      tags: ["google_chrome"]
 
   rescue:
     - name: Repository Setup Failed

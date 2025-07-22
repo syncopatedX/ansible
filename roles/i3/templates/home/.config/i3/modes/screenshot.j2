@@ -1,0 +1,24 @@
+# screenshot mode (migrated from sxhkdrc)
+mode "screenshot" {
+        # These bindings trigger as soon as you enter the screenshot mode
+        
+        # s - screenshot (teiler)
+        bindsym s exec teiler, mode "default"
+        
+        # t - tmp-screenshot.sh
+        bindsym t exec tmp-screenshot.sh, mode "default"
+        
+        # c - tmp-screenshot-clip.sh
+        bindsym c exec tmp-screenshot-clip.sh, mode "default"
+        
+        # r - ssr-hidden.sh
+        bindsym r exec ssr-hidden.sh, mode "default"
+
+        # back to normal: Enter or Escape
+        bindsym Return mode "default"
+        bindsym Escape mode "default"
+        bindsym Print mode "default"
+}
+
+# Enter screenshot mode with Print key
+bindsym Print mode "screenshot"

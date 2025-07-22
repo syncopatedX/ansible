@@ -44,46 +44,46 @@
       check_mode: false
       tags: ["folders"]
 
-- name: Update sway system configs
-  ansible.posix.synchronize:
-    src: etc/sway/
-    dest: /etc/sway
-    recursive: true
-    mode: push
-    delete: false
-    checksum: true
-    perms: false
-    owner: false
-    group: false
-  become: true
+- name: Install Sway system configs
+  block:
+    - name: Update sway system configs
+      ansible.posix.synchronize:
+        src: etc/sway/
+        dest: /etc/sway
+        recursive: true
+        mode: push
+        delete: false
+        checksum: true
+        perms: false
+        owner: false
+        group: false
 
-- name: Update sway system configs
-  ansible.posix.synchronize:
-    src: usr/libexec/sway/
-    dest: /usr/libexec/sway
-    recursive: true
-    mode: push
-    delete: false
-    checksum: true
-    perms: false
-    owner: false
-    group: false
-  become: true
+    - name: Update sway system configs
+      ansible.posix.synchronize:
+        src: usr/libexec/sway/
+        dest: /usr/libexec/sway
+        recursive: true
+        mode: push
+        delete: false
+        checksum: true
+        perms: false
+        owner: false
+        group: false
 
-- name: Update sway system configs
-  ansible.posix.synchronize:
-    src: usr/libexec/sway-systemd/
-    dest: /usr/libexec/sway-systemd
-    recursive: true
-    mode: push
-    delete: false
-    checksum: true
-    perms: false
-    owner: false
-    group: false
-  become: true
+    - name: Update sway system configs
+      ansible.posix.synchronize:
+        src: usr/libexec/sway-systemd/
+        dest: /usr/libexec/sway-systemd
+        recursive: true
+        mode: push
+        delete: false
+        checksum: true
+        perms: false
+        owner: false
+        group: false
 
-- become: false
+- name: Update sway user configs
+  become: false
   block:
     - name: Update sway user configs
       ansible.posix.synchronize:
