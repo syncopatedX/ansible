@@ -1,0 +1,72 @@
+---
+# vars file for cosmic-desktop on Archlinux
+
+# Main COSMIC packages
+packages__cosmic_desktop:
+  stable:
+    - cosmic-session
+    - cosmic-comp  
+    - cosmic-panel
+    - cosmic-settings
+    - cosmic-greeter
+  dev:
+    - cosmic-session-git
+    - cosmic-comp-git
+    - cosmic-panel-git
+    - cosmic-settings-git
+    - cosmic-greeter-git
+
+# COSMIC applications
+packages__cosmic_apps:
+  stable:
+    - cosmic-files
+    - cosmic-terminal
+    - cosmic-launcher
+    - cosmic-store
+  dev:
+    - cosmic-files-git
+    - cosmic-terminal-git
+    - cosmic-launcher-git
+    - cosmic-store-git
+
+# Essential dependencies
+packages__cosmic_deps:
+  - wayland
+  - libwayland-client
+  - libwayland-server
+  - libseat
+  - libinput
+  - libxkbcommon
+  - udev
+  - dbus
+
+# AUR helper options
+cosmic_aur_helpers:
+  - yay
+  - paru
+
+# Display manager packages
+packages__display_managers:
+  - greetd
+  - cosmic-greeter
+
+# Keyring and secrets management
+packages__keyring:
+  - gnome-keyring
+  - libsecret
+
+# Network file system support
+packages__gvfs:
+  - gvfs
+  - gvfs-smb
+  - gvfs-nfs
+  - gvfs-mtp
+  - gvfs-gphoto2
+  - gvfs-afc
+
+cosmic_directory_definitions:
+  - dest: ".config/cosmic"
+  - dest: ".config/cosmic/cosmic-comp"
+  - dest: ".config/cosmic/com.system76.CosmicPanel.Panel"
+  - dest: ".config/cosmic/cosmic-launcher" 
+  - dest: ".config/cosmic/cosmic-settings"

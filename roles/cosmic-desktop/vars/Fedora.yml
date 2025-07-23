@@ -1,0 +1,74 @@
+---
+# vars file for cosmic-desktop on Fedora
+
+# Main COSMIC packages  
+packages__cosmic_desktop:
+  stable: "@cosmic-desktop-environment"
+  dev:
+    - cosmic-desktop
+    - cosmic-session
+    - cosmic-comp
+    - cosmic-panel
+    - cosmic-settings
+    - cosmic-greeter
+
+# COSMIC applications
+packages__cosmic_apps:
+  stable:
+    - cosmic-files
+    - cosmic-terminal
+    - cosmic-launcher
+    - cosmic-store
+  dev:
+    - cosmic-files
+    - cosmic-terminal
+    - cosmic-launcher
+    - cosmic-store
+
+# Essential dependencies
+packages__cosmic_deps:
+  - wayland-devel
+  - libwayland-client
+  - libwayland-server
+  - libseat-devel
+  - libinput-devel
+  - libxkbcommon-devel
+  - systemd-devel
+  - dbus-devel
+
+# Extra dependencies that may be needed on some Fedora installations
+packages__cosmic_extra_deps:
+  - plasma-workspace-libs
+  - kf5-kglobalaccel
+
+# Display manager packages  
+packages__display_managers:
+  - gdm
+  - lightdm
+  - cosmic-greeter
+
+# Keyring and secrets management
+packages__keyring:
+  - gnome-keyring
+  - libsecret
+
+# Network file system support
+packages__gvfs:
+  - gvfs
+  - gvfs-smb
+  - gvfs-nfs
+  - gvfs-mtp
+  - gvfs-gphoto2
+  - gvfs-afc
+
+# COPR repositories
+cosmic_copr_repos:
+  dev: "ryanabx/cosmic-epoch"
+  experimental: "ryanabx/cosmic-epoch-nightly"
+
+cosmic_directory_definitions:
+  - dest: ".config/cosmic"
+  - dest: ".config/cosmic/cosmic-comp"
+  - dest: ".config/cosmic/com.system76.CosmicPanel.Panel"
+  - dest: ".config/cosmic/cosmic-launcher"
+  - dest: ".config/cosmic/cosmic-settings"

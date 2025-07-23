@@ -1,0 +1,58 @@
+---
+# RedHat/Fedora installation tasks for COSMIC Desktop
+
+- name: RedHat | Enable COPR repository for dev install
+  community.general.copr:
+    name: "{{ cosmic_fedora_copr_repo }}"
+    state: enabled
+  when: cosmic_install_method == 'dev'
+  tags: ["repos", "copr", "cosmic"]
+
+- name: RedHat | Install COSMIC desktop packages (stable)
+  ansible.builtin.dnf:
+    name: "{{ cosmic_fedora_packages_stable }}"
+    state: present
+  when: cosmic_install_method == 'stable'
+  tags: ["packages", "cosmic"]
+
+- name: RedHat | Install COSMIC desktop packages (dev)
+  ansible.builtin.dnf:
+    name: "{{ cosmic_fedora_packages_dev }}"
+    state: present
+  when: cosmic_install_method == 'dev'
+  tags: ["packages", "cosmic"]
+
+- name: RedHat | Install optional applications
+  ansible.builtin.dnf:
+    name: "{{ cosmic_fedora_apps }}"
+    state: present
+  when: cosmic_install_apps | default(true)
+  tags: ["packages", "apps", "cosmic"]
+
+- name: RedHat | Install keyring support
+  ansible.builtin.dnf:
+    name: "{{ cosmic_keyring_packages }}"
+    state: present
+  when: cosmic_keyring_install | default(true)
+  tags: ["packages", "keyring", "cosmic"]
+
+- name: RedHat | Handle potential SELinux issues during install
+  ansible.builtin.command: setenforce 0
+  when: 
+    - cosmic_fedora_set_permissive | default(false)
+    - cosmic_install_method == 'dev'
+  changed_when: false
+  tags: ["selinux", "cosmic"]
+
+- name: RedHat | Install network filesystem support
+  ansible.builtin.dnf:
+    name: "{{ cosmic_gvfs_packages }}"
+    state: present
+  tags: ["packages", "gvfs", "cosmic"]
+
+- name: RedHat | Install additional dependencies for input devices
+  ansible.builtin.dnf:
+    name: "{{ cosmic_fedora_extra_deps }}"
+    state: present
+  when: cosmic_fedora_install_extra_deps | default(false)
+  tags: ["packages", "deps", "cosmic"]

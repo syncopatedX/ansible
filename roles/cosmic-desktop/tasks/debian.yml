@@ -1,0 +1,50 @@
+---
+# Debian/Pop!_OS installation tasks for COSMIC Desktop
+
+- name: Debian | Add System76 PPA repository
+  ansible.builtin.apt_repository:
+    repo: "{{ cosmic_debian_repo }}"
+    state: present
+  register: repo_added
+  tags: ["repos", "cosmic"]
+
+- name: Debian | Update apt cache if repo was added
+  ansible.builtin.apt:
+    update_cache: yes
+  when: repo_added.changed
+  tags: ["repos", "cosmic"]
+
+- name: Debian | Install COSMIC desktop packages
+  ansible.builtin.apt:
+    name: "{{ cosmic_debian_packages }}"
+    state: present
+  tags: ["packages", "cosmic"]
+
+- name: Debian | Install optional applications
+  ansible.builtin.apt:
+    name: "{{ cosmic_debian_apps }}"
+    state: present
+  when: cosmic_install_apps | default(true)
+  tags: ["packages", "apps", "cosmic"]
+
+- name: Debian | Install keyring support
+  ansible.builtin.apt:
+    name: "{{ cosmic_keyring_packages }}"
+    state: present
+  when: cosmic_keyring_install | default(true)
+  tags: ["packages", "keyring", "cosmic"]
+
+- name: Debian | Ensure Wayland is enabled for GDM
+  ansible.builtin.lineinfile:
+    path: /etc/gdm3/custom.conf
+    regexp: '^#?WaylandEnable='
+    line: 'WaylandEnable=true'
+  when: ansible_facts.packages['gdm3'] is defined
+  notify: Restart Display Manager
+  tags: ["config", "gdm", "cosmic"]
+
+- name: Debian | Install network filesystem support
+  ansible.builtin.apt:
+    name: "{{ cosmic_gvfs_packages }}"
+    state: present
+  tags: ["packages", "gvfs", "cosmic"]

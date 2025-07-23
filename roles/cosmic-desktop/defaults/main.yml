@@ -1,0 +1,98 @@
+---
+# defaults file for cosmic-desktop
+
+# Installation method: 'stable' or 'dev'
+cosmic_install_method: stable
+
+# Core installation toggles
+cosmic_install_apps: true
+cosmic_install_greeter: true
+cosmic_manage_configs: true
+cosmic_keyring_install: true
+cosmic_deploy_defaults: false
+
+# User configuration
+cosmic_user: "{{ ansible_user_id }}"
+
+# --- Debian/Pop!_OS Defaults ---
+cosmic_debian_repo: "ppa:system76/stable"
+cosmic_debian_packages:
+  - cosmic-session
+  - cosmic-desktop
+
+cosmic_debian_apps:
+  - cosmic-files
+  - cosmic-terminal
+  - cosmic-settings
+  - cosmic-launcher
+
+# --- Fedora/RedHat Defaults ---
+cosmic_fedora_copr_repo: "ryanabx/cosmic-epoch"
+cosmic_fedora_packages_stable: "@cosmic-desktop-environment"
+cosmic_fedora_packages_dev: 
+  - cosmic-desktop
+  - cosmic-session
+
+cosmic_fedora_apps:
+  - cosmic-files
+  - cosmic-terminal
+  - cosmic-settings
+  - cosmic-launcher
+
+cosmic_fedora_set_permissive: false
+cosmic_fedora_install_extra_deps: false
+cosmic_fedora_extra_deps:
+  - plasma-workspace-libs
+
+# --- Arch Linux Defaults ---
+cosmic_aur_builder_user: "aur_builder" 
+cosmic_aur_helper: "yay"
+
+cosmic_arch_packages_stable:
+  - cosmic-session
+
+cosmic_arch_packages_dev:
+  - cosmic-session-git
+
+cosmic_arch_apps_stable:
+  - cosmic-files
+  - cosmic-terminal
+  - cosmic-settings
+
+cosmic_arch_apps_dev:
+  - cosmic-files-git
+  - cosmic-terminal-git
+  - cosmic-settings-git
+
+# --- Common Dependencies ---
+cosmic_keyring_packages:
+  - gnome-keyring
+
+cosmic_gvfs_packages:
+  - gvfs
+  - gvfs-smb
+  - gvfs-nfs
+  - gvfs-mtp
+
+# --- Configuration Variables ---
+# COSMIC Compositor settings (maps to cosmic-comp/config.ron)
+cosmic_comp_settings: {}
+# Example:
+#  shortcuts:
+#    terminal: "Super+T"
+#    launcher: "Super+Space"
+#  workspaces: 4
+
+# COSMIC Panel settings (maps to panel configuration)
+cosmic_panel_settings: []
+# Example:
+#  - id: "main_panel"
+#    position: "Top"
+#    height: 32
+#    applets:
+#      - "workspaces"
+#      - "clock"
+#      - "system-tray"
+
+# Display manager service name (auto-detected)
+cosmic_display_manager: "{{ 'cosmic-greeter' if cosmic_install_greeter else (ansible_facts.packages['gdm3'] is defined) | ternary('gdm', 'lightdm') }}"

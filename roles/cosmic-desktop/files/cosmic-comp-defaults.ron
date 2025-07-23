@@ -1,0 +1,55 @@
+// Default COSMIC Compositor Configuration
+// Fallback configuration for incomplete distribution packages
+
+(
+    workspaces: 4,
+    shortcuts: {
+        "Super+Return": "cosmic-terminal",
+        "Super+Space": "cosmic-launcher", 
+        "Super+q": "close",
+        "Super+Shift+q": "quit",
+        "Super+1": "workspace_1",
+        "Super+2": "workspace_2",
+        "Super+3": "workspace_3", 
+        "Super+4": "workspace_4",
+        "Super+Shift+1": "move_to_workspace_1",
+        "Super+Shift+2": "move_to_workspace_2",
+        "Super+Shift+3": "move_to_workspace_3",
+        "Super+Shift+4": "move_to_workspace_4",
+        "Super+h": "focus_left",
+        "Super+j": "focus_down", 
+        "Super+k": "focus_up",
+        "Super+l": "focus_right",
+        "Super+Shift+h": "move_left",
+        "Super+Shift+j": "move_down",
+        "Super+Shift+k": "move_up",
+        "Super+Shift+l": "move_right",
+        "Super+f": "fullscreen",
+        "Super+m": "maximize",
+        "Alt+F4": "close",
+    },
+    window_management: {
+        focus_follows_mouse: false,
+        click_to_focus: true,
+        auto_raise: false,
+        smart_gaps: true,
+    },
+    display: {
+        scale: 1.0,
+        refresh_rate: 60,
+    },
+    animations: {
+        enable: true,
+        duration: 250,
+        curve: "ease_out",
+    },
+    borders: {
+        width: 2,
+        color: "#5e81ac",
+        inactive_color: "#434c5e",
+    },
+    gaps: {
+        outer: 8,
+        inner: 4,
+    },
+)

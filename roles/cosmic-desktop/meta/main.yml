@@ -1,0 +1,50 @@
+---
+galaxy_info:
+  author: Ansible automation for COSMIC Desktop
+  description: Install and configure COSMIC Desktop environment across multiple distributions
+  company: Professional Audio Workstation Project
+  license: GPL-2.0-or-later
+  min_ansible_version: "2.12"
+  
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - "38"
+        - "39"
+        - "40"
+        - "41"
+        - "42"
+    - name: Ubuntu
+      versions:
+        - "20.04"
+        - "22.04" 
+        - "24.04"
+    - name: Debian
+      versions:
+        - bullseye
+        - bookworm
+
+  galaxy_tags:
+    - desktop
+    - wayland
+    - cosmic
+    - system76
+    - windowmanager
+    - compositor
+    - rust
+    - professional
+    - audio
+    - workstation
+
+collections:
+  - community.general
+  - ansible.posix
+
+dependencies:
+  - role: base
+    when: cosmic_install_base_deps | default(false)
+  - role: display-manager  
+    when: cosmic_integrate_display_manager | default(false)

@@ -1,0 +1,58 @@
+---
+# handlers file for cosmic-desktop
+
+- name: Restart Display Manager
+  ansible.builtin.systemd:
+    name: "{{ cosmic_display_manager_service }}"
+    state: restarted
+  vars:
+    cosmic_display_manager_service: >-
+      {{- 
+        'cosmic-greeter.service' if (cosmic_install_greeter | default(true)) else
+        'gdm.service' if (ansible_facts.packages['gdm3'] is defined or ansible_facts.packages['gdm'] is defined) else  
+        'lightdm.service' if (ansible_facts.packages['lightdm'] is defined) else
+        'sddm.service'
+      -}}
+
+- name: Restart COSMIC Greeter
+  ansible.builtin.systemd:
+    name: cosmic-greeter.service
+    state: restarted
+    daemon_reload: yes
+
+- name: Restart COSMIC Session
+  ansible.builtin.systemd:
+    name: cosmic-session.service
+    state: restarted
+    scope: user
+  become: false
+
+- name: Reload COSMIC Configuration
+  ansible.builtin.command: cosmic-settings refresh
+  become: false
+  changed_when: false
+  failed_when: false
+
+- name: Restart Keyring Service
+  ansible.builtin.systemd:
+    name: gnome-keyring-daemon.service
+    state: restarted
+    scope: user
+  become: false
+
+- name: Refresh Font Cache
+  ansible.builtin.command: fc-cache -fv
+  become: false
+  changed_when: false
+
+- name: Update Desktop Database
+  ansible.builtin.command: update-desktop-database ~/.local/share/applications
+  become: false
+  changed_when: false
+  failed_when: false
+
+- name: Reload Systemd User Units
+  ansible.builtin.systemd:
+    daemon_reload: yes
+    scope: user
+  become: false

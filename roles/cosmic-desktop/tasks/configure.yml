@@ -1,0 +1,82 @@
+---
+# Configuration tasks for COSMIC Desktop
+
+- name: Ensure COSMIC configuration directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ cosmic_user | default(ansible_user_id) }}"
+    group: "{{ cosmic_user | default(ansible_user_id) }}"
+    mode: '0755'
+  with_items:
+    - "{{ ansible_env.HOME }}/.config/cosmic"
+    - "{{ ansible_env.HOME }}/.config/cosmic/cosmic-comp"
+    - "{{ ansible_env.HOME }}/.config/cosmic/com.system76.CosmicPanel.Panel"
+  become: false
+  tags: ["config", "directories", "cosmic"]
+
+- name: Deploy COSMIC compositor configuration
+  ansible.builtin.template:
+    src: cosmic_comp_config.ron.j2
+    dest: "{{ ansible_env.HOME }}/.config/cosmic/cosmic-comp/config.ron"
+    owner: "{{ cosmic_user | default(ansible_user_id) }}"
+    group: "{{ cosmic_user | default(ansible_user_id) }}"
+    mode: '0644'
+    backup: true
+  become: false
+  when: cosmic_comp_settings is defined and cosmic_comp_settings | length > 0
+  tags: ["config", "compositor", "cosmic"]
+
+- name: Deploy COSMIC panel configuration
+  ansible.builtin.template:
+    src: cosmic_panel_config.ron.j2
+    dest: "{{ ansible_env.HOME }}/.config/cosmic/com.system76.CosmicPanel.Panel/config.ron"
+    owner: "{{ cosmic_user | default(ansible_user_id) }}"
+    group: "{{ cosmic_user | default(ansible_user_id) }}"
+    mode: '0644'
+    backup: true
+  become: false
+  when: cosmic_panel_settings is defined and cosmic_panel_settings | length > 0
+  tags: ["config", "panel", "cosmic"]
+
+- name: Deploy default COSMIC configurations for incomplete packages
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true
+  with_items:
+    - { src: "cosmic-comp-defaults.ron", dest: "/usr/share/cosmic/cosmic-comp/config.ron" }
+    - { src: "cosmic-panel-defaults.ron", dest: "/usr/share/cosmic/com.system76.CosmicPanel.Panel/config.ron" }
+  when: cosmic_deploy_defaults | default(false)
+  tags: ["config", "defaults", "cosmic"]
+
+- name: Enable COSMIC greeter service
+  ansible.builtin.systemd:
+    name: cosmic-greeter.service
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  when: cosmic_install_greeter | default(true)
+  notify: Restart Display Manager
+  tags: ["service", "greeter", "cosmic"]
+
+- name: Configure keyring to start with session
+  ansible.builtin.copy:
+    dest: "{{ ansible_env.HOME }}/.config/autostart/gnome-keyring.desktop"
+    content: |
+      [Desktop Entry]
+      Type=Application
+      Name=GNOME Keyring
+      Exec=gnome-keyring-daemon --start --components=secrets
+      NoDisplay=true
+      X-GNOME-Autostart-Phase=Initialization
+      X-GNOME-AutoRestart=false
+    owner: "{{ cosmic_user | default(ansible_user_id) }}"
+    group: "{{ cosmic_user | default(ansible_user_id) }}"
+    mode: '0644'
+  become: false
+  when: cosmic_keyring_install | default(true)
+  tags: ["config", "keyring", "cosmic"]

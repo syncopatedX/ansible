@@ -1,0 +1,88 @@
+---
+# Arch Linux installation tasks for COSMIC Desktop
+
+- name: Archlinux | Install base dependencies for AUR
+  community.general.pacman:
+    name:
+      - base-devel
+      - git
+    state: present
+  when: cosmic_install_method == 'dev'
+  tags: ["packages", "build-deps", "cosmic"]
+
+- name: Archlinux | Create user for AUR builds
+  ansible.builtin.user:
+    name: "{{ cosmic_aur_builder_user }}"
+    system: yes
+    shell: /usr/bin/nologin
+    group: wheel
+    create_home: no
+  when: cosmic_install_method == 'dev'
+  tags: ["user", "aur", "cosmic"]
+
+- name: Archlinux | Allow AUR user to run pacman without password
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers.d/11-aur-builder
+    line: '{{ cosmic_aur_builder_user }} ALL=(ALL) NOPASSWD: /usr/bin/pacman'
+    create: yes
+    validate: 'visudo -cf %s'
+  when: cosmic_install_method == 'dev'
+  tags: ["sudo", "aur", "cosmic"]
+
+- name: Archlinux | Install COSMIC packages (stable)
+  community.general.pacman:
+    name: "{{ cosmic_arch_packages_stable }}"
+    state: present
+  when: cosmic_install_method == 'stable'
+  tags: ["packages", "cosmic"]
+
+- name: Archlinux | Install AUR helper
+  aur:
+    name: "{{ cosmic_aur_helper }}"
+    state: present
+  become: yes
+  become_user: "{{ cosmic_aur_builder_user }}"
+  when: cosmic_install_method == 'dev'
+  tags: ["aur", "helper", "cosmic"]
+
+- name: Archlinux | Install COSMIC packages (dev)
+  aur:
+    name: "{{ cosmic_arch_packages_dev }}"
+    state: present
+  become: yes
+  become_user: "{{ cosmic_aur_builder_user }}"
+  when: cosmic_install_method == 'dev'
+  tags: ["packages", "aur", "cosmic"]
+
+- name: Archlinux | Install optional applications (stable)
+  community.general.pacman:
+    name: "{{ cosmic_arch_apps_stable }}"
+    state: present
+  when: 
+    - cosmic_install_apps | default(true)
+    - cosmic_install_method == 'stable'
+  tags: ["packages", "apps", "cosmic"]
+
+- name: Archlinux | Install optional applications (dev)
+  aur:
+    name: "{{ cosmic_arch_apps_dev }}"
+    state: present
+  become: yes
+  become_user: "{{ cosmic_aur_builder_user }}"
+  when: 
+    - cosmic_install_apps | default(true)
+    - cosmic_install_method == 'dev'
+  tags: ["packages", "apps", "aur", "cosmic"]
+
+- name: Archlinux | Install keyring support
+  community.general.pacman:
+    name: "{{ cosmic_keyring_packages }}"
+    state: present
+  when: cosmic_keyring_install | default(true)
+  tags: ["packages", "keyring", "cosmic"]
+
+- name: Archlinux | Install network filesystem support
+  community.general.pacman:
+    name: "{{ cosmic_gvfs_packages }}"
+    state: present
+  tags: ["packages", "gvfs", "cosmic"]

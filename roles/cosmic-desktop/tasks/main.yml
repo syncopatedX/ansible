@@ -1,0 +1,15 @@
+---
+# tasks file for cosmic-desktop
+
+- name: Load distribution-specific variables
+  ansible.builtin.include_vars: "{{ ansible_distribution }}.yml"
+  tags: ["packages", "cosmic"]
+
+- name: Include OS-specific installation tasks
+  ansible.builtin.include_tasks: "{{ ansible_os_family | lower }}.yml"
+  tags: ["packages", "cosmic"]
+
+- name: Include common configuration tasks
+  ansible.builtin.include_tasks: configure.yml
+  when: cosmic_manage_configs | default(true)
+  tags: ["config", "cosmic"]

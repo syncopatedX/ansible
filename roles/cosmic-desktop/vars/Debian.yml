@@ -1,0 +1,80 @@
+---
+# vars file for cosmic-desktop on Debian/Pop!_OS/Ubuntu
+
+# Main COSMIC packages
+packages__cosmic_desktop:
+  stable:
+    - cosmic-session
+    - cosmic-desktop
+    - cosmic-comp
+    - cosmic-panel
+    - cosmic-settings
+    - cosmic-greeter
+  dev:
+    - cosmic-session
+    - cosmic-desktop
+    - cosmic-comp
+    - cosmic-panel  
+    - cosmic-settings
+    - cosmic-greeter
+
+# COSMIC applications
+packages__cosmic_apps:
+  stable:
+    - cosmic-files
+    - cosmic-terminal
+    - cosmic-launcher
+    - cosmic-store
+    - cosmic-edit
+  dev:
+    - cosmic-files
+    - cosmic-terminal
+    - cosmic-launcher
+    - cosmic-store
+    - cosmic-edit
+
+# Essential dependencies
+packages__cosmic_deps:
+  - libwayland-dev
+  - libwayland-client0
+  - libwayland-server0
+  - libseat-dev
+  - libinput-dev
+  - libxkbcommon-dev
+  - libudev-dev
+  - libdbus-1-dev
+  - libpam0g-dev
+
+# Display manager packages
+packages__display_managers:
+  - gdm3
+  - lightdm
+  - cosmic-greeter
+
+# Keyring and secrets management  
+packages__keyring:
+  - gnome-keyring
+  - libsecret-1-0
+  - libsecret-1-dev
+
+# Network file system support
+packages__gvfs:
+  - gvfs
+  - gvfs-backends
+  - gvfs-bin
+  - gvfs-common
+  - gvfs-daemons
+  - gvfs-fuse
+
+# System76 PPA repositories
+cosmic_ppa_repos:
+  stable: "ppa:system76/stable"
+  dev: "ppa:system76-dev/stable"
+  pop: "ppa:system76/pop"
+
+cosmic_directory_definitions:
+  - dest: ".config/cosmic"
+  - dest: ".config/cosmic/cosmic-comp"
+  - dest: ".config/cosmic/com.system76.CosmicPanel.Panel"
+  - dest: ".config/cosmic/cosmic-launcher"
+  - dest: ".config/cosmic/cosmic-settings"

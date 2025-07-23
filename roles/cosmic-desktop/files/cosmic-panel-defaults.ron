@@ -1,0 +1,63 @@
+// Default COSMIC Panel Configuration
+// Fallback configuration for incomplete distribution packages
+
+(
+    panels: [
+        {
+            id: "top_panel",
+            position: Top,
+            height: 32,
+            autohide: false,
+            background: {
+                color: "#2e3440",
+                opacity: 0.95,
+            },
+            applets: [
+                "workspaces",
+                "applications", 
+                "spacer",
+                "clock",
+                "network",
+                "audio",
+                "battery",
+                "system-tray",
+                "power",
+            ],
+        },
+    ],
+    
+    theme: {
+        name: "cosmic-dark",
+        icon_theme: "cosmic",
+        font_family: "Fira Sans",
+        font_size: 11,
+    },
+    
+    workspaces: {
+        names: [
+            "1",
+            "2", 
+            "3",
+            "4",
+        ],
+        show_names: true,
+        show_numbers: true,
+    },
+    
+    applets: {
+        clock: {
+            format: "%Y-%m-%d %H:%M",
+            timezone: "local",
+        },
+        network: {
+            show_speed: true,
+        },
+        audio: {
+            show_percentage: true,
+        },
+        battery: {
+            show_percentage: true,
+            low_threshold: 20,
+        },
+    },
+)
