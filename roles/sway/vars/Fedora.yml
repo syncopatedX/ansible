@@ -4,12 +4,9 @@ packages__sway:
   - azote
   - foot
   - fuzzel
-  # - greetd
-  # - greetd-gtkgreet
   - grim
   - kanshi
   - mako
-  # - mdcat
   - slurp
   - sway
   - swaybg
@@ -21,7 +18,6 @@ packages__sway:
   - wf-recorder
   - wofi
   - xdg-desktop-portal-wlr
-  # - xorg-xwayland
 
 sway_directory_definitions:
   - dest: ".config/sway"

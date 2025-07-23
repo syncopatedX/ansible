@@ -6,11 +6,18 @@
 $bindsym $mod+Return exec $term_cwd
 $bindsym $mod+Shift+Return exec $term
 
+$bindsym $mod+Home exec google-chrome-stable --new-window %U ~/.local/share/html/homepage/index.html
+$bindsym $mod+Shift+Home exec google-chrome-stable --incognito %U ~/.local/share/html/homepage/index.html
+
+bindcode $mod+$KP_Enter exec $terminal -e ranger
+
 ## Action // Kill focused window ##
 $bindsym $mod+Shift+q kill
+$bindsym F1 kill
 
 ## Launch // Open launcher ##
 $bindsym $mod+d exec $menu
+$bindsym Menu exec $menu
 $bindsym $alt_mod+space exec $menu
 
 ## Launch // Open clipboard ##
@@ -149,11 +156,14 @@ $bindsym $mod+b splith
 $bindsym $mod+v splitv
 
 ## Action // Switch to window stacking ##
-$bindsym $mod+s layout stacking
+$bindsym $mod+Shift+s layout stacking
 ## Action // Switch to window tabbing ##
-$bindsym $mod+w layout tabbed
+$bindsym $mod+Shift+t layout tabbed
 ## Action // Switch to window tiling ##
-$bindsym $mod+e layout toggle split
+$bindsym $mod+Shift+v layout toggle split
+
+$bindsym $mod+t split toggle
+
 
 ## Action // Toggle fullscreen ##
 $bindsym $mod+f fullscreen
@@ -183,7 +193,7 @@ $bindsym $mod+a focus parent
 $bindsym $mod+question exec $help
 
 ## Launch // Open Support ##
-$bindsym $mod+Shift+s exec xdg-open https://github.com/Manjaro-Sway/manjaro-sway/blob/main/SUPPORT.md
+# $bindsym $mod+Shift+s exec xdg-open https://github.com/Manjaro-Sway/manjaro-sway/blob/main/SUPPORT.md
 
 ## Launch // Inhibit Idle ##
 $bindsym $mod+Shift+i exec inhibit-idle interactive
