@@ -1,0 +1,43 @@
+---
+
+packages__rpm_dev:
+  - mock
+  - rpm-build
+  - rpmdevtools
+  - rpmlint
+  - fedpkg
+  - spectool
+  - git
+  - redhat-rpm-config
+  - "@development-tools"
+  - python3-setuptools
+  - python3-pip
+  - createrepo_c
+  - koji
+  - fedora-packager
+  - rpm-sign
+  - gnupg2
+  - patch
+  - diffutils
+  - wget
+  - curl
+
+# Mock-specific packages  
+packages__mock_deps:
+  - systemd-container
+  - dnf
+  - dnf-plugins-core
+  - usermode
+
+# Development utilities
+packages__dev_tools:
+  - vim-enhanced
+  - nano
+  - tree
+  - less
+  - bash-completion
+  - zsh-completions
+
+# All packages combined
+packages:
+  rpm_dev: "{{ packages__rpm_dev + packages__mock_deps + packages__dev_tools }}"

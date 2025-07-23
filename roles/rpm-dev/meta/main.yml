@@ -1,0 +1,29 @@
+---
+# RPM Development Environment role metadata
+
+dependencies:
+  - role: base
+    when: rpm_dev_install_base_deps | default(false)
+
+galaxy_info:
+  author: "Ansible Automation Framework"
+  description: "Sets up a complete RPM development environment with mock for Fedora 42"
+  company: ""
+  license: MIT
+  min_ansible_version: "2.9"
+  
+  platforms:
+    - name: Fedora
+      versions:
+        - "42"
+  
+  galaxy_tags:
+    - rpm
+    - mock
+    - development
+    - packaging
+    - fedora
+    - build
+    - system
+
+allow_duplicates: false

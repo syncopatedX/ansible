@@ -1,0 +1,102 @@
+---
+# RPM Development Environment setup tasks
+
+- name: "rpm-dev: Load distribution-specific variables"
+  ansible.builtin.include_vars: "{{ ansible_distribution }}.yml"
+  tags: ["rpm-dev", "packages"]
+
+- name: "rpm-dev: Install RPM development packages"
+  ansible.builtin.dnf:
+    name: "{{ packages.rpm_dev }}"
+    state: present
+  become: true
+  when: 
+    - rpm_dev_install_packages | bool
+    - packages.rpm_dev is defined
+  tags: ["rpm-dev", "packages"]
+  notify: "rpm-dev: Clear mock cache"
+
+- name: "rpm-dev: Create mock group"
+  ansible.builtin.group:
+    name: mock
+    state: present
+  become: true
+  tags: ["rpm-dev", "user-setup"]
+
+- name: "rpm-dev: Add user to mock group"
+  ansible.builtin.user:
+    name: "{{ rpm_dev_user.name }}"
+    groups: "{{ rpm_dev_user.groups }}"
+    append: true
+  become: true
+  when: rpm_dev_setup_user | bool
+  tags: ["rpm-dev", "user-setup"]
+
+- name: "rpm-dev: Create RPM build directories"
+  ansible.builtin.file:
+    path: "{{ rpm_build.build_dir }}/{{ item }}"
+    state: directory
+    owner: "{{ rpm_dev_user.name }}"
+    group: "{{ rpm_dev_user.name }}"
+    mode: '0755'
+  loop: "{{ rpm_build.directories }}"
+  when: rpm_dev_setup_directories | bool
+  tags: ["rpm-dev", "directories"]
+
+- name: "rpm-dev: Deploy .rpmmacros template"
+  ansible.builtin.template:
+    src: home/.rpmmacros.j2
+    dest: "{{ rpm_build.home_dir }}/.rpmmacros"
+    owner: "{{ rpm_dev_user.name }}"
+    group: "{{ rpm_dev_user.name }}"
+    mode: '0644'
+  when: rpm_build.setup_macros | bool
+  tags: ["rpm-dev", "configuration"]
+
+- name: "rpm-dev: Ensure mock cache directory exists"
+  ansible.builtin.file:
+    path: "{{ mock_config.cache_topdir }}"
+    state: directory
+    owner: root
+    group: mock
+    mode: '0775'
+  become: true
+  when: rpm_dev_setup_mock | bool
+  tags: ["rpm-dev", "mock-setup"]
+
+- name: "rpm-dev: Deploy custom mock configuration"
+  ansible.builtin.template:
+    src: etc/mock/custom-fedora-42.cfg.j2
+    dest: /etc/mock/custom-fedora-42-{{ ansible_architecture }}.cfg
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  when: rpm_dev_setup_mock | bool
+  tags: ["rpm-dev", "mock-config"]
+  notify: "rpm-dev: Clear mock cache"
+
+- name: "rpm-dev: Initialize mock cache for default targets"
+  ansible.builtin.command:
+    cmd: "mock -r {{ item }} --init"
+  loop: "{{ mock_targets }}"
+  become: true
+  when: 
+    - rpm_dev_setup_mock | bool
+    - mock_config.root_cache_enable | bool
+  tags: ["rpm-dev", "mock-init"]
+  changed_when: false
+  failed_when: false
+
+- name: "rpm-dev: Configure Git for RPM packaging"
+  ansible.builtin.git_config:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    scope: global
+  loop:
+    - { name: "user.name", value: "{{ rpm_dev_user.name }}" }
+    - { name: "user.email", value: "{{ rpm_dev_user.name }}@{{ ansible_fqdn }}" }
+    - { name: "push.default", value: "simple" }
+  become_user: "{{ rpm_dev_user.name }}"
+  when: rpm_dev_setup_user | bool
+  tags: ["rpm-dev", "git-config"]

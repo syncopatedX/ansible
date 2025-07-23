@@ -1,0 +1,17 @@
+---
+# RPM Development Environment handlers
+
+- name: "rpm-dev: Clear mock cache"
+  ansible.builtin.command:
+    cmd: "mock --scrub=all"
+  become: true
+  failed_when: false
+  listen: "rpm-dev: Clear mock cache"
+
+- name: "rpm-dev: Reset mock configuration"
+  ansible.builtin.command:
+    cmd: "mock -r {{ item }} --clean"
+  loop: "{{ mock_targets }}"
+  become: true
+  failed_when: false
+  listen: "rpm-dev: Reset mock configuration"

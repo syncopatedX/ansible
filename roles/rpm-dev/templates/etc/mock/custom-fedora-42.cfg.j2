@@ -1,0 +1,94 @@
+include('/etc/mock/templates/fedora-branched.tpl')
+
+config_opts['chroot_setup_cmd'] = 'install @buildsys-build'
+config_opts['dist'] = 'fc42'
+config_opts['extra_chroot_dirs'] = [ '/run/lock', ]
+config_opts['releasever'] = '42'
+config_opts['package_manager'] = 'dnf'
+config_opts['description'] = 'Fedora 42 Custom'
+config_opts['root'] = 'custom-fedora-42-{{ ansible_architecture }}'
+
+# Custom configuration based on role variables
+config_opts['use_host_resolv'] = {{ mock_config.use_host_resolv | lower }}
+config_opts['cleanup_on_success'] = {{ mock_config.cleanup_on_success | lower }}
+config_opts['cleanup_on_failure'] = {{ mock_config.cleanup_on_failure | lower }}
+
+{% if not mock_config.enable_network %}
+config_opts['rpmbuild_networking'] = False
+config_opts['use_host_resolv'] = False
+{% endif %}
+
+# Bootstrap configuration
+{% if mock_config.enable_bootstrap %}
+config_opts['use_bootstrap'] = True
+config_opts['use_bootstrap_image'] = True
+{% endif %}
+
+# Cache configuration
+config_opts['cache_topdir'] = '{{ mock_config.cache_topdir }}'
+config_opts['root_cache_enable'] = {{ mock_config.root_cache_enable | lower }}
+config_opts['yum_cache_enable'] = {{ mock_config.yum_cache_enable | lower }}
+config_opts['dnf_cache_enable'] = {{ mock_config.dnf_cache_enable | lower }}
+
+# Plugin configuration
+config_opts['plugin_conf']['root_cache_enable'] = {{ mock_config.root_cache_enable | lower }}
+config_opts['plugin_conf']['yum_cache_enable'] = {{ mock_config.yum_cache_enable | lower }}
+config_opts['plugin_conf']['dnf_cache_enable'] = {{ mock_config.dnf_cache_enable | lower }}
+
+# Repository configuration specific to Fedora 42
+config_opts['dnf.conf'] = """
+[main]
+keepcache=1
+debuglevel=2
+reposdir=/dev/null
+logfile=/var/log/yum.log
+retries=20
+obsoletes=1
+gpgcheck=1
+assumeyes=1
+syslog_ident=mock
+syslog_device=
+metadata_expire=0
+mdpolicy=group:primary
+best=1
+protected_packages=
+
+[fedora]
+name=Fedora 42 - {{ ansible_architecture }}
+#baseurl=http://download.fedoraproject.org/pub/fedora/linux/releases/42/Everything/{{ ansible_architecture }}/os/
+metalink=https://mirrors.fedoraproject.org/metalink?repo=fedora-42&arch={{ ansible_architecture }}
+enabled=1
+countme=1
+metadata_expire=7d
+repo_gpgcheck=0
+type=rpm
+gpgcheck=1
+gpgkey=file:///usr/share/distribution-gpg-keys/fedora/RPM-GPG-KEY-fedora-42-primary
+skip_if_unavailable=False
+
+[updates]
+name=Fedora 42 - {{ ansible_architecture }} - Updates
+#baseurl=http://download.fedoraproject.org/pub/fedora/linux/updates/42/Everything/{{ ansible_architecture }}/
+metalink=https://mirrors.fedoraproject.org/metalink?repo=updates-released-f42&arch={{ ansible_architecture }}
+enabled=1
+countme=1
+repo_gpgcheck=0
+type=rpm
+gpgcheck=1
+metadata_expire=6h
+gpgkey=file:///usr/share/distribution-gpg-keys/fedora/RPM-GPG-KEY-fedora-42-primary
+skip_if_unavailable=False
+
+[updates-testing]
+name=Fedora 42 - {{ ansible_architecture }} - Test Updates
+#baseurl=http://download.fedoraproject.org/pub/fedora/linux/updates/testing/42/Everything/{{ ansible_architecture }}/
+metalink=https://mirrors.fedoraproject.org/metalink?repo=updates-testing-f42&arch={{ ansible_architecture }}
+enabled=0
+countme=1
+repo_gpgcheck=0
+type=rpm
+gpgcheck=1
+metadata_expire=6h
+gpgkey=file:///usr/share/distribution-gpg-keys/fedora/RPM-GPG-KEY-fedora-42-primary
+skip_if_unavailable=False
+"""
