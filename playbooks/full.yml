@@ -39,7 +39,7 @@
     # - { role: xorg, tags: ["xorg"], when: "window_manager != 'sway'" }
     #   - { role: xwayland, tags: ["xwayland"], when: "window_manager == 'sway'" }
     # - { role: i3, tags: ["i3"] }
-    # - { role: rofi, tags: ["rofi"] }
+    - { role: rofi, tags: ["rofi"] }
     - { role: sway, tags: ["sway"] }
     # - { role: cosmic-desktop, tags: ["cosmic", "desktop"], when: "window_manager == 'cosmic'" }
   #   - { role: display-manager, tags: ["display-manager"] }

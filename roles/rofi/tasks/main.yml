@@ -4,13 +4,6 @@
   ansible.builtin.include_vars: "{{ ansible_distribution }}.yml"
   tags: ["packages"]
 
-- name: Install rofi packages
-  ansible.builtin.package:
-    name: "{{ item }}"
-    state: present
-  loop: "{{ packages__rofi }}"
-  become: true
-
 - name: Create rofi directories
   ansible.builtin.file:
     dest: "{{ user.home }}/.config/rofi/{{ item }}"
