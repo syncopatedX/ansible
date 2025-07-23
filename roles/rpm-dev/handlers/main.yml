@@ -6,7 +6,7 @@
     cmd: "mock --scrub=all"
   become: true
   failed_when: false
-  listen: "rpm-dev: Clear mock cache"
+  listen: "Clear mock cache"
 
 - name: "Reset mock configuration"
   ansible.builtin.command:
@@ -14,4 +14,4 @@
   loop: "{{ mock_targets }}"
   become: true
   failed_when: false
-  listen: "rpm-dev: Reset mock configuration"
+  listen: "Reset mock configuration"
