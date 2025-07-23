@@ -6,8 +6,8 @@
 # Define commonly used variables
 set $mod Mod4
 set $alt Mod1
-set $term foot
-set $terminal foot
+set $term {{ terminal | default('foot') }}
+set $terminal {{ terminal | default('foot') }}
 
 # Keypad definitions for compatibility
 set $KP_1 87
@@ -122,7 +122,7 @@ bindsym XF86Forward workspace next
 ##-------------------- Launchers ----------------------##
 ###############################################################
 
-# bindsym XF86RotateWindows '[class="URxvt" title="scriber.rb"]' focus
+# bindsym XF86RotateWindows '[app_id="URxvt" title="scriber.rb"]' focus
 bindsym XF86RotateWindows exec /mnt/bender/backup/weather.sh
 
 bindsym XF86AudioRecord exec $terminal --class "notepad" --hold -e ~/.local/bin/whisper-stream
@@ -154,17 +154,17 @@ bindsym XF86LaunchA scratchpad show
 
 bindsym Control+XF86Launch1 floating disable, focus
 
-bindsym XF86Launch6 [class="(?)Zita-mu1"] move to position pointer, focus
-bindsym XF86Launch7 [class="(?i)Jack_mixer"] move to position pointer, focus
+bindsym XF86Launch6 [app_id="zita-mu1"] move to position pointer, focus
+bindsym XF86Launch7 [app_id="jack-mixer"] move to position pointer, focus
 
 ##### bindsym
 ##### bindsym XF86Launch5
 ##### bindsym XF86Launch6
 ##### bindsym XF86Launch7
 ##### bindsym XF86Launch8
-bindsym $alt+XF86LaunchB [class="(?i)terminator"] scratchpad show, move to position pointer, focus
+bindsym $alt+XF86LaunchB [app_id="terminator"] scratchpad show, move to position pointer, focus
 bindsym $mod+F7 [title="^jack-keyboard"] scratchpad show
-bindsym $mod+F9 [class="^VMPK"] scratchpad show
+bindsym $mod+F9 [app_id="vmpk"] scratchpad show
 
 ##### bindsym <var> focus output HDMI-1
 ##### bindsym <var> focus output HDMI-2
@@ -180,7 +180,8 @@ bindsym $mod+Shift+Home exec google-chrome-stable --incognito %U ~/.local/share/
 bindcode $mod+$KP_Enter exec $terminal -e ranger
 bindcode $mod+Shift+$KP_Enter exec nautilus
 
-bindsym $mod+x exec xkill
+# Kill focused window using sway's native kill command instead of xkill
+bindsym $mod+x kill
 
 #############################
 #### ---{ other }--- ###

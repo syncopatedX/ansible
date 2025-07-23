@@ -46,7 +46,14 @@
 
 - name: Install Sway system configs
   block:
-    - name: Update sway system configs
+    - name: Template sway keybindings config
+      ansible.builtin.template:
+        src: etc/sway/config.d/20-keybindings.conf.j2
+        dest: /etc/sway/config.d/20-keybindings.conf
+        mode: "0644"
+        backup: true
+        
+    - name: Update sway system configs (excluding keybindings)
       ansible.posix.synchronize:
         src: etc/sway/
         dest: /etc/sway
@@ -57,6 +64,8 @@
         perms: false
         owner: false
         group: false
+        rsync_opts:
+          - "--exclude=config.d/20-keybindings.conf"
 
     - name: Update sway system configs
       ansible.posix.synchronize:
