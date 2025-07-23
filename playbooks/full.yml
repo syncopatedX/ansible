@@ -38,7 +38,7 @@
     #   - { role: nas, tags: ["nas"], when: "nfs_host == 'true' or samba_host == 'true'" }
     # - { role: xorg, tags: ["xorg"], when: "window_manager != 'sway'" }
     #   - { role: xwayland, tags: ["xwayland"], when: "window_manager == 'sway'" }
-    # - { role: i3, tags: ["i3"] }
+    - { role: rpm-dev, tags: ["rpm-dev"] }
     - { role: rofi, tags: ["rofi"] }
     - { role: sway, tags: ["sway"] }
     # - { role: cosmic-desktop, tags: ["cosmic", "desktop"], when: "window_manager == 'cosmic'" }

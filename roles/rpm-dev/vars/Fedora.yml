@@ -1,26 +1,26 @@
 ---
 
 packages__rpm_dev:
+  - "@development-tools"
+  - createrepo_c
+  - curl
+  - diffutils
+  - fedora-packager
+  - fedpkg
+  - git
+  - gnupg2
+  - koji
   - mock
+  - patch
+  - python3-pip
+  - python3-setuptools
+  - redhat-rpm-config
   - rpm-build
+  - rpm-sign
   - rpmdevtools
   - rpmlint
-  - fedpkg
-  - spectool
-  - git
-  - redhat-rpm-config
-  - "@development-tools"
-  - python3-setuptools
-  - python3-pip
-  - createrepo_c
-  - koji
-  - fedora-packager
-  - rpm-sign
-  - gnupg2
-  - patch
-  - diffutils
+  - rpmspectool
   - wget
-  - curl
 
 # Mock-specific packages  
 packages__mock_deps:
@@ -35,8 +35,7 @@ packages__dev_tools:
   - nano
   - tree
   - less
-  - bash-completion
-  - zsh-completions
+
 
 # All packages combined
 packages:

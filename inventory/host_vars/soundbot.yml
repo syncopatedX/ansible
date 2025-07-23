@@ -11,6 +11,12 @@ samba_host: false
 
 zsh_theme: kphoen
 
+# User configuration for RPM development
+rpm_dev_user:
+  name: "{{ user.name }}"
+  groups: ["mock"]
+  create_home: true
+
 # x:
 #   autostart:
 #     - bash ~/.screenlayout/soundbot.sh

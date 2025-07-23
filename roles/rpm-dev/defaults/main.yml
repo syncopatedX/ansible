@@ -23,8 +23,8 @@ mock_config:
 rpm_build:
   create_directories: true
   setup_macros: true
-  home_dir: "{{ ansible_env.HOME }}"
-  build_dir: "{{ ansible_env.HOME }}/rpmbuild"
+  home_dir: "{{ user.home }}"
+  build_dir: "{{ user.home }}/rpmbuild"
   directories:
     - BUILD
     - RPMS
