@@ -1,31 +1,91 @@
 ---
 # vars file for sway on Fedora
 packages__sway:
-  - azote
-  - foot
-  - fuzzel
-  - grim
-  - kanshi
-  - mako
-  - slurp
+  # Core Sway window manager and utilities
   - sway
   - swaybg
   - swayidle
   - swaylock
-  - waybar
-  - wl-clipboard
-  - wlogout
-  - wf-recorder
-  - wofi
   - xdg-desktop-portal-wlr
+  
+  # Wayland utilities
+  - grim                    # Screenshot tool
+  - slurp                   # Region selector
+  - wl-clipboard           # Clipboard utilities
+  - wf-recorder            # Screen recorder
+  
+  # Application launchers and menus
+  - fuzzel                 # Application launcher
+  - wofi                   # Application launcher/menu
+  - rofi-wayland          # Rofi with Wayland support
+  
+  # Status bars and notifications
+  - waybar                 # Status bar
+  - mako                   # Notification daemon
+  
+  # Display and appearance
+  - azote                  # Wallpaper manager
+  - kanshi                 # Dynamic display configuration
+  - wlogout               # Logout menu
+  
+  # Terminal emulator
+  - foot                   # Fast terminal emulator
+  
+  # System utilities required by scripts
+  - jq                     # JSON processor
+  - curl                   # HTTP client
+  - bc                     # Calculator
+  - brightnessctl          # Brightness control
+  - gettext                # Translation tools (envsubst)
+  - util-linux             # System utilities (flock)
+  - lsof                   # List open files
+  - procps-ng              # Process utilities (pgrep, pkill)
+  - coreutils              # Core utilities (date, mv, cp, etc.)
+  - inotify-tools          # File system event monitoring
+  - libnotify              # Desktop notifications
+  - xdg-user-dirs          # User directory utilities
+  - systemd                # System and service manager
+  - pcre-tools             # Perl-compatible regular expressions
+  
+  # Python dependencies for scripts
+  - python3
+  - python3-requests       # HTTP library for weather.py
+  - python3-dbus           # D-Bus bindings for valent.py
+  - python3-i3ipc         # i3/sway IPC library
 
-sway_directory_definitions:
-  - dest: ".config/sway"
-  - dest: ".config/waybar"
-  - dest: ".config/mako"
-  - dest: ".config/wlogout"
-  - dest: ".config/sway/config.d"
-  - dest: ".config/sway/themes"
-  - dest: ".config/sway/inputs"
-  - dest: ".config/sway/modes"
-  - dest: ".config/sway/outputs"
+  # Alternatively: pulseaudio
+  - playerctl              # Media player control
+  
+  # Additional Wayland tools
+  - wlsunset               # Blue light filter
+  - wob                    # On-screen display overlay
+  - wtype                  # Text input tool
+  - nwg-wrapper            # GTK3 wrapper for desktop text display
+  
+  # System monitoring and tools
+  - gh                     # GitHub CLI
+  - lm_sensors             # Hardware monitoring
+  
+  # Desktop integration
+  - desktop-backgrounds-compat  # Default wallpapers
+  
+  # Fonts
+  - google-roboto-fonts         # Roboto font family
+  - jetbrains-mono-fonts-all    # JetBrains Mono font
+
+# Packages not available in Fedora repositories (may need third-party sources):
+# - topgrade                   # System upgrader (available via cargo/pip)
+# - wluma                      # Adaptive brightness daemon (available via cargo)
+# - cliphist                   # Clipboard manager (available via go install)
+# - swayr                      # Window switcher (available via cargo)
+# - gtklock                    # Screen locker alternative (build from source)
+# - waylock                    # Screen locker alternative (build from source)
+# - swaylock-effects           # Enhanced screen locker (build from source)
+# - way-displays               # Display configuration tool (build from source)
+# - valent                     # KDE Connect alternative (use kde-connect instead)
+# 
+# Alternative packages available in Fedora:
+# - kde-connect                # Instead of valent (KDE Connect implementation)
+# - gnome-shell-extension-gsconnect  # GNOME Shell KDE Connect extension
+
+

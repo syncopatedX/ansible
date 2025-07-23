@@ -51,3 +51,14 @@ wm_directory_default_recurse: false
 # Terminal configuration
 terminal: terminator
 terminal_alt: urxvt
+
+sway_directory_definitions:
+  - dest: ".config/sway"
+  - dest: ".config/waybar"
+  - dest: ".config/mako"
+  - dest: ".config/wlogout"
+  - dest: ".config/sway/config.d"
+  # - dest: ".config/sway/themes"
+  - dest: ".config/sway/inputs"
+  - dest: ".config/sway/modes"
+  # - dest: ".config/sway/outputs"

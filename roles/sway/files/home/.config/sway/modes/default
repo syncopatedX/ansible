@@ -3,8 +3,10 @@
 # Basics:
 #
 ## Launch // Terminal ##
-$bindsym $mod+Return exec $term_cwd
-$bindsym $mod+Shift+Return exec $term
+# $bindsym $mod+Return exec $term_cwd
+# $bindsym $mod+Shift+Return exec $term
+
+$bindsym $mod+Return exec $term
 
 $bindsym $mod+Home exec google-chrome-stable --new-window %U ~/.local/share/html/homepage/index.html
 $bindsym $mod+Shift+Home exec google-chrome-stable --incognito %U ~/.local/share/html/homepage/index.html
@@ -49,7 +51,7 @@ $bindsym --locked XF86MonBrightnessUp exec $brightness_up
 
 $bindsym --locked XF86MonBrightnessDown exec $brightness_down
 
-$bindsym --locked XF86AudioPlay exec playerctl play-pause
+# $bindsym --locked XF86AudioPlay exec playerctl play-pause
 
 $bindsym XF86AudioNext exec playerctl next
 

@@ -1,4 +1,6 @@
 #!/bin/sh
+export UU_ORDER="$UU_ORDER:~/.profile"
+
 export XDG_CONFIG_HOME=$HOME/.config
 
 # make default editor Helix

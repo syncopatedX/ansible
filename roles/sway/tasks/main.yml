@@ -46,12 +46,6 @@
 
 - name: Install Sway system configs
   block:
-    - name: Template sway keybindings config
-      ansible.builtin.template:
-        src: etc/sway/config.d/20-keybindings.conf.j2
-        dest: /etc/sway/config.d/20-keybindings.conf
-        mode: "0644"
-        backup: true
         
     - name: Update sway system configs (excluding keybindings)
       ansible.posix.synchronize:
@@ -64,8 +58,6 @@
         perms: false
         owner: false
         group: false
-        rsync_opts:
-          - "--exclude=config.d/20-keybindings.conf"
 
     - name: Update sway system configs
       ansible.posix.synchronize:
@@ -91,6 +83,18 @@
         owner: false
         group: false
 
+    - name: Update sway system scripts, templates, and themes
+      ansible.posix.synchronize:
+        src: usr/share/sway/
+        dest: /usr/share/sway
+        recursive: true
+        mode: push
+        delete: false
+        checksum: true
+        perms: false
+        owner: false
+        group: false
+
 - name: Update sway user configs
   become: false
   block:
@@ -100,7 +104,7 @@
         dest: "{{ user.home }}/.config/sway"
         recursive: true
         mode: push
-        delete: false
+        delete: true
         checksum: true
         perms: false
         owner: false
@@ -125,10 +129,10 @@
       with_items:
         - style.css
         - theme.css
-# - name: Update environment file
-#   ansible.builtin.copy:
-#     src: etc/environment
-#     dest: /etc/environment
-#     mode: "0644"
-#     backup: true
-#   become: true
+    
+    - name: Update .profile
+      ansible.builtin.copy:
+        src: home/.profile
+        dest: "{{ user.home }}/.profile"
+        mode: "0644"
+        backup: true
