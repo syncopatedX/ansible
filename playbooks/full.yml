@@ -35,7 +35,7 @@
     - { role: rvm.ruby, tags: ["ruby"] }
     - { role: docker, tags: ["docker"] }
     - { role: libvirt, tags: ["libvirt"] }
-    #   - { role: nas, tags: ["nas"], when: "nfs_host == 'true' or samba_host == 'true'" }
+    - { role: nas, tags: ["nas"], when: "nfs_host == 'true' or samba_host == 'true'" }
     # - { role: xorg, tags: ["xorg"], when: "window_manager != 'sway'" }
     #   - { role: xwayland, tags: ["xwayland"], when: "window_manager == 'sway'" }
     - { role: rpm-dev, tags: ["rpm-dev"] }
