@@ -43,8 +43,16 @@ collections:
   - community.general
   - ansible.posix
 
-dependencies:
-  - role: base
-    when: cosmic_install_base_deps | default(false)
-  - role: display-manager  
-    when: cosmic_integrate_display_manager | default(false)
+dependencies: []
+  # - role: cosmic-base
+  # - role: cosmic-desktop
+  # - role: cosmic-extensions
+  # - role: cosmic-apps
+  # - role: cosmic-settings
+  # - role: cosmic-tweaks
+  # - role: cosmic-themes
+  # - role: cosmic-wallpapers
+  # - role: cosmic-utilities
+  # - role: cosmic-gnome-shell
+  # - role: cosmic-gnome-settings-daemon
+  # - role: cosmic-gnome-control-center

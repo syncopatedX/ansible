@@ -18,5 +18,4 @@ galaxy_info:
     - base
     - orchestration
 
-dependencies:
-  - role: user-manager
+dependencies: []

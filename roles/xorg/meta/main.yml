@@ -12,8 +12,4 @@ galaxy_info:
   galaxy_tags:
     - xorg
     - x11
-dependencies:
-  - role: dunst
-  - role: picom
-  - role: sxhkd
-  - role: xdg
+dependencies: []
