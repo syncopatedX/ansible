@@ -1,5 +1,18 @@
 ---
 - hosts: localhost
-  remote_user: root
+  become: true
+  vars:
+    libvirt_users:
+      - testuser
+  pre_tasks:
+    - name: Create test user
+      ansible.builtin.user:
+        name: testuser
+        state: present
   roles:
-    - libvirt
+    - role: libvirt
+  post_tasks:
+    - name: Remove test user
+      ansible.builtin.user:
+        name: testuser
+        state: absent
