@@ -22,7 +22,6 @@
         state: present
       with_items:
         - "{{ packages__sway }}"
-      become: true
       tags: ["packages"]
       when: ansible_distribution == "Fedora"
 
@@ -46,69 +45,63 @@
 
 - name: Install Sway system configs
   block:
-        
-    - name: Update sway system configs (excluding keybindings)
-      ansible.posix.synchronize:
+    - name: Copy sway system configs (excluding keybindings)
+      ansible.builtin.copy:
         src: etc/sway/
         dest: /etc/sway
-        recursive: true
-        mode: push
-        delete: false
-        checksum: true
-        perms: false
-        owner: false
-        group: false
+        owner: root
+        group: root
+        directory_mode: "0755"
+        mode: "0644"
+        backup: true
+      become: true
 
-    - name: Update sway system configs
-      ansible.posix.synchronize:
+    - name: Copy sway system executables
+      ansible.builtin.copy:
         src: usr/libexec/sway/
         dest: /usr/libexec/sway
-        recursive: true
-        mode: push
-        delete: false
-        checksum: true
-        perms: false
-        owner: false
-        group: false
+        owner: root
+        group: root
+        directory_mode: "0755"
+        mode: "0755"
+        backup: true
+      become: true
 
-    - name: Update sway system configs
-      ansible.posix.synchronize:
+    - name: Copy sway systemd executables
+      ansible.builtin.copy:
         src: usr/libexec/sway-systemd/
         dest: /usr/libexec/sway-systemd
-        recursive: true
-        mode: push
-        delete: false
-        checksum: true
-        perms: false
-        owner: false
-        group: false
+        owner: root
+        group: root
+        directory_mode: "0755"
+        mode: "0755"
+        backup: true
+      become: true
 
-    - name: Update sway system scripts, templates, and themes
-      ansible.posix.synchronize:
+    - name: Copy sway system scripts, templates, and themes
+      ansible.builtin.copy:
         src: usr/share/sway/
         dest: /usr/share/sway
-        recursive: true
-        mode: push
-        delete: false
-        checksum: true
-        perms: false
-        owner: false
-        group: false
+        owner: root
+        group: root
+        directory_mode: "0755"
+        mode: "0644"
+        backup: true
+      become: true
 
 - name: Update sway user configs
   become: false
   block:
+    # - name: Remove previous sway user configs to ensure clean install
+    #   ansible.builtin.file:
+    #     path: "{{ user.home }}/.config/sway"
+    #     state: absent
+
     - name: Update sway user configs
-      ansible.posix.synchronize:
+      ansible.builtin.copy:
         src: home/.config/sway/
         dest: "{{ user.home }}/.config/sway"
-        recursive: true
-        mode: push
-        delete: true
-        checksum: true
-        perms: false
-        owner: false
-        group: false
+        backup: true
 
     - name: Update waybar css
       ansible.builtin.template:

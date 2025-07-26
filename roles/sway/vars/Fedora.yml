@@ -2,8 +2,7 @@
 # vars file for sway on Fedora
 packages__sway:
   # Core Sway window manager and utilities
-  - sway
-  - swaybg
+  - "@sway-desktop-environment"
   - swayidle
   - swaylock
   - xdg-desktop-portal-wlr
