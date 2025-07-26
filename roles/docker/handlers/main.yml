@@ -1,6 +1,7 @@
 ---
-# handlers file for docker
-- name: Reload systemd daemon
-  ansible.builtin.systemd:
-    daemon_reload: true
-  ignore_errors: "{{ ansible_check_mode }}"
+# handlers file for docker role
+
+- name: Restart Docker
+  ansible.builtin.service:
+    name: "{{ docker_service_name }}"
+    state: restarted

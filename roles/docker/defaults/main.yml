@@ -1,9 +1,35 @@
----
 # defaults file for docker
 
-# docker: "defaults/main.yml"
+# Specifies the version of Docker CE to install.
+# Example: "3:28.3.2-1.fc41". If empty, installs the latest version.
+docker_version: ""
 
-docker:
-  storage: /var/lib/docker
+# List of core Docker packages to install.
+docker_packages:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - docker-buildx-plugin
+  - docker-compose-plugin
 
-use_docker: true
+# URL for the Docker GPG key to verify package authenticity.
+docker_gpg_key_url: "https://download.docker.com/linux/fedora/gpg"
+
+# The name of the Docker systemd service.
+docker_service_name: "docker.service"
+
+# Whether to enable the Docker service to start on boot.
+docker_service_enabled: true
+
+# List of users to add to the 'docker' group.
+# WARNING: This grants privileges equivalent to root on the host.
+# Use with extreme caution. See documentation for security implications.
+docker_users: 
+  - "{{ user.name }}"
+
+# Dictionary of key-value pairs for /etc/docker/daemon.json.
+# Example: { "log-driver": "journald", "userns-remap": "default" }
+docker_daemon_config: {}
+
+# Whether to remove known conflicting packages (e.g., podman-docker).
+docker_remove_conflicting_packages: true

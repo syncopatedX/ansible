@@ -1,5 +1,20 @@
 ---
 - hosts: localhost
-  remote_user: root
+  become: true
+  vars:
+    docker_users:
+      - testuser
+    docker_daemon_config:
+      log-driver: "journald"
+  pre_tasks:
+    - name: Create test user
+      ansible.builtin.user:
+        name: testuser
+        state: present
   roles:
-    - docker
+    - role: docker
+  post_tasks:
+    - name: Remove test user
+      ansible.builtin.user:
+        name: testuser
+        state: absent

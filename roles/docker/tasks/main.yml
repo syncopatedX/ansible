@@ -1,45 +1,64 @@
 ---
-# tasks file for docker
+# tasks file for docker role (Fedora)
 
-- name: Load distribution-specific variables
-  ansible.builtin.include_vars: "{{ ansible_distribution }}.yml"
-  tags: ["packages"]
+- name: Remove conflicting packages if enabled
+  ansible.builtin.dnf:
+    name:
+      - podman
+      - docker
+      - docker-common
+      - docker
+      - docker-engine
+    state: absent
+  when: docker_remove_conflicting_packages
 
-- name: Check if Docker is installed
-  ansible.builtin.command: docker --version
-  register: docker_check
-  changed_when: false
-  ignore_errors: true
-
-- name: Print Docker version if installed
-  ansible.builtin.debug:
-    msg: "Docker version: {{ docker_check.msg }}"
-  when: docker_check.rc == 0
-
-- name: Install docker package
-  aur:
-    use: paru
-    name: "{{ item }}"
+- name: Ensure dnf-plugins-core is installed
+  ansible.builtin.dnf:
+    name: dnf-plugins-core
     state: present
-    extra_args: "--overwrite '*'"
-  with_items:
-    - "{{ packages__docker }}"
-  become: false
-  tags: ["packages", "docker_pkgs"]
 
-- name: Install docker nvidia packages
-  aur:
-    use: paru
-    name: "{{ item }}"
+- name: Import Docker GPG key
+  ansible.builtin.rpm_key:
+    key: "{{ docker_gpg_key_url }}"
     state: present
-    extra_args: "--overwrite '*'"
-  loop:
-    - nvidia-container-toolkit
-    - nvidia-docker-compose
-  become: false
-  when: nvidia is defined
-  tags: ["packages", "docker_pkgs"]
 
-- ansible.builtin.import_tasks:
-    file: setup.yml
-  tags: ["setup"]
+- name: Add Docker CE repository
+  ansible.builtin.yum_repository:
+    name: docker-ce-stable
+    description: Docker CE Stable - x86_64
+    baseurl: "https://download.docker.com/linux/fedora/$releasever/$basearch/stable"
+    enabled: true
+    gpgcheck: true
+    gpgkey: "{{ docker_gpg_key_url }}"
+    state: present
+
+- name: Install Docker packages
+  ansible.builtin.dnf:
+    name: "{{ docker_packages | map('regex_replace', '^(.*)$', '\\1-' + docker_version) | list if docker_version else docker_packages }}"
+    state: present
+    update_cache: true
+  notify: Restart Docker
+
+- name: Configure the Docker daemon (/etc/docker/daemon.json)
+  ansible.builtin.template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: '0644'
+  when: docker_daemon_config | length > 0
+  notify: Restart Docker
+
+- name: Ensure Docker service is started and enabled
+  ansible.builtin.service:
+    name: "{{ docker_service_name }}"
+    state: started
+    enabled: "{{ docker_service_enabled }}"
+
+- name: Add specified users to the docker group
+  ansible.builtin.user:
+    name: "{{ item }}"
+    groups: docker
+    append: true
+  loop: "{{ docker_users }}"
+  when: docker_users | length > 0
