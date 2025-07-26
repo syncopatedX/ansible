@@ -25,6 +25,7 @@
       tags: ["always"]
 
   roles:
+    - { role: user, tags: ["user"] }
     - { role: base, tags: ["base"] }
     - { role: ssh, tags: ["ssh"] }
     - { role: firewalld, tags: ["firewalld"] }
@@ -41,7 +42,6 @@
     - { role: syncopated.i3_desktop.dunst, tags: ["dunst"], when: "window_manager == 'i3'" }
     - { role: syncopated.i3_desktop.picom, tags: ["picom"], when: "window_manager == 'i3'" }
     - { role: syncopated.i3_desktop.sxhkd, tags: ["sxhkd"], when: "window_manager == 'i3'" }
-    #   - { role: xwayland, tags: ["xwayland"], when: "window_manager == 'sway'" }
     - { role: rpm-dev, tags: ["rpm-dev"] }
     - { role: rofi, tags: ["rofi"] }
     - { role: sway, tags: ["sway"] }
