@@ -4,6 +4,7 @@
   gather_facts: true
   become: true
   roles:
+    - { role: user, tags: ["user"] }
     - { role: base, tags: ["base"] }
     - { role: ssh, tags: ["ssh"] }
     - { role: firewalld, tags: ["firewalld"] }
@@ -15,3 +16,4 @@
     - { role: syncopated.i3_desktop.dunst, tags: ["dunst"] }
     - { role: syncopated.i3_desktop.picom, tags: ["picom"] }
     - { role: syncopated.i3_desktop.sxhkd, tags: ["sxhkd"] }
+    - { role: syncopated.i3_desktop.getty, tags: ["getty"] }
