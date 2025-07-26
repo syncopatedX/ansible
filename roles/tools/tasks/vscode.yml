@@ -1,2 +1,228 @@
 ---
-- name: adjust code desktop file to use gnome-libscret
+# VSCode Installation and Configuration for Fedora/RedHat systems
+
+# VSCode Installation Block
+- name: VSCode Installation
+  block:
+    - name: Import Microsoft GPG key
+      ansible.builtin.rpm_key:
+        key: https://packages.microsoft.com/keys/microsoft.asc
+        state: present
+      tags: ["vscode_repo"]
+
+    - name: Configure Visual Studio Code repository
+      ansible.builtin.yum_repository:
+        name: code
+        description: Visual Studio Code
+        baseurl: https://packages.microsoft.com/yumrepos/vscode
+        enabled: yes
+        gpgcheck: yes
+        gpgkey: https://packages.microsoft.com/keys/microsoft.asc
+      tags: ["vscode_repo"]
+
+    - name: Update package cache and install VSCode
+      ansible.builtin.dnf:
+        name: code
+        state: present
+        update_cache: yes
+      tags: ["vscode_install"]
+
+  rescue:
+    - name: VSCode Installation Failed
+      ansible.builtin.debug:
+        msg: >
+          Failed to install VSCode.
+          Error details: {{ ansible_failed_result | default('Unknown error') }}
+          This might be due to network connectivity issues or repository availability.
+      tags: ["vscode_install"]
+
+    - name: Set VSCode installation status
+      ansible.builtin.set_fact:
+        vscode_installation_failed: true
+      tags: ["vscode_install"]
+
+  tags: ["vscode", "packages"]
+
+# Desktop File Configuration Block
+- become: false
+  name: VSCode Desktop File Configuration
+  block:
+    - name: Check if VSCode is installed
+      ansible.builtin.stat:
+        path: /usr/share/applications/code.desktop
+      register: vscode_desktop_file
+      tags: ["vscode_desktop"]
+
+    - name: Copy VSCode desktop file to user applications
+      ansible.builtin.copy:
+        src: /usr/share/applications/code.desktop
+        dest: "{{ user.home }}/.local/share/applications/code.desktop"
+        remote_src: true
+        mode: '0644'
+      become: false
+      when: vscode_desktop_file.stat.exists
+      register: vscode_desktop_copied
+      tags: ["vscode_desktop"]
+
+    - name: Adjust VSCode desktop file to use gnome-libsecret
+      ansible.builtin.lineinfile:
+        path: "{{ user.home }}/.local/share/applications/code.desktop"
+        regexp: '^Exec=/usr/share/code/code'
+        line: 'Exec=/usr/share/code/code --password-store=gnome-libsecret'
+        backup: yes
+      become: false
+      when: vscode_desktop_copied is succeeded
+      tags: ["vscode_desktop", "gnome_libsecret"]
+
+    - name: Ensure .local/share/applications directory exists
+      ansible.builtin.file:
+        path: "{{ user.home }}/.local/share/applications"
+        state: directory
+        mode: '0755'
+      become: false
+      tags: ["vscode_desktop"]
+
+  rescue:
+    - name: Desktop File Configuration Failed
+      ansible.builtin.debug:
+        msg: >
+          Failed to configure VSCode desktop file.
+          Error details: {{ ansible_failed_result | default('Unknown error') }}
+          VSCode should still function normally, but may not use gnome-libsecret for password storage.
+      tags: ["vscode_desktop"]
+
+    - name: Set desktop configuration status
+      ansible.builtin.set_fact:
+        vscode_desktop_config_failed: true
+      tags: ["vscode_desktop"]
+
+  when: not (vscode_installation_failed | default(false))
+  tags: ["vscode", "desktop_config"]
+
+# VSCode Extensions Installation Block
+- name: VSCode Extensions Installation
+  vars:
+    vscode_extensions:
+      - 'ahmadawais.shades-of-purple'
+      - 'anx450z.rubocop-runner'
+      - 'arcticicestudio.nord-visual-studio-code'
+      - 'atishay-jain.all-autocomplete'
+      - 'bierner.markdown-emoji'
+      - 'boonboonsiri.gemini-autocomplete'
+      - 'castwide.solargraph'
+      - 'codium.codium'
+      - 'davidanson.vscode-markdownlint'
+      - 'desislavarashev.ollama-commit'
+      - 'devzstudio.emoji-snippets'
+      - 'dinethsiriwardana.send-to-firebase'
+      - 'docker.docker'
+      - 'donjayamanne.githistory'
+      - 'dotiful.dotfiles-syntax-highlighting'
+      - 'dotjoshjohnson.xml'
+      - 'dracula-theme.theme-dracula'
+      - 'eliverlara.andromeda'
+      - 'esbenp.prettier-vscode'
+      - 'foxundermoon.shell-format'
+      - 'ginfuru.ginfuru-vscode-jekyll-syntax'
+      - 'github.copilot-chat'
+      - 'github.copilot'
+      - 'github.github-vscode-theme'
+      - 'github.vscode-github-actions'
+      - 'gitlab.gitlab-workflow'
+      - 'gnana997.ollama-dev-companion'
+      - 'google.geminicodeassist'
+      - 'henoc.svgeditor'
+      - 'hunnble.treetop'
+      - 'icbd.gitlab-developers-snippets'
+      - 'jeff-hykin.better-dockerfile-syntax'
+      - 'jeffersonlicet.snipped'
+      - 'kevinrose.vsc-python-indent'
+      - 'liviuschera.noctis'
+      - 'm0x2a.jekyll-helper'
+      - 'mechatroner.rainbow-csv'
+      - 'monish.regexsnippets'
+      - 'mrmlnc.vscode-scss'
+      - 'ms-azuretools.vscode-containers'
+      - 'ms-azuretools.vscode-docker'
+      - 'ms-python.autopep8'
+      - 'ms-python.debugpy'
+      - 'ms-python.python'
+      - 'ms-python.vscode-pylance'
+      - 'ms-vscode-remote.remote-containers'
+      - 'ms-vscode.cmake-tools'
+      - 'ms-vscode.cpptools-extension-pack'
+      - 'ms-vscode.cpptools-themes'
+      - 'ms-vscode.cpptools'
+      - 'ms-vscode.makefile-tools'
+      - 'onatm.open-in-new-window'
+      - 'redhat.ansible'
+      - 'redhat.vscode-yaml'
+      - 'rooveterinaryinc.roo-cline'
+      - 'rubocop.vscode-rubocop'
+      - 'ruslan-cybersec.ollama-code-fixer'
+      - 'samuelcolvin.jinjahtml'
+      - 'shellomo.enhanced-toml'
+      - 'shopify.ruby-lsp'
+      - 'sibiraj-s.vscode-scss-formatter'
+      - 'sissel.shopify-liquid'
+      - 'sublayer.sublayer-blueprints'
+      - 'teabyii.ayu'
+      - 'technovangelist.ollamamodelfile'
+      - 'tomoki1207.pdf'
+      - 'vsls-contrib.gistfs'
+      - 'warm3snow.vscode-ollama-modelfile'
+      - 'wesbos.theme-cobalt2'
+      - 'wware.snippet-creator'
+      - 'wware.snippets-explorer'
+      - 'wyattferguson.jinja2-snippet-kit'
+      - 'yzane.markdown-pdf'
+      - 'yzhang.markdown-all-in-one'
+      - 'zhuangtongfa.material-theme'
+  block:
+    - name: Check if VSCode is available for extension installation
+      ansible.builtin.command: which code
+      register: vscode_command_check
+      failed_when: false
+      changed_when: false
+      become: false
+      tags: ["vscode_extensions"]
+
+    - name: Install VSCode extensions
+      ansible.builtin.command: code --install-extension "{{ item }}"
+      loop: "{{ vscode_extensions }}"
+      register: extension_install_result
+      failed_when: false
+      changed_when: extension_install_result.rc == 0
+      when: vscode_command_check.rc == 0
+      become: false
+      tags: ["vscode_extensions"]
+
+    - name: Report extension installation results
+      ansible.builtin.debug:
+        msg: >
+          Extension {{ item.item }} installation:
+          {{ 'SUCCESS' if item.rc == 0 else 'FAILED - ' + (item.stderr | default('Unknown error')) }}
+      loop: "{{ extension_install_result.results | default([]) }}"
+      when:
+        - vscode_command_check.rc == 0
+        - extension_install_result.results is defined
+      tags: ["vscode_extensions"]
+
+  rescue:
+    - name: VSCode Extensions Installation Failed
+      ansible.builtin.debug:
+        msg: >
+          Failed to install VSCode extensions.
+          Error details: {{ ansible_failed_result | default('Unknown error') }}
+          VSCode is functional but extensions may need to be installed manually.
+      tags: ["vscode_extensions"]
+
+    - name: Set extensions installation status
+      ansible.builtin.set_fact:
+        vscode_extensions_failed: true
+      tags: ["vscode_extensions"]
+
+  when:
+    - not (vscode_installation_failed | default(false))
+    - not (vscode_desktop_config_failed | default(false))
+  tags: ["vscode", "extensions"]

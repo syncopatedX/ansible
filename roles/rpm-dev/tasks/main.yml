@@ -76,17 +76,17 @@
   tags: ["rpm-dev", "mock-config"]
   notify: "Clear mock cache"
 
-- name: "Initialize mock cache for default targets"
-  ansible.builtin.command:
-    cmd: "mock -r {{ item }} --init"
-  loop: "{{ mock_targets }}"
-  become: true
-  when: 
-    - rpm_dev_setup_mock | bool
-    - mock_config.root_cache_enable | bool
-  tags: ["rpm-dev", "mock-init"]
-  changed_when: false
-  failed_when: false
+# - name: "Initialize mock cache for default targets"
+#   ansible.builtin.command:
+#     cmd: "mock -r {{ item }} --init"
+#   loop: "{{ mock_targets }}"
+#   become: true
+#   when: 
+#     - rpm_dev_setup_mock | bool
+#     - mock_config.root_cache_enable | bool
+#   tags: ["rpm-dev", "mock-init"]
+#   changed_when: false
+#   failed_when: false
 
 # - name: "Configure Git for RPM packaging"
 #   ansible.builtin.git_config:

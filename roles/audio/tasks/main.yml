@@ -47,3 +47,8 @@
 - ansible.builtin.import_tasks:
     file: tuning.yml
   tags: ["tuning"]
+
+- import_tasks:
+    file: noisetorch.yml
+  become: false
+  tags: ['noisetorch']

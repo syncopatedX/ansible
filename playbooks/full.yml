@@ -32,9 +32,9 @@
     - { role: ntp, tags: ["ntp"] }
     #   - { role: grub, tags: ["grub"], when: "bootloader == 'grub' | default('grub')" }
     - { role: shell, tags: ["shell"] }
-    #   - { role: rvm.ruby, tags: ["ruby"] }
-    # - { role: docker, tags: ["docker"] }
-    # - { role: libvirt, tags: ["libvirt"] }
+    - { role: rvm.ruby, tags: ["ruby"] }
+    - { role: docker, tags: ["docker"] }
+    - { role: libvirt, tags: ["libvirt"] }
     #   - { role: nas, tags: ["nas"], when: "nfs_host == 'true' or samba_host == 'true'" }
     # - { role: xorg, tags: ["xorg"], when: "window_manager != 'sway'" }
     #   - { role: xwayland, tags: ["xwayland"], when: "window_manager == 'sway'" }
@@ -43,7 +43,7 @@
     - { role: sway, tags: ["sway"] }
     # - { role: cosmic-desktop, tags: ["cosmic", "desktop"], when: "window_manager == 'cosmic'" }
   #   - { role: display-manager, tags: ["display-manager"] }
-  #   - { role: audio, tags: ["audio"] }
+    - { role: audio, tags: ["audio"] }
   #   - { role: video, tags: ["video"] }
-  #   - { role: tools, tags: ["tools"] }
+    - { role: tools, tags: ["tools"] }
   #   - { role: media, tags: ["media"] }

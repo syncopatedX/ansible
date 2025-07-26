@@ -1,0 +1,68 @@
+---
+# tasks file for installing noisetorch from source
+
+- name: Check if noisetorch is already installed
+  ansible.builtin.stat:
+    path: "{{ user.home }}/.local/bin/noisetorch"
+  register: noisetorch_binary
+  become: false
+
+- name: Install NoiseTorch from source
+  when: not noisetorch_binary.stat.exists
+  become: false
+  block:
+    - name: Create a temporary directory for the build
+      ansible.builtin.tempfile:
+        state: directory
+        suffix: noisetorch-build
+      register: build_dir
+
+    - name: Clone NoiseTorch repository
+      ansible.builtin.git:
+        repo: 'https://github.com/noisetorch/NoiseTorch.git'
+        dest: "{{ build_dir.path }}"
+        recursive: yes
+      register: git_clone
+
+    - name: Build NoiseTorch
+      community.general.make:
+        chdir: "{{ build_dir.path }}"
+      when: git_clone.changed
+
+    - name: Ensure destination directories exist
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - "{{ user.home }}/.local/bin"
+        - "{{ user.home }}/.local/share/applications"
+        - "{{ user.home }}/.local/share/icons/hicolor/256x256/apps"
+
+    - name: Copy noisetorch binary
+      ansible.builtin.copy:
+        src: "{{ build_dir.path }}/bin/noisetorch"
+        dest: "{{ user.home }}/.local/bin/noisetorch"
+        mode: '0755'
+        remote_src: yes
+
+    - name: Copy noisetorch desktop file
+      ansible.builtin.copy:
+        src: "{{ build_dir.path }}/assets/noisetorch.desktop"
+        dest: "{{ user.home }}/.local/share/applications/noisetorch.desktop"
+        mode: '0644'
+        remote_src: yes
+
+    - name: Copy noisetorch icon
+      ansible.builtin.copy:
+        src: "{{ build_dir.path }}/assets/icon/noisetorch.png"
+        dest: "{{ user.home }}/.local/share/icons/hicolor/256x256/apps/noisetorch.png"
+        mode: '0644'
+        remote_src: yes
+
+  always:
+    - name: Clean up build directory
+      ansible.builtin.file:
+        path: "{{ build_dir.path }}"
+        state: absent
+      when: build_dir.path is defined

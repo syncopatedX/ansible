@@ -3,6 +3,7 @@
 # Install 1 or more versions of ruby
 # The last ruby listed will be set as the default ruby
 rvm1_rubies:
+  - "ruby-3.2.0"
   - "ruby-3.4.4"
 
 # Install bundler
@@ -21,7 +22,7 @@ rvm1_install_flags: "--auto-dotfiles --user-install"
 # Add additional ruby install flags
 rvm1_ruby_install_flags:
 # Set the owner for the rvm directory
-rvm1_user: "{{ user.name  }}"
+rvm1_user: "{{ user.name }}"
 
 # URL for the latest installer script
 rvm1_rvm_latest_installer: "https://raw.githubusercontent.com/rvm/rvm/master/binscripts/rvm-installer"

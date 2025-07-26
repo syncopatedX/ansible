@@ -30,6 +30,7 @@ packages__base:
   - fsarchiver
   - fuse
   - fuse3
+  - golang
   - gh
   - git
   - git-delta
@@ -53,6 +54,7 @@ packages__base:
   - keychain
   - libgit2
   - libgit2-glib
+  - libyaml-devel
   - libvoikko
   - links
   - lm_sensors-devel

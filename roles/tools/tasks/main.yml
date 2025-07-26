@@ -1,30 +1,30 @@
 ---
 # tasks file for tools
 
-- name: Load distribution-specific variables
-  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
-  tags: ["packages"]
+# - name: Load distribution-specific variables
+#   ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+#   tags: ["packages"]
 
-- name: Install packages on Arch Linux
-  aur:
-    use: auto
-    name: "{{ packages.tools }}"
-    state: present
-  become: true
-  when:
-    - ansible_os_family == "Archlinux"
-    - packages.tools is defined
-  tags: ["packages"]
+# - name: Install packages on Arch Linux
+#   aur:
+#     use: auto
+#     name: "{{ packages.tools }}"
+#     state: present
+#   become: true
+#   when:
+#     - ansible_os_family == "Archlinux"
+#     - packages.tools is defined
+#   tags: ["packages"]
 
-- name: Install packages on Rocky Linux/RedHat
-  ansible.builtin.dnf:
-    name: "{{ packages.tools }}"
-    state: present
-  become: true
-  when:
-    - ansible_os_family == "RedHat"
-    - packages.tools is defined
-  tags: ["packages"]
+# - name: Install packages on Rocky Linux/RedHat
+#   ansible.builtin.dnf:
+#     name: "{{ packages.tools }}"
+#     state: present
+#   become: true
+#   when:
+#     - ansible_os_family == "RedHat"
+#     - packages.tools is defined
+#   tags: ["packages"]
 
 
 # - ansible.builtin.import_tasks:
@@ -38,3 +38,22 @@
 - ansible.builtin.import_tasks:
     file: input-remapper.yml
   tags: ["input-remapper"]
+
+- ansible.builtin.import_tasks:
+    file: vscode.yml
+  tags: ["vscode"]
+  when: ansible_os_family == "RedHat"
+
+- name: Install Claude-Code
+  shell: |
+    npm install -g @anthropic-ai/claude-code
+  register: claude_installation 
+  changed_when: claude_installation is changed
+  tags: ["claude-code"] 
+
+- name: Install Gemini CLI
+  shell: |
+    npm install -g @google/gemini-cli
+  register: gemini_installation
+  changed_when: gemini_installation is changed
+  tags: ["gemini"]  

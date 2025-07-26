@@ -1,17 +1,17 @@
 ---
 # tasks file for input-remapper
-- tags: ["packages"]
-  block:
-    - name: Install input-remapper
-      aur:
-        use: paru
-        name: input-remapper-git
-        state: present
-      become: false
-  rescue:
-    - name: Installing packages failed
-      ansible.builtin.debug:
-        msg: "Failed to install shell packages"
+# - tags: ["packages"]
+#   block:
+#     - name: Install input-remapper
+#       aur:
+#         use: paru
+#         name: input-remapper-git
+#         state: present
+#       become: false
+#   rescue:
+#     - name: Installing packages failed
+#       ansible.builtin.debug:
+#         msg: "Failed to install shell packages"
 
 # - name: Ensure input-remapper preset synchronization
 #   block:

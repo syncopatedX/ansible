@@ -1,0 +1,55 @@
+---
+
+- name: Install input-leap build dependencies (RedHat)
+  become: true
+  ansible.builtin.dnf:
+    name:
+      - "pkgconfig(avahi-compat-libdns_sd)"
+      - "cmake >= 3"
+      - "desktop-file-utils"
+      - "gcc-c++"
+      - "pkgconfig(x11)"
+      - "pkgconfig(xtst)"
+      - "pkgconfig(xinerama)"
+      - "pkgconfig(xrandr)"
+      - "pkgconfig(ice)"
+      - "pkgconfig(sm)"
+      - "pkgconfig(openssl)"
+      - "pkgconfig(Qt6Core)"
+      - "pkgconfig(Qt6Widgets)"
+      - "pkgconfig(Qt6Network)"
+      - "pkgconfig(Qt6Linguist)"
+      - "make"
+      - "pkgconfig(libei-1.0)"
+      - "pkgconfig(libportal) >= 0.8"
+      - "git"
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Clone input-leap repository for building
+  ansible.builtin.git:
+    repo: 'https://github.com/input-leap/input-leap.git'
+    dest: '/tmp/input-leap-build'
+    recursive: yes
+    depth: 1
+    update: no
+
+- name: Configure input-leap build
+  ansible.builtin.command:
+    cmd: cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr
+    chdir: /tmp/input-leap-build
+  args:
+    creates: /tmp/input-leap-build/build/Makefile
+
+- name: Build and install input-leap
+  become: true
+  ansible.builtin.command:
+    cmd: cmake --build build --target install
+    chdir: /tmp/input-leap-build
+  args:
+    creates: /usr/bin/leaps # Assumes 'leaps' is the server binary
+
+- name: Clean up build directory
+  ansible.builtin.file:
+    path: /tmp/input-leap-build
+    state: absent
