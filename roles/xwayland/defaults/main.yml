@@ -1,6 +1,0 @@
----
-# Xwayland defaults
-
-xwayland_packages:
-  - name: xorg-xwayland
-  - name: xorg-xlsclients
