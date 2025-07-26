@@ -10,5 +10,8 @@
     - { role: networking, tags: ["networkmanager", "networkd", "resolved"] }
     - { role: ntp, tags: ["ntp"] }
     - { role: shell, tags: ["shell"] }
-    - { role: xorg, tags: ["xorg"] }
-    - { role: i3, tags: ["i3"] }
+    - { role: syncopated.i3_desktop.xorg, tags: ["xorg"] }
+    - { role: syncopated.i3_desktop.i3, tags: ["i3"] }
+    - { role: syncopated.i3_desktop.dunst, tags: ["dunst"] }
+    - { role: syncopated.i3_desktop.picom, tags: ["picom"] }
+    - { role: syncopated.i3_desktop.sxhkd, tags: ["sxhkd"] }

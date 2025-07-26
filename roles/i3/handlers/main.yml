@@ -1,5 +1,0 @@
----
-- name: Reload i3
-  ansible.builtin.command: bash -lc "i3-msg -s /run/user/{{ user.uid }}/i3/ipc-socket.* reload"
-  become: false
-  ignore_errors: true
