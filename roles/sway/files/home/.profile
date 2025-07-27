@@ -3,8 +3,8 @@ export UU_ORDER="$UU_ORDER:~/.profile"
 
 export XDG_CONFIG_HOME=$HOME/.config
 
-# make default editor Helix
-export EDITOR=helix
+# make default editor micro
+export EDITOR=micro
 
 # Most pure GTK3 apps use wayland by default, but some,
 # such as Firefox, require the backend to be explicitly selected.

@@ -29,6 +29,6 @@ user_directory_definitions:
 theme:
   name: Orchis-Grey-Dark
   icons: Numix-Circle
-  cursor: xcursor-breeze
+  cursor: Adwaita
   kvantum: KvGnomeDark
   qtstyle: Fusion

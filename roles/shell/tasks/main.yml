@@ -39,6 +39,14 @@
     backup: true
   tags: ["aliases", "profile"]
 
+- name: Push aliases template
+  ansible.builtin.template:
+    src: home/.aliases.j2
+    dest: "/root/.aliases"
+    mode: "0644"
+    backup: true
+  tags: ["aliases", "profile"]
+
 # - name: Push .profile template
 #   template:
 #     src: home/.profile.j2

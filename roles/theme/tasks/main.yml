@@ -41,12 +41,22 @@
     file: qt.yml
   tags: ["qt"]
 
-- name: Install backgrounds
-  ansible.posix.synchronize:
-    src: "files/usr/share/backgrounds/syncopated/"
-    dest: "/usr/share/backgrounds/syncopated/"
-    recursive: true
-    mode: push
-    delete: false
-    rsync_opts: "--update"
+- name: Ensure backgrounds directory exists
+  ansible.builtin.file:
+    path: "/usr/share/backgrounds"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
   tags: ["backgrounds"]
+
+- name: Install backgrounds
+  ansible.builtin.unarchive:
+    src: "files/usr/local/share/backgrounds/syncopated.tgz"
+    dest: "/usr/share/backgrounds"
+    owner: root
+    group: root
+    mode: "0644"
+    creates: "/usr/share/backgrounds/syncopated"
+  tags: ["backgrounds"]
+

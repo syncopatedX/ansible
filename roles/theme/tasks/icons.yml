@@ -1,14 +1,30 @@
 ---
-- name: Install Arc icon theme
-  aur:
-    use: auto
-    name: "{{ item }}"
-    state: present
-  become: false
-  with_items:
-    - numix-circle-icon-theme-git
-  when: ansible_distribution == 'Archlinux'
-  tags: ["packages"]
+
+- block:
+    - name: Install icon packages
+      aur:
+        use: paru
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - "{{ packages__icon }}"
+      become: false
+      tags: ["packages"]
+      when: ansible_distribution == "Archlinux"
+
+    - name: Install icon packages
+      ansible.builtin.dnf:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - "{{ packages__icon }}"
+      tags: ["packages"]
+      when: ansible_distribution == "Fedora"
+
+  rescue:
+    - name: Installing icon packages failed
+      ansible.builtin.debug:
+        msg: "Failed to install icon packages"
 
 - name: Install icons
   ansible.builtin.copy:

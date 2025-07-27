@@ -1,27 +1,47 @@
 ---
 
-ui:
-  packages:
-    gtk3:
-      - gtk-murrine-engine
-    qt5:
-      - kvantum-qt5
-      - qscintilla-qt5
-      - qt5-qtbase
-      - qt5-qtgraphicaleffects
-      - qt5-qtquickcontrols2
-      - qt5-qttools
-      - qt5ct
-    qt6:
-      - qt6-qtbase
-      - qt6-qtdeclarative
-      - qt6-qtmultimedia
-      - qt6-qttools
-      - qt6ct
-    font:
-      - gnu-free-fonts
-      - google-noto-emoji-fonts
-      - fontawesome-fonts-all
-      - fira-code-fonts
-      - jetbrains-mono-fonts
-      - liberation-fonts
+
+packages__gtk3:
+  - gtk-murrine-engine
+
+packages__qt5:
+  - kvantum-qt5
+  - qscintilla-qt5
+  - qt5-qtbase
+  - qt5-qtgraphicaleffects
+  - qt5-qtquickcontrols2
+  - qt5-qttools
+  - qt5ct
+
+packages__qt6:
+  - qt6-qtbase
+  - qt6-qtdeclarative
+  - qt6-qtmultimedia
+  - qt6-qttools
+  - qt6ct
+
+packages__kvantum:
+  - kvantum
+  - kvantum-data
+  - kvantum-qt5
+  - arc-kde-kvantum
+
+packages__font:
+  - gnu-free-mono-fonts
+  - gnu-free-sans-fonts
+  - gnu-free-serif-fonts
+  - google-noto-emoji-fonts
+  - fontawesome-fonts-all
+  - fira-code-fonts
+  - jetbrains-mono-fonts
+  - liberation-fonts
+
+packages__icon:
+  - numix-icon-theme
+  - material-icons-fonts
+  - yaru-icon-theme
+  - vim-devicons
+  - suru-icon-theme
+  - fontawesome-fonts-web
+  - fontawesome-6-free-fonts
+  - material-design-dark

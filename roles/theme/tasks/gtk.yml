@@ -1,25 +1,70 @@
 ---
-- name: install gtk3 packages
-  aur:
-    use: paru
-    name: "{{ ui.packages.gtk3 }}"
-    state: present
+
+- block:
+    - name: Install gtk packages
+      aur:
+        use: paru
+        name: "{{ theme_package }}"
+        state: present
+      loop: "{{ packages__gtk3 }}"
+      loop_control:
+        loop_var: theme_package
+      become: false
+      tags: ["packages"]
+      when: ansible_distribution == "Archlinux"
+
+    - name: Install gtk packages
+      ansible.builtin.dnf:
+        name: "{{ theme_package }}"
+        state: present
+      loop: "{{ packages__gtk3 }}"
+      loop_control:
+        loop_var: theme_package
+      tags: ["packages"]
+      when: ansible_distribution == "Fedora"
+
+  rescue:
+    - name: Installing gtk packages failed
+      ansible.builtin.debug:
+        msg: "Failed to install gtk packages"
+
+- name: Ensure user themes directory exists
+  ansible.builtin.file:
+    path: "{{ user.home }}/.local/share/themes"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+    mode: "0755"
   become: false
-  when: ansible_distribution == 'Archlinux'
-  tags: ["packages"]
+  tags: ["themes"]
+
+- name: Extract theme archives to user themes directory
+  ansible.builtin.unarchive:
+    src: "{{ item }}"
+    dest: "{{ user.home }}/.local/share/themes"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+    mode: "0644"
+    creates: "{{ user.home }}/.local/share/themes/{{ item | basename | regex_replace('\\.(tar\\.gz|tgz)$', '') }}"
+  with_fileglob:
+    - "files/home/.local/share/themes/*.tar.gz"
+    - "files/home/.local/share/themes/*.tgz"
+  tags: ["themes"]
 
 - name: Install gtk configurations
   ansible.builtin.template:
-    src: "home/{{ item }}.j2"
-    dest: "{{ user.home }}/{{ item }}"
+    src: "home/{{ theme_config_file }}.j2"
+    dest: "{{ user.home }}/{{ theme_config_file }}"
     owner: "{{ user.name }}"
     group: "{{ user.group }}"
     mode: "0644"
     backup: true
-  with_items:
+  loop:
     - ".config/gtk-3.0/bookmarks"
     - ".config/gtk-3.0/gtk.css"
     - ".config/gtk-3.0/settings.ini"
     - ".config/gtk-4.0/settings.ini"
     - ".gtkrc-2.0"
+  loop_control:
+    loop_var: theme_config_file
   tags: ["profile", "gtk"]

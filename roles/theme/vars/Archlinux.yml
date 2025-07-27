@@ -1,32 +1,30 @@
 ---
 
-ui:
-  packages:
-    gtk3:
-      - gtk-engines
-      - gtk-engine-murrine
-    qt5:
-      - kvantum
-      - qscintilla-qt5
-      - qt5-base
-      - qt5-graphicaleffects
-      - qt5-quickcontrols2
-      - qt5-tools
-      - qt5ct
-    qt6:
-      - qt6-base
-      - qt6-declarative
-      - qt6-multimedia
-      - qt6-tools
-      - qt6ct
-    font:
-      - gnu-free-fonts
-      - noto-fonts-emoji
-      - ttf-devicons
-      - ttf-firacode-nerd
-      - ttf-font-awesome
-      - ttf-input
-      - ttf-jetbrains-mono
-      - ttf-liberation
-      - ttf-opensans
-      - ttf-ubuntu-font-family
+packages__gtk3:
+  - gtk-engines
+  - gtk-engine-murrine
+packages__qt5:
+  - kvantum
+  - qscintilla-qt5
+  - qt5-base
+  - qt5-graphicaleffects
+  - qt5-quickcontrols2
+  - qt5-tools
+  - qt5ct
+packages__qt6:
+  - qt6-base
+  - qt6-declarative
+  - qt6-multimedia
+  - qt6-tools
+  - qt6ct
+packages__font:
+  - gnu-free-fonts
+  - noto-fonts-emoji
+  - ttf-devicons
+  - ttf-firacode-nerd
+  - ttf-font-awesome
+  - ttf-input
+  - ttf-jetbrains-mono
+  - ttf-liberation
+  - ttf-opensans
+  - ttf-ubuntu-font-family
