@@ -1,0 +1,22 @@
+---
+# vars file for i3 on Archlinux
+packages__i3:
+  - arandr
+  - dex
+  - dunst
+  - i3-wm
+  - i3status-rust
+  - nitrogen-git
+  - perl-anyevent-i3
+  - picom
+  - polybar
+  - python-i3ipc
+  - sxhkd
+  - wmctrl
+  - wmfocus
+  - xob
+
+i3_directory_definitions:
+  - dest: ".config/i3"
+  - dest: ".config/i3/modes"
+  - dest: ".config/i3status-rust/themes"

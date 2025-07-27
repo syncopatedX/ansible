@@ -1,0 +1,3 @@
+---
+# defaults file for picom
+picom_config_path: "{{ user.home }}/.config/picom.conf"

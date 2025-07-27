@@ -1,0 +1,7 @@
+---
+# handlers file for x
+# handlers file for sxhkd
+- name: Reload sxhkd
+  ansible.builtin.command: bash -lc "reload-sxhkd.sh"
+  become: false
+  tags: ["profile", "keybindings"]

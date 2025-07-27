@@ -1,0 +1,17 @@
+---
+- name: Install picom packages
+  aur:
+    use: paru
+    name: "{{ packages__picom }}"
+    state: present
+  become: false
+  when: ansible_distribution == "Archlinux"
+
+- name: Set picom config
+  ansible.builtin.template:
+    src: "home/.config/picom.conf.j2"
+    dest: "{{ picom_config_path }}"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+    mode: "0644"
+    backup: true

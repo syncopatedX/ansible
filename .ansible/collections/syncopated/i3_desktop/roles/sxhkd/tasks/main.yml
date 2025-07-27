@@ -1,0 +1,49 @@
+---
+- name: Install sxhkd packages
+  aur:
+    use: paru
+    name: "{{ packages__sxhkd }}"
+    state: present
+  become: false
+  when: ansible_distribution == "Archlinux"
+
+- name: Install sxhkd reload function
+  ansible.builtin.copy:
+    content: |
+      #!/usr/bin/env bash
+      # shellcheck disable=CODE
+
+      function run {
+        if pgrep -x -f "$1" ; then
+          pkill -9 $@&
+          sleep 1
+          $@&
+        else
+          sleep 1
+          $@&
+        fi
+      }
+
+      run "sxhkd"
+
+      sleep 0.5
+    dest: "{{ user.home }}/.local/bin/reload-sxhkd.sh"
+    owner: "{{ user.name }}"
+    mode: "0755"
+
+- name: Ensure SXHKD configuration directory exists
+  ansible.builtin.file:
+    path: "{{ sxhkd_config_path }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+
+- name: Copy SXHKD configuration file
+  ansible.builtin.template:
+    src: home/.config/sxhkd/sxhkdrc.j2
+    dest: "{{ sxhkd_config_path }}/sxhkdrc"
+    mode: "0644"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+  notify: Reload sxhkd

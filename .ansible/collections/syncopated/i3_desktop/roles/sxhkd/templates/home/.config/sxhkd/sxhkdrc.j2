@@ -1,0 +1,44 @@
+control + Menu
+  wmfocus
+
+alt + Next
+  wmfocus
+
+super + Prior
+  ~/Utils/bin/search_web.sh
+
+Menu
+  ~/.config/rofi/scripts/launcher_t1.sh
+
+super + F5
+  {{ terminal }} --class "htop" -e htop
+
+super + alt + n
+  {{ terminal }} --class "notepad" -e notepad.sh
+
+F12
+  search_web.sh
+
+shift + F12
+  search_devdocs.sh
+
+alt + Tab
+  rofi -no-lazy-grab -show window -modi run,drun,window
+
+alt + shift + Return
+  ~/.config/rofi/scripts/launcher_t4.sh
+
+XF86Paste
+  xclip -o
+
+Print ; {s,t,c,r}
+  {teiler,tmp-screenshot.sh,tmp-screenshot-clip.sh,ssr-hidden.sh}
+
+super + Print
+  sendmidi dev 'Midi Through Port-0' panic
+
+control + alt + End
+ uxterm -class 'backup' -e sudo shutdown -h now
+
+control + alt + Home
+  uxterm -class 'backup' -e sudo shutdown -r now
