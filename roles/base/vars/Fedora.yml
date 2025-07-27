@@ -2,10 +2,8 @@
 
 packages__base:
   - "@development-tools"
-  - GraphicsMagick
-  - ImageMagick
-  - asciiquarium
   - aria2
+  - asciiquarium
   - aspell
   - aspell-en
   - atool
@@ -19,7 +17,6 @@ packages__base:
   - cmake
   - debugedit
   - elinks
-  # - eza
   - faac
   - faad2
   - fakeroot
@@ -30,7 +27,6 @@ packages__base:
   - fsarchiver
   - fuse
   - fuse3
-  - golang
   - gh
   - git
   - git-delta
@@ -39,23 +35,27 @@ packages__base:
   - glow
   - gnome-keyring
   - gnuplot
+  - golang
+  - GraphicsMagick
   - gstreamer1
   - gstreamer1-libav
   - gum
   - highlight
   - hspell
   - htop
+  - ImageMagick
   - input-remapper
   - inxi
   - iotop
   - jq
-  - kitty
   - kernel-tools
   - keychain
+  - kitty
   - libgit2
   - libgit2-glib
-  - libyaml-devel
   - libvoikko
+  - libXres-devel
+  - libyaml-devel
   - links
   - lm_sensors-devel
   - lnav
@@ -80,12 +80,12 @@ packages__base:
   - perl-IPC-Cmd
   - playerctl
   - poppler
+  - python3-devel
   - python3-pip
   - ranger
   - ripgrep
-  - ruby-devel
   - rsync
-  # - sd
+  - ruby-devel
   - smartmontools
   - sox
   - sshpass

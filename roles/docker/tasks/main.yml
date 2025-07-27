@@ -1,17 +1,6 @@
 ---
 # tasks file for docker role (Fedora)
 
-- name: Remove conflicting packages if enabled
-  ansible.builtin.dnf:
-    name:
-      - podman
-      - docker
-      - docker-common
-      - docker
-      - docker-engine
-    state: absent
-  when: docker_remove_conflicting_packages
-
 - name: Ensure dnf-plugins-core is installed
   ansible.builtin.dnf:
     name: dnf-plugins-core
@@ -31,6 +20,17 @@
     gpgcheck: true
     gpgkey: "{{ docker_gpg_key_url }}"
     state: present
+
+- name: Remove conflicting packages if enabled
+  ansible.builtin.dnf:
+    name:
+      - podman
+      - docker
+      - docker-common
+      - docker
+      - docker-engine
+    state: absent
+  when: docker_remove_conflicting_packages
 
 - name: Install Docker packages
   ansible.builtin.dnf:

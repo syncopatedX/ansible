@@ -52,11 +52,10 @@
 
 - name: Install backgrounds
   ansible.builtin.unarchive:
-    src: "files/usr/local/share/backgrounds/syncopated.tgz"
+    src: "files/usr/local/share/backgrounds/syncopated.tar.gz"
     dest: "/usr/share/backgrounds"
     owner: root
     group: root
     mode: "0644"
     creates: "/usr/share/backgrounds/syncopated"
   tags: ["backgrounds"]
-

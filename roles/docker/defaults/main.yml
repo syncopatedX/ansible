@@ -24,7 +24,7 @@ docker_service_enabled: true
 # List of users to add to the 'docker' group.
 # WARNING: This grants privileges equivalent to root on the host.
 # Use with extreme caution. See documentation for security implications.
-docker_users: 
+docker_users:
   - "{{ user.name }}"
 
 # Dictionary of key-value pairs for /etc/docker/daemon.json.
@@ -32,4 +32,4 @@ docker_users:
 docker_daemon_config: {}
 
 # Whether to remove known conflicting packages (e.g., podman-docker).
-docker_remove_conflicting_packages: true
+docker_remove_conflicting_packages: false

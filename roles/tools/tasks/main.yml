@@ -1,30 +1,9 @@
 ---
 # tasks file for tools
 
-# - name: Load distribution-specific variables
-#   ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
-#   tags: ["packages"]
-
-# - name: Install packages on Arch Linux
-#   aur:
-#     use: auto
-#     name: "{{ packages.tools }}"
-#     state: present
-#   become: true
-#   when:
-#     - ansible_os_family == "Archlinux"
-#     - packages.tools is defined
-#   tags: ["packages"]
-
-# - name: Install packages on Rocky Linux/RedHat
-#   ansible.builtin.dnf:
-#     name: "{{ packages.tools }}"
-#     state: present
-#   become: true
-#   when:
-#     - ansible_os_family == "RedHat"
-#     - packages.tools is defined
-#   tags: ["packages"]
+- name: Load distribution-specific variables
+  ansible.builtin.include_vars: "{{ ansible_distribution }}.yml"
+  tags: ["packages"]
 
 
 # - ansible.builtin.import_tasks:
@@ -34,6 +13,72 @@
 # - ansible.builtin.import_tasks:
 #     file: whisper-stream.yml
 #   tags: ["whisper-stream"]
+
+# Install essential packages
+- name: Install tools packages
+  tags: ["packages", "packages__tools"]
+  block:
+    - name: Install tools packages on Arch Linux
+      community.general.pacman:
+        name: "{{ packages__tools }}"
+        state: present
+      when:
+        - ansible_distribution == "Archlinux"
+        - packages__tools is defined
+
+    - name: Install tools packages on Rocky Linux/RedHat
+      ansible.builtin.dnf:
+        name: "{{ packages__tools }}"
+        state: present
+      when:
+        - ansible_distribution == "Rocky"
+        - packages__tools is defined
+
+    - name: Install tools packages on Fedora
+      ansible.builtin.dnf:
+        name: "{{ packages__tools }}"
+        state: present
+      when:
+        - ansible_distribution == "Fedora"
+        - packages__tools is defined
+
+- ansible.builtin.import_tasks:
+    file: obsidian.yml
+  tags: ["obsidian"]
+
+- name: Install gitflow
+  tags: ["gitflow"]
+  when: ansible_distribution == "Fedora"
+  block:
+    - name: RedHat | Enable COPR repository for git flow
+      community.general.copr:
+        name: "elegos/gitflow"
+        state: enabled
+      tags: ["repos", "copr"]
+
+    - name: Install gitflow on Fedora
+      ansible.builtin.dnf:
+        name: gitflow
+        state: present
+        update_cache: true
+      tags: ["packages"]
+
+- name: Install lazydocker
+  tags: ["lazydocker"]
+  when: ansible_distribution == "Fedora"
+  block:
+    - name: RedHat | Enable COPR repository for lazydocker
+      community.general.copr:
+        name: "atim/lazydocker"
+        state: enabled
+      tags: ["repos", "copr"]
+
+    - name: Install lazydocker on Fedora
+      ansible.builtin.dnf:
+        name: lazydocker
+        state: present
+        update_cache: true
+      tags: ["packages"]
 
 - ansible.builtin.import_tasks:
     file: input-remapper.yml
@@ -45,15 +90,15 @@
   when: ansible_os_family == "RedHat"
 
 - name: Install Claude-Code
-  shell: |
+  ansible.builtin.shell: |
     npm install -g @anthropic-ai/claude-code
-  register: claude_installation 
+  register: claude_installation
   changed_when: claude_installation is changed
-  tags: ["claude-code"] 
+  tags: ["claude-code"]
 
 - name: Install Gemini CLI
-  shell: |
+  ansible.builtin.shell: |
     npm install -g @google/gemini-cli
   register: gemini_installation
   changed_when: gemini_installation is changed
-  tags: ["gemini"]  
+  tags: ["gemini"]

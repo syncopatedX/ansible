@@ -1,0 +1,6 @@
+---
+
+packages__tools:
+  - "@authoring-and-publishing"
+  - deja-dup
+  - terminator

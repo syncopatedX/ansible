@@ -59,11 +59,8 @@
 
     - name: Install base packages on Fedora
       ansible.builtin.dnf:
-        name: "{{ item }}"
+        name: "{{ packages__base }}"
         state: present
-      loop: "{{ packages__base }}"
-      loop_control:
-        label: "{{ item }}"
       when:
         - ansible_distribution == "Fedora"
         - packages__base is defined

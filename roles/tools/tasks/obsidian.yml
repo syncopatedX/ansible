@@ -1,0 +1,31 @@
+
+- name: check if obsidian is already installed
+  stat:
+    path: /usr/local/bin/obsidian
+  register: result
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- block:
+    - name: fetch obsidian
+      get_url:
+        url: "{{ obsidian.base_url }}/{{ obsidian.appimage }}"
+        dest: "/tmp"
+        validate_certs: no
+
+    - name: link obsidian to bin
+      shell: |
+        chmod +x {{ obsidian.appimage }}
+        mv {{ obsidian.appimage }} /usr/local/bin/obsidian
+      args:
+        chdir: "/tmp"
+      become: True
+
+    - name: install desktop entry for obsidian
+      copy:
+        src: usr/local/applications/obsidian.desktop
+        dest: "/usr/local/share/applications/obsidian.desktop"
+        mode: '644'
+      notify: "update desktop database"
+
+
+  when: not result.stat.exists

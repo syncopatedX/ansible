@@ -7,3 +7,9 @@ patterns: "{{ fabric_home }}/patterns"
 path:
   - "{{ lookup('env','HOME') }}/.local/bin"
   - "{{ lookup('env','HOME') }}/go/bin"
+
+
+obsidian:
+  version: 1.8.10
+  appimage: "Obsidian-1.8.10.AppImage"
+  base_url: "https://github.com/obsidianmd/obsidian-releases/releases/download/v1.8.10"

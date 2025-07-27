@@ -47,7 +47,7 @@
     - { role: sway, tags: ["sway"] }
     # - { role: cosmic-desktop, tags: ["cosmic", "desktop"], when: "window_manager == 'cosmic'" }
     - { role: theme, tags: ["theme"] }
-    - { role: audio, tags: ["audio"] }
+  #   - { role: audio, tags: ["audio"] }
   #   - { role: video, tags: ["video"] }
     - { role: tools, tags: ["tools"] }
   #   - { role: media, tags: ["media"] }
