@@ -7,14 +7,15 @@ font:
   glyphs:
     name: FontAwesome
   mono:
-    name: mononoki Nerd Font Mono
+    name: FiraCode Nerd Font Mono
 
 # theme options
 theme:
-  name: oomox-soundbot
-  icons: ArchLabs-Dark
-  cursor: xcursor-breeze
-  kvantum: KvFlat
+  name: Orchis-Grey-Dark
+  icons: Numix-Circle
+  cursor: Adwaita
+  kvantum: KvGnomeDark
+  qtstyle: Fusion
 
 qt5ct_style: kvantum
 qt6ct_style: fusion

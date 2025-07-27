@@ -37,15 +37,16 @@
     - { role: docker, tags: ["docker"] }
     - { role: libvirt, tags: ["libvirt"] }
     - { role: nas, tags: ["nas"], when: "nfs_host == 'true' or samba_host == 'true'" }
-    - { role: syncopated.i3_desktop.xorg, tags: ["xorg"], when: "window_manager == 'i3'" }
-    - { role: syncopated.i3_desktop.i3, tags: ["i3"], when: "window_manager == 'i3'" }
-    - { role: syncopated.i3_desktop.dunst, tags: ["dunst"], when: "window_manager == 'i3'" }
-    - { role: syncopated.i3_desktop.picom, tags: ["picom"], when: "window_manager == 'i3'" }
-    - { role: syncopated.i3_desktop.sxhkd, tags: ["sxhkd"], when: "window_manager == 'i3'" }
+    # - { role: syncopated.i3_desktop.xorg, tags: ["xorg"], when: "window_manager == 'i3'" }
+    # - { role: syncopated.i3_desktop.i3, tags: ["i3"], when: "window_manager == 'i3'" }
+    # - { role: syncopated.i3_desktop.dunst, tags: ["dunst"], when: "window_manager == 'i3'" }
+    # - { role: syncopated.i3_desktop.picom, tags: ["picom"], when: "window_manager == 'i3'" }
+    # - { role: syncopated.i3_desktop.sxhkd, tags: ["sxhkd"], when: "window_manager == 'i3'" }
     - { role: rpm-dev, tags: ["rpm-dev"] }
     - { role: rofi, tags: ["rofi"] }
     - { role: sway, tags: ["sway"] }
     # - { role: cosmic-desktop, tags: ["cosmic", "desktop"], when: "window_manager == 'cosmic'" }
+    - { role: theme, tags: ["theme"] }
     - { role: audio, tags: ["audio"] }
   #   - { role: video, tags: ["video"] }
     - { role: tools, tags: ["tools"] }

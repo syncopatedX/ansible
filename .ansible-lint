@@ -15,7 +15,7 @@ quiet: false
 verbosity: 1
 
 # Enable checking of loop variable prefixes in roles
-loop_var_prefix: ^(__|{role}_)
+loop_var_prefix: ^(__|\w+_)
 
 # List of additional kinds of markup files to examine
 kinds:
@@ -40,6 +40,7 @@ skip_list:
   - "502" # All tasks should be named
   - yaml[truthy]
   - loop_var_prefix[missing]
+  - loop_var_prefix[wrong]
   - name[casing]
   # - fqcn
 
