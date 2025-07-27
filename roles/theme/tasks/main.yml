@@ -13,6 +13,7 @@
     mode: "{{ item.mode | default('0750') }}"
     recurse: "{{ item.recurse | default(False) }}"
   with_items: "{{ user_directory_definitions }}"
+  become: false
 
 - name: Ensure system directories are created
   ansible.builtin.file:
@@ -23,7 +24,6 @@
     mode: "{{ item.mode | default(system_directory_default_mode) }}"
     recurse: "{{ item.recurse | default(system_directory_default_recurse) }}"
   with_items: "{{ system_directory_definitions }}"
-  become: true
 
 - ansible.builtin.import_tasks:
     file: fonts.yml
@@ -50,4 +50,3 @@
     delete: false
     rsync_opts: "--update"
   tags: ["backgrounds"]
-  become: true

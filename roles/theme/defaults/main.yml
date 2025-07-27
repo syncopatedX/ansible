@@ -27,7 +27,7 @@ user_directory_definitions:
 
 # theme options
 theme:
-  name: oomox-soundbot
+  name: Orchis-Grey-Dark
   icons: Numix-Circle
   cursor: xcursor-breeze
   kvantum: KvGnomeDark

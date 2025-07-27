@@ -1,0 +1,27 @@
+---
+
+ui:
+  packages:
+    gtk3:
+      - gtk-murrine-engine
+    qt5:
+      - kvantum-qt5
+      - qscintilla-qt5
+      - qt5-qtbase
+      - qt5-qtgraphicaleffects
+      - qt5-qtquickcontrols2
+      - qt5-qttools
+      - qt5ct
+    qt6:
+      - qt6-qtbase
+      - qt6-qtdeclarative
+      - qt6-qtmultimedia
+      - qt6-qttools
+      - qt6ct
+    font:
+      - gnu-free-fonts
+      - google-noto-emoji-fonts
+      - fontawesome-fonts-all
+      - fira-code-fonts
+      - jetbrains-mono-fonts
+      - liberation-fonts
