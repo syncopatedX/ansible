@@ -1,11 +1,32 @@
 ---
-- name: Install xdg packages
-  aur:
-    use: paru
-    name: "{{ packages__xdg }}"
-    state: present
-  become: false
-  when: ansible_distribution == "Archlinux"
+
+# xdg specific tasks
+- name: Load distribution-specific variables
+  ansible.builtin.include_vars: "{{ ansible_distribution }}.yml"
+  tags: ["packages"]
+
+- block:
+    - name: Install xdg packages
+      aur:
+        use: paru
+        name: "{{ packages__xdg }}"
+        state: present
+      become: false
+      tags: ["packages"]
+      when: ansible_distribution == "Archlinux"
+
+    - name: Install xdg packages
+      ansible.builtin.dnf:
+        name: "{{ packages__xdg }}"
+        state: present
+      tags: ["packages"]
+      when: ansible_distribution == "Fedora"
+
+  rescue:
+    - name: Installing xdg packages failed
+      ansible.builtin.debug:
+        msg: "Failed to install xdg packages"
+
 
 - name: Ensure /etc/xdg exists
   ansible.builtin.file:
@@ -16,17 +37,16 @@
     mode: "0755"
   become: true
 
-- name: Create /etc/xdg/menus and /usr/share/desktop-entries
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-    mode: "0755"
-  with_items:
-    - /etc/xdg/menus
-    - /etc/xdg/menus/applications-merged
-    - /etc/xdg/Thunar
-    - /usr/share/desktop-directories
-  become: true
+# - name: Create /etc/xdg/menus and /usr/share/desktop-entries
+#   ansible.builtin.file:
+#     path: "{{ item }}"
+#     state: directory
+#     mode: "0755"
+#   with_items:
+#     - /etc/xdg/menus
+#     - /etc/xdg/menus/applications-merged
+#     - /etc/xdg/Thunar
+#     - /usr/share/desktop-directories
 
 - name: Set xdg user-dirs defaults
   ansible.builtin.copy:
@@ -37,11 +57,10 @@
     mode: "0644"
     backup: true
   register: xdg_defaults
-  become: true
 
 - name: Enable xdg-user-dirs-update service
   ansible.builtin.systemd:
-    name: xdg-user-dirs-update.service
+    name: xdg-user-dirs.service
     enabled: true
     scope: user
   environment:
@@ -61,4 +80,3 @@
 
 - name: Update desktop database
   ansible.builtin.command: bash -lc "update-desktop-database"
-  become: true

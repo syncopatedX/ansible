@@ -1,0 +1,12 @@
+---
+
+packages__xdg:
+  - libqtxdg
+  - python3-pyxdg
+  - xdg-dbus-proxy
+  - xdg-desktop-portal
+  - xdg-desktop-portal-cosmic
+  - xdg-desktop-portal-gtk
+  - xdg-desktop-portal-wlr
+  - xdg-user-dirs
+  - xdg-utils

@@ -45,6 +45,7 @@
     - { role: rpm-dev, tags: ["rpm-dev"] }
     - { role: rofi, tags: ["rofi"] }
     - { role: sway, tags: ["sway"] }
+    - { role: xdg, tags: ["xdg"] }
     # - { role: cosmic-desktop, tags: ["cosmic", "desktop"], when: "window_manager == 'cosmic'" }
     - { role: theme, tags: ["theme"] }
   #   - { role: audio, tags: ["audio"] }

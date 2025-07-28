@@ -3,24 +3,26 @@
 # The values are relative pathnames from the home directory and
 # will be translated on a per-path-element basis into the users locale
 # PUBLICSHARE=Public
-ARCHIVE=Library/Archive
+ARCHIVE=Archive
 AUDIO=Library/Audio
-DATASETS=Library/DataSets
+DATASETS=DataSets
 DESKTOP=Desktop
-DOCUMENTS=Library/Documents
+DOCUMENTS=Documents
 DOWNLOADS=Downloads
 LIBRARY=Library
 LLMOS=LLMOS
-MIDI=Library/Midi
-MUSIC=Library/Audio/Music
-PICTURES=Library/Images
+MIDI=Studio/Sound/Midi
+MUSIC=Music
+NOTEBOOK=Notebook
+PICTURES=Images
 PROJECTS=Studio/Projects
 RECORDINGS=Studio/Recordings
-SCREENSHOT=Library/Images/Screenshots
+SCREENSHOT=Screenshots
+SCREENCAST=Screencasts
 SESSIONS=Studio/Sessions
-SOUND=Library/Sound
-SOUNDFONTS=Library/Sound/Soundfonts
-SOURCE=Library/Source
+SOUND=Studio/Sound
+SOUNDFONTS=Studio/Sound/Soundfonts
+SOURCE=Workspace/Source
 STUDIO=Studio
 VIDEOS=Videos
 WORKSPACE=Workspace
