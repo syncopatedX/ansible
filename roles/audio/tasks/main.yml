@@ -17,32 +17,53 @@
 #   tags: ['modprobe']
 
 - tags: ["packages", "alsa_pkgs"]
-  become: false
   block:
-    - name: Install alsa packages
+    - name: Install ALSA packages (Arch Linux)
       aur:
         use: auto
         name: "{{ audio_packages.alsa }}"
         state: present
+      become: false
+      when: ansible_os_family == "Archlinux"
+
+    - name: Install ALSA packages (Red Hat family)
+      ansible.builtin.dnf:
+        name: "{{ audio_packages.alsa }}"
+        state: present
+      when: ansible_os_family == "RedHat"
+
   rescue:
-    - name: Installing base packages failed
+    - name: Installing ALSA packages failed
       ansible.builtin.debug:
-        msg: "Failed to install base packages"
-
-- ansible.builtin.import_tasks:
-    file: jack.yml
-  when: audio_system == 'pulseaudio_jack'
-  tags: ["jack"]
-
-- ansible.builtin.import_tasks:
-    file: pulseaudio.yml
-  when: audio_system == 'pulseaudio_jack'
-  tags: ["pulseaudio"]
+        msg: "Failed to install ALSA packages for {{ ansible_os_family }}"
 
 - ansible.builtin.import_tasks:
     file: pipewire.yml
-  when: audio_system == 'pipewire'
-  tags: ["pipewire"]
+  tags: ["pipewire", "audio-stack"]
+
+- ansible.builtin.import_tasks:
+    file: configure_pipewire.yml
+  tags: ["pipewire", "config"]
+
+- ansible.builtin.import_tasks:
+    file: applications.yml
+  tags: ["applications", "apps"]
+
+# Legacy support - only for Arch Linux transitional compatibility
+- ansible.builtin.import_tasks:
+    file: jack.yml
+  when: 
+    - audio_system == 'pulseaudio_jack'
+    - ansible_os_family == "Archlinux"
+  tags: ["jack", "legacy"]
+
+- ansible.builtin.import_tasks:
+    file: pulseaudio.yml
+  when: 
+    - audio_system == 'pulseaudio_jack'
+    - ansible_os_family == "Archlinux"
+  tags: ["pulseaudio", "legacy"]
+
 
 - ansible.builtin.import_tasks:
     file: tuning.yml

@@ -1,0 +1,8 @@
+context.properties = {
+    jack.properties = {
+        node.latency       = {{ audio_buffer_size | default(1024) }} / {{ audio_sample_rate | default(48000) }}
+        node.rate          = 1/{{ audio_sample_rate | default(48000) }}
+        # Set a higher limit on JACK clients
+        jack.max-clients   = 128 
+    }
+}

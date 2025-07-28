@@ -1,36 +1,29 @@
 ---
+# roles/audio/handlers/main.yml
+
+- name: restart pipewire
+  listen: "restart pipewire"
+  become: false
+  ansible.builtin.command:
+    cmd: systemctl --user restart pipewire wireplumber pipewire-pulse
+
+- name: reload sysctl
+  listen: "reload sysctl"
+  ansible.builtin.command:
+    cmd: sysctl --system
+
 - name: Enable and restart rtirq service
+  listen: "Enable and restart rtirq service"
   ansible.builtin.systemd:
     name: rtirq
-    state: restarted
     enabled: true
-  ignore_errors: "{{ ansible_check_mode }}"
+    state: restarted
+    daemon_reload: true
 
 - name: Enable and restart rtkit service
+  listen: "Enable and restart rtkit service"
   ansible.builtin.systemd:
     name: rtkit-daemon
-    state: restarted
     enabled: true
-  ignore_errors: "{{ ansible_check_mode }}"
-
-- name: Restart pulseAudio
-  ansible.builtin.systemd:
-    name: "{{ item }}"
     state: restarted
-    scope: user
-  with_items:
-    - pulseaudio.service
-    - pulseaudio.socket
-  environment:
-    XDG_RUNTIME_DIR: "/run/user/{{ user.uid }}"
-  become: false
-  ignore_errors: "{{ ansible_check_mode }}"
-
-- name: Reload user systemd
-  ansible.builtin.systemd:
-    daemon_reload: true
-  become: false
-
-- name: Reload systemd
-  ansible.builtin.systemd:
     daemon_reload: true

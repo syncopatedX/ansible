@@ -1,0 +1,52 @@
+---
+# roles/audio/tasks/applications.yml - Install audio production applications
+
+- name: Enable Audinux COPR repository for audio packages (Fedora)
+  community.general.copr:
+    name: "{{ item }}"
+    state: enabled
+  loop: "{{ audio_copr_repos }}"
+  when: 
+    - ansible_distribution == "Fedora"
+    - audio_copr_repos is defined
+  tags: ["repos", "copr"]
+
+- name: Install audio applications (Red Hat family)
+  ansible.builtin.dnf:
+    name: "{{ audio_packages.applications }}"
+    state: present
+  when: ansible_os_family == "RedHat"
+  tags:
+    - applications
+    - audio-apps
+
+- name: Install audio applications (Arch Linux)
+  aur:
+    use: auto
+    name: "{{ audio_packages.applications }}"
+    state: present
+  become: false
+  when: ansible_os_family == "Archlinux"
+  tags:
+    - applications
+    - audio-apps
+
+- name: Install audio plugins (Red Hat family)
+  ansible.builtin.dnf:
+    name: "{{ audio_packages.plugins }}"
+    state: present
+  when: ansible_os_family == "RedHat"
+  tags:
+    - plugins
+    - audio-plugins
+
+- name: Install audio plugins (Arch Linux)
+  aur:
+    use: auto
+    name: "{{ audio_packages.plugins }}"
+    state: present
+  become: false
+  when: ansible_os_family == "Archlinux"
+  tags:
+    - plugins
+    - audio-plugins

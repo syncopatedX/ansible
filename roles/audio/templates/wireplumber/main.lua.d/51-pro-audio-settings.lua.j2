@@ -1,0 +1,12 @@
+-- Apply Pro Audio settings to a specific interface
+rule = {
+  matches = {
+    {{"device.name", "equals", "{{ primary_audio_interface_name }}"}},
+  },
+  apply_properties = {
+    ["audio.quantum"] = {{ audio_buffer_size | default(1024) }},
+  }
+}
+
+-- You can add more rules for other devices
+table.insert(wireplumber_config, rule)

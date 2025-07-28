@@ -1,0 +1,80 @@
+---
+# roles/audio/vars/Fedora.yml - Fedora-specific package mappings
+
+audio_packages:
+  tuning:
+    - kernel-rt
+    - realtime-setup  
+    - tuned
+    - tuned-profiles-realtime
+    - rt-tests
+  pipewire:
+    - pipewire
+    - pipewire-alsa
+    - pipewire-gstreamer
+    - pipewire-pulseaudio
+    - pipewire-utils
+    - pipewire-jack-audio-connection-kit
+    - wireplumber
+  alsa:
+    - a2jmidid
+    - alsa-lib-devel
+    - alsa-plugins-pulseaudio
+    - alsa-tools
+    - alsa-utils
+  jack:
+    - jack-audio-connection-kit
+    - jack-example-tools
+    - qjackctl
+  pulseaudio:
+    - pulseaudio-utils
+    - pulseaudio-module-bluetooth
+    - pulsemixer
+  applications:
+    # Audio Production Group packages
+    - "@Audio Production"
+    # Individual applications available in Fedora repos
+    - ardour8
+    - audacity
+    - hydrogen
+    - qtractor
+    - rosegarden4
+    - mixxx
+    - pavucontrol
+    - qjackctl
+    - patchage
+    - fmit
+    - jaaa
+    - japa
+    - jack-keyboard
+    - jack_mixer
+    - polyphone
+    - yoshimi
+    - linuxsampler
+    - qsampler
+    - ecasound
+    - sox
+    - vorbis-tools
+    - wavpack
+  plugins:
+    - calf
+    - lsp-plugins
+    - x42-plugins
+    - zita-rev1
+    - zita-mu1
+    - swh-plugins
+    - caps
+    - tap-plugins
+
+# Fedora-specific configurations
+audio_buffer_size: 1024
+audio_sample_rate: 48000
+primary_audio_interface_name: alsa_card.pci-0000_00_1f.3
+
+# Tuned profile for audio workstations
+tuned_profile: realtime
+
+# COPR repositories for additional audio packages
+audio_copr_repos:
+  - '@audinux/stable-audio'
+

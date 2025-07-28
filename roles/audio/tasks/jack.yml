@@ -22,66 +22,113 @@
         msg: "Warning: Some PipeWire packages may still be installed. This could conflict with JACK/PulseAudio."
       when: pipewire_check.results | selectattr('rc', 'eq', 0) | list | length > 0
 
-# stderr: 'error: target not found: jack'
-- name: Remove jack in favor of jack2dbus
-  ansible.builtin.shell: |
-    paru -Rdd jack --noconfirm
-  ignore_errors: true
+# Remove conflicting jack package in favor of jack2-dbus
+- name: Check if conflicting jack package is installed
+  ansible.builtin.command: pacman -Qi jack
+  register: jack_installed
+  changed_when: false
+  failed_when: false
+
+- name: Remove conflicting jack package if present
+  community.general.pacman:
+    name: jack
+    state: absent
+    force: true
+  when: jack_installed.rc == 0
 
 - tags: ["packages", "jack_pkgs"]
-  become: false
   block:
-    - name: Install jack packages
+    - name: Install JACK packages (Arch Linux)
       aur:
         use: auto
         name: "{{ audio_packages.jack }}"
         state: present
+      become: false
+      when: ansible_os_family == "Archlinux"
+
+    - name: Install JACK packages (Red Hat family)
+      ansible.builtin.dnf:
+        name: "{{ audio_packages.jack }}"
+        state: present
+      when: ansible_os_family == "RedHat"
+
   rescue:
-    - name: Installing base packages failed
+    - name: Installing JACK packages failed
       ansible.builtin.debug:
-        msg: "Failed to install base packages"
+        msg: "Failed to install JACK packages for {{ ansible_os_family }}"
 
 - name: Set jack engine parameters
-  ansible.builtin.command: jack_control eps driver {{ jack.eps.driver }}
+  ansible.builtin.command: jack_control eps driver {{ jack.eps.driver | default('alsa') }}
   environment:
-    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ user.uid }}/bus"
-  register: result
-  changed_when: result.rc != 0
+    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ user_info.ansible_facts.getent_passwd[target_user | default(ansible_user)][2] }}/bus"
+  register: jack_eps_result
+  changed_when: jack_eps_result.rc == 0
+  failed_when: jack_eps_result.rc != 0 and 'not found' not in jack_eps_result.stderr
   become: false
 
-- name: Set jack driver parameters
-  ansible.builtin.shell: |
-    jack_control dps device {{ jack.dps.device }}
-    jack_control dps midi-driver {{ jack.dps.mididriver }}
-    jack_control dps monitor {{ jack.dps.monitor }}
-    jack_control dps period {{ jack.dps.period }}
+- name: Set jack driver device parameter
+  ansible.builtin.command: jack_control dps device {{ jack.dps.device | default('hw:0') }}
   environment:
-    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ user.uid }}/bus"
-  register: result
-  changed_when: result.rc != 0
+    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ user_info.ansible_facts.getent_passwd[target_user | default(ansible_user)][2] }}/bus"
+  register: jack_device_result
+  changed_when: jack_device_result.rc == 0
+  failed_when: jack_device_result.rc != 0 and 'not found' not in jack_device_result.stderr
   become: false
+
+- name: Set jack midi driver parameter
+  ansible.builtin.command: jack_control dps midi-driver {{ jack.dps.mididriver | default('seq') }}
+  environment:
+    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ user_info.ansible_facts.getent_passwd[target_user | default(ansible_user)][2] }}/bus"
+  register: jack_midi_result
+  changed_when: jack_midi_result.rc == 0
+  failed_when: jack_midi_result.rc != 0 and 'not found' not in jack_midi_result.stderr
+  become: false
+
+- name: Set jack monitor parameter
+  ansible.builtin.command: jack_control dps monitor {{ jack.dps.monitor | default('false') }}
+  environment:
+    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ user_info.ansible_facts.getent_passwd[target_user | default(ansible_user)][2] }}/bus"
+  register: jack_monitor_result
+  changed_when: jack_monitor_result.rc == 0
+  failed_when: jack_monitor_result.rc != 0 and 'not found' not in jack_monitor_result.stderr
+  become: false
+
+- name: Set jack period parameter
+  ansible.builtin.command: jack_control dps period {{ jack.dps.period | default('1024') }}
+  environment:
+    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ user_info.ansible_facts.getent_passwd[target_user | default(ansible_user)][2] }}/bus"
+  register: jack_period_result
+  changed_when: jack_period_result.rc == 0
+  failed_when: jack_period_result.rc != 0 and 'not found' not in jack_period_result.stderr
+  become: false
+
+- name: Get target user information
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ target_user | default(ansible_user) }}"
+  register: user_info
 
 - name: Create environment file for jack_control.service
-  ansible.builtin.copy:
-    content: |
-      DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
+  ansible.builtin.template:
+    src: etc/default/jack_control.j2
     dest: "/etc/default/jack_control"
+    mode: '0644'
   become: true
 
 - name: Create systemd user directory
   ansible.builtin.file:
-    path: "{{ user.home }}/.config/systemd/user/default.target.wants"
+    path: "{{ user_info.ansible_facts.getent_passwd[target_user | default(ansible_user)][4] }}/.config/systemd/user/default.target.wants"
     state: directory
-    owner: "{{ user.name }}"
-    group: "{{ user.group }}"
+    owner: "{{ target_user | default(ansible_user) }}"
+    group: "{{ user_info.ansible_facts.getent_passwd[target_user | default(ansible_user)][3] }}"
     mode: "0755"
 
 - name: Install jack_control service file
   ansible.builtin.copy:
     src: "usr/lib/systemd/user/jack_control.service"
-    dest: "{{ user.home }}/.config/systemd/user/jack_control.service"
-    owner: "{{ user.name }}"
-    group: "{{ user.group }}"
+    dest: "{{ user_info.ansible_facts.getent_passwd[target_user | default(ansible_user)][4] }}/.config/systemd/user/jack_control.service"
+    owner: "{{ target_user | default(ansible_user) }}"
+    group: "{{ user_info.ansible_facts.getent_passwd[target_user | default(ansible_user)][3] }}"
     mode: "0644"
 
 - name: Enable jack services
@@ -92,6 +139,6 @@
     scope: user
     daemon_reload: true
   environment:
-    XDG_RUNTIME_DIR: "/run/user/{{ user.uid }}"
+    XDG_RUNTIME_DIR: "/run/user/{{ user_info.ansible_facts.getent_passwd[target_user | default(ansible_user)][2] }}"
   ignore_errors: "{{ ansible_check_mode }}"
   become: false

@@ -1,0 +1,58 @@
+---
+# roles/audio/tasks/configure_pipewire.yml - User-specific PipeWire configuration
+
+- name: Get target user information for configuration
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ target_user | default(ansible_user) }}"
+  register: config_user_info
+
+- name: Create user-specific PipeWire configuration directories
+  ansible.builtin.file:
+    path: "{{ config_user_info.ansible_facts.getent_passwd[target_user | default(ansible_user)][4] }}/.config/pipewire/{{ item }}"
+    state: directory
+    owner: "{{ target_user | default(ansible_user) }}"
+    group: "{{ config_user_info.ansible_facts.getent_passwd[target_user | default(ansible_user)][3] }}"
+    mode: '0755'
+  loop:
+    - "jack.conf.d"
+    - "pipewire.conf.d"
+  tags:
+    - pipewire
+    - config
+
+- name: Create user-specific WirePlumber configuration directories
+  ansible.builtin.file:
+    path: "{{ config_user_info.ansible_facts.getent_passwd[target_user | default(ansible_user)][4] }}/.config/wireplumber/{{ item }}"
+    state: directory
+    owner: "{{ target_user | default(ansible_user) }}"
+    group: "{{ config_user_info.ansible_facts.getent_passwd[target_user | default(ansible_user)][3] }}"
+    mode: '0755'
+  loop:
+    - "main.lua.d"
+    - "bluetooth.lua.d"
+  tags:
+    - pipewire
+    - config
+
+- name: Deploy user-specific PipeWire JACK Configuration
+  ansible.builtin.template:
+    src: pipewire/jack.conf.j2
+    dest: "{{ config_user_info.ansible_facts.getent_passwd[target_user | default(ansible_user)][4] }}/.config/pipewire/jack.conf.d/99-pro-audio-settings.conf"
+    owner: "{{ target_user | default(ansible_user) }}"
+    group: "{{ config_user_info.ansible_facts.getent_passwd[target_user | default(ansible_user)][3] }}"
+    mode: '0644'
+  tags:
+    - pipewire
+    - config
+
+- name: Deploy user-specific WirePlumber Device Matching Configuration
+  ansible.builtin.template:
+    src: wireplumber/main.lua.d/51-pro-audio-settings.lua.j2
+    dest: "{{ config_user_info.ansible_facts.getent_passwd[target_user | default(ansible_user)][4] }}/.config/wireplumber/main.lua.d/51-pro-audio-settings.lua"
+    owner: "{{ target_user | default(ansible_user) }}"
+    group: "{{ config_user_info.ansible_facts.getent_passwd[target_user | default(ansible_user)][3] }}"
+    mode: '0644'
+  tags:
+    - pipewire
+    - config
