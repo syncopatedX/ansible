@@ -4,28 +4,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a comprehensive Ansible automation framework for professional audio workstations with multi-distribution support (Arch Linux, Rocky Linux 9). The playbook sets up everything from base system utilities to complete development environments with audio production capabilities.
+This is a comprehensive Ansible automation framework for professional audio workstations with multi-distribution support (Arch Linux, Rocky Linux 9, Fedora). The project sets up complete development environments with professional audio production capabilities, desktop environments, and development tools.
 
 ## Key Architecture
 
-- **Role-based modular design**: Each major component (audio, networking, virtualization, etc.) is a separate role in `roles/`
-- **Multi-distribution support**: Automatic distribution detection with package mapping for Arch Linux and Rocky Linux 9
-- **Dynamic inventory**: `inventory/dynamic_inventory.py` provides automatic host discovery with group hierarchies
+- **Role-based modular design**: Each major component is a separate role in `roles/` with consistent structure
+- **Multi-distribution support**: Automatic distribution detection with package mapping via role `vars/` files
+- **Dynamic inventory**: `inventory/dynamic_inventory.py` provides automatic host discovery with mDNS and group hierarchies
 - **Professional audio focus**: Low-latency audio configurations with JACK, PulseAudio, and PipeWire support
-- **Tag-based execution**: Granular control over which components to deploy
+- **Tag-based execution**: Granular control over deployment components via tags
+- **Custom plugins**: Extended functionality via custom callback plugins, modules, and filters
 
 ## Common Development Commands
 
 ### Running Playbooks
 ```bash
+# Navigate to ansible directory first
+cd ansible/
+
 # Full workstation setup
 ansible-playbook -i inventory/inventory.ini playbooks/full.yml -b
 
-# Rocky Linux 9 support
+# Rocky Linux 9 support (requires explicit Python interpreter)
 ansible-playbook -i inventory/inventory.ini playbooks/full.yml \
   -e "ansible_python_interpreter=/usr/bin/python3" --ask-become-pass
 
-# Tag-based execution
+# Tag-based execution for specific components
 ansible-playbook -i inventory/inventory.ini playbooks/full.yml -b --tags "base,audio,shell"
 
 # Skip specific components
@@ -45,38 +49,42 @@ ansible-playbook -i inventory/inventory.ini playbooks/full.yml --list-tags
 
 # Test individual roles
 ansible-playbook roles/audio/tests/test.yml
-```
 
-### Development Workflow
-```bash
 # Syntax check
 ansible-playbook --syntax-check playbooks/full.yml
-
-# Gather facts only
-ansible -i inventory/inventory.ini all -m setup
 
 # Test connectivity
 ansible -i inventory/inventory.ini all -m ping
 ```
 
+### Galaxy Dependencies
+```bash
+# Install required external roles and collections
+ansible-galaxy install -r requirements.yml
+```
+
 ## Project Structure
 
 ### Core Configuration
-- `ansible.cfg`: Main Ansible configuration with custom plugins and fact caching
-- `inventory/`: Dynamic inventory script, static inventory, and variable hierarchies
+- `ansible.cfg`: Main configuration with custom plugins, fact caching, and multi-inventory support
+- `inventory/`: Dynamic inventory script, static inventory files, and variable hierarchies
 - `playbooks/`: Main orchestration playbooks (`full.yml` for complete setup)
+- `plugins/`: Custom Ansible extensions (callbacks, filters, modules)
 
-### Role Architecture
-Key roles that work together:
+### Key Ansible Roles
 
-- **base**: Core system setup, package management, user configuration
-- **audio**: Professional audio setup (JACK/PulseAudio/PipeWire) with low-latency tuning
-- **networking**: Unified network configuration (NetworkManager/systemd-networkd)
-- **window-manager**: Tiling window managers (i3/Sway) with XWayland support
-- **shell**: Zsh with Oh My Zsh, terminal customization
+Essential roles that work together:
+
+- **user**: User account creation and management with sudo configuration
+- **base**: Core system setup, package management, repositories, distribution-specific tasks
+- **audio**: Professional audio setup (JACK/PulseAudio/PipeWire) with low-latency tuning and hardware optimizations
+- **networking**: Unified network configuration (NetworkManager/systemd-networkd/resolved)
+- **sway**: Wayland compositor with comprehensive desktop environment and themes
+- **shell**: Zsh with Oh My Zsh, terminal customization, and productivity tools
 - **docker/libvirt**: Containerization and virtualization stacks
-- **ruby**: Ruby development environment with RVM support
-- **tools**: Custom development tools and utilities
+- **tools**: Development tools (VSCode, Obsidian, fabric.ai, input-remapper)
+- **video**: GPU drivers and display configuration (AMD/Intel/NVIDIA)
+- **theme**: System-wide theming (GTK, Qt, fonts, icons)
 
 ### Variable Hierarchy (highest to lowest precedence)
 1. Command line (`-e "var=value"`)
@@ -85,41 +93,53 @@ Key roles that work together:
 4. Global variables (`inventory/group_vars/all/`)
 5. Role defaults (`roles/*/defaults/main.yml`)
 
-## Key Configuration Files
+## Key Configuration Patterns
 
 ### Audio System Selection
 ```yaml
-# Primary audio system (in group_vars or host_vars)
+# Primary audio system configuration
 audio_system: "pipewire"  # or "pulseaudio_jack"
 ```
-
-### Multi-Distribution Package Mapping
-- Arch Linux: Uses pacman, paru (AUR), custom `aur` module
-- Rocky Linux 9: Uses dnf with EPEL, PowerTools/CRB, RPM Fusion
-- Automatic source builds for missing packages (libvips, chromaprint)
 
 ### Window Manager Selection
 ```yaml
 # Desktop environment choice
 window_manager: "sway"  # Wayland with XWayland
-# or
-window_manager: "i3"    # X11 (default)
 ```
+
+### Multi-Distribution Package Mapping
+- **Arch Linux**: Uses pacman, paru (AUR), custom `aur` module in `plugins/modules/aur/`
+- **Rocky Linux 9**: Uses dnf with EPEL, PowerTools/CRB, RPM Fusion
+- **Fedora**: Uses dnf with RPM Fusion, Flathub, and copr repositories
+- **Automatic source builds**: For missing packages (libvips, chromaprint)
+
+## Custom Ansible Components
+
+### Dynamic Inventory (`inventory/dynamic_inventory.py`)
+- Automatic host discovery with mDNS resolution
+- Group hierarchy management (workstation/server parent groups)
+- Host-specific variable loading
+
+### Custom Modules (`plugins/modules/`)
+- **aur**: AUR package management for Arch Linux with multiple helper support (yay, paru, etc.)
+
+### Callback Plugins (`plugins/callback/`)
+- **llm_analyzer**: AI-powered analysis of Ansible runs (configurable, supports multiple providers)
 
 ## Development Standards
 
-### Ansible Lint Configuration
-- Strict mode enabled with `.ansible-lint` configuration
-- Task names must be prefixed with role names
-- Password variables must use `no_log`
-- Loop variables should use role-specific prefixes
+### Ansible Configuration
+- Fact caching enabled (`/tmp/ansible_cache`)
+- Error on undefined variables enforced
+- Custom plugin paths configured
+- Multi-inventory support (dynamic + static)
+- Strict ansible-lint configuration with `.ansible-lint`
 
-### Role Structure
-Each role follows consistent structure:
+### Role Structure Pattern
 ```
 roles/role-name/
 ├── defaults/main.yml     # Default variables
-├── vars/main.yml        # Role-specific variables
+├── vars/main.yml        # Role-specific variables  
 ├── tasks/main.yml       # Main task orchestration
 ├── handlers/main.yml    # Service handlers
 ├── templates/           # Jinja2 templates
@@ -128,30 +148,41 @@ roles/role-name/
 └── tests/test.yml      # Role testing
 ```
 
-### Testing Pattern
+### Testing Approach
 - Each role includes `tests/test.yml` for standalone testing
-- Inventory-based testing with `tests/inventory`
-- Check mode support for dry runs
+- Check mode support for dry runs (`--check --diff`)  
+- Tag-based selective execution for development
+- Ansible-lint with strict rules and custom configuration
 
-## Important Notes
+### Distribution-Specific Variables
+- Package mappings in `vars/Archlinux.yml`, `vars/Fedora.yml`, `vars/RedHat.yml`
+- Service name mapping for different distributions
+- Repository configuration per distribution
 
-### Audio Workstation Focus
-This is primarily designed for professional audio production:
-- Realtime kernel privileges configured
-- Low-latency audio tuning
-- Professional audio application stack
-- Hardware-specific optimizations
+## Important Considerations
 
-### Multi-Host Dynamic Inventory
-The dynamic inventory automatically discovers:
-- Local hostname assignment to groups
-- mDNS resolution for `.local` hosts
-- Group hierarchy (workstation/server parent groups)
-- Host-specific variable loading
+### Professional Audio Workstation Focus
+- Realtime kernel privileges configured via `audio` role
+- Low-latency audio tuning and optimization
+- Hardware-specific audio optimizations
+- Professional audio application stack (JACK tools, DAWs, plugins)
 
-### Distribution-Specific Considerations
+### Multi-Distribution Support
 - **Arch Linux**: Native AUR support, rolling release optimizations
 - **Rocky Linux 9**: Enterprise stability, source compilation fallbacks
+- **Fedora**: Modern packages with RPM Fusion support
 - Package mapping automatically handled in role `vars/` files
 
-When working with this codebase, always consider the multi-distribution nature and professional audio requirements. Test changes across both supported distributions and verify audio functionality doesn't regress.
+### Security and Best Practices
+- No secrets or credentials stored in repository
+- Sudo configuration with security considerations via `user` role
+- Firewall management through dedicated `firewalld` role
+- SSH hardening configurations
+
+## Role Development and Refactoring Notes
+
+- Use the ansible-role-reviewer agent to ascertain the context of the collection when a role is being refactored
+
+When working with this codebase, always consider the multi-distribution nature and professional audio requirements. Test changes across supported distributions and verify audio functionality doesn't regress. Use the tag system for selective testing during development.
+
+The codebase uses a modular approach where each role is self-contained but designed to work together as part of a complete workstation setup. Always check role dependencies in `meta/main.yml` files when modifying roles.
