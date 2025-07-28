@@ -16,3 +16,4 @@ pyproject.toml
 .ruby-version
 .ruby-gemset
 ansible.code-workspace
+roles/cosmic-desktop/files/home/.config/cosmic/**
