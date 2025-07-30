@@ -88,14 +88,6 @@
     PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path | join(':') }}"
   tags: ["cargo", "packages"]
   block:
-    # - name: Install Rust toolchain
-    #   ansible.builtin.command: "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y"
-    #   args:
-    #     creates: "{{ ansible_env.HOME }}/.cargo/bin/rustup"
-    #   register: rust_install
-    #   changed_when: rust_install.rc == 0
-    #   failed_when: rust_install.rc != 0
-    #   tags: ["rust"]
 
     - name: Gather package facts
       ansible.builtin.package_facts:
@@ -115,8 +107,39 @@
         - du-dust
         - eza
         - gping
+        - ripgrep_all
         - sd
       loop_control:
         label: "{{ item }}"
       when:
         - "'cargo' in ansible_facts.packages"
+
+- name: Install Python packages
+  become: false
+  vars:
+    path:
+      - "{{ user.home }}/.cargo/bin"
+      - "{{ user.home }}/.local/bin"
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path | join(':') }}"
+  tags: ["python", "packages"]
+  block:
+
+    - name: Check if pip3 is available
+      ansible.builtin.command: command -v pip3
+      register: pip3_check
+      changed_when: false
+      failed_when: false
+
+    - name: Install Python packages with pip3
+      community.general.pip:
+        name: "{{ item }}"
+        state: present
+        executable: pip3
+      loop:
+        - trafilatura
+        - edge-tts
+        - ueberzug
+      loop_control:
+        label: "{{ item }}"
+      when: pip3_check.rc == 0

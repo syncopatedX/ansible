@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ansible Role Refactoring: Arch to Fedora 42</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Slate & Sky -->
+    <!-- Application Structure Plan: A dashboard-style single-page application with a fixed sidebar for navigation. This structure was chosen to break down the dense, technical report into logical, digestible sections (Strategy, Platform Comparison, System Setup, Roadmap, Risks). It allows a user (likely a developer or manager) to explore the project non-linearly, focusing on their area of interest, which is more effective for understanding a complex project plan than a sequential report. Key interactions include tabbed navigation, an interactive checklist-style roadmap, and filterable cards for risk assessment. Gemini API features are added to provide actionable insights. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Arch vs Fedora comparison (Sec 1). Goal: Compare. Viz: Side-by-side card layout with a comparison table. Interaction: Clear visual grouping. Justification: Directly contrasts the two ecosystems for easy understanding. Method: HTML/Tailwind.
+        - Report Info: Phased implementation plan (Sec 6.2). Goal: Organize/Change. Viz: Interactive vertical stepper/timeline. Interaction: Clicking a phase reveals its tasks, with a Gemini button to generate sub-tasks. Justification: Turns a static list into an engaging, explorable process flow with AI-powered detail. Method: HTML/Tailwind/JS/Gemini API.
+        - Report Info: Package availability risk (Sec 5). Goal: Organize/Inform. Viz: Filterable grid of cards. Interaction: Buttons filter cards, with a Gemini button to suggest mitigation strategies. Justification: Allows users to quickly isolate key information and get AI-powered solutions. Method: HTML/Tailwind/JS/Gemini API.
+        - Report Info: Audio stack modernization (Sec 3). Goal: Compare/Change. Viz: "Before & After" diagram. Interaction: Static visual. Justification: A simple diagram is more impactful for showing architectural simplification than text alone. Method: HTML/Tailwind with Unicode icons.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .content-section { display: none; }
+        .content-section.active { display: block; }
+        .nav-link { transition: all 0.2s ease-in-out; }
+        .nav-link.active { background-color: #0284c7; color: white; }
+        .nav-link:not(.active):hover { background-color: #384252; }
+        .roadmap-step-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-in-out; }
+        .roadmap-step.active .roadmap-step-content { max-height: 500px; }
+        .filter-btn.active { background-color: #0284c7; color: white; }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.visible .modal-content {
+            transform: scale(1);
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0284c7;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-slate-800 text-slate-200 p-6 flex flex-col fixed h-full">
+            <h1 class="text-xl font-bold text-white mb-2">Ansible Refactor</h1>
+            <p class="text-sm text-slate-400 mb-8">Arch Linux to Fedora 42</p>
+            <nav id="main-nav" class="flex flex-col space-y-2">
+                <a href="#overview" data-target="overview" class="nav-link active rounded-md px-4 py-2 text-sm font-medium">⭐ Overview & Strategy</a>
+                <a href="#comparison" data-target="comparison" class="nav-link rounded-md px-4 py-2 text-sm font-medium">🔄 Platform Deep Dive</a>
+                <a href="#system" data-target="system" class="nav-link rounded-md px-4 py-2 text-sm font-medium">⚙️ Core System Setup</a>
+                <a href="#audio" data-target="audio" class="nav-link rounded-md px-4 py-2 text-sm font-medium">🔊 Audio Stack Modernization</a>
+                <a href="#roadmap" data-target="roadmap" class="nav-link rounded-md px-4 py-2 text-sm font-medium">🗺️ Refactoring Roadmap</a>
+                <a href="#risks" data-target="risks" class="nav-link rounded-md px-4 py-2 text-sm font-medium">🚧 Risk & Mitigation</a>
+                <a href="#practices" data-target="practices" class="nav-link rounded-md px-4 py-2 text-sm font-medium">💡 Best Practices</a>
+            </nav>
+            <div class="mt-auto text-xs text-slate-500">
+                <p>Generated from Technical Report</p>
+                <p>Last Update: Jul 27, 2024</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="ml-64 flex-1 p-6 md:p-10">
+            <!-- Sections will be the same, just with added buttons -->
+            <section id="overview" class="content-section active">
+                <h2 class="text-3xl font-bold text-slate-900 mb-4">Project Overview & Strategy</h2>
+                <p class="text-slate-600 mb-8 max-w-4xl">This project outlines the strategic refactoring of an Ansible role, migrating its target from Arch Linux to Fedora 42. The goal is to transform a brittle script into a robust, secure, and maintainable asset for provisioning professional-grade audio workstations. This involves a complete platform adaptation, a modernization of the audio stack to PipeWire, and the remediation of critical technical debt.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="font-semibold text-lg mb-2 text-sky-700">Target Platform</h3>
+                        <p class="text-2xl font-bold">Fedora 42</p>
+                        <p class="text-sm text-slate-500 mt-1">Shifting from a rolling-release to a stable, predictable ecosystem.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="font-semibold text-lg mb-2 text-sky-700">Audio Architecture</h3>
+                        <p class="text-2xl font-bold">Unified PipeWire</p>
+                        <p class="text-sm text-slate-500 mt-1">Deprecating JACK & PulseAudio for a modern, simplified stack.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="font-semibold text-lg mb-2 text-sky-700">Primary Goal</h3>
+                        <p class="text-2xl font-bold">Reliability & Security</p>
+                        <p class="text-sm text-slate-500 mt-1">Eliminating shell commands and hardcoded data for a portable role.</p>
+                    </div>
+                </div>
+            </section>
+            <section id="comparison" class="content-section">
+                <h2 class="text-3xl font-bold text-slate-900 mb-4">Platform Deep Dive: Arch vs. Fedora</h2>
+                <p class="text-slate-600 mb-8 max-w-4xl">The migration is driven by fundamental differences in philosophy and technology between Arch Linux and Fedora. Understanding these distinctions is key to appreciating the benefits of the refactoring: a shift from a procedural, source-based model to a declarative, package-based one.</p>
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-slate-100 text-slate-600 uppercase">
+                                <tr>
+                                    <th class="p-4">Aspect</th>
+                                    <th class="p-4">Arch Linux (Original)</th>
+                                    <th class="p-4">Fedora (New Target)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-slate-200">
+                                    <td class="p-4 font-semibold">Release Model</td>
+                                    <td class="p-4">Rolling Release (Bleeding-edge)</td>
+                                    <td class="p-4">Fixed Release (Stable, predictable)</td>
+                                </tr>
+                                <tr class="border-b border-slate-200">
+                                    <td class="p-4 font-semibold">Package Manager</td>
+                                    <td class="p-4">`pacman`</td>
+                                    <td class="p-4">`dnf`</td>
+                                </tr>
+                                <tr class="border-b border-slate-200">
+                                    <td class="p-4 font-semibold">Community Repo</td>
+                                    <td class="p-4">AUR (Source-based build scripts)</td>
+                                    <td class="p-4">RPM Fusion / COPR (Pre-compiled RPMs)</td>
+                                </tr>
+                                <tr class="border-b border-slate-200">
+                                    <td class="p-4 font-semibold">Automation Model</td>
+                                    <td class="p-4">Procedural (Execute build scripts)</td>
+                                    <td class="p-4">Declarative (Ensure package state)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-4 font-semibold">System Tuning</td>
+                                    <td class="p-4">Manual Configuration</td>
+                                    <td class="p-4">`tuned` Framework (Managed profiles)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            <section id="system" class="content-section">
+                <h2 class="text-3xl font-bold text-slate-900 mb-4">Core System Setup for Low-Latency Audio</h2>
+                <p class="text-slate-600 mb-8 max-w-4xl">Achieving professional-grade audio performance requires a purpose-built system foundation. The refactored role leverages Fedora's integrated frameworks to establish a stable, low-latency environment in a managed and reproducible way.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200 text-center">
+                        <div class="text-4xl mb-4">🧠</div>
+                        <h3 class="font-semibold text-lg mb-2">Realtime Kernel</h3>
+                        <p class="text-sm text-slate-500">Install `kernel-rt` and `realtime-setup` to enable a fully preemptible kernel scheduler and grant necessary user permissions for realtime processes.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200 text-center">
+                        <div class="text-4xl mb-4">⚡</div>
+                        <h3 class="font-semibold text-lg mb-2">Tuned Framework</h3>
+                        <p class="text-sm text-slate-500">Activate the `realtime` profile via `tuned-adm` to apply a holistic set of system optimizations for CPU scaling, I/O, and kernel parameters.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200 text-center">
+                        <div class="text-4xl mb-4">📜</div>
+                        <h3 class="font-semibold text-lg mb-2">Advanced Sysctl Tuning</h3>
+                        <p class="text-sm text-slate-500">Apply specific audio-related kernel tunings (e.g., `vm.swappiness`) via a dedicated configuration file in `/etc/sysctl.d/` for fine-grained control.</p>
+                    </div>
+                </div>
+            </section>
+            <section id="audio" class="content-section">
+                <h2 class="text-3xl font-bold text-slate-900 mb-4">Audio Stack Modernization</h2>
+                <p class="text-slate-600 mb-8 max-w-4xl">A central goal is to replace the fragmented legacy audio setup with a unified, modern framework. This eliminates complexity, reduces conflicts, and aligns the workstation with the current industry standard on Linux.</p>
+                <div class="bg-white p-8 rounded-lg shadow-sm border border-slate-200">
+                    <div class="grid grid-cols-1 md:grid-cols-3 items-center gap-8">
+                        <div class="text-center md:text-left">
+                            <h3 class="font-bold text-xl text-red-600 mb-2">Before: Legacy Stack</h3>
+                            <p class="text-sm text-slate-500 mb-4">Complex, conflict-prone setup requiring separate, bridged daemons.</p>
+                            <div class="space-y-3 p-4 bg-red-50 border border-red-200 rounded-md">
+                                <div class="font-mono text-xs">PulseAudio (Desktop)</div>
+                                <div class="font-mono text-xs">↕️ Bridge ↕️</div>
+                                <div class="font-mono text-xs">JACK (Pro Audio)</div>
+                            </div>
+                        </div>
+                        <div class="text-center text-5xl text-slate-400 font-light">
+                            →
+                        </div>
+                        <div class="text-center md:text-left">
+                            <h3 class="font-bold text-xl text-green-600 mb-2">After: Unified PipeWire</h3>
+                            <p class="text-sm text-slate-500 mb-4">A single, modern server handling all audio with native low-latency.</p>
+                            <div class="space-y-3 p-4 bg-green-50 border border-green-200 rounded-md">
+                                <div class="font-mono text-xs">PipeWire Server</div>
+                                <div class="font-mono text-xs text-slate-400">├─ PulseAudio API</div>
+                                <div class="font-mono text-xs text-slate-400">└─ JACK API</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="roadmap" class="content-section">
+                <h2 class="text-3xl font-bold text-slate-900 mb-4">Phased Refactoring Roadmap</h2>
+                <p class="text-slate-600 mb-8 max-w-4xl">The refactoring is broken into distinct phases to ensure a structured, manageable development process. Click each phase to expand and view its core tasks. Use the ✨ AI assistant to break down high-level tasks into a detailed checklist.</p>
+                <div id="roadmap-container" class="space-y-4"></div>
+            </section>
+            <section id="risks" class="content-section">
+                <h2 class="text-3xl font-bold text-slate-900 mb-4">Risk Assessment: Package Availability</h2>
+                <p class="text-slate-600 mb-8 max-w-4xl">The most significant risk is that software available in the Arch User Repository (AUR) may not have a direct equivalent in Fedora's repositories. Use the filters to explore the data and the ✨ AI assistant to generate detailed mitigation strategies.</p>
+                <div class="flex space-x-2 mb-6" id="risk-filters">
+                    <button data-filter="all" class="filter-btn active bg-slate-200 text-slate-700 px-4 py-2 rounded-md text-sm font-medium">All</button>
+                    <button data-filter="available" class="filter-btn bg-slate-200 text-slate-700 px-4 py-2 rounded-md text-sm font-medium">Available</button>
+                    <button data-filter="contingency" class="filter-btn bg-slate-200 text-slate-700 px-4 py-2 rounded-md text-sm font-medium">Contingency Needed</button>
+                    <button data-filter="risk" class="filter-btn bg-slate-200 text-slate-700 px-4 py-2 rounded-md text-sm font-medium">Potential Risk</button>
+                </div>
+                <div id="risk-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </section>
+            <section id="practices" class="content-section">
+                <h2 class="text-3xl font-bold text-slate-900 mb-4">Development Best Practices</h2>
+                <p class="text-slate-600 mb-8 max-w-4xl">To ensure a high-quality outcome and an efficient development cycle, the refactoring process will adhere to modern Ansible best practices.</p>
+                 <div class="space-y-6">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="font-semibold text-lg mb-2 text-sky-700">Aggressive Tagging</h3>
+                        <p class="text-slate-600">Each logical block of functionality (e.g., `repo`, `tuning`, `pipewire`, `apps`) will be assigned a descriptive tag. This allows developers to test specific parts of the role in isolation using `ansible-playbook --tags`, dramatically accelerating the debug cycle.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="font-semibold text-lg mb-2 text-sky-700">Mandatory Linting</h3>
+                        <p class="text-slate-600">The `ansible-lint` tool will be integrated into the workflow, ideally as a pre-commit hook. This automatically checks for stylistic inconsistencies, use of deprecated modules, and potential security issues, ensuring the role adheres to a high standard of quality and consistency.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for AI Content -->
+    <div id="ai-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modal-title" class="text-xl font-bold text-slate-800">AI Assistant</h3>
+                <button id="modal-close-btn" class="text-2xl text-slate-500 hover:text-slate-800">&times;</button>
+            </div>
+            <div id="modal-body">
+                <!-- AI content or loader will be injected here -->
+            </div>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const navLinks = document.querySelectorAll('.nav-link');
+    const contentSections = document.querySelectorAll('.content-section');
+    const modal = document.getElementById('ai-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalBody = document.getElementById('modal-body');
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+
+    const roadmapData = [
+        { phase: "Phase 1: Foundation & Repo Management", objective: "Establish the new role structure and implement core package management logic for Fedora.", tasks: ["Create new `vars/Fedora.yml` file.", "Refactor `tasks/main.yml` to load OS-specific variables.", "Implement tasks to enable RPM Fusion repositories.", "Implement placeholder task for COPR repository.", "Delete obsolete `vars/Archlinux.yml`."] },
+        { phase: "Phase 2: Core System & Realtime Tuning", objective: "Implement the installation and configuration of the realtime kernel and system performance tuning.", tasks: ["Install `kernel-rt`, `realtime-setup`, and `tuned-profiles-realtime`.", "Ensure `tuned` service is enabled and active.", "Set active `tuned` profile to `realtime`.", "Template `sysctl` configuration file."] },
+        { phase: "Phase 3: Audio Stack Modernization", objective: "Replace the legacy audio system with the modern PipeWire stack.", tasks: ["Delete `tasks/jack.yml` and `tasks/pulseaudio.yml`.", "Install the complete PipeWire stack, including compatibility packages.", "Template default user-level configurations for PipeWire and WirePlumber."] },
+        { phase: "Phase 4: Application Install & Hardening", objective: "Port application installation logic and eliminate all remaining technical debt.", tasks: ["Install the `@Audio Production` package group.", "Add tasks for remaining individual applications.", "Audit and replace all `shell`/`command` calls with native modules.", "Audit and remove hardcoded user data using `getent`."] }
+    ];
+
+    const riskData = [
+        { name: 'ardour', status: 'available', source: 'Fedora Official', mitigation: 'Core DAW, part of Fedora Jam.' },
+        { name: 'audacity', status: 'available', source: 'Fedora Official', mitigation: 'Standard audio editor, part of Fedora Jam.' },
+        { name: 'hydrogen', status: 'available', source: 'Fedora Official', mitigation: 'Drum machine, part of Fedora Jam.' },
+        { name: 'guitarix', status: 'available', source: 'Fedora Official', mitigation: 'Guitar amplifier simulator, part of Fedora Jam.' },
+        { name: 'calf-plugins', status: 'available', source: 'Fedora Official', mitigation: 'Suite of high-quality LV2 plugins.' },
+        { name: 'lsp-plugins', status: 'available', source: 'Fedora Official', mitigation: 'Comprehensive suite of audio plugins.' },
+        { name: 'qjackctl', status: 'available', source: 'Fedora Official', mitigation: 'Useful for monitoring the PipeWire-JACK graph.' },
+        { name: 'Proprietary Software (e.g., Reaper)', status: 'contingency', source: 'Vendor Website', mitigation: 'Role can automate downloading and running the official install script.' },
+        { name: 'Niche AUR-only Plugin', status: 'risk', source: 'N/A', mitigation: 'Action Required: Search Audinux COPR. If not found, evaluate functional alternatives or document feature loss.' }
+    ];
+
+    function showModal() { modal.classList.add('visible'); }
+    function hideModal() { modal.classList.remove('visible'); }
+    function showLoader() { modalBody.innerHTML = '<div class="flex justify-center p-8"><div class="loader"></div></div>'; }
+
+    modalCloseBtn.addEventListener('click', hideModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            hideModal();
+        }
+    });
+
+    async function callGemini(prompt) {
+        showLoader();
+        showModal();
+        
+        let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+        const payload = { contents: chatHistory };
+        const apiKey = ""; 
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            
+            if (result.candidates && result.candidates.length > 0 &&
+                result.candidates[0].content && result.candidates[0].content.parts &&
+                result.candidates[0].content.parts.length > 0) {
+                const text = result.candidates[0].content.parts[0].text;
+                modalBody.innerHTML = `<div class="prose prose-sm max-w-none">${text.replace(/\n/g, '<br>')}</div>`;
+            } else {
+                throw new Error("Invalid response structure from API.");
+            }
+        } catch (error) {
+            console.error("Gemini API call failed:", error);
+            modalBody.innerHTML = `<p class="text-red-500">Failed to get a response from the AI assistant. Please check the console for details.</p>`;
+        }
+    }
+
+    const roadmapContainer = document.getElementById('roadmap-container');
+    roadmapData.forEach((step, index) => {
+        const stepEl = document.createElement('div');
+        stepEl.className = 'roadmap-step bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden';
+        stepEl.innerHTML = `
+            <div class="roadmap-step-header p-4 cursor-pointer flex justify-between items-center">
+                <div class="flex items-center">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-slate-200 text-slate-600 font-bold mr-4">${index + 1}</div>
+                    <div>
+                        <h3 class="font-semibold text-md">${step.phase}</h3>
+                        <p class="text-sm text-slate-500">${step.objective}</p>
+                    </div>
+                </div>
+                <span class="text-xl text-slate-400 transform transition-transform duration-300">▼</span>
+            </div>
+            <div class="roadmap-step-content bg-slate-50 border-t border-slate-200">
+                <div class="p-6">
+                    <ul class="space-y-2 text-sm list-disc list-inside text-slate-700 mb-4">
+                        ${step.tasks.map(task => `<li>${task}</li>`).join('')}
+                    </ul>
+                    <button class="generate-subtasks-btn text-sm bg-sky-600 text-white px-3 py-1 rounded-md hover:bg-sky-700 transition">✨ Generate Sub-Tasks</button>
+                </div>
+            </div>
+        `;
+        roadmapContainer.appendChild(stepEl);
+
+        stepEl.querySelector('.generate-subtasks-btn').addEventListener('click', () => {
+            modalTitle.textContent = `Sub-Tasks for: ${step.phase}`;
+            const prompt = `You are an expert DevOps engineer. Break down the following Ansible project phase into a detailed, actionable checklist of sub-tasks for a developer. Provide the output as a simple, easy-to-read list. Phase: "${step.phase}". High-level tasks: ${step.tasks.join(', ')}.`;
+            callGemini(prompt);
+        });
+    });
+
+    const riskCardsContainer = document.getElementById('risk-cards-container');
+    const riskFilters = document.getElementById('risk-filters');
+
+    function renderRiskCards(filter = 'all') {
+        riskCardsContainer.innerHTML = '';
+        const filteredData = riskData.filter(item => filter === 'all' || item.status === filter);
+
+        filteredData.forEach(item => {
+            let statusColor = 'bg-slate-100 text-slate-600';
+            let statusText = 'Info';
+            if (item.status === 'available') { statusColor = 'bg-green-100 text-green-800'; statusText = 'Available'; } 
+            else if (item.status === 'contingency') { statusColor = 'bg-yellow-100 text-yellow-800'; statusText = 'Contingency'; } 
+            else if (item.status === 'risk') { statusColor = 'bg-red-100 text-red-800'; statusText = 'Risk'; }
+
+            const cardEl = document.createElement('div');
+            cardEl.className = 'risk-card bg-white p-5 rounded-lg shadow-sm border border-slate-200 flex flex-col';
+            cardEl.dataset.status = item.status;
+            cardEl.innerHTML = `
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="font-semibold text-md pr-2">${item.name}</h3>
+                    <span class="text-xs font-bold px-2 py-1 rounded-full ${statusColor}">${statusText}</span>
+                </div>
+                <p class="text-sm text-slate-600 flex-grow"><span class="font-medium text-slate-800">Source:</span> ${item.source}</p>
+                <p class="text-sm text-slate-600 mt-2"><span class="font-medium text-slate-800">Mitigation:</span> ${item.mitigation}</p>
+                <div class="mt-4 pt-4 border-t border-slate-200">
+                    <button class="suggest-mitigation-btn text-sm bg-sky-600 text-white px-3 py-1 rounded-md hover:bg-sky-700 transition w-full">✨ Suggest Mitigation</button>
+                </div>
+            `;
+            riskCardsContainer.appendChild(cardEl);
+            
+            cardEl.querySelector('.suggest-mitigation-btn').addEventListener('click', () => {
+                 modalTitle.textContent = `Mitigation for: ${item.name}`;
+                 const prompt = `You are a senior systems administrator specializing in Linux package management for Fedora. For the following software risk, provide a detailed, step-by-step mitigation strategy. Consider searching COPR, manual compilation from source, using containers (Flatpak, Distrobox), and finding functional alternatives. Risk: "${item.name}". Status: ${item.status}. Current idea: "${item.mitigation}".`;
+                 callGemini(prompt);
+            });
+        });
+    }
+
+    riskFilters.addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON') {
+            const filter = e.target.dataset.filter;
+            riskFilters.querySelector('.active').classList.remove('active');
+            e.target.classList.add('active');
+            renderRiskCards(filter);
+        }
+    });
+
+    const roadmapSteps = document.querySelectorAll('.roadmap-step-header');
+    roadmapSteps.forEach(header => {
+        header.addEventListener('click', () => {
+            const parentStep = header.parentElement;
+            parentStep.classList.toggle('active');
+            header.querySelector('span').classList.toggle('rotate-180');
+        });
+    });
+
+    function switchTab(targetId) {
+        navLinks.forEach(link => link.classList.toggle('active', link.dataset.target === targetId));
+        contentSections.forEach(section => section.classList.toggle('active', section.id === targetId));
+    }
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = e.currentTarget.dataset.target;
+            window.location.hash = targetId;
+            switchTab(targetId);
+        });
+    });
+
+    const initialTarget = window.location.hash.substring(1) || 'overview';
+    switchTab(initialTarget);
+    renderRiskCards();
+});
+</script>
+
+</body>
+</html>
+<!-- https://g.co/gemini/share/c0b6e6ede097 -->

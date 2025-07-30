@@ -34,7 +34,7 @@
     #   - { role: grub, tags: ["grub"], when: "bootloader == 'grub' | default('grub')" }
     - { role: shell, tags: ["shell"] }
     - { role: rvm.ruby, tags: ["ruby"] }
-    - { role: docker, tags: ["docker"] }
+    # - { role: docker, tags: ["docker"] }
     - { role: libvirt, tags: ["libvirt"] }
     - { role: nas, tags: ["nas"], when: "nfs_host == 'true' or samba_host == 'true'" }
     # - { role: syncopated.i3_desktop.xorg, tags: ["xorg"], when: "window_manager == 'i3'" }

@@ -7,14 +7,13 @@
   ansible.builtin.debug:
     msg: "Starting audio tasks"
 
-# - name: add modprobe option to not use a usb card are the default device
-#   lineinfile:
-#     path: /etc/modprobe.d/10-alsa_usb.conf
-#     line: "options snd slots=snd-hda-intel,snd-usb-audio"
-#     create: yes
-#     backup: yes
-#   become: True
-#   tags: ['modprobe']
+- name: add modprobe option to not use a usb card are the default device
+  lineinfile:
+    path: /etc/modprobe.d/10-alsa_usb.conf
+    line: "options snd slots=snd-hda-intel,snd-usb-audio"
+    create: yes
+    backup: yes
+  tags: ['modprobe']
 
 - tags: ["packages", "alsa_pkgs"]
   block:
