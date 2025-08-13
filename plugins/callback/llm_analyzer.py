@@ -6,7 +6,7 @@ from __future__ import absolute_import, division, print_function
 from ansible.plugins.callback import CallbackBase
 from ansible.module_utils._text import to_text
 import yaml
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 from pathlib import Path
 import os
 import json
@@ -21,9 +21,8 @@ DOCUMENTATION = """
     description:
       - Analyzes Ansible tasks and playbooks using different AI providers
       - Validates API keys before playbook execution
-      - Prints explanations for the tasks and playbooks
-      - Saves explanations to markdown files in llm_analysis directory
-      - Suggests improvements to the tasks and playbooks if any
+      - Prints analysis for the tasks and playbooks
+      - Saves analysis to markdown files in llm_analysis directory
       - Automatically disables if API key validation fails
     requirements:
       - enable in configuration - see examples section below for details
@@ -159,45 +158,62 @@ DOCUMENTATION = """
 
 # Provider-specific imports
 AVAILABLE_PROVIDERS = {}
+PROVIDER_CLASSES = {}
+
+# Mapping of providers to their required packages for better error messages
+PROVIDER_REQUIREMENTS = {
+    "openai": "openai",
+    "openrouter": "openai", 
+    "gemini": "google-generativeai",
+    "groq": "groq",
+    "cohere": "cohere", 
+    "anthropic": "anthropic"
+}
 
 try:
     import openai
     from openai import OpenAI
-
     AVAILABLE_PROVIDERS["openai"] = True
+    PROVIDER_CLASSES["openai"] = {"client": OpenAI, "module": openai}
 except ImportError:
     AVAILABLE_PROVIDERS["openai"] = False
+    PROVIDER_CLASSES["openai"] = {"client": None, "module": None}
 
 try:
     import google.generativeai as genai
-
     AVAILABLE_PROVIDERS["gemini"] = True
+    PROVIDER_CLASSES["gemini"] = {"client": genai.GenerativeModel, "module": genai}
 except ImportError:
     AVAILABLE_PROVIDERS["gemini"] = False
+    PROVIDER_CLASSES["gemini"] = {"client": None, "module": None}
 
 try:
     import groq
-
     AVAILABLE_PROVIDERS["groq"] = True
+    PROVIDER_CLASSES["groq"] = {"client": groq.Groq, "module": groq}
 except ImportError:
     AVAILABLE_PROVIDERS["groq"] = False
+    PROVIDER_CLASSES["groq"] = {"client": None, "module": None}
 
 try:
     import cohere
-
     AVAILABLE_PROVIDERS["cohere"] = True
+    PROVIDER_CLASSES["cohere"] = {"client": cohere.ClientV2, "module": cohere}
 except ImportError:
     AVAILABLE_PROVIDERS["cohere"] = False
+    PROVIDER_CLASSES["cohere"] = {"client": None, "module": None}
 
 try:
     import anthropic
-
     AVAILABLE_PROVIDERS["anthropic"] = True
+    PROVIDER_CLASSES["anthropic"] = {"client": anthropic.Anthropic, "module": anthropic}
 except ImportError:
     AVAILABLE_PROVIDERS["anthropic"] = False
+    PROVIDER_CLASSES["anthropic"] = {"client": None, "module": None}
 
 # OpenRouter uses OpenAI's client
 AVAILABLE_PROVIDERS["openrouter"] = AVAILABLE_PROVIDERS["openai"]
+PROVIDER_CLASSES["openrouter"] = PROVIDER_CLASSES["openai"]
 
 try:
     import langfuse
@@ -236,38 +252,52 @@ class AIProvider:
             return False
 
         if not AVAILABLE_PROVIDERS.get(self.provider):
+            required_package = PROVIDER_REQUIREMENTS.get(self.provider, "unknown")
             print(
-                f"Provider {self.provider} is not available. Please install required library."
+                f"Provider {self.provider} is not available. Please install required library: pip install {required_package}"
             )
+            return False
+
+        # Check if provider classes are available
+        provider_classes = PROVIDER_CLASSES.get(self.provider, {})
+        client_class = provider_classes.get("client")
+        provider_module = provider_classes.get("module")
+        
+        if not client_class or not provider_module:
+            required_package = PROVIDER_REQUIREMENTS.get(self.provider, "unknown")
+            print(f"Provider {self.provider} classes are not available. Please install the required library: pip install {required_package}")
             return False
 
         try:
             if self.provider in ["openai", "openrouter"]:
                 # Test API key with a minimal request
-                client = OpenAI(base_url="https://openrouter.ai/api/v1")
+                if self.provider == "openrouter":
+                    client = client_class(base_url="https://openrouter.ai/api/v1")
+                else:
+                    client = client_class()
                 client.chat.completions.create(
                     model=self.model,
                     messages=[{"role": "user", "content": "test"}],
                     max_tokens=5,
                 )
             elif self.provider == "gemini":
-                genai.configure(api_key=self.api_key)
-                model = genai.GenerativeModel(self.model)
+                provider_module.configure(api_key=self.api_key)
+                model = client_class(self.model)
                 model.generate_content("test")
             elif self.provider == "groq":
-                client = groq.Groq(api_key=self.api_key)
+                client = client_class(api_key=self.api_key)
                 client.chat.completions.create(
                     model=self.model,
                     messages=[{"role": "user", "content": "test"}],
                     max_tokens=5,
                 )
             elif self.provider == "cohere":
-                client = cohere.ClientV2(api_key=self.api_key)
+                client = client_class(api_key=self.api_key)
                 client.generate(
                     prompt="test", model=self.model, max_tokens=5
                 )
             elif self.provider == "anthropic":
-                client = anthropic.Anthropic(api_key=self.api_key)
+                client = client_class(api_key=self.api_key)
                 client.messages.create(
                     model=self.model,
                     max_tokens=5,
@@ -282,37 +312,44 @@ class AIProvider:
         if not self.api_key:
             raise ValueError(f"API key not provided for {self.provider}")
 
+        # Check if provider classes are available
+        provider_classes = PROVIDER_CLASSES.get(self.provider, {})
+        client_class = provider_classes.get("client")
+        provider_module = provider_classes.get("module")
+        
+        if not client_class or not provider_module:
+            required_package = PROVIDER_REQUIREMENTS.get(self.provider, "unknown")
+            raise ValueError(f"Provider {self.provider} is not available. Please install the required library: pip install {required_package}")
+
         if self.provider in ["openai", "openrouter"]:
             os.environ["OPENAI_API_KEY"] = self.api_key
             if self.provider == "openrouter":
-                # TODO: The 'openai.api_base' option isn't read in the client API. You will need to pass it when you instantiate the client, e.g. 'OpenAI(base_url="https://openrouter.ai/api/v1")'
-                self.client = OpenAI(base_url="https://openrouter.ai/api/v1")
+                self.client = client_class(base_url="https://openrouter.ai/api/v1")
             elif self.provider == "openai":
-                self.client = OpenAI()
+                self.client = client_class()
             self.api_callers["openai"] = self._call_openai_api
             self.api_callers["openrouter"] = self._call_openai_api
         elif self.provider == "gemini":
             os.environ["GOOGLE_API_KEY"] = self.api_key
-            genai.configure(api_key=self.api_key)
-            self.client = genai.GenerativeModel(self.model)
+            provider_module.configure(api_key=self.api_key)
+            self.client = client_class(self.model)
             self.api_callers["gemini"] = self._call_gemini_api
         elif self.provider == "groq":
             os.environ["GROQ_API_KEY"] = self.api_key
-            self.client = groq.Groq(api_key=self.api_key)
+            self.client = client_class(api_key=self.api_key)
             self.api_callers["groq"] = self._call_groq_api
         elif self.provider == "cohere":
             os.environ["COHERE_API_KEY"] = self.api_key
-            self.client = cohere.ClientV2(api_key=self.api_key)
+            self.client = client_class(api_key=self.api_key)
             self.api_callers["cohere"] = self._call_cohere_api
         elif self.provider == "anthropic":
             os.environ["ANTHROPIC_API_KEY"] = self.api_key
-            self.client = anthropic.Anthropic(api_key=self.api_key)
+            self.client = client_class(api_key=self.api_key)
             self.api_callers["anthropic"] = self._call_anthropic_api
 
     def _create_prompt(
         self, task_text: Optional[str] = None, play_text: Optional[str] = None
     ) -> str:
-        print(f"DEBUG: _create_prompt called. Task_text: {bool(task_text)}, Play_text: {bool(play_text)}") # General entry
         prompt_template_str = None
         prompt_name = None
         context_text = None
@@ -320,96 +357,62 @@ class AIProvider:
         if task_text:
             prompt_name = "ansible_task_prompt"
             context_text = task_text
-            print(f"DEBUG: Prompt type determined: TASK ('{prompt_name}')")
         elif play_text:
             prompt_name = "ansible_play_prompt"
             context_text = play_text
-            print(f"DEBUG: Prompt type determined: PLAY ('{prompt_name}')")
         else:
-            print("DEBUG: No task or play text in _create_prompt. Returning empty.")
             return ""  # No context, no prompt
 
         if self.langfuse_enabled and self.langfuse_client and prompt_name:
-            print(f"DEBUG: Langfuse is enabled. Attempting to fetch prompt: '{prompt_name}'")
             try:
-                # Langfuse SDK's get_prompt returns a Prompt object
-                # The actual prompt string is usually in prompt.prompt (or similar attribute)
-                # Assuming version 2.x of langfuse SDK: prompt_object.get_langfuse_prompt().prompt
-                # For simplicity, let's assume it has a .prompt attribute or a method to get the string.
-                # We need to check the exact way to get the string from the Prompt object.
-                # Let's assume `get_prompt` returns an object with a `prompt` attribute for the template string.
-                # Or, if `get_prompt` itself returns the string directly (older versions or specific config).
-                # Based on Langfuse docs, prompt.compile() might be needed if it's a V2 prompt object.
-                # For now, let's assume a simple attribute access after checking type.
-
-                print(f"DEBUG: PRE-CALL to self.langfuse_client.get_prompt('{prompt_name}')")
                 # Fetch the prompt object from Langfuse
                 langfuse_prompt_object = self.langfuse_client.get_prompt(
                     prompt_name, label="production")
-                print(f"DEBUG: POST-CALL to self.langfuse_client.get_prompt('{prompt_name}'). Object received: {type(langfuse_prompt_object)}")
-
 
                 # The actual prompt content is in langfuse_prompt_object.prompt
-                # This is the template string.
                 prompt_template_str = langfuse_prompt_object.prompt
-                print(f"DEBUG: Extracted .prompt attribute. Type: {type(prompt_template_str)}. Content snippet: '{str(prompt_template_str)[:100]}...'")
-
 
                 if not isinstance(prompt_template_str, str):
-                    # This case handles if langfuse_prompt_object.prompt is not a string as expected
-                    # Potentially, it could be a more complex object that needs specific handling
-                    # or compilation, e.g., langfuse_prompt_object.compile(**variables)
-                    # For now, we'll assume it's a string or log an error.
                     print(
                         f"Warning: Fetched prompt '{prompt_name}' from Langfuse is not a string. Type: {type(prompt_template_str)}. Falling back to local prompt.")
                     prompt_template_str = None  # Force fallback
-                else:
-                    print(
-                        f"Successfully fetched prompt '{prompt_name}' from Langfuse.")
 
             except Exception as e:
                 print(
                     f"Warning: Failed to fetch prompt '{prompt_name}' from Langfuse: {str(e)}. Falling back to local prompt.")
                 prompt_template_str = None  # Ensure fallback
-        else:
-            print(f"DEBUG: Langfuse conditions not met or no prompt_name. Enabled: {self.langfuse_enabled}, Client: {bool(self.langfuse_client)}, Prompt Name: {prompt_name}")
-
 
         # If Langfuse fetching failed or was skipped, use local generation
         if prompt_template_str is None:
-            print(f"DEBUG: Fallback to local prompt generation for '{prompt_name}'.")
             if task_text:
-                # UPDATED PROMPT FOR TASKS
+                # Analysis-focused prompt for tasks
                 prompt_template_str = (
                     "Review the following Ansible task code:\n"
                     "\n```yaml\n{{task_text}}\n```\n"
-                    "Analyze its function, adherence to Ansible best practices for **idempotency**, "
-                    "potential issues, and inefficiencies. Specifically, look for:\n"
-                    "- Overuse of `shell` or `command` modules where native modules would be better.\n"
-                    "- Missing or incorrect `creates`, `removes`, or `changed_when` conditions.\n"
-                    "- Simplistic `ignore_errors` or `rescue` blocks that mask issues.\n"
-                    "Provide your response in this format:\n"
-                    "1. First explain the current task's purpose and any identified issues (idempotency, error handling).\n"
-                    "2. After 'IMPROVED CODE:', provide the complete improved version of the task code. Ensure it is fully idempotent.\n"
-                    "3. After 'EXPLANATION:', explain your improvements, focusing on why they enhance idempotency, error handling, and adherence to best practices.\n\n"
-                    "Consider Ansible best practices (e.g., 'Always use modules', 'Handle facts correctly', 'Idempotency') and general programming principles (DRY, least astonishment)."
+                    "Provide a technical analysis of this task. Focus on understanding and explaining:\n"
+                    "- What this task accomplishes and its role in the playbook\n"
+                    "- The Ansible modules and parameters being used\n"
+                    "- How idempotency is handled in this implementation\n"
+                    "- The error handling and conditional logic present\n"
+                    "- The technical approach and methodology used\n\n"
+                    "IMPORTANT: Provide only factual analysis and explanation of what the code does. "
+                    "Do NOT provide recommendations, suggestions, improvements, or advice on how to change the code. "
+                    "Focus purely on understanding and documenting the current implementation."
                 )
             elif play_text:
-                # UPDATED PROMPT FOR PLAYBOOKS
+                # Analysis-focused prompt for playbooks
                 prompt_template_str = (
                     "Review the following Ansible playbook code:\n"
                     "\n```yaml\n{{play_text}}\n```\n"
-                    "Analyze its overall purpose, adherence to Ansible best practices for **idempotency** and **reliability**, "
-                    "and potential architectural or configuration issues. Specifically, focus on:\n"
-                    "- Play-level idempotency and predictability.\n"
-                    "- Handling of conflicting configurations (ee.g., mutually exclusive services like audio servers).\n"
-                    "- Overall error handling strategy (e.g., consistent use of `block/rescue/always`).\n"
-                    "- Opportunities for better module usage or clearer role responsibilities.\n"
-                    "Provide your response in this format:\n"
-                    "1. First explain the playbook's overall function and any identified issues (e.g., idempotency, configuration conflicts, error handling).\n"
-                    "2. After 'IMPROVED CODE:', provide the complete improved version of the playbook code, or relevant sections. Ensure it promotes idempotency and reliability.\n"
-                    "3. After 'EXPLANATION:', explain your improvements, focusing on architectural changes, idempotency, conflict resolution, and error handling.\n\n"
-                    "If no improvements are needed, write 'IMPROVED CODE: No improvements needed'. Consider Ansible best practices and system engineering principles."
+                    "Provide a technical analysis of this playbook. Focus on understanding and explaining:\n"
+                    "- The overall purpose and scope of this playbook\n"
+                    "- The play structure, hosts targeting, and execution flow\n"
+                    "- Variable definitions, role assignments, and task organization\n"
+                    "- Error handling mechanisms and conditional logic in use\n"
+                    "- The technical architecture and design patterns employed\n\n"
+                    "IMPORTANT: Provide only factual analysis and explanation of what the code does. "
+                    "Do NOT provide recommendations, suggestions, improvements, or advice on how to change the code. "
+                    "Focus purely on understanding and documenting the current implementation."
                 )
             else:
                 return ""
@@ -632,60 +635,7 @@ class CallbackModule(CallbackBase):
                 "\nLangfuse prompt fetching is explicitly disabled via 'langfuse_enabled' configuration.")
         # If no credentials and not explicitly enabled, no message is needed.
 
-    def _extract_improvements(self, content: str) -> Dict[str, Any]:
-        """Extract improved code and explanation from the AI response."""
-        result = {"improved_code": None,
-                  "explanation": None, "has_improvements": False}
 
-        # Split content at "IMPROVED CODE:" marker
-        parts = content.split("IMPROVED CODE:")
-        if len(parts) < 2:
-            return result
-
-        improved_section = parts[1].strip()
-
-        # Check if no improvements needed
-        if improved_section.lower().startswith("no improvements needed"):
-            return result
-
-        # Split at "EXPLANATION:" to separate code and explanation
-        code_parts = improved_section.split("EXPLANATION:")
-        if len(code_parts) < 2:
-            result["improved_code"] = improved_section.strip()
-        else:
-            result["improved_code"] = code_parts[0].strip()
-            result["explanation"] = code_parts[1].strip()
-
-        result["has_improvements"] = bool(result["improved_code"])
-        return result
-
-    def _save_to_yaml(
-        self, improvements: Dict[str, Any], analysis_type: str, name: str = None
-    ):
-        """Save improvements to a YAML file."""
-        if not improvements["has_improvements"]:
-            return
-
-        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        count = self.task_count if analysis_type == "task" else self.play_count
-        filename = f"{timestamp}_{analysis_type}_{count}"
-        if name:
-            # Replace spaces and special characters with underscores
-            safe_name = "".join(c if c.isalnum() else "_" for c in name)
-            filename = f"{filename}_{safe_name}"
-        filename = f"{filename}_improved.yml"
-
-        filepath = self.analysis_dir / filename
-        data = {
-            "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "type": analysis_type,
-            "name": name if name else f"{analysis_type}_{count}",
-            "improved_code": improvements["improved_code"],
-            "explanation": improvements["explanation"],
-        }
-
-        with open(filepath, "w") as f:
-            yaml.dump(data, f, default_flow_style=False, sort_keys=False)
 
     def _save_to_markdown(self, content: str, analysis_type: str, name: str = None):
         """Save analysis to a markdown file."""
@@ -717,11 +667,6 @@ class CallbackModule(CallbackBase):
         # Print to console
         print(f"Explanation: \n{explanation}")
 
-        # Extract improvements and save to YAML if any exist
-        improvements = self._extract_improvements(explanation)
-        if improvements["has_improvements"]:
-            self._save_to_yaml(improvements, "task", task.get_name())
-
         # Save full analysis to markdown
         self._save_to_markdown(explanation, "task", task.get_name())
 
@@ -732,11 +677,6 @@ class CallbackModule(CallbackBase):
 
         # Print to console
         print(f"Explanation: \n{explanation}")
-
-        # Extract improvements and save to YAML if any exist
-        improvements = self._extract_improvements(explanation)
-        if improvements["has_improvements"]:
-            self._save_to_yaml(improvements, "play", play.get_name())
 
         # Save full analysis to markdown
         self._save_to_markdown(explanation, "play", play.get_name())
