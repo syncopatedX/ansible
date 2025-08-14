@@ -118,7 +118,7 @@ Add to your main playbook:
 
 ```yaml
 roles:
-  - { role: cosmic-desktop, tags: ["cosmic", "desktop"], when: "window_manager == 'cosmic'" }
+  - { role: cosmic-desktop, tags: ["cosmic", "desktop"], when: "desktop == 'cosmic'" }
 ```
 
 ## Tags

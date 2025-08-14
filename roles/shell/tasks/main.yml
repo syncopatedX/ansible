@@ -47,10 +47,10 @@
     backup: true
   tags: ["aliases", "profile"]
 
-# - name: Push .profile template
-#   template:
-#     src: home/.profile.j2
-#     dest: "{{ profile_config_dir }}/.profile"
-#     mode: "0644"
-#     backup: True
-#   tags: ["profile"]
+- name: Push .profile template
+  template:
+    src: home/.profile.j2
+    dest: "{{ profile_config_dir }}/.profile"
+    mode: "0644"
+    backup: True
+  tags: ["profile"]

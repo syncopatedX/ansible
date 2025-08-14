@@ -6,7 +6,7 @@ cpupower:
 
 tuned_profile: server-powersave
 
-window_manager: i3
+desktop: i3
 autologin: true
 
 use_libvirt: true

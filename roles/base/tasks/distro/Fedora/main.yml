@@ -68,9 +68,9 @@
 
     - name: Set repository priorities
       ansible.builtin.shell: |
-        dnf config-manager setopt "fedora.priority=10"
-        dnf config-manager setopt "fedora-updates.priority=10"
-        dnf config-manager setopt "fedora-cisco-openh264.priority=20"
+        # dnf config-manager setopt "fedora.priority=10"
+        # dnf config-manager setopt "fedora-updates.priority=10"
+        # dnf config-manager setopt "fedora-cisco-openh264.priority=20"
         dnf config-manager setopt "rpmfusion-*.priority=40"
       changed_when: false
       tags: ["repo_priorities"]

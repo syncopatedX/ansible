@@ -1,5 +1,5 @@
 ---
-- name: Workstation Full
+- name: Dev Workstation Base
   hosts: all
   gather_facts: true
   become: true
@@ -27,28 +27,37 @@
   roles:
     - { role: user, tags: ["user"] }
     - { role: base, tags: ["base"] }
+    - { role: shell, tags: ["shell"] }
+    - { role: xdg, tags: ["xdg"] }
+
     - { role: ssh, tags: ["ssh"] }
     - { role: firewalld, tags: ["firewalld"] }
     # - { role: networking, tags: ["networkmanager", "networkd", "resolved"] }
     - { role: ntp, tags: ["ntp"] }
+
     #   - { role: grub, tags: ["grub"], when: "bootloader == 'grub' | default('grub')" }
-    - { role: shell, tags: ["shell"] }
+
     - { role: rvm.ruby, tags: ["ruby"] }
+
     # - { role: docker, tags: ["docker"] }
     - { role: libvirt, tags: ["libvirt"] }
-    - { role: nas, tags: ["nas"], when: "nfs_host == 'true' or samba_host == 'true'" }
-    # - { role: syncopated.i3_desktop.xorg, tags: ["xorg"], when: "window_manager == 'i3'" }
-    # - { role: syncopated.i3_desktop.i3, tags: ["i3"], when: "window_manager == 'i3'" }
-    # - { role: syncopated.i3_desktop.dunst, tags: ["dunst"], when: "window_manager == 'i3'" }
-    # - { role: syncopated.i3_desktop.picom, tags: ["picom"], when: "window_manager == 'i3'" }
-    # - { role: syncopated.i3_desktop.sxhkd, tags: ["sxhkd"], when: "window_manager == 'i3'" }
+
+    - { role: nas, tags: ["nas"] }
     - { role: rpm-dev, tags: ["rpm-dev"] }
-    - { role: rofi, tags: ["rofi"] }
-    - { role: sway, tags: ["sway"] }
-    - { role: xdg, tags: ["xdg"] }
-    # - { role: cosmic-desktop, tags: ["cosmic", "desktop"], when: "window_manager == 'cosmic'" }
-    - { role: theme, tags: ["theme"] }
-  #   - { role: audio, tags: ["audio"] }
-  #   - { role: video, tags: ["video"] }
     - { role: tools, tags: ["tools"] }
-  #   - { role: media, tags: ["media"] }
+
+    - { role: theme, tags: ["theme"] }
+
+    - { role: i3, tags: ["i3"], when: "desktop == 'i3' | default('i3')" }
+    - { role: sway, tags: ["sway"], when: "desktop == 'sway' | default('i3')" }
+
+    - { role: rofi, tags: ["rofi"] }
+
+    # - { role: cosmic-desktop, tags: ["cosmic", "desktop"], when: "desktop == 'cosmic'" }
+    # - { role: gnome-desktop, tags: ["gnome", "desktop"], when: "desktop == 'gnome'" }
+
+    # TODO: merge video with xorg
+    # TODO: pipeline configurations
+    - { role: audio, tags: ["audio"] }
+    - { role: video, tags: ["video"] }
+    - { role: media, tags: ["media"] }

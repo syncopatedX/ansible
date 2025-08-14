@@ -18,6 +18,7 @@ This is a comprehensive Ansible automation framework for professional audio work
 ## Common Development Commands
 
 ### Running Playbooks
+
 ```bash
 # Navigate to ansible directory first
 cd ansible/
@@ -37,6 +38,7 @@ ansible-playbook -i inventory/inventory.ini playbooks/full.yml -b --skip-tags "d
 ```
 
 ### Testing and Validation
+
 ```bash
 # Dry run (check mode)
 ansible-playbook -i inventory/inventory.ini playbooks/full.yml --check --diff
@@ -58,6 +60,7 @@ ansible -i inventory/inventory.ini all -m ping
 ```
 
 ### Galaxy Dependencies
+
 ```bash
 # Install required external roles and collections
 ansible-galaxy install -r requirements.yml
@@ -66,6 +69,7 @@ ansible-galaxy install -r requirements.yml
 ## Project Structure
 
 ### Core Configuration
+
 - `ansible.cfg`: Main configuration with custom plugins, fact caching, and multi-inventory support
 - `inventory/`: Dynamic inventory script, static inventory files, and variable hierarchies
 - `playbooks/`: Main orchestration playbooks (`full.yml` for complete setup)
@@ -87,6 +91,7 @@ Essential roles that work together:
 - **theme**: System-wide theming (GTK, Qt, fonts, icons)
 
 ### Variable Hierarchy (highest to lowest precedence)
+
 1. Command line (`-e "var=value"`)
 2. Host variables (`inventory/host_vars/*.yml`)
 3. Group variables (`inventory/group_vars/*.yml`)
@@ -96,18 +101,21 @@ Essential roles that work together:
 ## Key Configuration Patterns
 
 ### Audio System Selection
+
 ```yaml
 # Primary audio system configuration
 audio_system: "pipewire"  # or "pulseaudio_jack"
 ```
 
 ### Window Manager Selection
+
 ```yaml
 # Desktop environment choice
-window_manager: "sway"  # Wayland with XWayland
+desktop: "sway"  # Wayland with XWayland
 ```
 
 ### Multi-Distribution Package Mapping
+
 - **Arch Linux**: Uses pacman, paru (AUR), custom `aur` module in `plugins/modules/aur/`
 - **Rocky Linux 9**: Uses dnf with EPEL, PowerTools/CRB, RPM Fusion
 - **Fedora**: Uses dnf with RPM Fusion, Flathub, and copr repositories
@@ -116,19 +124,23 @@ window_manager: "sway"  # Wayland with XWayland
 ## Custom Ansible Components
 
 ### Dynamic Inventory (`inventory/dynamic_inventory.py`)
+
 - Automatic host discovery with mDNS resolution
 - Group hierarchy management (workstation/server parent groups)
 - Host-specific variable loading
 
 ### Custom Modules (`plugins/modules/`)
+
 - **aur**: AUR package management for Arch Linux with multiple helper support (yay, paru, etc.)
 
 ### Callback Plugins (`plugins/callback/`)
+
 - **llm_analyzer**: AI-powered analysis of Ansible runs (configurable, supports multiple providers)
 
 ## Development Standards
 
 ### Ansible Configuration
+
 - Fact caching enabled (`/tmp/ansible_cache`)
 - Error on undefined variables enforced
 - Custom plugin paths configured
@@ -136,6 +148,7 @@ window_manager: "sway"  # Wayland with XWayland
 - Strict ansible-lint configuration with `.ansible-lint`
 
 ### Role Structure Pattern
+
 ```
 roles/role-name/
 ├── defaults/main.yml     # Default variables
@@ -149,12 +162,14 @@ roles/role-name/
 ```
 
 ### Testing Approach
+
 - Each role includes `tests/test.yml` for standalone testing
 - Check mode support for dry runs (`--check --diff`)  
 - Tag-based selective execution for development
 - Ansible-lint with strict rules and custom configuration
 
 ### Distribution-Specific Variables
+
 - Package mappings in `vars/Archlinux.yml`, `vars/Fedora.yml`, `vars/RedHat.yml`
 - Service name mapping for different distributions
 - Repository configuration per distribution
@@ -162,18 +177,21 @@ roles/role-name/
 ## Important Considerations
 
 ### Professional Audio Workstation Focus
+
 - Realtime kernel privileges configured via `audio` role
 - Low-latency audio tuning and optimization
 - Hardware-specific audio optimizations
 - Professional audio application stack (JACK tools, DAWs, plugins)
 
 ### Multi-Distribution Support
+
 - **Arch Linux**: Native AUR support, rolling release optimizations
 - **Rocky Linux 9**: Enterprise stability, source compilation fallbacks
 - **Fedora**: Modern packages with RPM Fusion support
 - Package mapping automatically handled in role `vars/` files
 
 ### Security and Best Practices
+
 - No secrets or credentials stored in repository
 - Sudo configuration with security considerations via `user` role
 - Firewall management through dedicated `firewalld` role

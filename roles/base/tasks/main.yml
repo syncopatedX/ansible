@@ -132,7 +132,7 @@
       failed_when: false
 
     - name: Install Python packages with pip3
-      community.general.pip:
+      pip:
         name: "{{ item }}"
         state: present
         executable: pip3

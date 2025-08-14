@@ -2,7 +2,3 @@
 roles:
   - name: rvm.ruby
 
-collections:
-  - name: ansible.posix
-  - source: ../ansible_collections/syncopated/i3_desktop
-    type: dir

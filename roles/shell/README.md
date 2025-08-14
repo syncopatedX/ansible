@@ -32,7 +32,7 @@ These variables have default values that can be easily changed.
 
   - **Customization:** You can change this if you prefer to store these dotfiles in a different location, for example, within a subdirectory like `{{ user.home }}/.config/zsh`. However, standard Zsh behavior expects them in the home directory.
 
-- `window_manager`:
+- `desktop`:
 
   - **Description:** Defines the window manager being used. This variable is intended for use within the Zsh configuration templates (e.g., `home/.zshrc.j2`) to conditionally set environment variables, aliases, or source specific configurations relevant to the window manager.
 
@@ -41,7 +41,7 @@ These variables have default values that can be easily changed.
   - **Customization:** Set this to your window manager of choice (e.g., `"sway"`, `"gnome"`, `"kde"`, `"hyprland"`). You will then need to ensure your Zsh template files (`*.j2`) utilize this variable to apply specific settings. For example, in `.zshrc.j2`:
 
         ```yaml
-        {% if window_manager == "sway" %}
+        {% if desktop == "sway" %}
         export MOZ_ENABLE_WAYLAND=1
         {% endif %}
         ```
@@ -138,7 +138,7 @@ You can override any of the defined variables (see "Role Variables" section) in 
       group: mygroup
       home: /home/myuser
     profile_config_dir: "{{ user.home }}/.config/zsh_custom_location" # Example override
-    window_manager: "sway"
+    desktop: "sway"
     packages__zsh:
       - zsh
       - oh-my-zsh-git
@@ -235,7 +235,7 @@ You can override any of the defined variables (see "Role Variables" section) in 
 
 - Edit these files to change your Zsh prompt (e.g., Powerlevel10k if installed and configured here), set aliases, define environment variables, configure Zsh options (`setopt`), and manage Oh My Zsh settings.
 
-- Remember you can use the `window_manager` variable (and any other variables you define) within these templates for conditional logic.
+- Remember you can use the `desktop` variable (and any other variables you define) within these templates for conditional logic.
 
 ## Example Playbook
 
@@ -251,7 +251,7 @@ Here's a basic example of how to use this role in a playbook:
       group: "users"
       home: "/home/johndoe"
     # Optional: Override other defaults if needed
-    # window_manager: "sway"
+    # desktop: "sway"
     # packages__zsh:
     #   - zsh
     #   - oh-my-zsh-git

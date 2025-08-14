@@ -5,7 +5,7 @@ bootloader: grub
 autologin: false
 
 display_manager: "greetd"
-window_manager: "sway"
+desktop: "sway"
 
 use_libvirt: false
 

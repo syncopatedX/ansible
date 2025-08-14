@@ -4,16 +4,4 @@
   gather_facts: true
   become: true
   roles:
-    - { role: user, tags: ["user"] }
-    - { role: base, tags: ["base"] }
-    - { role: ssh, tags: ["ssh"] }
-    - { role: firewalld, tags: ["firewalld"] }
-    - { role: networking, tags: ["networkmanager", "networkd", "resolved"] }
-    - { role: ntp, tags: ["ntp"] }
-    - { role: shell, tags: ["shell"] }
-    - { role: syncopated.i3_desktop.xorg, tags: ["xorg"] }
-    - { role: syncopated.i3_desktop.i3, tags: ["i3"] }
-    - { role: syncopated.i3_desktop.dunst, tags: ["dunst"] }
-    - { role: syncopated.i3_desktop.picom, tags: ["picom"] }
-    - { role: syncopated.i3_desktop.sxhkd, tags: ["sxhkd"] }
-    - { role: syncopated.i3_desktop.getty, tags: ["getty"] }
+    - { role: i3, tags: ["i3"] }

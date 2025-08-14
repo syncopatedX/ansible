@@ -9,8 +9,7 @@
   ansible.builtin.dnf:
     name: "{{ packages.rpm_dev }}"
     state: present
-  become: true
-  when: 
+  when:
     - rpm_dev_install_packages | bool
     - packages.rpm_dev is defined
   tags: ["rpm-dev", "packages"]
@@ -20,7 +19,6 @@
   ansible.builtin.group:
     name: mock
     state: present
-  become: true
   tags: ["rpm-dev", "user-setup"]
 
 - name: "Add user to mock group"
@@ -28,7 +26,6 @@
     name: "{{ rpm_dev_user.name }}"
     groups: "{{ rpm_dev_user.groups }}"
     append: true
-  become: true
   when: rpm_dev_setup_user | bool
   tags: ["rpm-dev", "user-setup"]
 
@@ -36,9 +33,10 @@
   ansible.builtin.file:
     path: "{{ rpm_build.build_dir }}/{{ item }}"
     state: directory
-    owner: "{{ rpm_dev_user.name }}"
-    group: "{{ rpm_dev_user.name }}"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
     mode: '0755'
+  become: false
   loop: "{{ rpm_build.directories }}"
   when: rpm_dev_setup_directories | bool
   tags: ["rpm-dev", "directories"]
@@ -47,9 +45,10 @@
   ansible.builtin.template:
     src: home/.rpmmacros.j2
     dest: "{{ rpm_build.home_dir }}/.rpmmacros"
-    owner: "{{ rpm_dev_user.name }}"
-    group: "{{ rpm_dev_user.name }}"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
     mode: '0644'
+  become: false
   when: rpm_build.setup_macros | bool
   tags: ["rpm-dev", "configuration"]
 
@@ -60,7 +59,6 @@
     owner: root
     group: mock
     mode: '0775'
-  become: true
   when: rpm_dev_setup_mock | bool
   tags: ["rpm-dev", "mock-setup"]
 
@@ -71,7 +69,6 @@
     owner: root
     group: root
     mode: '0644'
-  become: true
   when: rpm_dev_setup_mock | bool
   tags: ["rpm-dev", "mock-config"]
   notify: "Clear mock cache"

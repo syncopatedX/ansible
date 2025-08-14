@@ -6,7 +6,7 @@
     bootloader: grub
     autologin: false
     display_manager: "greetd"
-    window_manager: "sway"
+    desktop: "sway"
     use_libvirt: false
     rbenv_install: true
     networking: "systemd-network"
@@ -47,7 +47,7 @@
     - name: Configure window manager
       ansible.builtin.include_role:
         name: wayland
-      when: window_manager == "sway"
+      when: desktop == "sway"
 
     - name: Configure Ruby environment
       ansible.builtin.include_role:

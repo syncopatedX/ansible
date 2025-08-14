@@ -6,6 +6,6 @@ export UU_ORDER="$UU_ORDER:~/.zprofile"
 # To re-enable redirection,
 # start Xorg with the -keeptty flag and redirect the stdout and stderr output to a file:
 # startx -- -keeptty >~/.xorg.log 2>&1
-{% if window_manager == 'i3' %}
+{% if desktop == 'i3' %}
 [[ -z "$DISPLAY" ]] && [[ "${XDG_VTNR}" -eq 1 ]] && startx -- -keeptty >~/.xorg.log 2>&1
 {% endif %}
