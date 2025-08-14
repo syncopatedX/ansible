@@ -1,0 +1,144 @@
+---
+# i3 specific tasks
+- name: Load distribution-specific variables
+  ansible.builtin.include_vars: "{{ ansible_distribution }}.yml"
+  tags: ["packages"]
+
+- tags: ["packages"]
+  block:
+    - name: Install i3-wm packages
+      aur:
+        use: paru
+        name: "{{ i3_package_item }}"
+        state: present
+      loop: "{{ packages__i3 }}"
+      loop_control:
+        loop_var: i3_package_item
+      become: false
+      when: ansible_distribution == "Archlinux"
+  rescue:
+    - name: Installing packages failed
+      ansible.builtin.debug:
+        msg: "Failed to install i3-wm packages"
+
+- tags: ["packages"]
+  when: ansible_distribution == "Fedora"
+  block:
+    - name: Install i3-wm packages
+      ansible.builtin.dnf:
+        name: "{{ i3_package_item }}"
+        state: present
+      loop: "{{ packages__i3 }}"
+      loop_control:
+        loop_var: i3_package_item
+      become: true
+
+    - name: Install i3status-rs
+      ansible.builtin.command: "cargo install i3status-rs"
+      args:
+        creates: "{{ ansible_env.HOME }}/.cargo/bin/i3status-rs"
+      register: i3status_rs_install
+      changed_when: i3status_rs_install.rc == 0
+      failed_when: i3status_rs_install.rc != 0
+      become: false
+
+  rescue:
+    - name: Installing packages failed
+      ansible.builtin.debug:
+        msg: "Failed to install i3-wm packages"
+
+- import_tasks:
+    file: picom.yml
+  tags: ["picom"]
+
+- import_tasks:
+    file: dunst.yml
+  tags: ["dunst"]
+
+- name: Ensure i3 directories exist
+  ansible.builtin.file:
+    dest: "{{ wm_directory_default_location }}/{{ i3_directory_item.dest }}"
+    state: directory
+    owner: "{{ i3_directory_item.owner | default(wm_directory_default_owner) }}"
+    group: "{{ i3_directory_item.group | default(wm_directory_default_group) }}"
+    mode: "{{ i3_directory_item.mode | default(wm_directory_default_mode) }}"
+    recurse: "{{ i3_directory_item.recurse | default(wm_directory_default_recurse) }}"
+  loop: "{{ i3_directory_definitions }}"
+  loop_control:
+    loop_var: i3_directory_item
+  check_mode: false
+  tags: ["folders"]
+
+# if this file does not exist, lightdm will fail to start
+- name: Set dmrc to selected window manager
+  ansible.builtin.copy:
+    content: |
+      [Desktop]
+      Session=i3
+    dest: "{{ user.home }}/.dmrc"
+    owner: "{{ user.name }}"
+    mode: "0644"
+
+- tags: ["i3_config"]
+  block:
+    - name: Display i3 vars
+      ansible.builtin.debug:
+        msg: "{{ i3_config }}"
+      when: debug_vars is defined
+
+    - name: Set i3status-rs configuration
+      ansible.builtin.template:
+        src: "home/.config/{{ i3_status_template_item }}.j2"
+        dest: "{{ user.home }}/.config/{{ i3_status_template_item }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.group }}"
+        mode: "0644"
+        backup: true
+      register: wmconfig
+      loop:
+        - i3status-rust/config.toml
+        - i3status-rust/themes/syncopated.toml
+      loop_control:
+        loop_var: i3_status_template_item
+
+    - name: Set i3 configuration
+      ansible.builtin.template:
+        src: "home/.config/i3/{{ i3_config_template_item }}.j2"
+        dest: "{{ user.home }}/.config/i3/{{ i3_config_template_item }}"
+        owner: "{{ user.name }}"
+        group: "{{ user.group }}"
+        mode: "0644"
+        backup: true
+      register: wmconfig
+      loop:
+        - config
+        - modes/resize
+        - modes/screenshot
+        - keybindings
+        - appearance
+        - window_behavior
+        # - window_assignments
+        # - autostart
+      loop_control:
+        loop_var: i3_config_template_item
+      notify: Reload i3
+
+    - name: Set i3 keybindings
+      ansible.builtin.template:
+        src: "home/.config/i3/keybindings.j2"
+        dest: "{{ user.home }}/.config/i3/keybindings"
+        owner: "{{ user.name }}"
+        group: "{{ user.group }}"
+        mode: "0644"
+        backup: true
+      register: wmconfig_keybindings
+      notify: Reload i3
+      tags: ["keybindings"]
+
+- name: Update environment file
+  ansible.builtin.copy:
+    src: etc/environment
+    dest: /etc/environment
+    mode: "0644"
+    backup: true
+  become: true

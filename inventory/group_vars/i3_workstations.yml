@@ -1,0 +1,33 @@
+---
+# Example group variables for i3 workstations
+# Place this file in your inventory/group_vars/ directory
+
+# Window manager selection
+desktop: "i3"
+
+# Display manager configuration  
+display_manager: "lightdm"
+autologin: false
+
+# Bootloader (if using grub role)
+bootloader: grub
+
+# Example i3 configuration defaults
+# These can be overridden in host_vars for specific hosts
+i3:
+  autostart: ""
+  tray_output: "primary"
+  assignments: "default"
+  workspaces: "default"
+  keybindings: "default"
+
+# X11 configuration
+x:
+  autostart: []
+  
+# Terminal configuration
+terminal: "kitty"
+terminal_alt: "urxvt"
+
+# Theme preferences (if using theme role)
+zsh_theme: "robbyrussell"

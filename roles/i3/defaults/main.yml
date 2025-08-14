@@ -1,0 +1,24 @@
+---
+# defaults file for i3
+i3_config:
+  home: "{{ lookup(env,HOME) }}/.config/i3"
+  autostart: "default"
+  assignments: "default"
+  workspaces: "default"
+  keybindings: "default"
+  tray_output: "primary"
+
+# Directory configuration
+wm_directory_default_mode: "0750"
+wm_directory_default_owner: "{{ user.name }}"
+wm_directory_default_group: "{{ user.group }}"
+wm_directory_default_location: "{{ user.home }}"
+wm_directory_default_recurse: false
+
+# Terminal configuration
+terminal: terminator
+terminal_alt: urxvt
+
+picom_config_path: "{{ user.home }}/.config/picom.conf"
+
+dunst_config_path: "{{ user.home }}/.config/dunst"

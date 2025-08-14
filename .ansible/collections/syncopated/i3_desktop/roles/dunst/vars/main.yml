@@ -1,4 +1,0 @@
----
-# vars file for dunst
-packages__dunst:
-  - dunst

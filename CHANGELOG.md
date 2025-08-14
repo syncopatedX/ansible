@@ -99,7 +99,7 @@ All notable changes to this project will be documented in this file.
 - Rearranged the rescue and ensure blocks in the sway role
 - Changed `ensure` to `always` for block rescue
 - Changed loop to with_items in ruby role
-- Added window_manager variable to roles/shell/defaults/main.yml
+- Added desktop variable to roles/shell/defaults/main.yml
 - Added --config-file ~/.gemrc to gem list command
 
 ### 🚜 Refactor
