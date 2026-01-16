@@ -1,0 +1,39 @@
+---
+# NFS firewall configuration
+
+- name: Enable NFS service in firewalld
+  ansible.posix.firewalld:
+    service: nfs
+    permanent: true
+    state: enabled
+    immediate: true
+  notify: Reload firewalld
+
+- name: Enable mountd service in firewalld
+  ansible.posix.firewalld:
+    service: mountd
+    permanent: true
+    state: enabled
+    immediate: true
+  notify: Reload firewalld
+
+- name: Enable RPC-bind service in firewalld
+  ansible.posix.firewalld:
+    service: rpc-bind
+    permanent: true
+    state: enabled
+    immediate: true
+  notify: Reload firewalld
+
+# Optional: Open additional custom ports if defined
+- name: Open custom NFS ports in firewalld
+  ansible.posix.firewalld:
+    port: "{{ item }}"
+    permanent: true
+    state: enabled
+    immediate: true
+  loop: "{{ nas_nfs_firewall_ports }}"
+  when:
+    - nas_nfs_firewall_ports is defined
+    - nas_nfs_firewall_ports | length > 0
+  notify: Reload firewalld

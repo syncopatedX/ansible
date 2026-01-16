@@ -1,0 +1,31 @@
+---
+# Package installation for NAS role
+# Supports: Fedora, Rocky Linux 9 (RedHat family only)
+
+- name: Assert RedHat OS family
+  ansible.builtin.assert:
+    that:
+      - ansible_os_family == "RedHat"
+    fail_msg: "This role only supports RedHat family distributions (Fedora, Rocky Linux, RHEL)"
+    success_msg: "RedHat family detected: {{ ansible_distribution }}"
+
+- name: Load distribution-specific variables
+  ansible.builtin.include_vars: "{{ ansible_distribution }}.yml"
+
+- name: Install NFS server packages
+  ansible.builtin.dnf:
+    name: "{{ nas_packages_nfs }}"
+    state: present
+  when: nas_enable_nfs | default(true)
+
+- name: Install Samba server packages
+  ansible.builtin.dnf:
+    name: "{{ nas_packages_samba }}"
+    state: present
+  when: nas_enable_samba | default(true)
+
+- name: Install Rsync daemon packages
+  ansible.builtin.dnf:
+    name: "{{ nas_packages_rsync }}"
+    state: present
+  when: nas_enable_rsync | default(false)

@@ -1,0 +1,11 @@
+---
+# Rocky Linux / RHEL 9 specific shell packages and configuration
+
+packages__zsh:
+  - zsh
+  - zsh-syntax-highlighting  # Available in EPEL
+
+# Note: zsh-completions is available in EPEL
+# Install with: sudo dnf install epel-release && sudo dnf install zsh-completions
+# oh-my-zsh, zoxide, and zsh-autocomplete are not available in standard repos
+# These are installed via tasks in the role

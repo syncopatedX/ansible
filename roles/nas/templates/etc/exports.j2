@@ -1,4 +1,5 @@
 # /etc/exports - exports(5) - directories exported to NFS clients
+# Managed by Ansible - NAS Role
 #
 # Example for NFSv3:
 #  /srv/home        hostname1(rw,sync) hostname2(ro,sync)
@@ -10,14 +11,15 @@
 #  /srv/nfs4/home   *(rw,sync,sec=krb5i,nohide)
 #
 # Use `exportfs -arv` to reload.
-{% if bind_share_exports|bool %}
-/srv/exports 192.168.41.0/24(rw,fsid=0,no_subtree_check,sync)
-{% for item in share.nfs.exports %}
-/srv/exports/{{ item }} 192.168.41.0/24(rw,nohide,insecure,no_subtree_check,sync)
+
+{% for export in nas_nfs_exports %}
+{%   if export.is_root | default(false) %}
+# NFSv4 pseudo-root export
+{{ export.path }} {% for network in export.clients | default(nas_nfs_allowed_networks) %}{{ network }}({{ (export.options | default(nas_nfs_root_export_options)) | join(',') }}){% if not loop.last %} {% endif %}{% endfor %}
+
+{%   else %}
+# Export: {{ export.path }}
+{{ export.path }} {% for network in export.clients | default(nas_nfs_allowed_networks) %}{{ network }}({{ (export.options | default(nas_nfs_export_options)) | join(',') }}){% if not loop.last %} {% endif %}{% endfor %}
+
+{%   endif %}
 {% endfor %}
-{% else %}
-/srv/exports 192.168.41.0/24(rw,fsid=0,no_subtree_check,sync)
-{% for item in share.nfs.exports %}
-/srv/exports/{{ item }} 192.168.41.0/24(rw,nohide,insecure,no_subtree_check,sync)
-{% endfor %}
-{% endif %}

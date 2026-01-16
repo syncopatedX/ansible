@@ -1,0 +1,23 @@
+---
+# Zsh role defaults
+
+# Directory for zsh profile files
+profile_config_dir: "{{ user.home }}"
+
+# Desktop environment (affects startx in .zprofile)
+# Options: sway, i3, dwm, awesome, bspwm, xmonad, gnome, kde, or empty for server
+desktop: "sway"
+
+# Zsh theme selection (overrides hostname-based selection in .zshrc)
+# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes for available themes
+zsh_theme: "robbyrussell"
+
+# Optional installations
+zoxide_install: true  # Install zoxide from GitHub releases
+oh_my_zsh_install: true  # Install oh-my-zsh (set to false if already installed)
+
+# Optional features
+zsh_set_default_shell: false  # Automatically change user's default shell to zsh
+
+# Hardware-specific settings (override in host_vars as needed)
+# libva_driver: "i965"  # Uncomment and set for specific Intel/AMD GPU hardware

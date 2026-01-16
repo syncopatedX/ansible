@@ -1,0 +1,65 @@
+---
+# Shell configuration with zsh
+
+- name: Load distribution-specific variables
+  ansible.builtin.include_vars: "{{ ansible_distribution }}.yml"
+  tags: ["packages"]
+
+- name: Install shell packages on Rocky Linux/Fedora
+  ansible.builtin.dnf:
+    name: "{{ packages__zsh }}"
+    state: present
+  tags: ["packages"]
+
+- name: Install zsh configurations and plugins
+  ansible.builtin.import_tasks: zsh.yml
+  tags: ["zsh", "profile"]
+
+- name: Deploy aliases template for users
+  ansible.builtin.template:
+    src: home/.aliases.j2
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "0644"
+    backup: true
+  loop:
+    - dest: "{{ user.home }}/.aliases"
+      owner: "{{ user.name }}"
+      group: "{{ user.group }}"
+    - dest: "/root/.aliases"
+      owner: "root"
+      group: "root"
+  tags: ["aliases", "profile"]
+
+- name: Deploy .profile template
+  ansible.builtin.template:
+    src: home/.profile.j2
+    dest: "{{ profile_config_dir }}/.profile"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+    mode: "0644"
+    backup: true
+  tags: ["profile"]
+
+- name: Deploy zsh profile configuration files
+  ansible.builtin.template:
+    src: "home/{{ item }}.j2"
+    dest: "{{ user.home }}/{{ item }}"
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+    mode: "0644"
+    backup: true
+  loop:
+    - .zlogin
+    - .zprofile
+    - .zshenv
+    - .zshrc
+  tags: ["zsh", "profile"]
+
+- name: Set zsh as default shell for user
+  ansible.builtin.user:
+    name: "{{ user.name }}"
+    shell: /bin/zsh
+  when: zsh_set_default_shell | default(false) | bool
+  tags: ["zsh"]

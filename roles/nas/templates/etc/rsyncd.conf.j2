@@ -1,51 +1,36 @@
-uid = {{ user.uid }}
-gid = {{ user.gid }}
-use chroot = no
-max connections = 4
-syslog facility = local5
+# Rsync Daemon Configuration
+# Managed by Ansible - NAS Role
+
+# Global Settings
+uid = {{ nas_rsync_user }}
+gid = {{ nas_rsync_group }}
+use chroot = {{ nas_rsync_use_chroot | string | lower }}
+max connections = {{ nas_rsync_max_connections }}
+syslog facility = {{ nas_rsync_syslog_facility }}
 pid file = /run/rsyncd.pid
 
-[Documents]
-  path = /export/Documents
-  comment = Documents
-  read only = false
+# Rsync Modules (Shares)
+{% for module in nas_rsync_modules %}
+[{{ module.name }}]
+  path = {{ module.path }}
+{%   if module.comment is defined %}
+  comment = {{ module.comment }}
+{%   endif %}
+  read only = {{ module.read_only | default(false) | string | lower }}
+{%   if module.list is defined %}
+  list = {{ module.list | string | lower }}
+{%   endif %}
+{%   if module.uid is defined %}
+  uid = {{ module.uid }}
+{%   endif %}
+{%   if module.gid is defined %}
+  gid = {{ module.gid }}
+{%   endif %}
+{%   if module.hosts_allow is defined and module.hosts_allow | length > 0 %}
+  hosts allow = {{ module.hosts_allow | join(' ') }}
+{%   endif %}
+{%   if module.hosts_deny is defined and module.hosts_deny | length > 0 %}
+  hosts deny = {{ module.hosts_deny | join(' ') }}
+{%   endif %}
 
-[Images]
-  path = /export/Images
-  comment = Images
-  read only = false
-
-[Music]
-  path = /export/Music
-  comment = Music
-  read only = false
-
-[Notebook]
-  path = /export/Notebooks
-  comment = Notebooks
-  read only = false
-
-[Recordings]
-  path = /export/Recordings
-  comment = Recordings
-  read only = false
-
-[Sessions]
-  path = /export/Sessions
-  comment = Sessions
-  read only = false
-
-[Videos]
-  path = /export/Videos
-  comment = Videos
-  read only = false
-
-[Workspace]
-  path = /export/Workspace
-  comment = Workspace
-  read only = false
-
-[Library]
-  path = /export/Library
-  comment = Library
-  read only = false
+{% endfor %}

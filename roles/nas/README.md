@@ -1,363 +1,510 @@
-# Ansible Role: NAS
+# Ansible Role: NAS (Network Attached Storage)
 
-This Ansible role automates the setup of Network Attached Storage (NAS) services, specifically NFS (Network File System) and Samba, on target Linux servers.
+A comprehensive Ansible role for configuring network-attached storage services on **RedHat family** systems (Fedora, Rocky Linux 9, RHEL). This role supports NFS, Samba/SMB, and Rsync daemon services with fully variable-driven configuration.
 
 ## Table of Contents
 
-- [Ansible Role: NAS](#ansible-role-nas)
-  - [Table of Contents](#table-of-contents)
-  - [Requirements](#requirements)
-  - [Role Variables](#role-variables)
-    - [Service Activation](#service-activation)
-    - [NFS Configuration](#nfs-configuration)
-    - [Directory Ownership](#directory-ownership)
-    - [Firewall Configuration (Reference)](#firewall-configuration-reference)
-  - [Dependencies](#dependencies)
-  - [Example Playbook](#example-playbook)
-    - [Inventory Example](#inventory-example)
-    - [Host Variables Example](#host-variables-example)
-    - [Playbook Execution](#playbook-execution)
-  - [Detailed Functionality](#detailed-functionality)
-    - [NFS Setup (`nfs_host: true`)](#nfs-setup-nfs_host-true)
-    - [Samba Setup (`samba_host: true`)](#samba-setup-samba_host-true)
-  - [Customization](#customization)
-    - [Defining NFS Shares](#defining-nfs-shares)
-    - [NFS Export Options](#nfs-export-options)
-    - [Samba Configuration](#samba-configuration)
-    - [Firewall Ports](#firewall-ports)
-    - [Ownership](#ownership)
-  - [Templates Required](#templates-required)
-  - [Use Cases \& Network Diagrams](#use-cases--network-diagrams)
-    - [Use Case 1: Simple Home NFS Server](#use-case-1-simple-home-nfs-server)
-    - [Use Case 2: Samba Server for Mixed Environment](#use-case-2-samba-server-for-mixed-environment)
-    - [Use Case 3: Combined NFS and Samba Server](#use-case-3-combined-nfs-and-samba-server)
-  - [Testing](#testing)
-  - [License](#license)
-  - [Author Information](#author-information)
+- [Requirements](#requirements)
+- [Supported Platforms](#supported-platforms)
+- [Role Variables](#role-variables)
+  - [Service Activation](#service-activation)
+  - [NFS Configuration](#nfs-configuration)
+  - [Samba Configuration](#samba-configuration)
+  - [Rsync Configuration](#rsync-configuration)
+- [Dependencies](#dependencies)
+- [Example Playbook](#example-playbook)
+- [Directory Structure](#directory-structure)
+- [Usage Examples](#usage-examples)
+- [Testing](#testing)
+- [License](#license)
 
 ## Requirements
 
-- **Ansible:** Version 2.1 or higher.
-- **Supported Operating Systems:**
-  - Arch Linux and its derivatives (e.g., EndeavourOS)
-  - Red Hat based distributions (e.g., Fedora)
-  - Debian and its derivatives (e.g., MX Linux)
-- **Python Libraries:**
-  - `community.general.ufw` (for UFW management on Debian/MX systems)
-  - `ansible.posix.firewalld` (for firewalld management on Arch/RedHat systems)
+- **Ansible**: Version 2.12 or higher
+- **Collections**:
+  - `ansible.posix` (for firewalld module)
+- **Operating System**: RedHat family only (Fedora, Rocky Linux 9, RHEL)
+
+## Supported Platforms
+
+| Platform | Versions |
+|----------|----------|
+| Fedora | All current versions |
+| Rocky Linux | 9.x |
+| RHEL | 9.x |
+
+**Note**: This role is specifically designed for RedHat family distributions and will fail with an assertion error on other OS families.
 
 ## Role Variables
 
+All variables are defined in `defaults/main.yml` with sensible defaults. See below for comprehensive documentation.
+
 ### Service Activation
 
-These variables control which NAS services are configured.
+Control which NAS services are enabled:
 
-- `nfs_host`:
-  - Description: Enables or disables the NFS server configuration.
-  - Type: `boolean`
-  - Default: `false`
-  - Example: `nfs_host: true`
-
-- `samba_host`:
-  - Description: Enables or disables the Samba server configuration.
-  - Type: `boolean`
-  - Default: `false`
-  - Example: `samba_host: true`
+```yaml
+# Enable/disable individual NAS services
+nas_enable_nfs: true      # NFS server
+nas_enable_samba: true    # Samba/SMB server
+nas_enable_rsync: false   # Rsync daemon (disabled by default)
+```
 
 ### NFS Configuration
 
-These variables are used when `nfs_host` is `true`.
-
-- `bind_share_exports`:
-  - Description: Controls how NFS shares are exposed. If `true`, the role creates directories under `/srv/exports/` and uses bind mounts to link them to the actual data directories specified by `share.nfs.parent` and `share.nfs.exports`. This is the primary supported method.
-  - Type: `boolean`
-  - Default: `true`
-
-- `share`:
-  - Description: A dictionary defining the NFS shares. This should typically be defined in `host_vars` or `group_vars`.
-  - Type: `dict`
-  - Structure:
-    - `nfs`:
-      - `parent`: (string, required) The absolute path to the parent directory containing the directories to be exported (e.g., `"/mnt/data"`, `"{{ user.home }}"`).
-      - `exports`: (list of strings, required) A list of subdirectory names within the `parent` directory that will be exported (e.g., `["documents", "photos"]`).
-  - Example:
-
-        ```yaml
-        share:
-          nfs:
-            parent: "/storage/shares"
-            exports:
-              - "public"
-              - "private_archive"
-        ```
-
-### Directory Ownership
-
-These variables define the ownership for directories created by the role (primarily for NFS shares).
-
-- `user`:
-  - Description: A dictionary defining the user and group for shared directories.
-  - Type: `dict`
-  - Structure:
-    - `name`: (string, required) Username for the owner.
-    - `group`: (string, required) Group name for the owner.
-  - Example:
-
-        ```yaml
-        user:
-          name: "filesharer"
-          group: "filesharers"
-        ```
-
-### Firewall Configuration (Reference)
-
-The role attempts to configure firewall rules automatically. The following variable is available in defaults but note that the `nfs.yml` task currently uses a more extensive, hardcoded list of ports for `firewalld`.
-
-- `firewall.nfs.ports`:
-  - Description: Defines default ports for various NFS-related services. This variable serves as a reference, as the current `nfs.yml` task for `firewalld` uses a more comprehensive, hardcoded list. For `ufw`, specific ports are also hardcoded.
-  - Type: `dict`
-  - Default:
-
-        ```yaml
-        firewall:
-          nfs:
-            ports:
-              lockd:
-                tcp: 32803
-                udp: 32769
-              mountd: 892
-              statd: 662
-              rpc: 40418 # This is a general RPC port, specific services like status/nlm might use others
-        ```
-
-## Dependencies
-
-None explicitly listed in `meta/main.yml`.
-
-## Example Playbook
-
-### Inventory Example
-
-(`inventory.ini`)
-
-```ini
-[nas_servers]
-mynas ansible_host=192.168.1.100
-
-[all:vars]
-ansible_user=your_ssh_user
-```
-
-### Host Variables Example
-
-(`host_vars/mynas.yml`)
+#### NFS User/Group
 
 ```yaml
-nfs_host: true
-samba_host: true # Set to false if Samba is not needed
-
-user:
-  name: "nasuser"
-  group: "nasgroup"
-
-share:
-  nfs:
-    parent: "/mnt/tank/shares" # Location of your actual data
-    exports:
-      - "documents"
-      - "photos"
-      - "media"
-
-# bind_share_exports: true # Default, explicitly set if needed
+nas_nfs_user_name: nobody
+nas_nfs_user_group: nobody
+nas_nfs_user_uid: 65534
+nas_nfs_user_gid: 65534
 ```
 
-### Playbook Execution
+#### NFS Domain & Network Access
 
-1. **Create a playbook file** (e.g., `nas_setup.yml`):
+```yaml
+# NFSv4 domain (defaults to system's DNS domain)
+nas_nfs_domain: "{{ ansible_domain | default('localdomain') }}"
 
-    ```yaml
-    ---
-    - hosts: nas_servers
-      become: yes
-      roles:
-        - role: path/to/your/nas_role # Or just 'nas' if in standard roles_path
-    ```
-
-2. **Run the playbook:**
-
-    ```bash
-    ansible-playbook -i inventory.ini nas_setup.yml
-    ```
-
-    To run for a specific host from the example README:
-
-    ```bash
-    ansible-playbook -i inventory.ini nas_setup.yml --limit tinybot
-    ```
-
-    (Assuming `tinybot` is defined in your inventory and host_vars).
-
-## Detailed Functionality
-
-### NFS Setup (`nfs_host: true`)
-
-When `nfs_host` is enabled, the role performs the following actions:
-
-1. **Creates `nobody` User and Group:** Ensures `nobody` user and group (UID/GID 65534) exist for NFS.
-2. **Installs NFS Configuration Files:**
-    - Templates `/etc/idmapd.conf` from `templates/etc/idmapd.conf.j2`.
-    - Templates `/etc/nfs.conf` from `templates/etc/nfs.conf.j2`.
-3. **Enables and Starts NFS Services:** Ensures the following services are started and enabled:
-    - `nfsv4-server` (or `nfs-server` as seen in demo)
-    - `nfs-mountd`
-    - `nfs-idmapd`
-    - `rpcbind`
-4. **Configures Firewall:**
-    - **Archlinux/RedHat (firewalld):** Opens a comprehensive list of TCP/UDP ports necessary for NFSv4, including 111 (rpcbind), 2049 (nfs), and ports for mountd, statd, lockd, etc. It then reloads firewalld.
-    - **Debian/MX (ufw):** Allows TCP traffic on ports 111, 662, 892, 2049, 32803 and UDP traffic on ports 111, 662, 892, 32769, 32803.
-5. **Manages Share Directories (if `bind_share_exports: true`):**
-    - Creates the main export directory: `/srv/exports` (owner/group as per `user.name`/`user.group`).
-    - Ensures the source directories (`{{ share.nfs.parent }}/{{ item }}`) exist.
-    - Creates target directories within `/srv/exports` (`/srv/exports/{{ item }}`).
-    - Adds bind mount entries to `/etc/fstab` to map `{{ share.nfs.parent }}/{{ item }}` to `/srv/exports/{{ item }}`.
-    - Reloads `systemd` if `/etc/fstab` was changed.
-    - Mounts the defined bind mounts.
-6. **Sets Up NFS Exports:**
-    - Templates `/etc/exports` from `templates/etc/exports.j2`. This file defines which directories are exported and with what options (e.g., client access, permissions).
-    - Reloads NFS exports using `exportfs -rv` if `/etc/exports` was changed.
-
-### Samba Setup (`samba_host: true`)
-
-When `samba_host` is enabled, the role performs:
-
-1. **Creates User and Group:**
-    - Ensures a group named `storage` (GID 1036) exists.
-    - Ensures a user named `home` (part of `storage` group, shell `/sbin/nologin`) exists.
-2. **Installs Samba Configuration:**
-    - Copies `/etc/samba/smb.conf` from a source file located at `files/etc/samba/smb.conf` within the role. (The task uses `ansible.builtin.copy`, so the source should be in the role's `files` directory).
-3. **Configures Firewall (firewalld):**
-    - Permits traffic for the `samba` service permanently.
-4. **Enables and Starts Samba Service:**
-    - Ensures the `samba` service (often `smbd` and `nmbd`) is started and enabled.
-
-## Customization
-
-### Defining NFS Shares
-
-Modify the `share.nfs.parent` and `share.nfs.exports` variables in your `host_vars` or `group_vars` to define the directories you want to share via NFS.
-
-- `share.nfs.parent`: The base directory on your server where the original data for shares is located.
-- `share.nfs.exports`: A list of subdirectories under `parent` that will become individual NFS shares.
-
-### NFS Export Options
-
-The specific options for how NFS shares are exported (e.g., read/write permissions, client restrictions, `sync`/`async`, `root_squash`/`no_root_squash`) are controlled by the content of the **`templates/etc/exports.j2`** file within the role. You will need to customize this Jinja2 template to match your security and access requirements.
-
-Example line in `exports.j2`:
-
-```jinja
-{% for export_item in share.nfs.exports %}
-/srv/exports/{{ export_item }}    *(rw,sync,no_subtree_check,no_root_squash)
-{% endfor %}
+# Allowed networks (CIDR notation)
+nas_nfs_allowed_networks:
+  - "192.168.41.0/24"
+  - "10.0.0.0/8"        # Add additional networks as needed
 ```
 
-*(This is a basic example; consult NFS documentation for detailed options.)*
+#### NFS Exports
+
+Define NFS exports as a list of dictionaries:
+
+```yaml
+nas_nfs_exports:
+  - path: /srv/nfs
+    create_dir: true
+    is_root: true  # NFSv4 pseudo-root (fsid=0)
+
+  - path: /srv/nfs/shared
+    create_dir: true
+    owner: nobody
+    group: nobody
+    mode: '0755'
+    options:  # Optional: override default export options
+      - rw
+      - nohide
+      - insecure
+      - no_subtree_check
+      - sync
+    clients:  # Optional: override default allowed networks
+      - "192.168.1.0/24"
+```
+
+**Export Parameters**:
+- `path` (required): Directory path to export
+- `is_root` (optional): Mark as NFSv4 pseudo-root (fsid=0)
+- `create_dir` (optional, default: false): Create directory if missing
+- `owner` (optional, default: nas_nfs_user_name): Directory owner
+- `group` (optional, default: nas_nfs_user_group): Directory group
+- `mode` (optional, default: '0755'): Directory permissions
+- `options` (optional): List of NFS export options (defaults to nas_nfs_export_options)
+- `clients` (optional): List of allowed networks (defaults to nas_nfs_allowed_networks)
+
+#### Default NFS Export Options
+
+```yaml
+# Regular export options
+nas_nfs_export_options:
+  - rw
+  - sync
+  - no_subtree_check
+
+# Root export options (fsid=0)
+nas_nfs_root_export_options:
+  - rw
+  - fsid=0
+  - no_subtree_check
+  - sync
+```
 
 ### Samba Configuration
 
-Samba's behavior is almost entirely dictated by its configuration file. To customize Samba shares, permissions, and other settings:
+#### Samba User/Group
 
-1. Modify the **`files/etc/samba/smb.conf`** file within this Ansible role structure before running the playbook.
-2. This file will be copied to `/etc/samba/smb.conf` on the target server.
+```yaml
+nas_samba_user: smbuser
+nas_samba_group: smbgroup
+nas_samba_uid: 1036
+nas_samba_gid: 1036
+nas_samba_user_system: false
+nas_samba_group_system: false
+```
 
-### Firewall Ports
+#### Samba Global Settings
 
-- **NFS:** The role hardcodes a list of TCP/UDP ports for `firewalld` and `ufw` in `tasks/nfs.yml`. While `defaults/main.yml` contains a `firewall.nfs.ports` variable, it's not directly used by these tasks for the full port list. If you need to change these ports, you'll likely need to modify `tasks/nfs.yml`.
-- **Samba:** The role enables the predefined `samba` service in `firewalld`, which typically includes ports 137/udp, 138/udp, 139/tcp, and 445/tcp.
+```yaml
+nas_samba_workgroup: WORKGROUP
+nas_samba_server_string: "Samba Server %v"
+nas_samba_netbios_name: "{{ ansible_hostname | upper }}"
 
-### Ownership
+# Protocol versions
+nas_samba_server_min_protocol: NT1
+nas_samba_client_min_protocol: NT1
+nas_samba_client_max_protocol: SMB3
+nas_samba_ntlm_auth: ntlmv1-permitted
 
-Directory ownership for NFS shares created under `/srv/exports` (and potentially the source directories under `share.nfs.parent` if the role creates them) is set using the `user.name` and `user.group` variables.
+# Network access control
+nas_samba_hosts_allow:
+  - 127.0.0.1
+  - "192.168.41.0/24"
 
-## Templates Required
+# File/directory permissions
+nas_samba_create_mask: "0664"
+nas_samba_directory_mask: "2755"
+nas_samba_force_create_mode: "0644"
+nas_samba_force_directory_mode: "2755"
+```
 
-This role relies on several Jinja2 templates and files that must be present in the role's directory structure:
+#### Samba Shares
 
-- `templates/etc/idmapd.conf.j2`: Configuration for NFS ID mapping.
-- `templates/etc/nfs.conf.j2`: General NFS daemon configuration.
-- `templates/etc/exports.j2`: **Crucial for defining NFS export paths and options.**
-- `files/etc/samba/smb.conf`: The Samba configuration file. (Note: `samba.yml` uses `ansible.builtin.copy`, implying this should be in the `files` directory of the role. If it were a template, it would typically end in `.j2` and be in the `templates` directory).
+Define Samba shares as a list of dictionaries:
 
-Ensure these files are properly configured within your role before execution.
+```yaml
+nas_samba_shares:
+  - name: shared
+    path: /srv/samba/shared
+    comment: Shared Files
+    browseable: true
+    public: false
+    create_dir: true
+    owner: root
+    group: "{{ nas_samba_group }}"
+    mode: "0775"
 
-## Use Cases & Network Diagrams
+  - name: Media
+    path: /storage/media
+    comment: Media Files
+    valid_users:
+      - mediauser
+      - "@{{ nas_samba_group }}"
+    write_list:
+      - mediauser
+    browseable: true
+    public: false
+    inherit_permissions: true
+```
 
-These are conceptual diagrams. Actual network topology may vary.
+**Share Parameters**:
+- `name` (required): Share name
+- `path` (required): Directory path
+- `comment` (optional): Share description
+- `valid_users` (optional): List of users/groups allowed
+- `write_list` (optional): List of users with write access
+- `read_only` (optional, default: false): Read-only flag
+- `browseable` (optional, default: true): Browseable flag
+- `public` (optional, default: false): Guest access
+- `create_dir` (optional, default: false): Create directory if missing
+- `owner` (optional): Directory owner
+- `group` (optional): Directory group
+- `mode` (optional): Directory permissions
+- `inherit_permissions` (optional, default: true): Inherit parent permissions
+- `inherit_acls` (optional, default: false): Inherit ACLs
 
-### Use Case 1: Simple Home NFS Server
+#### Samba Service Options
 
-- **Description:** A server configured to provide NFS shares (e.g., 'Media', 'Backups', 'Documents') to Linux or macOS clients on a home network.
-- **Diagram:**
+```yaml
+nas_samba_enable_nmb: true                  # Enable NetBIOS service
+nas_samba_enable_client_firewall: false     # Enable samba-client firewall service
+nas_samba_enable_homes: true                # Enable [homes] share
+nas_samba_disable_printing: true            # Disable printer sharing
+```
 
-    ```shell
-    [Linux Client 1] ----LAN----> [NAS Server (Ansible Managed)] ----accesses---> [Storage on NAS]
-         ^                      (NFS Enabled)
-         |
-    [macOS Client] ------LAN---->
-    ```
+### Rsync Configuration
 
-### Use Case 2: Samba Server for Mixed Environment
+#### Rsync Daemon Settings
 
-- **Description:** The NAS server provides shares accessible via the SMB/CIFS protocol, primarily for Windows clients, but also compatible with Linux and macOS.
-- **Diagram:**
+```yaml
+nas_rsync_user: nobody
+nas_rsync_group: nobody
+nas_rsync_uid: 65534
+nas_rsync_gid: 65534
 
-    ```shell
-    [Windows Client 1] ---LAN---> [NAS Server (Ansible Managed)] ----accesses---> [Storage on NAS]
-                                 (Samba Enabled)
-    [Windows Client 2] ---LAN--->      ^
-                                       |
-    [Linux/macOS Client] --LAN--------> (using SMB/CIFS)
-    ```
+nas_rsync_max_connections: 4
+nas_rsync_use_chroot: false
+nas_rsync_syslog_facility: local5
+```
 
-### Use Case 3: Combined NFS and Samba Server
+#### Rsync Modules
 
-- **Description:** The server is configured to offer both NFS (for Unix-like clients) and Samba (for Windows and broader compatibility) shares, potentially sharing the same backend data.
-- **Diagram:**
+Define rsync daemon modules as a list of dictionaries:
 
-    ```shell
-    [Linux Client (NFS)] ---LAN---> [NAS Server (Ansible Managed)] ----accesses---> [Storage on NAS]
-                                    (NFS & Samba Enabled)
-    [Windows Client (Samba)] -LAN->      ^         ^
-                                         |         |
-    [macOS Client (NFS/Samba)] LAN------>          |
-                                                   |
-    [Other device (Samba)] ----LAN----------------->
-    ```
+```yaml
+nas_rsync_modules:
+  - name: shared
+    path: /srv/rsync/shared
+    comment: Shared Files via Rsync
+    read_only: false
 
-## Testing
+  - name: backups
+    path: /backups
+    comment: Backup Storage
+    read_only: true
+    hosts_allow:
+      - "192.168.41.0/24"
+```
 
-A basic test playbook is provided in `tests/test.yml`. This can be used as a starting point for verifying the role's functionality in a controlled environment (e.g., with Vagrant or Docker).
+**Module Parameters**:
+- `name` (required): Module name
+- `path` (required): Directory path
+- `comment` (optional): Module description
+- `read_only` (optional, default: false): Read-only flag
+- `list` (optional, default: true): Allow listing
+- `uid` (optional, defaults to nas_rsync_user): User for file operations
+- `gid` (optional, defaults to nas_rsync_group): Group for file operations
+- `hosts_allow` (optional): List of allowed hosts/networks
+- `hosts_deny` (optional): List of denied hosts/networks
+
+## Dependencies
+
+This role requires the `ansible.posix` collection for firewalld management.
+
+Install with:
+
+```bash
+ansible-galaxy collection install ansible.posix
+```
+
+## Example Playbook
+
+### Basic Usage
 
 ```yaml
 ---
-- hosts: localhost # Or your test target
-  remote_user: root # Adjust as necessary
+- name: Configure NAS services
+  hosts: nas_servers
+  become: true
   roles:
-    - nas # Assuming 'nas' is the role name
+    - role: nas
+      vars:
+        nas_enable_nfs: true
+        nas_enable_samba: true
+        nas_enable_rsync: false
+
+        nas_nfs_exports:
+          - path: /srv/nfs
+            create_dir: true
+            is_root: true
+          - path: /srv/nfs/data
+            create_dir: true
+
+        nas_samba_shares:
+          - name: data
+            path: /srv/samba/data
+            comment: Data Share
+            create_dir: true
+```
+
+### Advanced Configuration
+
+```yaml
+---
+- name: Configure NAS with custom settings
+  hosts: fileserver
+  become: true
+  roles:
+    - role: nas
+      vars:
+        # Enable all services
+        nas_enable_nfs: true
+        nas_enable_samba: true
+        nas_enable_rsync: true
+
+        # Custom NFS configuration
+        nas_nfs_domain: "example.com"
+        nas_nfs_allowed_networks:
+          - "192.168.1.0/24"
+          - "10.0.0.0/8"
+
+        nas_nfs_exports:
+          - path: /export/nfs
+            create_dir: true
+            is_root: true
+          - path: /export/nfs/media
+            create_dir: true
+            mode: '0775'
+          - path: /export/nfs/backups
+            create_dir: true
+            mode: '0755'
+            options:
+              - ro
+              - sync
+              - no_subtree_check
+
+        # Custom Samba configuration
+        nas_samba_workgroup: MYWORKGROUP
+        nas_samba_hosts_allow:
+          - 127.0.0.1
+          - "192.168.1.0/24"
+
+        nas_samba_shares:
+          - name: public
+            path: /srv/samba/public
+            comment: Public Share
+            public: true
+            browseable: true
+            create_dir: true
+          - name: secure
+            path: /srv/samba/secure
+            comment: Secure Share
+            valid_users:
+              - "@smbgroup"
+            browseable: false
+            create_dir: true
+
+        # Custom Rsync configuration
+        nas_rsync_modules:
+          - name: backup
+            path: /backup
+            comment: Backup Module
+            read_only: false
+            hosts_allow:
+              - "192.168.1.0/24"
+```
+
+## Directory Structure
+
+After refactoring, the role follows this modular structure:
+
+```
+roles/nas/
+├── defaults/
+│   └── main.yml              # Comprehensive variable definitions
+├── vars/
+│   ├── Fedora.yml            # Fedora-specific packages
+│   └── RedHat.yml            # Rocky/RHEL-specific packages
+├── tasks/
+│   ├── main.yml              # Main orchestration
+│   ├── packages.yml          # Package installation
+│   ├── users.yml             # User/group creation
+│   ├── nfs/
+│   │   ├── main.yml          # NFS orchestration
+│   │   ├── config.yml        # Template deployment
+│   │   ├── services.yml      # Service management
+│   │   ├── firewall.yml      # Firewall rules
+│   │   └── exports.yml       # Export management
+│   ├── samba/
+│   │   ├── main.yml          # Samba orchestration
+│   │   ├── config.yml        # Template deployment
+│   │   ├── services.yml      # Service management
+│   │   └── firewall.yml      # Firewall rules
+│   └── rsync/
+│       ├── main.yml          # Rsync orchestration
+│       └── config.yml        # Template deployment
+├── templates/
+│   └── etc/
+│       ├── exports.j2        # NFS exports
+│       ├── idmapd.conf.j2    # NFS ID mapping
+│       ├── nfs.conf.j2       # NFS daemon config
+│       ├── rsyncd.conf.j2    # Rsync daemon config
+│       └── samba/
+│           └── smb.conf.j2   # Samba configuration
+├── handlers/
+│   └── main.yml              # All service handlers
+├── meta/
+│   └── main.yml              # Role metadata
+└── README.md                 # This file
+```
+
+## Usage Examples
+
+### NFS-Only Server
+
+```yaml
+- hosts: nfs_server
+  become: true
+  roles:
+    - role: nas
+      vars:
+        nas_enable_nfs: true
+        nas_enable_samba: false
+        nas_enable_rsync: false
+```
+
+### Samba-Only Server
+
+```yaml
+- hosts: smb_server
+  become: true
+  roles:
+    - role: nas
+      vars:
+        nas_enable_nfs: false
+        nas_enable_samba: true
+        nas_enable_rsync: false
+```
+
+### Combined NAS Server
+
+```yaml
+- hosts: nas_server
+  become: true
+  roles:
+    - role: nas
+      vars:
+        nas_enable_nfs: true
+        nas_enable_samba: true
+        nas_enable_rsync: true
+```
+
+## Testing
+
+### Syntax Check
+
+```bash
+ansible-playbook playbooks/nas.yml --syntax-check
+```
+
+### Dry Run
+
+```bash
+ansible-playbook playbooks/nas.yml --check --diff
+```
+
+### Run with Tags
+
+```bash
+# Install packages only
+ansible-playbook playbooks/nas.yml --tags nas_packages
+
+# Configure NFS only
+ansible-playbook playbooks/nas.yml --tags nas_nfs
+
+# Configure Samba only
+ansible-playbook playbooks/nas.yml --tags nas_samba
+
+# Configure Rsync only
+ansible-playbook playbooks/nas.yml --tags nas_rsync
+```
+
+### Verify Services
+
+```bash
+# Check NFS exports
+ansible nas_servers -m shell -a "exportfs -v"
+
+# Check Samba configuration
+ansible nas_servers -m shell -a "testparm -s"
+
+# Check running services
+ansible nas_servers -m shell -a "systemctl status nfs-server smb nmb rsyncd"
 ```
 
 ## License
 
-Specify your license here (e.g., MIT, GPL-2.0-or-later). The `meta/main.yml` suggests options like BSD-3-Clause, MIT, GPL-2.0-or-later, etc.
-
-Example: `license (GPL-2.0-or-later)`
+MIT
 
 ## Author Information
 
-Provide your author details here.
-Example from `meta/main.yml`:
+Ansible Workstation Project
 
-- Author: your name
-- Company: your company (optional)
-- Role Description: your role description
-- Contact: <rwpannick@gmail.com> (from demo.md)
+---
+
+**Note**: This role has been refactored for RedHat family systems only. For multi-distribution support, please refer to earlier versions of this role or contact the maintainers.

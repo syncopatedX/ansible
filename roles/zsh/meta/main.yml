@@ -1,0 +1,30 @@
+---
+# SPDX-License-Identifier: MIT-0
+galaxy_info:
+  author: b08x
+  description: Zsh shell environment configuration for professional workstations
+  company: ""
+
+  license: MIT
+
+  min_ansible_version: "2.15"
+
+  platforms:
+    - name: Fedora
+      versions:
+        - "39"
+        - "40"
+        - "41"
+    - name: EL
+      versions:
+        - "9"
+
+  galaxy_tags:
+    - shell
+    - zsh
+    - terminal
+    - development
+    - workstation
+    - productivity
+
+dependencies: []

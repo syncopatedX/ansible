@@ -1,0 +1,85 @@
+---
+# Zsh configuration and setup
+
+- name: Check if oh-my-zsh is installed
+  ansible.builtin.stat:
+    path: "/usr/share/oh-my-zsh"
+  register: zsh_oh_my_zsh_stat
+
+- name: Oh-my-zsh installation
+  block:
+    - name: Download oh-my-zsh install script
+      ansible.builtin.get_url:
+        url: "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
+        dest: "/tmp/oh-my-zsh-install.sh"
+        mode: "0755"
+      register: zsh_oh_my_zsh_install_script
+
+    - name: Install oh-my-zsh
+      ansible.builtin.command:
+        cmd: "/tmp/oh-my-zsh-install.sh --unattended"
+      environment:
+        ZSH: "/usr/share/oh-my-zsh"
+      when: zsh_oh_my_zsh_install_script is changed
+      register: zsh_oh_my_zsh_install
+
+    - name: Clean up oh-my-zsh install script
+      ansible.builtin.file:
+        path: "/tmp/oh-my-zsh-install.sh"
+        state: absent
+      when: zsh_oh_my_zsh_install is changed
+
+  when: not zsh_oh_my_zsh_stat.stat.exists
+  tags: ["oh-my-zsh"]
+
+- name: Deploy oh-my-zsh custom plugins
+  ansible.builtin.copy:
+    src: "usr/share/oh-my-zsh/plugins/{{ item }}/"
+    dest: "/usr/share/oh-my-zsh/custom/plugins/{{ item }}/"
+    owner: root
+    group: root
+    mode: "0755"
+    backup: false
+  loop:
+    - fd
+    - ripgrep
+  tags: ["oh-my-zsh"]
+
+- name: Install zsh custom functions
+  ansible.posix.synchronize:
+    src: home/.local/share/zsh/
+    dest: "{{ user.home }}/.local/share/zsh/"
+    recursive: true
+    mode: push
+    delete: true
+    checksum: true
+    perms: false
+    rsync_opts:
+      - "--update"
+      - "--omit-dir-times"
+      - "--chown={{ user.name }}:{{ user.name }}"
+  ignore_errors: "{{ ansible_check_mode }}"
+  become: false
+  tags: ["zsh", "functions"]
+
+- name: Install zoxide from GitHub releases
+  block:
+    - name: Download zoxide binary
+      ansible.builtin.get_url:
+        url: "https://github.com/ajeetdsouza/zoxide/releases/latest/download/zoxide-x86_64-unknown-linux-musl.tar.gz"
+        dest: "/tmp/zoxide.tar.gz"
+        mode: "0644"
+
+    - name: Extract zoxide
+      ansible.builtin.unarchive:
+        src: "/tmp/zoxide.tar.gz"
+        dest: "/usr/local/bin"
+        remote_src: true
+        creates: "/usr/local/bin/zoxide"
+
+    - name: Clean up zoxide archive
+      ansible.builtin.file:
+        path: "/tmp/zoxide.tar.gz"
+        state: absent
+  when: zoxide_install | default(true) | bool
+  tags: ["zsh", "zoxide"]
