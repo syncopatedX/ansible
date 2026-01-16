@@ -3,9 +3,7 @@
 # Install 1 or more versions of ruby
 # The last ruby listed will be set as the default ruby
 rvm1_rubies:
-  - "ruby-3.2.0"
   - "ruby-3.3.8"
-  - "ruby-3.4.4"
 
 # Install bundler
 rvm1_bundler_install: true
@@ -18,7 +16,7 @@ rvm1_install_path: "~/.rvm"
 # Add or remove any install flags
 # NOTE: If you are doing a ROOT BASED INSTALL then
 #       make sure you REMOVE the --user-install flag below
-rvm1_install_flags: "--auto-dotfiles --user-install"
+rvm1_install_flags: "--user-install"
 
 # Add additional ruby install flags
 rvm1_ruby_install_flags:
