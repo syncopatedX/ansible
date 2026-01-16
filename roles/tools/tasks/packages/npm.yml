@@ -1,0 +1,42 @@
+---
+# ============================================================================
+# npm Package Installation
+# Installs CLI tools globally via npm
+# ============================================================================
+
+- name: Install npm packages globally
+  become: false
+  tags: ["npm", "packages"]
+  block:
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Check if npm is available
+      ansible.builtin.command: command -v npm
+      register: npm_check
+      changed_when: false
+      failed_when: false
+
+    - name: Install global npm packages
+      community.general.npm:
+        name: "{{ item }}"
+        global: true
+        state: present
+      loop: "{{ packages__npm }}"
+      loop_control:
+        label: "{{ item }}"
+      when:
+        - npm_check.rc == 0
+        - "'npm' in ansible_facts.packages or 'nodejs' in ansible_facts.packages"
+        - packages__npm is defined
+        - packages__npm | length > 0
+
+  rescue:
+    - name: Log npm package installation failure
+      ansible.builtin.debug:
+        msg: >
+          Failed to install npm packages.
+          Error details: {{ ansible_failed_result | default('Unknown error') }}
+          Ensure npm and Node.js are installed correctly.
+          Check network connectivity to npmjs.com.

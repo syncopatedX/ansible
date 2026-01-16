@@ -1,4 +1,9 @@
 ---
+# ============================================================================
+# Tools Role Handlers
+# Handlers triggered by tools role tasks
+# ============================================================================
 
 - name: update desktop database
-  command: bash -lc "update-desktop-database"
+  ansible.builtin.command: update-desktop-database
+  changed_when: false

@@ -1,31 +1,47 @@
+---
+# ============================================================================
+# Obsidian Installation
+# Downloads and installs Obsidian AppImage (RedHat family only)
+# ============================================================================
 
-- name: check if obsidian is already installed
-  stat:
+- name: Check if Obsidian is already installed
+  ansible.builtin.stat:
     path: /usr/local/bin/obsidian
-  register: result
+  register: obsidian_check
   ignore_errors: "{{ ansible_check_mode }}"
 
-- block:
-    - name: fetch obsidian
-      get_url:
+- name: Install Obsidian AppImage
+  when:
+    - not obsidian_check.stat.exists
+    - ansible_os_family == "RedHat"
+  block:
+    - name: Download Obsidian AppImage
+      ansible.builtin.get_url:
         url: "{{ obsidian.base_url }}/{{ obsidian.appimage }}"
-        dest: "/tmp"
-        validate_certs: no
+        dest: "/tmp/{{ obsidian.appimage }}"
+        mode: "0755"
+        validate_certs: false
+      register: obsidian_download
 
-    - name: link obsidian to bin
-      shell: |
-        chmod +x {{ obsidian.appimage }}
-        mv {{ obsidian.appimage }} /usr/local/bin/obsidian
-      args:
-        chdir: "/tmp"
-      become: True
+    - name: Install Obsidian binary to /usr/local/bin
+      ansible.builtin.copy:
+        src: "/tmp/{{ obsidian.appimage }}"
+        dest: /usr/local/bin/obsidian
+        mode: "0755"
+        remote_src: true
+      become: true
 
-    - name: install desktop entry for obsidian
-      copy:
+    - name: Install desktop entry for Obsidian
+      ansible.builtin.copy:
         src: usr/local/applications/obsidian.desktop
-        dest: "/usr/local/share/applications/obsidian.desktop"
-        mode: '644'
-      notify: "update desktop database"
+        dest: /usr/local/share/applications/obsidian.desktop
+        mode: "0644"
+      notify: update desktop database
 
-
-  when: not result.stat.exists
+  rescue:
+    - name: Log Obsidian installation failure
+      ansible.builtin.debug:
+        msg: >
+          Failed to install Obsidian.
+          Error details: {{ ansible_failed_result | default('Unknown error') }}
+          Check network connectivity and AppImage URL validity.

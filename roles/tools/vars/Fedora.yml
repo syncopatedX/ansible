@@ -1,6 +1,21 @@
 ---
+# ============================================================================
+# Fedora Package Definitions for Tools Role
+# ============================================================================
 
 packages__tools:
   - "@authoring-and-publishing"
   - deja-dup
   - terminator
+
+# ----------------------------------------------------------------------------
+# Language-Specific Packages
+# ----------------------------------------------------------------------------
+
+# npm packages installed globally
+packages__npm:
+  - "@anthropic-ai/claude-code"
+  - "@google/gemini-cli"
+
+# Ruby gems (none in tools role)
+packages__ruby: []

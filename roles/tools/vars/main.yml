@@ -1,2 +1,10 @@
 ---
-# vars file for tools
+# ============================================================================
+# Tools Role Variables - Common
+# Shared variables across all distributions
+# ============================================================================
+
+# Distribution-specific packages are defined in:
+# - Archlinux.yml
+# - Fedora.yml
+# - RedHat.yml

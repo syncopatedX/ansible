@@ -1,4 +1,18 @@
 ---
+# ============================================================================
+# RedHat/Rocky Package Definitions for Tools Role
+# ============================================================================
 
-packages:
-  tools:
+packages__tools: []
+
+# ----------------------------------------------------------------------------
+# Language-Specific Packages
+# ----------------------------------------------------------------------------
+
+# npm packages installed globally
+packages__npm:
+  - "@anthropic-ai/claude-code"
+  - "@google/gemini-cli"
+
+# Ruby gems (none in tools role)
+packages__ruby: []

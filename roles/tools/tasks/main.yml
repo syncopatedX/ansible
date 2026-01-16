@@ -3,44 +3,18 @@
 
 - name: Load distribution-specific variables
   ansible.builtin.include_vars: "{{ ansible_distribution }}.yml"
+  when: ansible_os_family == "RedHat"
   tags: ["packages"]
 
-
-# - ansible.builtin.import_tasks:
-#     file: code-packager.yml
-#   tags: ["code-packager"]
-
-# - ansible.builtin.import_tasks:
-#     file: whisper-stream.yml
-#   tags: ["whisper-stream"]
-
-# Install essential packages
+# Install essential tool packages (RedHat family only)
 - name: Install tools packages
   tags: ["packages", "packages__tools"]
   block:
-    - name: Install tools packages on Arch Linux
-      community.general.pacman:
-        name: "{{ packages__tools }}"
-        state: present
-      when:
-        - ansible_distribution == "Archlinux"
-        - packages__tools is defined
-
-    - name: Install tools packages on Rocky Linux/RedHat
+    - name: Install tools packages on RedHat family
       ansible.builtin.dnf:
         name: "{{ packages__tools }}"
         state: present
-      when:
-        - ansible_distribution == "Rocky"
-        - packages__tools is defined
-
-    - name: Install tools packages on Fedora
-      ansible.builtin.dnf:
-        name: "{{ packages__tools }}"
-        state: present
-      when:
-        - ansible_distribution == "Fedora"
-        - packages__tools is defined
+      when: packages__tools is defined
 
 - ansible.builtin.import_tasks:
     file: obsidian.yml
@@ -89,16 +63,6 @@
   tags: ["vscode"]
   when: ansible_os_family == "RedHat"
 
-- name: Install Claude-Code
-  ansible.builtin.shell: |
-    npm install -g @anthropic-ai/claude-code
-  register: claude_installation
-  changed_when: claude_installation is changed
-  tags: ["claude-code"]
-
-- name: Install Gemini CLI
-  ansible.builtin.shell: |
-    npm install -g @google/gemini-cli
-  register: gemini_installation
-  changed_when: gemini_installation is changed
-  tags: ["gemini"]
+- name: Import npm package installation tasks
+  ansible.builtin.import_tasks:
+    file: packages/npm.yml
