@@ -1,21 +1,23 @@
 ---
 galaxy_info:
   author: syncopated-ansible
-  description: Base system setup orchestrating core system configuration
+  description: Base system setup for RedHat family with GRUB bootloader configuration
   license: MIT
   min_ansible_version: "2.9"
 
   platforms:
-    - name: ArchLinux
-      versions:
-        - all
     - name: EL
       versions:
         - "9"
+    - name: Fedora
+      versions:
+        - all
 
   galaxy_tags:
     - system
     - base
-    - orchestration
+    - bootloader
+    - grub
+    - redhat
 
 dependencies: []

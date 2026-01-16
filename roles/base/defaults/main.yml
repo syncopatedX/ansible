@@ -1,27 +1,51 @@
 ---
-# Base role defaults - simplified
+# ============================================================================
+# Base Role Default Variables
+# Default configuration for RedHat family distributions
+# ============================================================================
 
-# User configuration
+# ----------------------------------------------------------------------------
+# User Configuration
+# ----------------------------------------------------------------------------
+
 user:
   name: "{{ lookup('env','USER') }}"
-  ansible.builtin.shell: "/bin/bash"
+  shell: "/bin/bash"
 
-# System configuration
+# ----------------------------------------------------------------------------
+# System Configuration
+# ----------------------------------------------------------------------------
+
 timezone: "America/New_York"
 locale: "en_US.UTF-8"
 keymap: "us"
 
-# General repository configuration
+# ----------------------------------------------------------------------------
+# Repository Configuration
+# ----------------------------------------------------------------------------
+
+# General repository settings
 enable_third_party_repos: true
 network_timeout: 30
 retry_count: 3
 
-# Arch Linux specific repositories
-enable_chaotic_aur: true
-enable_archaudio: true
-
-# RHEL distro specific repositories
+# RHEL-specific repositories
 enable_epel: true
 enable_powertools: true
-
 enable_rpmfusion: true
+
+# ----------------------------------------------------------------------------
+# GRUB Bootloader Configuration
+# ----------------------------------------------------------------------------
+
+bootloader: grub
+
+# Default kernel parameters for quiet boot with performance optimizations
+kernel_parameters_default: "splash threadirqs mitigations=off"
+
+# Additional kernel parameters
+kernel_parameters: "ipv6.disable=1 net.ifnames=0"
+
+# GRUB visual configuration
+grub_background: "/usr/share/backgrounds/syncopated/syncopated016.png"
+grub_enable_os_prober: false

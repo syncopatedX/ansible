@@ -317,3 +317,28 @@ dnf_config:
   max_parallel_downloads: "10"
   defaultyes: "False"
   clean_requirements_on_remove: "True"
+
+# ----------------------------------------------------------------------------
+# Language-Specific Packages
+# ----------------------------------------------------------------------------
+
+# Python packages installed via pip3
+packages__python:
+  - trafilatura
+  - edge-tts
+  - ueberzug
+
+# Rust packages compiled from crates.io
+packages__cargo:
+  - bottom
+  - du-dust
+  - eza
+  - gping
+  - ripgrep_all
+  - sd
+
+# npm packages (none in base role)
+packages__npm: []
+
+# Ruby gems (none in base role)
+packages__ruby: []

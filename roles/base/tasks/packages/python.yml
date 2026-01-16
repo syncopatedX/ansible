@@ -1,0 +1,40 @@
+---
+# ============================================================================
+# Python Package Installation (pip3)
+# Installs Python packages via pip3 as user (not system-wide)
+# ============================================================================
+
+- name: Install Python/pip packages
+  become: false
+  vars:
+    extended_path:
+      - "{{ user.home }}/.cargo/bin"
+      - "{{ user.home }}/.local/bin"
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ extended_path | join(':') }}"
+  tags: ["python", "packages"]
+  block:
+    - name: Check if pip3 is available
+      ansible.builtin.command: command -v pip3
+      register: pip3_check
+      changed_when: false
+      failed_when: false
+
+    - name: Install Python packages with pip3
+      ansible.builtin.pip:
+        name: "{{ packages__python }}"
+        state: present
+        executable: pip3
+        extra_args: --user
+      when:
+        - pip3_check.rc == 0
+        - packages__python is defined
+        - packages__python | length > 0
+
+  rescue:
+    - name: Log Python package installation failure
+      ansible.builtin.debug:
+        msg: >
+          Failed to install Python packages.
+          Error details: {{ ansible_failed_result | default('Unknown error') }}
+          Ensure pip3 is installed and accessible in PATH.

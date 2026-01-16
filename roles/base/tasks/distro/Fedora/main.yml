@@ -1,36 +1,45 @@
 ---
-- name: Install python3-libdnf5 and fedora-workstation-repositories
+# ============================================================================
+# Fedora Repository and DNF Configuration
+# Sets up third-party repositories and optimizes DNF performance
+# ============================================================================
+
+- name: Install repository management prerequisites
   ansible.builtin.dnf:
-    name: "{{ item  }}"
+    name: "{{ item }}"
     state: present
-  with_items:
+  loop:
     - python3-libdnf5
     - fedora-workstation-repositories
   tags: ["packages", "packages__repos"]
 
-# Repository Installation Block
-- name: Repository Setup
+# ----------------------------------------------------------------------------
+# Repository Configuration
+# ----------------------------------------------------------------------------
+
+- name: Configure third-party repositories
   block:
     - name: Install RPM Fusion Free repository
       ansible.builtin.dnf:
         name: "https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_major_version }}.noarch.rpm"
         state: present
-        disable_gpg_check: yes
+        disable_gpg_check: true
       tags: ["rpmfusion"]
 
     - name: Install RPM Fusion Non-Free repository
       ansible.builtin.dnf:
         name: "https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_major_version }}.noarch.rpm"
         state: present
-        disable_gpg_check: yes
+        disable_gpg_check: true
       tags: ["rpmfusion"]
 
     - name: Enable Google Chrome repository
       ansible.builtin.command: dnf config-manager setopt google-chrome.enabled=1
+      changed_when: false
       tags: ["google_chrome"]
 
   rescue:
-    - name: Repository Setup Failed
+    - name: Log repository setup failure
       ansible.builtin.debug:
         msg: >
           Failed to set up repositories.
@@ -38,45 +47,42 @@
           This might be due to network connectivity issues or repository availability.
       tags: ["repo_setup"]
 
-    - name: Set repository setup status
+    - name: Mark repository setup as failed
       ansible.builtin.set_fact:
         repository_setup_failed: true
       tags: ["repo_setup"]
 
   tags: ["repositories"]
 
-# DNF Configuration Block
-- name: DNF Configuration
+# ----------------------------------------------------------------------------
+# DNF Performance Optimization
+# ----------------------------------------------------------------------------
+
+- name: Optimize DNF configuration
   block:
     - name: Configure DNF for better performance
       ansible.builtin.lineinfile:
         path: /etc/dnf/dnf.conf
         regexp: "{{ item.regexp }}"
         line: "{{ item.line }}"
-        backup: yes
+        backup: true
       loop:
-        - { regexp: "^fastestmirror=", line: "fastestmirror=1" }
-        - {
-            regexp: "^max_parallel_downloads=",
-            line: "max_parallel_downloads=10",
-          }
-        - {
-            regexp: "^clean_requirements_on_remove=",
-            line: "clean_requirements_on_remove=True",
-          }
+        - regexp: "^fastestmirror="
+          line: "fastestmirror=1"
+        - regexp: "^max_parallel_downloads="
+          line: "max_parallel_downloads=10"
+        - regexp: "^clean_requirements_on_remove="
+          line: "clean_requirements_on_remove=True"
       tags: ["dnf_config"]
 
     - name: Set repository priorities
       ansible.builtin.shell: |
-        # dnf config-manager setopt "fedora.priority=10"
-        # dnf config-manager setopt "fedora-updates.priority=10"
-        # dnf config-manager setopt "fedora-cisco-openh264.priority=20"
         dnf config-manager setopt "rpmfusion-*.priority=40"
       changed_when: false
       tags: ["repo_priorities"]
 
   rescue:
-    - name: DNF Configuration Failed
+    - name: Log DNF configuration failure
       ansible.builtin.debug:
         msg: >
           Failed to configure DNF settings.
@@ -84,23 +90,26 @@
           DNF may still function with default settings.
       tags: ["dnf_config"]
 
-    - name: Set DNF configuration status
+    - name: Mark DNF configuration as failed
       ansible.builtin.set_fact:
         dnf_config_failed: true
       tags: ["dnf_config"]
 
   tags: ["dnf_configuration"]
 
-# Cache Update Block
-- name: Package Cache Update
+# ----------------------------------------------------------------------------
+# Package Cache Management
+# ----------------------------------------------------------------------------
+
+- name: Update package cache
   block:
-    - name: Update package cache
+    - name: Refresh DNF package cache
       ansible.builtin.dnf:
-        update_cache: yes
+        update_cache: true
       tags: ["cache_update"]
 
   rescue:
-    - name: Cache Update Failed
+    - name: Log cache update failure
       ansible.builtin.debug:
         msg: >
           Failed to update package cache.

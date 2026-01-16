@@ -1,145 +1,80 @@
 ---
-# Base system configuration - refactored to use decomposed roles
+# ============================================================================
+# Base System Configuration
+# Provides foundational system setup for RedHat family distributions
+# ============================================================================
 
-- name: Set timezone
+# ----------------------------------------------------------------------------
+# System Configuration
+# ----------------------------------------------------------------------------
+
+- name: Set system timezone
   ansible.builtin.command: "timedatectl set-timezone {{ timezone }}"
   register: timezone_result
   changed_when: timezone_result.rc == 0
   failed_when: timezone_result.rc != 0
   tags: ["timezone"]
 
-# - name: Set locale
-#   ansible.builtin.copy:
-#     content: "LANG={{ locale }}\n"
-#     dest: /etc/locale.conf
-#     mode: "0644"
-#     owner: root
-#     group: root
-#     backup: true
-#   tags: ["locale"]
-
-# - name: Set keymap
-#   ansible.builtin.copy:
-#     content: "KEYMAP={{ keymap }}\n"
-#     dest: /etc/vconsole.conf
-#     mode: "0644"
-#     owner: root
-#     group: root
-#     backup: true
-#   tags: ["keymap"]
-
 - name: Load distribution-specific variables
   ansible.builtin.include_vars: "{{ ansible_distribution }}.yml"
+  when: ansible_os_family == "RedHat"
   tags: ["packages"]
+
+# ----------------------------------------------------------------------------
+# Repository Configuration
+# ----------------------------------------------------------------------------
 
 - name: Include distribution-specific repository tasks
   ansible.builtin.include_tasks: "distro/{{ ansible_distribution }}/main.yml"
-  when: enable_third_party_repos | default(true)
+  when:
+    - ansible_os_family == "RedHat"
+    - enable_third_party_repos | default(true)
   tags: ["repos"]
 
-# Install essential packages
-- name: Install base packages
+# ----------------------------------------------------------------------------
+# Package Installation
+# ----------------------------------------------------------------------------
+
+- name: Install base system packages
   tags: ["packages", "packages__base"]
   block:
-    - name: Install base packages on Arch Linux
-      community.general.pacman:
-        name: "{{ packages__base }}"
-        state: present
-      when:
-        - ansible_distribution == "Archlinux"
-        - packages__base is defined
-
-    - name: Install base packages on Rocky Linux/RedHat
+    - name: Install base packages on RedHat family
       ansible.builtin.dnf:
         name: "{{ packages__base }}"
         state: present
-      when:
-        - ansible_distribution == "Rocky"
-        - packages__base is defined
+      when: packages__base is defined
 
-    - name: Install base packages on Fedora
-      ansible.builtin.dnf:
-        name: "{{ packages__base }}"
-        state: present
-      when:
-        - ansible_distribution == "Fedora"
-        - packages__base is defined
-
-# Install workstation packages
-- name: Install workstation packages
+- name: Install workstation-specific packages
   tags: ["packages"]
   block:
     - name: Install Google Chrome Stable
       ansible.builtin.dnf:
         name: google-chrome-stable
         state: present
-        update_cache: yes
+        update_cache: true
       when:
         - ansible_distribution == "Fedora"
       tags: ["google_chrome"]
 
-- name: Install Rust packages
-  become: false
-  vars:
-    path:
-      - "{{ user.home }}/.cargo/bin"
-      - "{{ user.home }}/.local/bin"
-  environment:
-    PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path | join(':') }}"
-  tags: ["cargo", "packages"]
-  block:
+# ----------------------------------------------------------------------------
+# Language-Specific Package Installation
+# ----------------------------------------------------------------------------
 
-    - name: Gather package facts
-      ansible.builtin.package_facts:
-        manager: auto
+- name: Import Python package installation tasks
+  ansible.builtin.import_tasks:
+    file: packages/python.yml
 
-    - name: Check if 'cargo' is installed
-      ansible.builtin.debug:
-        msg: "'cargo' is installed"
-      when: "'cargo' in ansible_facts.packages"
+- name: Import Rust/Cargo package installation tasks
+  ansible.builtin.import_tasks:
+    file: packages/rust.yml
 
-    - name: Install Rust packages with locked dependencies
-      community.general.cargo:
-        name: "{{ item }}"
-        locked: true
-      loop:
-        - bottom
-        - du-dust
-        - eza
-        - gping
-        - ripgrep_all
-        - sd
-      loop_control:
-        label: "{{ item }}"
-      when:
-        - "'cargo' in ansible_facts.packages"
+# ----------------------------------------------------------------------------
+# Bootloader Configuration
+# ----------------------------------------------------------------------------
 
-- name: Install Python packages
-  become: false
-  vars:
-    path:
-      - "{{ user.home }}/.cargo/bin"
-      - "{{ user.home }}/.local/bin"
-  environment:
-    PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ path | join(':') }}"
-  tags: ["python", "packages"]
-  block:
-
-    - name: Check if pip3 is available
-      ansible.builtin.command: command -v pip3
-      register: pip3_check
-      changed_when: false
-      failed_when: false
-
-    - name: Install Python packages with pip3
-      pip:
-        name: "{{ item }}"
-        state: present
-        executable: pip3
-      loop:
-        - trafilatura
-        - edge-tts
-        - ueberzug
-      loop_control:
-        label: "{{ item }}"
-      when: pip3_check.rc == 0
+- name: Configure GRUB bootloader
+  ansible.builtin.include_tasks: grub.yml
+  when:
+    - ansible_os_family == "RedHat"
+    - bootloader == "grub"
+  tags: ["grub", "bootloader"]

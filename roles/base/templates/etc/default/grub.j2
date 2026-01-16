@@ -1,0 +1,43 @@
+# GRUB boot loader configuration
+# Managed by Ansible - DO NOT EDIT MANUALLY
+
+# Boot timeout in seconds
+GRUB_TIMEOUT=5
+
+# Save last selected boot entry as default
+GRUB_DEFAULT=saved
+GRUB_SAVEDEFAULT=true
+
+# Distribution name displayed in GRUB menu
+GRUB_DISTRIBUTOR="$(sed 's, release .*$,,g' /etc/system-release)"
+
+# Default kernel parameters (quiet boot options)
+GRUB_CMDLINE_LINUX_DEFAULT="{{ kernel_parameters_default }}"
+
+# Additional kernel parameters with crashkernel for RedHat systems
+GRUB_CMDLINE_LINUX="{{ kernel_parameters }} crashkernel=1G-4G:192M,4G-64G:256M,64G-:512M selinux=0"
+
+# Preload partition modules
+GRUB_PRELOAD_MODULES="part_gpt part_msdos"
+
+# Enable Boot Loader Specification (BLS) configuration
+GRUB_ENABLE_BLSCFG=true
+
+# Boot menu timeout style
+GRUB_TIMEOUT_STYLE=menu
+
+# Use console for input
+GRUB_TERMINAL_INPUT=console
+
+# Graphics mode settings
+GRUB_GFXMODE=auto
+GRUB_GFXPAYLOAD_LINUX=keep
+
+# Disable recovery mode menu entries
+GRUB_DISABLE_RECOVERY=true
+
+# Custom background image (if exists)
+GRUB_BACKGROUND="/usr/share/backgrounds/syncopated/syncopated016.png"
+
+# Disable OS prober for security (set to true to enable multi-boot detection)
+GRUB_DISABLE_OS_PROBER=false

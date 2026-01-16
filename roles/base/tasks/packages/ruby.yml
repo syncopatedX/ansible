@@ -1,0 +1,29 @@
+---
+# ============================================================================
+# Ruby Gem Installation (Placeholder)
+# Currently no Ruby gems installed in base role
+# This file is scaffolded for future use
+# ============================================================================
+
+# Example task structure for future gem installations:
+#
+# - name: Install Ruby gems
+#   become: false
+#   tags: ["ruby", "gems", "packages"]
+#   block:
+#     - name: Check if gem is available
+#       ansible.builtin.command: command -v gem
+#       register: gem_check
+#       changed_when: false
+#       failed_when: false
+#
+#     - name: Install Ruby gems
+#       community.general.gem:
+#         name: "{{ item }}"
+#         state: present
+#         user_install: true
+#       loop: "{{ packages__ruby }}"
+#       when:
+#         - gem_check.rc == 0
+#         - packages__ruby is defined
+#         - packages__ruby | length > 0

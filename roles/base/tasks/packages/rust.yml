@@ -1,0 +1,41 @@
+---
+# ============================================================================
+# Rust/Cargo Package Installation
+# Compiles and installs Rust packages from crates.io
+# Uses locked dependencies for reproducible builds
+# ============================================================================
+
+- name: Install Rust/Cargo packages
+  become: false
+  vars:
+    extended_path:
+      - "{{ user.home }}/.cargo/bin"
+      - "{{ user.home }}/.local/bin"
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/sbin:/bin:{{ extended_path | join(':') }}"
+  tags: ["cargo", "packages"]
+  block:
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Install Rust packages with locked dependencies
+      community.general.cargo:
+        name: "{{ item }}"
+        locked: true
+      loop: "{{ packages__cargo }}"
+      loop_control:
+        label: "{{ item }}"
+      when:
+        - "'cargo' in ansible_facts.packages"
+        - packages__cargo is defined
+        - packages__cargo | length > 0
+
+  rescue:
+    - name: Log Rust package installation failure
+      ansible.builtin.debug:
+        msg: >
+          Failed to install Rust packages.
+          Error details: {{ ansible_failed_result | default('Unknown error') }}
+          Ensure cargo is installed and compilation dependencies are available.
+          Some packages may require system libraries (check package documentation).

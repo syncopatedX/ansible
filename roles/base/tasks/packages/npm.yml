@@ -1,0 +1,29 @@
+---
+# ============================================================================
+# npm Package Installation (Placeholder)
+# Currently no npm packages installed in base role
+# This file is scaffolded for future use
+# ============================================================================
+
+# Example task structure for future npm installations:
+#
+# - name: Install npm packages globally
+#   become: false
+#   tags: ["npm", "packages"]
+#   block:
+#     - name: Check if npm is available
+#       ansible.builtin.command: command -v npm
+#       register: npm_check
+#       changed_when: false
+#       failed_when: false
+#
+#     - name: Install global npm packages
+#       community.general.npm:
+#         name: "{{ item }}"
+#         global: true
+#         state: present
+#       loop: "{{ packages__npm }}"
+#       when:
+#         - npm_check.rc == 0
+#         - packages__npm is defined
+#         - packages__npm | length > 0

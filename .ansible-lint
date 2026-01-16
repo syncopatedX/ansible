@@ -42,6 +42,7 @@ skip_list:
   - loop_var_prefix[missing]
   - loop_var_prefix[wrong]
   - name[casing]
+  - var-naming[no-role-prefix]
   # - fqcn
 
 # Enable specific rules

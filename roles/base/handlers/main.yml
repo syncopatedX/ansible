@@ -1,14 +1,7 @@
 ---
-# handlers file for packages
+# handlers file for base role - RedHat family
 
 - name: Update cache
-  community.general.pacman:
-    update_cache: true
-    upgrade: false
-  when: ansible_os_family == "Archlinux"
-  listen: "Update cache"
-
-- name: Update dnf cache
   ansible.builtin.dnf:
     update_cache: true
   when: ansible_os_family == "RedHat"
@@ -16,8 +9,13 @@
 
 - name: Generate locales
   ansible.builtin.command: locale-gen
-  listen: "Generate locales" # Explicitly listen for clarity
+  listen: "Generate locales"
 
 - name: Update hwclock
   ansible.builtin.command: hwclock --systohc
   listen: "Update hwclock"
+
+- name: Rebuild grub
+  ansible.builtin.command: grub2-mkconfig -o /boot/grub2/grub.cfg
+  when: bootloader == "grub"
+  listen: "Rebuild grub"

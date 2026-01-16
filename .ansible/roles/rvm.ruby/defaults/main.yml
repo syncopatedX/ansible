@@ -4,6 +4,7 @@
 # The last ruby listed will be set as the default ruby
 rvm1_rubies:
   - "ruby-3.2.0"
+  - "ruby-3.3.8"
   - "ruby-3.4.4"
 
 # Install bundler

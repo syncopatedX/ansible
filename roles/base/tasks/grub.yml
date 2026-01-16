@@ -1,0 +1,23 @@
+---
+# ============================================================================
+# GRUB Bootloader Configuration
+# Configures GRUB settings and kernel parameters for RedHat family
+# ============================================================================
+
+- name: Configure GRUB bootloader
+  become: true
+  block:
+    - name: Template GRUB configuration file
+      ansible.builtin.template:
+        src: etc/default/grub.j2
+        dest: /etc/default/grub
+        owner: root
+        group: root
+        mode: "0644"
+        backup: true
+      register: grub_config
+
+    - name: Rebuild GRUB configuration
+      ansible.builtin.command: grub2-mkconfig -o /boot/grub2/grub.cfg
+      when: grub_config.changed
+      changed_when: true
